@@ -22,7 +22,7 @@
                 <th>N°</th>
                 <th>Cliente</th>
                 <th>Fecha</th>
-                <th>Total</th>
+                <th class="hide-cell">Total</th>
                 <th class="hide-cell">Cobrado</th>
                 <th class="hide-cell">Por cobrar</th>
                 <th class="hide-cell">-Bono</th>
@@ -39,7 +39,7 @@
                     <td>FT-00<?= $element->factura_venta_id ?></td>
                     <td><?= ucwords($element->nombre) ?> <?= ucwords($element->apellidos) ?></td>
                     <td><?= $element->fecha_factura ?></td>
-                    <td class="text-primary"><?= number_format($element->total, 2) ?></td>
+                    <td class="text-primary hide-cell"><?= number_format($element->total, 2) ?></td>
                     <td class="text-success hide-cell"><?= number_format($element->recibido, 2) ?></td>
                     <td class="text-danger hide-cell"><?= number_format($element->pendiente, 2) ?></td>
                     <td class="text-warning hide-cell"><?= number_format($element->bono, 2) ?></td>

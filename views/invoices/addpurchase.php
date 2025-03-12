@@ -26,7 +26,7 @@
             <th>Descripción</th>
             <th>Cant</th>
             <th>Precio</th>
-            <th>Impuesto</th>
+            <th class="hide-cell">Impuesto</th>
             <th>Descuento</th>
             <th>Importe</th>
             <th></th>
@@ -46,7 +46,7 @@
 
                     <td><?= $element->cantidad ?></td>
                     <td><?= number_format($element->precio, 2) ?></td>
-                    <td><?= number_format($element->cantidad * $element->impuesto, 2) ?> </td>
+                    <td class="hide-cell"><?= number_format($element->cantidad * $element->impuesto, 2) ?> </td>
                     <td><?= number_format($element->descuento, 2) ?></td>
                     <td><?= number_format(($element->cantidad * $element->precio) + ($element->cantidad * $element->impuesto) - $element->descuento, 2) ?>
                     </td>

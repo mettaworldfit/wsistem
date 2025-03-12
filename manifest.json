@@ -7,8 +7,8 @@
         "window-controls-overlay"
     ],
     "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#000000",
+    "background_color": "#0c0832",
+    "theme_color": "#0c0832",
     "icons": [
         {
             "src": "public/imagen/icons/icon-48x48.png",

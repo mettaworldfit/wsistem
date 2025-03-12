@@ -24,10 +24,10 @@
             <tr>
                 <th>Código</th>
                 <th>Nombre</th>
-                <th>Marca</th>
-                <th>Categoría</th>
+                <th class="hide-cell">Marca</th>
+                <th class="hide-cell">Categoría</th>
                 <th>Cantidad</th>
-                <th>P/Compra</th>
+                <th class="hide-cell">P/Compra</th>
                 <th>P/Unitario</th>
                 <th>Acciones</th>
             </tr>
@@ -40,8 +40,8 @@
                 <tr>
                     <td><?= $element->cod_pieza ?></td>
                     <td><?= ucwords($element->nombre_pieza) ?> </td>
-                    <td><?= ucwords($element->nombre_marca) ?> </td>
-                    <td><?= ucwords($element->nombre_categoria) ?> </td>
+                    <td class="hide-cell"><?= ucwords($element->nombre_marca) ?> </td>
+                    <td class="hide-cell"><?= ucwords($element->nombre_categoria) ?> </td>
 
                     <?php if($element->cantidad > $element->cantidad_min){?>
                         <td class="text-success"><?= $element->cantidad ?></td>
@@ -52,7 +52,7 @@
                         <td class="text-warning"><?= $element->cantidad ?> </td>
                     <?php }; ?>
 
-                    <td><?= number_format($element->precio_costo,2) ?></td>
+                    <td class="hide-cell"><?= number_format($element->precio_costo,2) ?></td>
                     <td><?= number_format($element->precio_unitario,2) ?></td>
                     <td>
 

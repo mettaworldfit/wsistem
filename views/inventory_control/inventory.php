@@ -15,7 +15,7 @@
                 <th>Código</th>
                 <th>ítem</th>
                 <th>Cantidad</th>
-                <th>Estado</th>
+                <th class="hide-cell">Estado</th>
                 <th>Costo promedio</th>
                 <th>Total</th>
             </tr>
@@ -34,7 +34,7 @@
                     <?php } else if($element->cantidad <= $element->cantidad_min) { ?>
                         <td class="text-warning"><?= $element->cantidad ?> </td>
                     <?php }; ?>
-                    <td ><?= $element->nombre_estado ?></td>
+                    <td class="hide-cell"><?= $element->nombre_estado ?></td>
                     <td><?= number_format($element->precio_costo, 2) ?></td>
                     <td><?= number_format($element->cantidad * $element->precio_costo, 2) ?> </td>
                 </tr>

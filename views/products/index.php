@@ -26,7 +26,7 @@
                 <th class="hide-cell">Marca</th>
                 <th class="hide-cell">Almacen</th>
                 <th>Cantidad</th>
-                <th>P/Compra</th>
+                <th class="hide-cell">P/Compra</th>
                 <th>P/Unitario</th>
                 <th>Acciones</th>
             </tr>
@@ -34,7 +34,6 @@
 
         <tbody>
             <?php  while ($element = $products->fetch_object()) : ?>
-                <?php $rows = Help::verify_parent_product($element->idproducto); while ($parent = $rows->fetch_object()) { ?>
 
                 <tr>
                     <td class="hide-cell"><?= $element->cod_producto ?></td>
@@ -51,7 +50,7 @@
                         <td class="text-warning"><?= $element->cantidad ?> </td>
                     <?php }; ?>
 
-                    <td><?= number_format($element->precio_costo,2) ?></td>
+                    <td class="hide-cell"><?= number_format($element->precio_costo,2) ?></td>
                     <td><?= number_format($element->precio_unitario,2) ?></td>
                     <td>
 
@@ -69,13 +68,13 @@
                               <i class="fas fa-lightbulb"></i>
                         </span>
                         
-                        <span <?php if ($parent->parent_row == 0 && $_SESSION['identity']->nombre_rol == 'administrador') { ?> class="action-delete" onclick="deleteProduct('<?= $element->idproducto ?>')" <?php } else { ?> class="action-delete action-disable" <?php } ?> title="Eliminar" >
+                        <span <?php if ($_SESSION['identity']->nombre_rol == 'administrador') { ?> class="action-delete" onclick="deleteProduct('<?= $element->idproducto ?>')" <?php } else { ?> class="action-delete action-disable" <?php } ?> title="Eliminar" >
                         <i class="fas fa-times"></i>
                         </span>
                       
                     </td>
                 </tr>
-            <?php } endwhile; ?>
+            <?php endwhile; ?>
         </tbody>
     </table>
 

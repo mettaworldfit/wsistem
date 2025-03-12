@@ -9,7 +9,9 @@ class Database
         // Configuración de las bases de datos
         $dbConfig = [
             'admin' => ['host' => 'localhost', 'dbname' => 'proyecto', 'user' => 'root', 'pass' => ''],
-            'admin2' => ['host' => 'localhost', 'dbname' => 'proyecto2', 'user' => 'root', 'pass' => ''],
+            'master' => ['host' => 'localhost', 'dbname' => 'master_movil', 'user' => 'Wilmin', 'pass' => 'Mett@1106'], // Eli saul
+           // 'admin' => ['host' => 'localhost', 'dbname' => 'chino_com_mao', 'user' => 'Wilmin', 'pass' => 'Mett@1106'],
+           
             // Agrega más clientes según sea necesario
         ];
 

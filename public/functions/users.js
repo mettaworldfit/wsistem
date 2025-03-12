@@ -1,13 +1,11 @@
 
 let SITE_URL;
 
-$(function(){
-    if (window.location.hostname !== "localhost") {
-        return SITE_URL = window.location.protocol + '//' + window.location.host + '/';
-    } else {
-        return SITE_URL = window.location.protocol + '//' + window.location.host + '/' + 'proyecto/';
-    }
-})
+if (window.location.hostname !== "localhost") {
+    SITE_URL = window.location.protocol + '//' + window.location.host + '/';
+} else {
+    SITE_URL = window.location.protocol + '//' + window.location.host + '/' + 'proyecto/';
+}
 
 const PRINTER_SERVER = "http://localhost:81/tickets/";
 
@@ -48,7 +46,7 @@ $(document).ready(function () {
                 type: "post",
                 url: SITE_URL + "ajax/users.php",
                 data: {
-                    user: $('#userName').val(),
+                    user: $('#userName').val().toLowerCase(),
                     password: $('#userPassword').val(),
                     action: 'login'
                 },
