@@ -1176,14 +1176,15 @@ section.content-bar {
 }
 
 @media (min-width:1340px) {
+
     .submenu {
-        font-size: 13px
+        font-size: 13px;
+        font-weight: bold;
     }
 }
 
 .submenu a {
     font-family: "Nunito-Regular", sans-serif;
-    font-weight: bold;
     display: block;
     width: 89%;
     text-decoration: none;

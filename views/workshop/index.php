@@ -48,99 +48,90 @@
         </thead>
 
         <tbody>
-            <?php while ($element = $workshops->fetch_object()):
-                $parents = Help::verify_parent_invoice_rp($element->facturaRP_id);
-                while ($parent = $parents->fetch_object()) {
-                    $invoiced = Help::orden_rp_is_invoiced($element->id);
-                    while ($inv = $invoiced->fetch_object()) {
-                        ?>
+            <?php while ($element = $workshops->fetch_object()): ?>
 
-                        <tr>
-                            <td>
-                                <span>
-                                    <a href="#"
-                                        class="<?php if ($element->facturaRP_id > 0) { ?> text-secondary <?php } else { ?> text-danger <?php } ?>">OR-00<?= $element->id ?></a>
-                                    <!-- Toggle -->
-                                    <span id="toggle" class="toggle-right toggle-md">
-                                        No. Orden: OR-00<?= $element->id ?> <br>
-                                        No. Factura: <?php
+                <tr>
+                    <td>
+                        <span>
+                            <a href="#"
+                                class="<?php if ($element->facturaRP_id > 0) { ?> text-secondary <?php } else { ?> text-danger <?php } ?>">OR-00<?= $element->id ?></a>
+                            <!-- Toggle -->
+                            <span id="toggle" class="toggle-right toggle-md">
+                                No. Orden: OR-00<?= $element->id ?> <br>
+                                No. Factura: <?php
 
-                                        if ($element->facturaRP_id > 0) {
+                                if ($element->facturaRP_id > 0) {
 
-                                            echo "<a class='text-danger' href='" . base_url . "invoices/repair_edit&o=" . $element->id . "&f=" . $element->facturaRP_id . "' >";
-                                            echo "RP-00";
-                                            echo $element->facturaRP_id;
-                                            echo "</a>";
-                                        } else {
+                                    echo "<a class='text-danger' href='" . base_url . "invoices/repair_edit&o=" . $element->id . "&f=" . $element->facturaRP_id . "' >";
+                                    echo "RP-00";
+                                    echo $element->facturaRP_id;
+                                    echo "</a>";
+                                } else {
 
-                                            echo "<a class='text-danger' href='#' >";
-                                            echo "No facturado";
-                                            echo "</a>";
-                                        } ?>
-                                    </span>
+                                    echo "<a class='text-danger' href='#' >";
+                                    echo "No facturado";
+                                    echo "</a>";
+                                } ?>
+                            </span>
 
-                                </span>
+                        </span>
 
-                            </td>
+                    </td>
 
-                            <td><?= ucwords($element->nombre_cliente) ?>             <?= ucwords($element->apellidos_cliente) ?></td>
-                            <td>
-                                <span>
-                                    <a href="#" class="text-secondary"><?= ucwords($element->nombre_marca) ?>
-                                        <?= ucwords($element->nombre_modelo) ?>             <?= $element->modelo ?></a>
+                    <td><?= ucwords($element->nombre_cliente) ?>     <?= ucwords($element->apellidos_cliente) ?></td>
+                    <td>
+                        <span>
+                            <a href="#" class="text-secondary"><?= ucwords($element->nombre_marca) ?>
+                                <?= ucwords($element->nombre_modelo) ?>     <?= $element->modelo ?></a>
 
-                                    <span id="toggle" class="toggle-right toggle-xl">
-                                        Marca: <?= $element->nombre_marca ?> <br>
-                                        Modelo: <?= $element->modelo ?> <br>
-                                        IMEI: <?= $element->imei ?> <br>
-                                        Serie: <?= $element->serie ?> <br>
+                            <span id="toggle" class="toggle-right toggle-xl">
+                                Marca: <?= $element->nombre_marca ?> <br>
+                                Modelo: <?= $element->modelo ?> <br>
+                                IMEI: <?= $element->imei ?> <br>
+                                Serie: <?= $element->serie ?> <br>
 
 
-                                    </span>
-                                </span>
+                            </span>
+                        </span>
 
-                            </td>
-                            <td class="text-success hide-cell"><?= $element->fecha_entrada ?></td>
-                            <td class="text-danger hide-cell"><?= $element->fecha_salida ?></td>
-                            <td class="hide-cell"><?= Help::SHOW_CONDITONS_ORDER($element->id) ?></td>
+                    </td>
+                    <td class="text-success hide-cell"><?= $element->fecha_entrada ?></td>
+                    <td class="text-danger hide-cell"><?= $element->fecha_salida ?></td>
+                    <td class="hide-cell"><?= Help::SHOW_CONDITONS_ORDER($element->id) ?></td>
 
-                            <td>
-                                <select class="form-custom <?= $element->nombre_estado ?>" name="" id="status_rp"
-                                    onchange="elegirEstado(this);">
-                                    <option workshop_id="<?= $element->id ?>" value="<?= $element->estado_id ?>" selected>
-                                        <?= $element->nombre_estado ?>
-                                    </option>
-                                    <option class="Pendiente" workshop_id="<?= $element->id ?>" value="6">Pendiente</option>
-                                    <option class="En Proceso" workshop_id="<?= $element->id ?>" value="8">En Proceso</option>
-                                    <option class="Entregado" workshop_id="<?= $element->id ?>" value="7">Entregado</option>
-                                    <option class="No se pudo" workshop_id="<?= $element->id ?>" value="10">No se pudo</option>
-                                    <option class="Listo" workshop_id="<?= $element->id ?>" value="9">Listo</option>
-                                </select>
-                            </td>
+                    <td>
+                        <select class="form-custom <?= $element->nombre_estado ?>" name="" id="status_rp"
+                            onchange="elegirEstado(this);">
+                            <option workshop_id="<?= $element->id ?>" value="<?= $element->estado_id ?>" selected>
+                                <?= $element->nombre_estado ?>
+                            </option>
+                            <option class="Pendiente" workshop_id="<?= $element->id ?>" value="6">Pendiente</option>
+                            <option class="En Proceso" workshop_id="<?= $element->id ?>" value="8">En Proceso</option>
+                            <option class="Entregado" workshop_id="<?= $element->id ?>" value="7">Entregado</option>
+                            <option class="No se pudo" workshop_id="<?= $element->id ?>" value="10">No se pudo</option>
+                            <option class="Listo" workshop_id="<?= $element->id ?>" value="9">Listo</option>
+                        </select>
+                    </td>
 
-                            <td>
+                    <td>
 
-                                <a href="<?= base_url ?>contacts/edit_customer&id=<?= $element->cliente_id ?>"
-                                    title="Información del cliente" class="action-view"><i class="fas fa-user"></i></a>
+                        <a href="<?= base_url ?>contacts/edit_customer&id=<?= $element->cliente_id ?>"
+                            title="Información del cliente" class="action-view"><i class="fas fa-user"></i></a>
 
-                                <?php if ($element->facturaRP_id > 0) { ?>
-                                    <a href="<?= base_url ?>invoices/repair_edit&o=<?= $element->id ?>&f=<?= $element->facturaRP_id ?>"
-                                        title="Ver factura" class="action-paid"><i class="fas fa-eye"></i></a>
-                                <?php } else { ?>
-                                    <a href="<?= base_url ?>invoices/addrepair&id=<?= $element->id ?>" title="Agregar factura"
-                                        class="action-edit"><i class="fas fa-shopping-cart"></i></a>
-                                <?php } ?>
 
-                                <span <?php if ($parent->parent_row == 0) { ?> class="action-delete"
-                                        onclick="deleteOrden('<?= $element->id ?>')" <?php } else { ?>
-                                        class="action-delete action-disable" <?php } ?> title="Eliminar">
-                                    <i class="fas fa-times"></i>
-                                </span>
-                            </td>
-                        </tr>
-                    <?php }
-                }
-            endwhile; ?>
+                        <a href="<?= base_url ?>invoices/repair_edit&o=<?= $element->id ?>&f=<?= $element->facturaRP_id ?>"
+                            title="Ver factura" class="action-paid"><i class="fas fa-eye"></i></a>
+
+                        <a href="<?= base_url ?>invoices/addrepair&id=<?= $element->id ?>" title="Agregar factura"
+                            class="action-edit"><i class="fas fa-shopping-cart"></i></a>
+
+                        <span class="action-delete" onclick="deleteOrden('<?= $element->id ?>')"
+                            class="action-delete action-disable" title="Eliminar">
+                            <i class="fas fa-times"></i>
+                        </span>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
         </tbody>
 
 

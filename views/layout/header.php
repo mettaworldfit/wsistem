@@ -6,7 +6,8 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=0.9, shrink-to-fit=no">
   <meta name="title" content="Sistema de Control de Inventario">
-  <meta name="description" content="Obtenga el control de su negocio desde cualquier lugar, vea estadísticas de ventas, stock, etc, “WS SYSTEM” es un Sistema de Ventas Web que te ayudará a obtener todos estos beneficios, desarrollado para tener el control total de un negocio en forma ordenada, sencilla y efectiva, posee los módulos necesarios con diferentes funciones que te permitirá administrar tu negocio." />
+  <meta name="description"
+    content="Obtenga el control de su negocio desde cualquier lugar, vea estadísticas de ventas, stock, etc, “WS SYSTEM” es un Sistema de Ventas Web que te ayudará a obtener todos estos beneficios, desarrollado para tener el control total de un negocio en forma ordenada, sencilla y efectiva, posee los módulos necesarios con diferentes funciones que te permitirá administrar tu negocio." />
   <meta name="author" content="codevrd">
   <meta http-equiv="cache-control" content="no-cache">
   <meta http-equiv="expires" content="86400">
@@ -21,31 +22,30 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <!-- <meta name="msapplication-starturl" content="/"> -->
 
+  <link rel="shortcut icon" href="<?= base_url ?>public/imagen/sistem/icon.ico" type="image/x-icon">
+
+  <script src="<?= base_url ?>public/jquery/jquery.js"></script>
+  <script src="<?= base_url ?>public/scripts.js"></script>
+
+
   <link rel="manifest" href="<?= base_url ?>manifest.json">
   <script src="<?= base_url ?>sw.js" type="text/javascript"></script>
 
   <title>wsistems</title>
 
 
-  <link rel="shortcut icon" href="<?= base_url ?>public/imagen/sistem/icon.ico" type="image/x-icon">
-
-  <script src="<?= base_url ?>public/jquery/jquery.js"></script>
-  <script src="<?= base_url ?>public/scripts.js"></script>
-
-  
-
   <?php if (isset($_SESSION['admin']) || isset($_SESSION['identity'])) { ?>
 
-  <link rel="stylesheet" href="<?= base_url ?>public/style.css" type="text/css">
+    <link rel="stylesheet" href="<?= base_url ?>public/style.css" type="text/css">
 
   <?php } else { ?>
 
     <link rel="stylesheet" href="<?= base_url ?>public/login.css" type="text/css">
 
-     <!-- Jquery Vegas -->
-  <link rel="stylesheet" href="<?= base_url ?>public/jquery-vegas/vegas.min.css" type="text/css">
-  <script src="<?= base_url ?>public/jquery-vegas/vegas.min.js" type="text/javascript"></script>
-  <script src="<?= base_url ?>public/jquery-vegas/main.js" type="text/javascript"></script>
+    <!-- Jquery Vegas -->
+    <link rel="stylesheet" href="<?= base_url ?>public/jquery-vegas/vegas.min.css" type="text/css">
+    <script src="<?= base_url ?>public/jquery-vegas/vegas.min.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/jquery-vegas/main.js" type="text/javascript"></script>
 
   <?php } ?>
 
@@ -53,7 +53,7 @@
 
   <script src="<?= base_url ?>public/functions/users.js" type="text/javascript"></script>
   <?php require_once "lazy_load.php"; ?>
-  
+
 
   <!-- Material toast -->
   <link rel="stylesheet" href="<?= base_url ?>public/mdtoast/mdtoast.min.css" type="text/css">
@@ -96,7 +96,7 @@
 
 
     <section class="contenido">
-  
+
       <!-- Manú -->
 
       <header class="admin-bar clearfix">

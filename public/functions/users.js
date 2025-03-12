@@ -1,12 +1,3 @@
-
-let SITE_URL;
-
-if (window.location.hostname !== "localhost") {
-    SITE_URL = window.location.protocol + '//' + window.location.host + '/';
-} else {
-    SITE_URL = window.location.protocol + '//' + window.location.host + '/' + 'proyecto/';
-}
-
 const PRINTER_SERVER = "http://localhost:81/tickets/";
 
 function mysql_row_affected () {
