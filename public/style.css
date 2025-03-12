@@ -711,7 +711,7 @@ section.content-bar {
     justify-content: space-between
 }
 
-@media (min-width:1028px) {
+@media (min-width:970px) {
     section.content-bar {
         width: 83%
     }
