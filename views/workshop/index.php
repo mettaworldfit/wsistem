@@ -118,9 +118,9 @@
                         <a href="<?= base_url ?>contacts/edit_customer&id=<?= $element->cliente_id ?>"
                             title="Información del cliente" class="action-view"><i class="fas fa-user"></i></a>
 
-
+<!-- 
                         <a href="<?= base_url ?>invoices/repair_edit&o=<?= $element->id ?>&f=<?= $element->facturaRP_id ?>"
-                            title="Ver factura" class="action-paid"><i class="fas fa-eye"></i></a>
+                            title="Ver factura" class="action-paid"><i class="fas fa-eye"></i></a> -->
 
                         <a href="<?= base_url ?>invoices/addrepair&id=<?= $element->id ?>" title="Agregar factura"
                             class="action-edit"><i class="fas fa-shopping-cart"></i></a>

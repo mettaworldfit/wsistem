@@ -31,7 +31,7 @@
   <link rel="manifest" href="<?= base_url ?>manifest.json">
   <script src="<?= base_url ?>sw.js" type="text/javascript"></script>
 
-  <title>wsistems</title>
+  <title><?php echo isset($_SESSION['infoClient']) ? $_SESSION['infoClient']['company'] : "app.wsistems.com";  ?></title>
 
 
   <?php if (isset($_SESSION['admin']) || isset($_SESSION['identity'])) { ?>

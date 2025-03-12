@@ -9,7 +9,7 @@
 
 } elseif (
     str_contains($_SERVER["REQUEST_URI"], "invoices/addpurchase") ||
-    str_contains($_SERVER["REQUEST_URI"], "invoices")
+    str_contains($_SERVER["REQUEST_URI"], "invoices/edit")
 ) {
 
     ?>
@@ -20,13 +20,24 @@
     <script src="<?= base_url ?>public/functions/contacts.js" type="text/javascript"></script>
     <?php
 
+} elseif (str_contains($_SERVER["REQUEST_URI"], "invoices/repair_edit")) {
+
+    ?>
+    <script src="<?= base_url ?>public/functions/invoices.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/pieces.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/services.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/contacts.js" type="text/javascript"></script>
+    <?php
+
 } elseif (
     str_contains($_SERVER["REQUEST_URI"], "invoices/index") ||
+    str_contains($_SERVER["REQUEST_URI"], "invoices/addrepair") ||
     str_contains($_SERVER["REQUEST_URI"], "invoices/index_repair")
 ) {
 
     ?>
     <script src="<?= base_url ?>public/functions/invoices.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/repair.js" type="text/javascript"></script>
     <?php
 
 } elseif (

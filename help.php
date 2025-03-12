@@ -825,27 +825,7 @@ class Help
       $db = Database::connect();
       return $db->query($query);
    }
-
-   // Función para verificar los parent rows de una orden de reparación
-
-   public static function verify_parent_invoice_rp($id)
-   {
-      $query = "SELECT count(facturarp_id) AS 'parent_row' FROM facturasRP WHERE facturarp_id = '$id'";
-
-      $db = Database::connect();
-      return $db->query($query);
-   }
-
-   // Función para verificar si la orden de reparación fue facturada
-
-   public static function orden_rp_is_invoiced($id)
-   {
-      $query = "SELECT count(facturarp_id) AS 'invoiced' FROM facturasRP WHERE orden_rp_id = '$id'";
-
-      $db = Database::connect();
-      return $db->query($query);
-   }
-
+   
    // Verificar si la orden ya fue facturada
 
    public static function IS_EXISTS_INVOICERP($id)

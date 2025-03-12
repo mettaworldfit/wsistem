@@ -8,9 +8,29 @@ class Database
 
         // Configuración de las bases de datos
         $dbConfig = [
-            'admin' => ['host' => 'localhost', 'dbname' => 'proyecto', 'user' => 'root', 'pass' => ''],
-            'master' => ['host' => 'localhost', 'dbname' => 'master_movil', 'user' => 'Wilmin', 'pass' => 'Mett@1106'], // Eli saul
-           // 'admin' => ['host' => 'localhost', 'dbname' => 'chino_com_mao', 'user' => 'Wilmin', 'pass' => 'Mett@1106'],
+            'admin' => [
+                'host' => 'localhost', 
+                'dbname' => 'proyecto', 
+                'user' => 'root', 
+                'pass' => '', 
+                'company' => 'wsistems.com', 
+                'pdf-img' => ''],
+
+            'master' => [
+                'host' => 'localhost', 
+                'dbname' => 'master_movil', 
+                'user' => 'Wilmin', 
+                'pass' => 'Mett@1106',
+                'company' => 'Master Movil', 
+                'pdf-img' => ''],
+
+        //    'admin' => [
+        //     'host' => 'localhost', 
+        //     'dbname' => 'chino_com_mao', 
+        //     'user' => 'Wilmin', 
+        //     'pass' => 'Mett@1106',
+        //     'company' => 'Chino comunicaciones', 
+        //     'pdf-img' => ''],
            
             // Agrega más clientes según sea necesario
         ];
@@ -31,7 +51,13 @@ class Database
                 exit();
             }
 
-            $_SESSION['dbname'] = $client['dbname']; // Crear sesion de la db del usuario
+            // Crear sesion de los datos del negocio
+            $_SESSION['infoClient'] = [
+                "dbname" => $client['dbname'],
+                "company" => $client['company'],
+                "pdf-img" => $client['pdf-img']
+
+            ]; 
 
             return $db;
 
@@ -51,7 +77,7 @@ class Database
         $SERVER_NAME = "localhost";
         $USER_NAME = ($_SERVER['SERVER_NAME'] != "localhost") ? "Wilmin" : "root";
         $PASSWORD = ($_SERVER['SERVER_NAME'] != "localhost") ? "Mett@1106" : "";
-        $DATABASE_NAME = $_SESSION['dbname'];
+        $DATABASE_NAME = $_SESSION['infoClient']['dbname'];
 
         $db = new mysqli($SERVER_NAME, $USER_NAME, $PASSWORD, $DATABASE_NAME);
         $db->query("SET NAMES 'utf8'");
