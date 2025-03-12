@@ -130,7 +130,8 @@ h6 {
 }
 
 .btn-custom:focus {
-    border: none ;
+    outline: none;
+    box-shadow: none;
 }
 
 @media (min-width:1350px) {

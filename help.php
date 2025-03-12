@@ -419,7 +419,7 @@ class Help
       // Cuerpo 
       while ($element = $datos->fetch_object()) {
 
-         $html .= '<p class="list_db">' . $element->descripcion . ' ' . $element->color . 
+         $html .= '<p class="list_db">' . ucwords($element->descripcion) . ' ' . ucwords($element->color) . 
          ' <br> ' . $element->imei . ' ' . $element->serial . '</p>';
       }
 
