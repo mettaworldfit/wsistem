@@ -1,13 +1,5 @@
 navigator.serviceWorker && navigator.serviceWorker.register("../sw.js");
 
-let SITE_URL;
-
-if (window.location.hostname !== "localhost") {
-    SITE_URL = window.location.protocol + '//' + window.location.host + '/';
-} else {
-    SITE_URL = window.location.protocol + '//' + window.location.host + '/' + 'proyecto/';
-}
-
   $(document).ready(function () {
     function e() {
       navigator.onLine

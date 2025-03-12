@@ -1,4 +1,5 @@
 const PRINTER_SERVER = "http://localhost:81/tickets/";
+const SITE_URL =  window.location.protocol + '//' + window.location.host + '/';
 
 function mysql_row_affected () {
     alertify.alert(`<div class='row-affected'>
