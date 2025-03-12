@@ -1,0 +1,20 @@
+{
+    "name": "wsssystem/dependency",
+    "type": "project",
+    "require": {
+        "phpoffice/phpspreadsheet": "^1.23",
+        "dompdf/dompdf": "^2.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Wsssystem\\Dependency\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Wilmin Jose Sanchez Francisco"
+        }
+    ],
+    "minimum-stability": "stable"
+}
