@@ -24,22 +24,7 @@
   <link rel="manifest" href="<?= base_url ?>manifest.json">
   <script src="<?= base_url ?>sw.js" type="text/javascript"></script>
 
-  <title>
-    <?php
-
-    $host = explode('.', $_SERVER['SERVER_NAME']);
-    $subdomain = $host[0];
-    $title = '';
-
-    if ($subdomain == 'elisaul') {
-      $title = "Master Movil";
-    } else if ($subdomain == 'test') {
-      $title = "Chino comunicaciones";
-    }
-
-    echo $title;
-    ?>
-  </title>
+  <title>wsistems</title>
 
 
   <link rel="shortcut icon" href="<?= base_url ?>public/imagen/sistem/icon.ico" type="image/x-icon">

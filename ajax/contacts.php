@@ -101,7 +101,7 @@ if ($_POST['action'] == 'eliminar_cliente') {
     echo "ready";
   } else {
 
-    echo "Error 103: " . $db->error;
+    echo "Error: " . $db->error;
   }
 }
 

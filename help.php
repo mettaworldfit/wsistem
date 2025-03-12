@@ -254,20 +254,6 @@ class Help
       return $db->query($query);
    }
 
-   // Función para verificar los parent rows de un cliente
-
-   public static function verify_parent_customer($id)
-   {
-      $query = "SELECT (count(frp.cliente_id) + count(fv.cliente_id) + count(orp.cliente_id)) AS 'parent_row' FROM clientes c
-      LEFT JOIN facturasRP frp ON frp.cliente_id = c.cliente_id
-      LEFT JOIN facturas_ventas fv ON fv.cliente_id = c.cliente_id
-      LEFT JOIN ordenes_rp orp ON orp.cliente_id = c.cliente_id
-      WHERE c.cliente_id = '$id'";
-
-      $db = Database::connect();
-      return $db->query($query);
-   }
-
    /**
     * Proveedor
      ------------------------------------*/
@@ -283,16 +269,6 @@ class Help
    public static function showProvidersID($id)
    {
       $query = "SELECT *FROM proveedores WHERE proveedor_id = '$id'";
-
-      $db = Database::connect();
-      return $db->query($query);
-   }
-
-   // Función para verificar los parent rows de un cliente
-
-   public static function verify_parent_provider($id)
-   {
-      $query = "SELECT count(proveedor_id) AS 'parent_row' FROM facturas_proveedores WHERE proveedor_id = '$id'";
 
       $db = Database::connect();
       return $db->query($query);

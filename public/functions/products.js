@@ -1,5 +1,6 @@
 $(document).ready(function () {
 
+  const format = new Intl.NumberFormat('en'); // Formato 0,000
   var pageURL = $(location).attr("pathname");
 
   function mysql_row_affected() {

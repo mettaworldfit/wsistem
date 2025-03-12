@@ -3,7 +3,6 @@ $(document).ready(function () {
     const format = new Intl.NumberFormat('en-CA');
 
 
-
     // Ventas de todos los meses
     
     var sales_of_the_months = document.querySelector("#sales_of_the_months");

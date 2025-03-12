@@ -75,6 +75,12 @@
     <script src="<?= base_url ?>public/functions/taxes.js" type="text/javascript"></script>
     <?php
 
+} elseif (str_contains($_SERVER["REQUEST_URI"], "contacts")) {
+
+    ?>
+    <script src="<?= base_url ?>public/functions/contacts.js" type="text/javascript"></script>
+    <?php
+
 } else {
 
     ?>

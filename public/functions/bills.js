@@ -1,4 +1,5 @@
 var pageURL = $(location).attr("pathname");
+const format = new Intl.NumberFormat('en'); // Formato 0,000
 
 function mysql_row_affected() {
     alertify.alert(`<div class='row-affected'>

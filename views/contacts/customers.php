@@ -32,8 +32,6 @@
 
         <tbody>
             <?php while ($element = $customers->fetch_object()): ?>
-                <?php $parents = Help::verify_parent_customer($element->cliente_id);
-                while ($parent = $parents->fetch_object()) { ?>
                     <tr>
                         <td><?= $element->cliente_id ?></td>
                         <td class="note-width"><?= ucwords($element->nombre) ?>         <?= ucwords($element->apellidos) ?></td>
@@ -47,16 +45,13 @@
                                 <i class="fas fa-pencil-alt"></i>
                             </a>
 
-                            <span <?php if ($parent->parent_row == 0) { ?> class="action-delete"
-                                    onclick="deleteCustomer('<?= $element->cliente_id ?>')" <?php } else { ?>
-                                    class="action-delete action-disable" <?php } ?> title="Eliminar">
+                            <span class="action-delete" onclick="deleteCustomer('<?= $element->cliente_id ?>')" title="Eliminar">
                                 <i class="fas fa-times"></i>
                             </span>
 
                         </td>
                     </tr>
-                <?php }
-            endwhile; ?>
+                <?php endwhile; ?>
         </tbody>
     </table>
 

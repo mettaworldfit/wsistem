@@ -31,8 +31,7 @@
 
         <tbody>
             <?php while ($element = $providers->fetch_object()): ?>
-                <?php $parents = Help::verify_parent_provider($element->proveedor_id);
-                while ($parent = $parents->fetch_object()) { ?>
+              
                     <tr>
                         <td><?= $element->proveedor_id ?></td>
                         <td class="note-width"><?= $element->nombre_proveedor ?>         <?= $element->apellidos ?></td>
@@ -47,16 +46,13 @@
                                 <i class="fas fa-pencil-alt"></i>
                             </a>
 
-                            <span <?php if ($parent->parent_row == 0) { ?> class="action-delete"
-                                    onclick="deleteProveedor('<?= $element->proveedor_id ?>')" <?php } else { ?>
-                                    class="action-delete action-disable" <?php } ?> title="Eliminar">
+                            <span class="action-delete" onclick="deleteProveedor('<?= $element->proveedor_id ?>')" title="Eliminar">
                                 <i class="fas fa-times"></i>
                             </span>
 
                         </td>
                     </tr>
-                <?php }
-            endwhile; ?>
+                <?php endwhile; ?>
         </tbody>
     </table>
 
