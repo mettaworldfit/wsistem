@@ -61,7 +61,7 @@ $(document).ready(function () {
 $('#device').change(function(){
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/workshop.php",
+        url: SITE_URL + "services/workshop.php",
         data: {
             device_id: $('#device').val(),
             action: 'buscar_equipo'
@@ -86,7 +86,7 @@ function add_ordenRP() {
 
         $.ajax({
             type: "post",
-            url: SITE_URL + "ajax/workshop.php",
+            url: SITE_URL + "services/workshop.php",
             data: {
                 action: 'agregar_orden_reparacion',
                 customer_id: $('#customer_id').val(),
@@ -144,7 +144,7 @@ function Assign_condition(orden_id) {
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/workshop.php",
+                url: SITE_URL + "services/workshop.php",
                 data: {
                     action: "asignar_condiciones",
                     condition_id: element,
@@ -178,7 +178,7 @@ function elegirEstado(el) { // recibimos por parametro el elemento select
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/workshop.php",
+        url: SITE_URL + "services/workshop.php",
         data: {
             status: status_id,
             workshop_id: workshop_id,
@@ -206,7 +206,7 @@ function deleteOrden(id) {
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/workshop.php",
+                url: SITE_URL + "services/workshop.php",
                 data: {
                     id: id,
                     action: 'eliminar_orden'
@@ -237,7 +237,7 @@ function AddCondition() {
     
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/workshop.php",
+        url: SITE_URL + "services/workshop.php",
         data: {
             condition: $('#condition').val(),
             action: 'crear_condicion'
@@ -262,7 +262,7 @@ function AddDevice() {
     
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/workshop.php",
+        url: SITE_URL + "services/workshop.php",
         data: {
             brand: $('#brand_id').val(),
             device: $('#nom_device').val(),
@@ -291,7 +291,7 @@ function AddBrand() {
     
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/workshop.php",
+        url: SITE_URL + "services/workshop.php",
         data: {
             name: $('#brand_name').val(),
             action: 'crear_marca'
@@ -316,7 +316,7 @@ function UpdateBrand(id) {
     
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/workshop.php",
+        url: SITE_URL + "services/workshop.php",
         data: {
             name: $('#brand_name').val(),
             id: id,
@@ -346,7 +346,7 @@ function deleteBrand(id) {
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/workshop.php",
+                url: SITE_URL + "services/workshop.php",
                 data: {
                     id: id,
                     action: 'eliminar_marca'

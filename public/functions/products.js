@@ -101,7 +101,7 @@ $(document).ready(function () {
 
   function SearchProduct(product_id) {
     $.ajax({
-      url: SITE_URL + "ajax/products.php",
+      url: SITE_URL + "services/products.php",
       method: "post",
       data: {
         product_id: product_id,
@@ -173,7 +173,7 @@ $(document).ready(function () {
   function SearchProductCode(product_code) {
 
     $.ajax({
-      url: SITE_URL + "ajax/products.php",
+      url: SITE_URL + "services/products.php",
       method: "post",
       data: {
         product_code: product_code,
@@ -238,7 +238,7 @@ $(document).ready(function () {
  
   function product_variants(product_id) {
     $.ajax({
-      url: SITE_URL + "ajax/products.php",
+      url: SITE_URL + "services/products.php",
       method: "post",
       data: {
         product_id: product_id,
@@ -421,7 +421,7 @@ $(document).ready(function () {
 
       $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/products.php",
+        url: SITE_URL + "services/products.php",
         data: {
           name: $("#product_name").val(),
           product_code: $("#product_code").val(),
@@ -510,7 +510,7 @@ $(document).ready(function () {
 
         $.ajax({
           type: "post",
-          url: SITE_URL + "ajax/products.php",
+          url: SITE_URL + "services/products.php",
           data: {
             action: "asignar_variante",
             colour_id: element.colour_id,
@@ -754,7 +754,7 @@ console.log(rows)
 
           $.ajax({
             type: "post",
-            url: SITE_URL + "ajax/products.php",
+            url: SITE_URL + "services/products.php",
             data: {
               action: "editar_variantes",
               product_id: data.product_id,
@@ -890,7 +890,7 @@ console.log(rows)
 
       $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/products.php",
+        url: SITE_URL + "services/products.php",
         data: {
           name: $("#product_name").val(),
           product_id: $("#product_id").val(),
@@ -981,7 +981,7 @@ function deleteVariant(variant_id, cost) {
 
   $.ajax({
     type: "post",
-    url: SITE_URL + "ajax/products.php",
+    url: SITE_URL + "services/products.php",
     data: {
       action: "eliminar_variante",
       id: variant_id,
@@ -1013,7 +1013,7 @@ function disableProduct(product_id) {
     function () {
       $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/products.php",
+        url: SITE_URL + "services/products.php",
         data: {
           product_id: product_id,
           action: "desactivar_producto",
@@ -1036,7 +1036,7 @@ function enableProduct(product_id) {
 
       $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/products.php",
+        url: SITE_URL + "services/products.php",
         data: {
           product_id: product_id,
           action: "activar_producto",
@@ -1059,7 +1059,7 @@ function deleteProduct(id) {
     function () {
 
       $.ajax({
-        url: SITE_URL + "ajax/products.php",
+        url: SITE_URL + "services/products.php",
         method: "post",
         data: {
           action: "eliminarProducto",

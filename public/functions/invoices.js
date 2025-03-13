@@ -41,7 +41,7 @@ function invoice_total(bonus = 0) {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/invoices.php",
+        url: SITE_URL + "services/invoices.php",
         data: {
             action: action,
             invoice_id: $('#invoice_id').val()
@@ -310,7 +310,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "post",
-            url: SITE_URL + "ajax/invoices.php",
+            url: SITE_URL + "services/invoices.php",
             data: {
                 action: "factura_contado",
                 customer_id: $('#cash-in-customer').val(),
@@ -342,7 +342,7 @@ $(document).ready(function () {
         function REGISTER_DETAIL_ON_CASH(invoice_id, data, receipt) {
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/invoices.php",
+                url: SITE_URL + "services/invoices.php",
                 data: {
                     action: 'registrar_detalle_de_venta',
                     invoice_id: invoice_id,
@@ -422,7 +422,7 @@ $(document).ready(function () {
             if (customer_id > 1) {
                 $.ajax({
                     type: "post",
-                    url: SITE_URL + "ajax/invoices.php",
+                    url: SITE_URL + "services/invoices.php",
                     data: {
                         action: "consultar_bono",
                         customer_id: customer_id
@@ -513,7 +513,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "post",
-            url: SITE_URL + "ajax/invoices.php",
+            url: SITE_URL + "services/invoices.php",
             data: {
                 action: "factura_credito",
                 customer_id: $('#credit-in-customer').val(),
@@ -555,7 +555,7 @@ $(document).ready(function () {
         function REGISTER_DETAIL_ON_CREDIT(invoice_id, data, receipt) {
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/invoices.php",
+                url: SITE_URL + "services/invoices.php",
                 data: {
                     action: 'registrar_detalle_de_venta',
                     invoice_id: invoice_id,
@@ -702,7 +702,7 @@ console.log(file)
 
             array.forEach(element => {
                 $.ajax({
-                    url: SITE_URL + "ajax/invoices.php",
+                    url: SITE_URL + "services/invoices.php",
                     method: "post",
                     data: {
                         action: action2,
@@ -730,7 +730,7 @@ console.log(file)
             var taxes = ($('#price_out').val().replace(/,/g, "") * $('#taxes').val()) / 100 // Calcular impuestos
 
             $.ajax({
-                url: SITE_URL + "ajax/invoices.php",
+                url: SITE_URL + "services/invoices.php",
                 method: "post",
                 data: {
                     action: action,
@@ -922,7 +922,7 @@ function ADD_DETAIL_INVOICE() {
 
         array.forEach(element => {
             $.ajax({
-                url: SITE_URL + "ajax/invoices.php",
+                url: SITE_URL + "services/invoices.php",
                 method: "post",
                 data: {
                     action: action2,
@@ -947,7 +947,7 @@ function ADD_DETAIL_INVOICE() {
 
     function addItem() {
         $.ajax({
-            url: SITE_URL + "ajax/invoices.php",
+            url: SITE_URL + "services/invoices.php",
             method: "post",
             data: {
                 action: action,
@@ -1000,7 +1000,7 @@ function DELETE_DETAIL_INVOICE(id) {
     }
 
     $.ajax({
-        url: SITE_URL + "ajax/invoices.php",
+        url: SITE_URL + "services/invoices.php",
         method: "post",
         data: {
             action: action,
@@ -1027,7 +1027,7 @@ function deleteInvoice(id) {
         function () {
 
             $.ajax({
-                url: SITE_URL + "ajax/invoices.php",
+                url: SITE_URL + "services/invoices.php",
                 method: "post",
                 data: {
                     action: "eliminar_factura",
@@ -1056,7 +1056,7 @@ function deleteInvoice(id) {
 function Update_info_purchase() {
 
     $.ajax({
-        url: SITE_URL + "ajax/invoices.php",
+        url: SITE_URL + "services/invoices.php",
         method: "post",
         data: {
             action: "actualizar_factura",
@@ -1088,7 +1088,7 @@ function Update_info_purchase() {
     function () {
 
         $.ajax({
-            url: SITE_URL + "ajax/invoices.php",
+            url: SITE_URL + "services/invoices.php",
             method: "post",
             data: {
                 action: "actualizar_dinero_recibido",

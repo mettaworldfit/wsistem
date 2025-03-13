@@ -29,7 +29,7 @@ function AddPosition() {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/positions.php",
+        url: SITE_URL + "services/positions.php",
         data: {
             reference: $('#reference').val(),
             comment: $('#position_comment').val(),
@@ -65,7 +65,7 @@ function UpdatePosition(position_id) {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/positions.php",
+        url: SITE_URL + "services/positions.php",
         data: {
             position_id: position_id,
             reference: $('#reference').val(),
@@ -102,7 +102,7 @@ function UpdatePosition(position_id) {
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/positions.php",
+                url: SITE_URL + "services/positions.php",
                 data: {
                     position_id: id,
                     action: 'eliminar_posicion'

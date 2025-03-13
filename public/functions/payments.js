@@ -72,7 +72,7 @@ $(document).ready(function () {
 
     $.ajax({
       type: "post",
-      url: SITE_URL + "ajax/payments.php",
+      url: SITE_URL + "services/payments.php",
       data: {
         action: action,
         invoice_id: invoice_id
@@ -181,7 +181,7 @@ $(document).ready(function () {
 
       $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/payments.php",
+        url: SITE_URL + "services/payments.php",
         data: {
           action: 'agregar_pago',
           invoice_id: invoice_id,
@@ -252,7 +252,7 @@ $(document).ready(function () {
       var invoiceFP = $('#invoiceFP').val();
       $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/payments.php",
+        url: SITE_URL + "services/payments.php",
         data: {
           action: 'agregar_pago_proveedor',
           invoice_id: invoiceFP,
@@ -290,7 +290,7 @@ function deletePayment(id, factura_id, facturaRP_id) {
     function () {
 
       $.ajax({
-        url: SITE_URL + "ajax/payments.php",
+        url: SITE_URL + "services/payments.php",
         method: "post",
         data: {
           action: "eliminar_pago",
@@ -323,7 +323,7 @@ function deletePaymentProvider(id) {
     function () {
 
       $.ajax({
-        url: SITE_URL + "ajax/payments.php",
+        url: SITE_URL + "services/payments.php",
         method: "post",
         data: {
           action: "eliminar_pago_factura_proveedor",

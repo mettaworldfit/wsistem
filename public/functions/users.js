@@ -36,7 +36,7 @@ $(document).ready(function () {
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/users.php",
+                url: SITE_URL + "services/users.php",
                 data: {
                     user: $('#userName').val().toLowerCase(),
                     password: $('#userPassword').val(),
@@ -70,7 +70,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "post",
-            url: SITE_URL + "ajax/users.php",
+            url: SITE_URL + "services/users.php",
             data: {
                 action: 'logout'
             },
@@ -95,7 +95,7 @@ function deleteUser(user_id) {
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/users.php",
+                url: SITE_URL + "services/users.php",
                 data: {
                     action: "eliminar_usuario",
                     user_id: user_id
@@ -125,7 +125,7 @@ function AddUser() {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/users.php",
+        url: SITE_URL + "services/users.php",
         data: {
             username: $('#username').val(),
             name: $('#name').val(),
@@ -162,7 +162,7 @@ function UpdateUser(user_id) {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/users.php",
+        url: SITE_URL + "services/users.php",
         data: {
             id: user_id,
             username: $('#username').val(),
@@ -202,7 +202,7 @@ function disableUser(user_id) {
       function () {
         $.ajax({
           type: "post",
-          url: SITE_URL + "ajax/users.php",
+          url: SITE_URL + "services/users.php",
           data: {
             user_id: user_id,
             action: "desactivar_usuario",
@@ -236,7 +236,7 @@ function disableUser(user_id) {
 
         $.ajax({
           type: "post",
-          url: SITE_URL + "ajax/users.php",
+          url: SITE_URL + "services/users.php",
           data: {
             user_id: user_id,
             action: "activar_usuario",

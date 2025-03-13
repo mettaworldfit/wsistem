@@ -55,7 +55,7 @@ $(document).ready(function() {
     function SearchPiece(piece_id) {
 
         $.ajax({
-            url: SITE_URL + "ajax/pieces.php",
+            url: SITE_URL + "services/pieces.php",
             method: "post",
             data: {
                 piece_id: piece_id,
@@ -114,7 +114,7 @@ $(document).ready(function() {
     function SearchPieceCode(piece_code) {
 
         $.ajax({
-            url: SITE_URL + "ajax/pieces.php",
+            url: SITE_URL + "services/pieces.php",
             method: "post",
             data: {
                 piece_code: piece_code,
@@ -255,7 +255,7 @@ function AddPiece() {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/pieces.php",
+        url: SITE_URL + "services/pieces.php",
         data: {
             name: $("#piece_name").val(),
             piece_code: $("#piece_code").val(),
@@ -355,7 +355,7 @@ $("#editPiece").on("click",(e)=>{
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/pieces.php",
+        url: SITE_URL + "services/pieces.php",
         data: {
           action: "editar_pieza",
           name: $("#piece_name").val(),
@@ -408,7 +408,7 @@ function disablePiece(piece_id) {
       function () {
         $.ajax({
           type: "post",
-          url: SITE_URL + "ajax/pieces.php",
+          url: SITE_URL + "services/pieces.php",
           data: {
             piece_id: piece_id,
             action: "desactivar_pieza",
@@ -431,7 +431,7 @@ function disablePiece(piece_id) {
       function () {
         $.ajax({
           type: "post",
-          url: SITE_URL + "ajax/pieces.php",
+          url: SITE_URL + "services/pieces.php",
           data: {
             piece_id: piece_id,
             action: "activar_pieza",
@@ -455,7 +455,7 @@ function deletePiece(id) {
       function () {
   
         $.ajax({
-          url: SITE_URL + "ajax/pieces.php",
+          url: SITE_URL + "services/pieces.php",
           method: "post",
           data: {
             action: "eliminarPieza",

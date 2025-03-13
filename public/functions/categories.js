@@ -29,7 +29,7 @@ function AddCategorie() {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/categories.php",
+        url: SITE_URL + "services/categories.php",
         data: {
             name: $('#category_name').val(),
             comment: $('#category_comment').val(),
@@ -66,7 +66,7 @@ function AddCategorie() {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/categories.php",
+        url: SITE_URL + "services/categories.php",
         data: {
             category_id: category_id,
             name: $('#category_name').val(),
@@ -102,7 +102,7 @@ function deleteCategory(id) {
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/categories.php",
+                url: SITE_URL + "services/categories.php",
                 data: {
                     category_id: id,
                     action: 'eliminar_categoria'

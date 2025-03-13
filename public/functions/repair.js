@@ -30,7 +30,7 @@ function invoice_total_rp() {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/repair.php",
+        url: SITE_URL + "services/repair.php",
         data: {
             action: 'precio_detalle',
             orden_id: $('#orden_id').val()
@@ -210,7 +210,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "post",
-            url: SITE_URL + "ajax/repair.php",
+            url: SITE_URL + "services/repair.php",
             data: {
                 action: "factura_contado",
                 orden_id: $('#orden_id').val(),
@@ -289,7 +289,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "post",
-            url: SITE_URL + "ajax/repair.php",
+            url: SITE_URL + "services/repair.php",
             data: {
                 action: "factura_credito",
                 customer_id: $('#credit-in-customer').val(),
@@ -484,7 +484,7 @@ function add_detail_rp() {
     }
 
     $.ajax({
-        url: SITE_URL + "ajax/repair.php",
+        url: SITE_URL + "services/repair.php",
         method: "post",
         data: {
             action: "agregar_detalle_a_orden",
@@ -518,7 +518,7 @@ function add_detail_rp() {
 function deleteDetail(id) {
 
     $.ajax({
-        url: SITE_URL + "ajax/repair.php",
+        url: SITE_URL + "services/repair.php",
         method: "post",
         data: {
             action: "eliminar_detalle",
@@ -546,7 +546,7 @@ function deleteInvoiceRP(id) {
         function () {
 
             $.ajax({
-                url: SITE_URL + "ajax/repair.php",
+                url: SITE_URL + "services/repair.php",
                 method: "post",
                 data: {
                     action: "eliminar_factura",
@@ -574,7 +574,7 @@ function deleteInvoiceRP(id) {
 function Update_info() {
 
     $.ajax({
-        url: SITE_URL + "ajax/repair.php",
+        url: SITE_URL + "services/repair.php",
         method: "post",
         data: {
             action: "actualizar_factura",
@@ -606,7 +606,7 @@ function UPDATE_CASH_RECEIVED(id) {
 
 
         $.ajax({
-            url: SITE_URL + "ajax/repair.php",
+            url: SITE_URL + "services/repair.php",
             method: "post",
             data: {
                 action: "actualizar_dinero_recibido",

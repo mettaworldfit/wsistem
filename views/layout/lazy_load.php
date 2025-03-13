@@ -36,6 +36,7 @@
 ) {
 
     ?>
+    <script src="<?= base_url ?>public/functions/workshop.js" type="text/javascript"></script>
     <script src="<?= base_url ?>public/functions/invoices.js" type="text/javascript"></script>
     <script src="<?= base_url ?>public/functions/repair.js" type="text/javascript"></script>
     <?php
@@ -90,6 +91,12 @@
 
     ?>
     <script src="<?= base_url ?>public/functions/contacts.js" type="text/javascript"></script>
+    <?php
+
+} elseif (str_contains($_SERVER["REQUEST_URI"], "reports/day")) {
+
+    ?>
+    <script src="<?= base_url ?>public/functions/invoices.js" type="text/javascript"></script>
     <?php
 
 } else {

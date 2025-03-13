@@ -48,7 +48,7 @@ function Query() {
 function PV() {
   $.ajax({
     type: "post",
-    url: SITE_URL + "ajax/reports.php",
+    url: SITE_URL + "services/reports.php",
     data: {
       query: $('#query').val(),
       dateq1: $('#dateq1').val(),
@@ -97,7 +97,7 @@ function PV() {
 function PZ() {
   $.ajax({
     type: "post",
-    url: SITE_URL + "ajax/reports.php",
+    url: SITE_URL + "services/reports.php",
     data: {
       query: $('#query').val(),
       dateq1: $('#dateq1').val(),
@@ -147,7 +147,7 @@ function SV() {
   
   $.ajax({
     type: "post",
-    url: SITE_URL + "ajax/reports.php",
+    url: SITE_URL + "services/reports.php",
     data: {
       query: $('#query').val(),
       dateq1: $('#dateq1').val(),
@@ -191,7 +191,7 @@ function SV() {
 function IMF() {
   $.ajax({
     type: "post",
-    url: SITE_URL + "ajax/reports.php",
+    url: SITE_URL + "services/reports.php",
     data: {
       query: $('#query').val(),
       action: $('#action').val()

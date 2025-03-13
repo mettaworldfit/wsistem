@@ -28,7 +28,7 @@ function UpdateBond_config() {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/config.php",
+        url: SITE_URL + "services/config.php",
         data: {
            min: $('#min_invoice').val(),
            value: $('#bonus_value').val(),

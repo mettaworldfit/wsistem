@@ -44,7 +44,7 @@ function AddContact() {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/contacts.php",
+        url: SITE_URL + "services/contacts.php",
         data: {
             name: $('#name').val(),
             lastname: $('#lastname').val(),
@@ -85,7 +85,7 @@ function AddContactModal() {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/contacts.php",
+        url: SITE_URL + "services/contacts.php",
         data: {
             name: $('#name').val(),
             lastname: $('#lastname').val(),
@@ -129,7 +129,7 @@ function UpdateCustomer(customer_id) {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/contacts.php",
+        url: SITE_URL + "services/contacts.php",
         data: {
             id: customer_id,
             name: $('#name').val(),
@@ -169,7 +169,7 @@ function deleteCustomer(id) {
         function () {
 
             $.ajax({
-                url: SITE_URL + "ajax/contacts.php",
+                url: SITE_URL + "services/contacts.php",
                 method: "post",
                 data: {
                     customer_id: id,
@@ -202,7 +202,7 @@ function UpdateProvider(proveedor_id) {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/contacts.php",
+        url: SITE_URL + "services/contacts.php",
         data: {
             id: proveedor_id,
             name: $('#name').val(),
@@ -236,7 +236,7 @@ function deleteProveedor(id) {
         function () {
 
             $.ajax({
-                url: SITE_URL + "ajax/contacts.php",
+                url: SITE_URL + "services/contacts.php",
                 method: "post",
                 data: {
                     proveedor_id: id,
@@ -268,7 +268,7 @@ function deleteProveedor(id) {
 function deleteBond(id) {
 
     $.ajax({
-        url: SITE_URL + "ajax/contacts.php",
+        url: SITE_URL + "services/contacts.php",
         method: "post",
         data: {
             bond_id: id,

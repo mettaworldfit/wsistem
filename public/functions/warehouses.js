@@ -29,7 +29,7 @@ function AddWarehouse() {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/warehouses.php",
+        url: SITE_URL + "services/warehouses.php",
         data: {
             name: $('#warehouse_name').val(),
             comment: $('#warehouse_comment').val(),
@@ -65,7 +65,7 @@ function UpdateWarehouse(warehouse_id) {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/warehouses.php",
+        url: SITE_URL + "services/warehouses.php",
         data: {
             warehouse_id: warehouse_id,
             name: $('#warehouse_name').val(),
@@ -102,7 +102,7 @@ function UpdateWarehouse(warehouse_id) {
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/warehouses.php",
+                url: SITE_URL + "services/warehouses.php",
                 data: {
                     warehouse_id: id,
                     action: 'eliminar_almacen'

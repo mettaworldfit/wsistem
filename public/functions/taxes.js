@@ -63,7 +63,7 @@ $(document).ready(function () {
     function search_tax(tax = "") {
         $.ajax({
             type: "post",
-            url: SITE_URL + "ajax/taxes.php",
+            url: SITE_URL + "services/taxes.php",
             data: {
                 action: "buscarImpuesto",
                 tax: tax,
@@ -168,7 +168,7 @@ function AddTax() {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/taxes.php",
+        url: SITE_URL + "services/taxes.php",
         data: {
             name: $('#tax_name').val(),
             comment: $('#tax_comment').val(),
@@ -205,7 +205,7 @@ function UpdateTax(tax_id) {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/taxes.php",
+        url: SITE_URL + "services/taxes.php",
         data: {
             tax_id: tax_id,
             name: $('#tax_name').val(),
@@ -243,7 +243,7 @@ function deleteTax(id) {
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/taxes.php",
+                url: SITE_URL + "services/taxes.php",
                 data: {
                     tax_id: id,
                     action: 'eliminar_impuesto'

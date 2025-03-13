@@ -191,7 +191,7 @@ $(document).ready(function () {
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/price_lists.php",
+                url: SITE_URL + "services/price_lists.php",
                 data: {
                     action: action,
                     id: id,
@@ -238,7 +238,7 @@ $(document).ready(function () {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/price_lists.php",
+        url: SITE_URL + "services/price_lists.php",
         data: {
             list_name: list_name,
             list_comment: list_comment,
@@ -270,7 +270,7 @@ $(document).ready(function () {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/price_lists.php",
+        url: SITE_URL + "services/price_lists.php",
         data: {
             list_id: list_id,
             list_name: $('#list_name').val(),
@@ -303,7 +303,7 @@ $(document).ready(function () {
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/price_lists.php",
+                url: SITE_URL + "services/price_lists.php",
                 data: {
                     id: id,
                     action: 'eliminar_lista'
@@ -342,7 +342,7 @@ function deleteList(id, list_id) {
     console.log(type)
     $.ajax({
       type: "post",
-      url: SITE_URL + "ajax/price_lists.php",
+      url: SITE_URL + "services/price_lists.php",
       data: {
         action: "desasignar_lista_de_precio",
         id: id,

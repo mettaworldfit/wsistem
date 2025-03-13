@@ -1103,14 +1103,12 @@ section.content-bar {
 
 @media (min-width:1340px) {
     .accordion .link {
-        padding: 15px 15px 15px 42px;
+        padding: 25px 15px 25px 42px;
         font-size: 14px;
-        font-weight: bold;
     }
 
-    .accordion .link a {
-        
-        font-weight: bold;
+    .accordion .link a {   
+      font-size: 14px;
     }
 
 }
@@ -1139,6 +1137,12 @@ section.content-bar {
 @media (min-width:925px) {
     .fa-chevron-down {
         top: 20px
+    }
+}
+
+@media (min-width:1340px) {
+    .fa-chevron-down {
+        top: 30px
     }
 }
 
@@ -1200,6 +1204,13 @@ section.content-bar {
 
 .submenu li {
     border-bottom: .5px solid #636363
+}
+
+@media (min-width: 1340px) {
+    .submenu li {
+        font-size: 14px;
+        padding: 9px 15px 9px 0px;
+    }
 }
 
 .submenu li:hover {

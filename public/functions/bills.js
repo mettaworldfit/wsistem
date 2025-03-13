@@ -268,7 +268,7 @@ $('#CancelBill').on('click', (e) => {
   
       $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/bills.php",
+        url: SITE_URL + "services/bills.php",
         data: {
           action: "factura_contado",
           orden_id: $("#order").val(),
@@ -363,7 +363,7 @@ $('#CancelBill').on('click', (e) => {
   
       $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/bills.php",
+        url: SITE_URL + "services/bills.php",
         data: {
           action: "factura_credito",
           provider_id: $("#provider_id").val(),
@@ -415,7 +415,7 @@ $('#CancelBill').on('click', (e) => {
   
       $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/bills.php",
+        url: SITE_URL + "services/bills.php",
         data: {
           action: 'obtener_detalle',
           id: $("#order").val()
@@ -466,7 +466,7 @@ $('#CancelBill').on('click', (e) => {
   
       $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/bills.php",
+        url: SITE_URL + "services/bills.php",
         data: {
           action: "total_orden_compra",
           id: $("#order").val(),
@@ -678,7 +678,7 @@ function SaveBills() {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/bills.php",
+        url: SITE_URL + "services/bills.php",
         data: {
             action: "crear_orden_gasto",
             provider_id: $('#provider').val(),
@@ -708,7 +708,7 @@ function AddOrderDetail(order_id) {
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/bills.php",
+                url: SITE_URL + "services/bills.php",
                 data: {
                     action: "detalle_gasto",
                     order_id: order_id,
@@ -778,7 +778,7 @@ function AddOrderDetail(order_id) {
 function register_spending(order_id) {
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/bills.php",
+        url: SITE_URL + "services/bills.php",
         data: {
             action: "registrar_gasto",
             order_id: order_id,
@@ -818,7 +818,7 @@ function deleteSpending(id) {
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/bills.php",
+                url: SITE_URL + "services/bills.php",
                 data: {
                     action: "eliminar_gasto",
                     id: id
@@ -849,7 +849,7 @@ function deleteSpending(id) {
 function RECLC_DETAIL(order_id) {
     $.ajax({
       type: "post",
-      url: SITE_URL + "ajax/bills.php",
+      url: SITE_URL + "services/bills.php",
       data: {
         action: "total_orden_compra",
         id: order_id,
@@ -909,7 +909,7 @@ function RECLC_DETAIL(order_id) {
   
     $.ajax({
       type: "post",
-      url: SITE_URL + "ajax/bills.php",
+      url: SITE_URL + "services/bills.php",
       data: {
         action: "agregar_detalle_orden_de_compra",
         order_id: order_id,
@@ -941,7 +941,7 @@ function RECLC_DETAIL(order_id) {
   function DELETE_ITEM_ORDER_PRCHSE(detail_id, order_id) {
     $.ajax({
       type: "post",
-      url: SITE_URL + "ajax/bills.php",
+      url: SITE_URL + "services/bills.php",
       data: {
         action: "eliminar_item_de_la_orden",
         detail_id: detail_id,
@@ -1132,7 +1132,7 @@ function RECLC_DETAIL(order_id) {
   function save_order() {
     $.ajax({
       type: "post",
-      url: SITE_URL + "ajax/bills.php",
+      url: SITE_URL + "services/bills.php",
       data: {
         action: "crear_orden_compra",
         provider: $("#provider").val(),
@@ -1170,7 +1170,7 @@ function RECLC_DETAIL(order_id) {
   
         $.ajax({
           type: "post",
-          url: SITE_URL + "ajax/bills.php",
+          url: SITE_URL + "services/bills.php",
           data: {
             action: "agregar_detalle_orden_de_compra",
             order_id: order_id,
@@ -1204,7 +1204,7 @@ function RECLC_DETAIL(order_id) {
       function () {
         $.ajax({
           type: "post",
-          url: SITE_URL + "ajax/bills.php",
+          url: SITE_URL + "services/bills.php",
           data: {
             id: id,
             action: "eliminar_orden",
@@ -1231,7 +1231,7 @@ function RECLC_DETAIL(order_id) {
   
     $.ajax({
       type: "post",
-      url: SITE_URL + "ajax/bills.php",
+      url: SITE_URL + "services/bills.php",
       data: {
         id: order_id,
         action: "agregar_orden_a_factura",
@@ -1258,7 +1258,7 @@ function RECLC_DETAIL(order_id) {
   function cal_invoice_provider(order_id) {
     $.ajax({
       type: "post",
-      url: SITE_URL + "ajax/bills.php",
+      url: SITE_URL + "services/bills.php",
       data: {
         id: order_id,
         action: "calc_factura",
@@ -1351,7 +1351,7 @@ function RECLC_DETAIL(order_id) {
   function deleteDetailOrderC(id) {
     $.ajax({
       type: "post",
-      url: SITE_URL + "ajax/bills.php",
+      url: SITE_URL + "services/bills.php",
       data: {
         id: id,
         action: "eliminar_detalle",
@@ -1378,7 +1378,7 @@ function RECLC_DETAIL(order_id) {
       function () {
         $.ajax({
           type: "post",
-          url: SITE_URL + "ajax/bills.php",
+          url: SITE_URL + "services/bills.php",
           data: {
             id: id,
             order_id: order_id,
@@ -1403,7 +1403,7 @@ function RECLC_DETAIL(order_id) {
   function update_order(id) {
     $.ajax({
       type: "post",
-      url: SITE_URL + "ajax/bills.php",
+      url: SITE_URL + "services/bills.php",
       data: {
         order_id: id,
         provider_id: $("#provider").val(),
@@ -1429,7 +1429,7 @@ function RECLC_DETAIL(order_id) {
   function update_invoice(id) {
     $.ajax({
       type: "post",
-      url: SITE_URL + "ajax/bills.php",
+      url: SITE_URL + "services/bills.php",
       data: {
         invoice_id: id,
         provider_id: $("#provider").val(),

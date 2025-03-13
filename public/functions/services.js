@@ -56,7 +56,7 @@ $(document).ready(function() {
   function SearchService(service_id) {
 
     $.ajax({
-        url: SITE_URL + "ajax/services.php",
+        url: SITE_URL + "services/services.php",
         method: "post",
         data: {
           service_id: service_id,
@@ -94,7 +94,7 @@ function AddService() {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/services.php",
+        url: SITE_URL + "services/services.php",
         data: {
             name: $('#service_name').val(),
             price: $('#service_price').val(),
@@ -130,7 +130,7 @@ function UpdateService(service_id) {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/services.php",
+        url: SITE_URL + "services/services.php",
         data: {
             service_id: service_id,
             name: $('#service_name').val(),
@@ -168,7 +168,7 @@ function deleteService(id) {
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/services.php",
+                url: SITE_URL + "services/services.php",
                 data: {
                     service_id: id,
                     action: 'eliminar_servicio'

@@ -10,7 +10,7 @@ $(document).ready(function () {
     if (sales_of_the_months != null) {
       $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/home.php",
+        url: SITE_URL + "services/home.php",
         data: {
           action: "ventas_meses",
         },
@@ -106,7 +106,7 @@ $(document).ready(function () {
   if (expenses_of_the_months != null) {
     $.ajax({
       type: "post",
-      url: SITE_URL + "ajax/home.php",
+      url: SITE_URL + "services/home.php",
       data: {
         action: "gastos_meses",
       },

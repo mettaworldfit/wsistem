@@ -31,6 +31,14 @@ class Database
             'pass' => 'Mett@1106',
             'company' => 'Chino comunicaciones', 
             'pdf-img' => ''],
+
+            'furgonazo' => [
+            'host' => 'localhost', 
+            'dbname' => 'el_furgonazo', 
+            'user' => 'Wilmin', 
+            'pass' => 'Mett@1106',
+            'company' => 'El furgonazo', 
+            'pdf-img' => ''],
            
             // Agrega más clientes según sea necesario
         ];

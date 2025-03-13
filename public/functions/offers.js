@@ -28,7 +28,7 @@ function AddOffer() {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/offers.php",
+        url: SITE_URL + "services/offers.php",
         data: {
             name: $('#offer_name').val(),
             comment: $('#offer_comment').val(),
@@ -62,7 +62,7 @@ function UpdateOffer(offer_id) {
 
     $.ajax({
         type: "post",
-        url: SITE_URL + "ajax/offers.php",
+        url: SITE_URL + "services/offers.php",
         data: {
             offer_id: offer_id,
             name: $('#offer_name').val(),
@@ -97,7 +97,7 @@ function deleteOffer(id) {
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "ajax/offers.php",
+                url: SITE_URL + "services/offers.php",
                 data: {
                     offer_id: id,
                     action: 'eliminar_oferta'
