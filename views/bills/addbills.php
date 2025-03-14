@@ -227,9 +227,7 @@
                                     <option value="" selected disabled>Buscar proveedores</option>
                                     <?php $providers = Help::showProviders();
                                     while ($provider = $providers->fetch_object()): ?>
-                                        <option value="<?= $provider->proveedor_id ?>">
-                                            <?= ucwords($provider->nombre_proveedor) ?>     <?= ucwords($provider->apellidos) ?>
-                                        </option>
+                                        <option value="<?= $provider->proveedor_id ?>"><?= ucwords($provider->nombre_proveedor)." ".ucwords($provider->apellidos) ?></option>
                                     <?php endwhile; ?>
                                 </select>
                             </div>

@@ -197,6 +197,7 @@ $(document).ready(function () {
           if (res > 0) {
 
             if (receipt == true) {
+         
               printer(invoice_id, invoiceRP_id, res, data);
             }
 

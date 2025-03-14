@@ -25,20 +25,20 @@ class Database
                 'pdf-img' => ''],
 
            'admin' => [
-            'host' => 'localhost', 
-            'dbname' => 'chino_com_mao', 
-            'user' => 'Wilmin', 
-            'pass' => 'Mett@1106',
-            'company' => 'Chino comunicaciones', 
-            'pdf-img' => ''],
+                'host' => 'localhost', 
+                'dbname' => 'chino_com_mao', 
+                'user' => 'Wilmin', 
+                'pass' => 'Mett@1106',
+                'company' => 'Chino comunicaciones', 
+                'pdf-img' => ''],
 
-            'furgonazo' => [
-            'host' => 'localhost', 
-            'dbname' => 'el_furgonazo', 
-            'user' => 'Wilmin', 
-            'pass' => 'Mett@1106',
-            'company' => 'El furgonazo', 
-            'pdf-img' => ''],
+            'user' => [
+                'host' => 'localhost', 
+                'dbname' => 'el_furgonazo', 
+                'user' => 'Wilmin', 
+                'pass' => 'Mett@1106',
+                'company' => 'El furgonazo', 
+                'pdf-img' => ''],
            
             // Agrega más clientes según sea necesario
         ];

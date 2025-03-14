@@ -356,7 +356,7 @@ $(document).ready(function () {
                 success: function (res) {
 
                     if (res != "") {
-console.log(JSON.parse(res))
+
                         // Calcular devolucion
 
                         var topay = $('#cash-topay').val().replace(/,/g, "");
@@ -381,7 +381,7 @@ console.log(JSON.parse(res))
 
                             
                         } else {
-                           // GeneratePDF(invoice_id) // Imprimir PDF
+                            GeneratePDF(invoice_id) // Imprimir PDF
                         }
 
 

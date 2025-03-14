@@ -739,7 +739,7 @@ section.content-bar {
     }
 }
 
-@media (min-width:1024px) {
+@media (min-width:970px) {
     #bar-menu {
         display: block
     }
