@@ -230,7 +230,7 @@ class Help
 
    public static function showCustomers()
    {
-      $query = "SELECT *FROM clientes";
+      $query = "SELECT nombre, apellidos, cliente_id FROM clientes";
 
       $db = Database::connect();
       return $db->query($query);

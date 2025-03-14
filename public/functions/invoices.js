@@ -794,12 +794,12 @@ $(document).ready(function () {
      *  Imprimir la factura luego de ser facturada en la sección editar factura
      */
 
-
+console.log($('#select2-customer-container').attr('title'))
     $('#printer_inv').on('click', (e) => {
         e.preventDefault;
 
         data = {
-            customer: $('#select2-customer-container').attr('title'),
+            customer: $('#select2-customer-container').attr('title').trim(),
             seller: $('#cash-in-seller').val(),
             payment_method: $('#select2-method-container').attr('title'),
             invoice_id: $("#invoice_id").val(),
@@ -812,8 +812,6 @@ $(document).ready(function () {
             date: $('#date').val(),
             observation: $('#observation').val()
         }
-
-        console.log(data)
 
         $.ajax({
             type: "post",

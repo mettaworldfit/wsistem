@@ -8,13 +8,13 @@ class Database
 
         // Configuración de las bases de datos
         $dbConfig = [
-            'admin' => [
-                'host' => 'localhost', 
-                'dbname' => 'proyecto', 
-                'user' => 'root', 
-                'pass' => '', 
-                'company' => 'wsistems.com', 
-                'pdf-img' => ''],
+            // 'admin' => [
+            //     'host' => 'localhost', 
+            //     'dbname' => 'proyecto', 
+            //     'user' => 'root', 
+            //     'pass' => '', 
+            //     'company' => 'wsistems.com', 
+            //     'pdf-img' => ''],
 
             'master' => [
                 'host' => 'localhost', 
@@ -24,13 +24,13 @@ class Database
                 'company' => 'Master Movil', 
                 'pdf-img' => ''],
 
-        //    'admin' => [
-        //     'host' => 'localhost', 
-        //     'dbname' => 'chino_com_mao', 
-        //     'user' => 'Wilmin', 
-        //     'pass' => 'Mett@1106',
-        //     'company' => 'Chino comunicaciones', 
-        //     'pdf-img' => ''],
+           'admin' => [
+            'host' => 'localhost', 
+            'dbname' => 'chino_com_mao', 
+            'user' => 'Wilmin', 
+            'pass' => 'Mett@1106',
+            'company' => 'Chino comunicaciones', 
+            'pdf-img' => ''],
 
             'furgonazo' => [
             'host' => 'localhost', 

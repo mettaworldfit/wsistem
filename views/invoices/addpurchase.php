@@ -466,9 +466,7 @@
                             <select class="form-custom-icon search" name="" id="cash-in-customer" requireds>
                                 <?php $customers = Help::showCustomers();
                                 while ($customer = $customers->fetch_object()): ?>
-                                    <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre) ?>
-                                        <?= ucwords($customer->apellidos) ?>
-                                    </option>
+                                    <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre)." ".ucwords($customer->apellidos)?></option>
                                 <?php endwhile; ?>
                             </select>
                         </div>
@@ -604,9 +602,7 @@
                             <select class="form-custom-icon search" name="" id="credit-in-customer" requireds>
                                 <?php $customers = Help::showCustomers();
                                 while ($customer = $customers->fetch_object()): ?>
-                                    <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre) ?>
-                                        <?= ucwords($customer->apellidos) ?>
-                                    </option>
+                                    <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre)." ".ucwords($customer->apellidos)?></option>
                                 <?php endwhile; ?>
                             </select>
                         </div>
