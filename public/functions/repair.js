@@ -352,12 +352,12 @@ $(document).ready(function () {
 
     // Generar factura PDF al dar click
 
-    $('#generateOrderPDF').on('click',(e)=>{
-        e.preventDefault()
+    // $('#generateOrderPDF').on('click',(e)=>{
+    //     e.preventDefault()
 
-        var id = $('#orden_id').val()
-        GenerateOrderPDF(id)
-    })
+    //     var id = $('#orden_id').val()
+    //     GenerateOrderPDF(id)
+    // })
 
 
      // Generar factura pdf

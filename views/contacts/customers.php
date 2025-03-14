@@ -21,7 +21,7 @@
             <tr>
                 <th>N°</th>
                 <th>Nombre/Razón social</th>
-                <th>RNC o Cédula</th>
+                <th class="hide-cell">RNC o Cédula</th>
                 <th>Télefono 1</th>
                 <th>Fecha</th>
                 <th>Acciones</th>
@@ -35,7 +35,7 @@
                     <tr>
                         <td><?= $element->cliente_id ?></td>
                         <td class="note-width"><?= ucwords($element->nombre) ?>         <?= ucwords($element->apellidos) ?></td>
-                        <td><?= $element->cedula ?></td>
+                        <td class="hide-cell"><?= $element->cedula ?></td>
                         <td><?= $element->telefono1 ?></td>
                         <td><?= $element->fecha ?></td>
                         <td>

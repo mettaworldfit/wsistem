@@ -20,13 +20,13 @@
     <table id="example" class="table-custom table ">
         <thead>
             <tr>
-                <th>N°</th>
+                <th class="hide-cell">N°</th>
                 <th>Cliente</th>
                 <th>Fecha</th>
                 <th>Total</th>
-                <th>Pagado</th>
+                <th class="hide-cell">Pagado</th>
                 <th>Por pagar</th>
-                <th>Estado</th>
+                <th class="hide-cell">Estado</th>
 
                 <th>Acciones</th>
             </tr>
@@ -36,13 +36,13 @@
         <tbody>
             <?php while ($element = $invoices->fetch_object()): ?>
                 <tr>
-                    <td>FP-00<?= $element->factura_proveedor_id ?></td>
+                    <td class="hide-cell">FP-00<?= $element->factura_proveedor_id ?></td>
                     <td><?= ucwords($element->nombre_proveedor) ?>     <?= ucwords($element->p_apellidos) ?></td>
                     <td><?= $element->fecha_factura ?></td>
                     <td class="text-primary"><?= number_format($element->total, 2) ?></td>
-                    <td class="text-success"><?= number_format($element->pagado, 2) ?></td>
+                    <td class="text-success hide-cell"><?= number_format($element->pagado, 2) ?></td>
                     <td class="text-danger"><?= number_format($element->por_pagar, 2) ?></td>
-                    <td>
+                    <td class="hide-cell">
                         <p class="<?= $element->nombre_estado ?>"><?= $element->nombre_estado ?></p>
                     </td>
 

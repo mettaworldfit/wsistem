@@ -18,6 +18,7 @@
     <script src="<?= base_url ?>public/functions/products.js" type="text/javascript"></script>
     <script src="<?= base_url ?>public/functions/services.js" type="text/javascript"></script>
     <script src="<?= base_url ?>public/functions/contacts.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/price_lists.js" type="text/javascript"></script>
     <?php
 
 } elseif (str_contains($_SERVER["REQUEST_URI"], "invoices/repair_edit")) {
@@ -27,6 +28,8 @@
     <script src="<?= base_url ?>public/functions/pieces.js" type="text/javascript"></script>
     <script src="<?= base_url ?>public/functions/services.js" type="text/javascript"></script>
     <script src="<?= base_url ?>public/functions/contacts.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/repair.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/price_lists.js" type="text/javascript"></script>
     <?php
 
 } elseif (
@@ -38,7 +41,9 @@
     ?>
     <script src="<?= base_url ?>public/functions/workshop.js" type="text/javascript"></script>
     <script src="<?= base_url ?>public/functions/invoices.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/price_lists.js" type="text/javascript"></script>
     <script src="<?= base_url ?>public/functions/repair.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/contacts.js" type="text/javascript"></script>
     <?php
 
 } elseif (
@@ -48,6 +53,7 @@
 
     ?>
     <script src="<?= base_url ?>public/functions/products.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/price_lists.js" type="text/javascript"></script>
     <?php
 
 } elseif (
@@ -57,6 +63,7 @@
 
     ?>
     <script src="<?= base_url ?>public/functions/pieces.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/price_lists.js" type="text/javascript"></script>
     <?php
 
 } elseif (str_contains($_SERVER["REQUEST_URI"], "workshop/index")) {
@@ -97,6 +104,20 @@
 
     ?>
     <script src="<?= base_url ?>public/functions/invoices.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/repair.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/payments.js" type="text/javascript"></script>
+    <?php
+
+} elseif (str_contains($_SERVER["REQUEST_URI"], "brands")) {
+
+    ?>
+    <script src="<?= base_url ?>public/functions/workshop.js" type="text/javascript"></script>
+    <?php
+
+} elseif (str_contains($_SERVER["REQUEST_URI"], "price_lists")) {
+
+    ?>
+     <script src="<?= base_url ?>public/functions/price_lists.js" type="text/javascript"></script>
     <?php
 
 } else {
@@ -104,7 +125,6 @@
     ?>
 
     <script src="<?= base_url ?>public/functions/positions.js" type="text/javascript"></script>
-    <script src="<?= base_url ?>public/functions/price_lists.js" type="text/javascript"></script>
     <script src="<?= base_url ?>public/functions/offers.js" type="text/javascript"></script>
     <script src="<?= base_url ?>public/functions/bills.js" type="text/javascript"></script>
     <script src="<?= base_url ?>public/functions/payments.js" type="text/javascript"></script>

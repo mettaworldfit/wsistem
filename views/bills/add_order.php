@@ -15,9 +15,9 @@
             <th>Descripción</th>
             <th>Cant</th>
             <th>Precio</th>
-            <th>Impuestos</th>
+            <th class="hide-cell">Impuestos</th>
             <th>Descuentos</th>
-            <th>Observación</th>
+            <th class="hide-cell">Observación</th>
             <th>Importe</th>
             <th></th>
         </thead>

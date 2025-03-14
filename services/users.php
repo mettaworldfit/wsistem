@@ -136,13 +136,15 @@ if ($_POST['action'] == "eliminar_usuario") {
 
   $query = "CALL us_eliminarUsuario($id)";
   $result = $db->query($query);
+  $data = $result->fetch_object();
 
-  if ($db->query($query) === TRUE) {
+  if ($data->msg == "ready") {
 
-    echo "ready";
-  } else {
+    echo $data->msg;
 
-    echo "Error 51: " . $db->error;
+  } else if (str_contains($data->msg, 'SQL')) {
+
+    echo "Error: " . $db->error;
   }
 }
 

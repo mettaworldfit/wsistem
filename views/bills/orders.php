@@ -22,10 +22,10 @@
             <tr>
                 <th>N°</th>
                 <th>Proveedor</th>
-                <th>Artículos ordenados</th>
+                <th class="hide-cell">Artículos ordenados</th>
                 <th>Fecha</th>
-                <th>Expiración</th>
-                <th>Estado</th>
+                <th class="hide-cell">Expiración</th>
+                <th class="hide-cell">Estado</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -35,12 +35,11 @@
                 <tr>
                     <td>OC-00<?= $element->orden_id ?></td>
                     <td><?= ucwords($element->nombre_proveedor) ?></td>
-                    <td><?= Help::LIST_ORDERS($element->orden_id) ?></td>
+                    <td class="hide-cell"><?= Help::LIST_ORDERS($element->orden_id) ?></td>
                     <td><?= $element->creacion ?></td>
-                    <td><?= $element->expiracion ?></td>
-                    <td>
-                        <input type="text" name=""
-                            class="form-custom <?php if ($element->nombre_estado == "Pendiente") { ?> Pendiente <?php } else { ?> Listo <?php } ?>"
+                    <td class="hide-cell"><?= $element->expiracion ?></td>
+                    <td class="hide-cell">
+                        <input type="text" name="" class="form-custom <?php if ($element->nombre_estado == "Pendiente") { ?> Pendiente <?php } else { ?> Listo <?php } ?>"
                             value="<?= $element->nombre_estado ?>" id="status_rp" disabled>
                     </td>
 

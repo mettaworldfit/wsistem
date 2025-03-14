@@ -25,8 +25,8 @@
                 <th>Gastos</th>
                 <th>Fecha</th>
                 <th>Total</th>
-                <th>Pagado</th>
-                <th>Acciones</th>
+                <th class="hide-cell">Pagado</th>
+                <th class="hide-cell">Acciones</th>
             </tr>
         </thead>
 
@@ -39,10 +39,8 @@
                     <td><?= Help::SHOW_SPENDINGS($element->orden_id) ?></td>
                     <td><?= $element->fecha_gasto ?></td>
                     <td class="text-primary"><?= number_format($element->total, 2) ?></td>
-                    <td class="text-success"><?= number_format($element->pagado, 2) ?></td>
-                    <td>
-
-
+                    <td class="text-success hide-cell"><?= number_format($element->pagado, 2) ?></td>
+                    <td class="hide-cell">
                         <span style="font-size: 16px;" onclick="deleteSpending('<?= $element->orden_id ?>')"
                             class="action-delete"><i class="fas fa-times"></i></span>
                     </td>

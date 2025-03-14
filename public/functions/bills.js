@@ -84,8 +84,8 @@ $(document).ready(function () {
                          <td>${element.name}</td>
                          <td>${element.quantity}</td>
                          <td>${value}</td>
-                         <td>${taxes} - ${tax_value}%</td>
-                         <td>${element.observation}</td>
+                         <td class="hide-cell">${taxes} - ${tax_value}%</td>
+                         <td class="hide-cell">${element.observation}</td>
                          <td>${format.format(element.total_price)}</td>
                          <td>
                          <span class="action-delete" onClick="DeleteLocalstorage(${index});"><i class="fas fa-times"></i></span>

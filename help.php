@@ -22,16 +22,6 @@ class Help
     * Usuarios
       --------------------------------------*/
 
-   // Función para verificar los parent rows de un usuario
-
-   public static function verify_parent_user($id)
-   {
-      $query = "SELECT count(usuario_id) AS 'parent_row' FROM facturas_ventas WHERE usuario_id = '$id'";
-
-      $db = Database::connect();
-      return $db->query($query);
-   }
-
    public static function userID($id)
    {
       $query = "SELECT * FROM usuarios u

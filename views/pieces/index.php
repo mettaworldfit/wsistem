@@ -22,7 +22,7 @@
     <table id="example" class="table-custom table ">
         <thead>
             <tr>
-                <th>Código</th>
+                <th class="hide-cell">Código</th>
                 <th>Nombre</th>
                 <th class="hide-cell">Marca</th>
                 <th class="hide-cell">Categoría</th>
@@ -38,7 +38,7 @@
                 <?php $rows = Help::verify_parent_piece($element->idpieza); while ($parent = $rows->fetch_object()) { ?>
 
                 <tr>
-                    <td><?= $element->cod_pieza ?></td>
+                    <td class="hide-cell"><?= $element->cod_pieza ?></td>
                     <td><?= ucwords($element->nombre_pieza) ?> </td>
                     <td class="hide-cell"><?= ucwords($element->nombre_marca) ?> </td>
                     <td class="hide-cell"><?= ucwords($element->nombre_categoria) ?> </td>

@@ -25,7 +25,7 @@
                 <th>Cliente</th>
                 <th>Recibido</th>
                 <th class="hide-cell">Observación</th>
-                <th>Fecha</th>
+                <th class="hide-cell">Fecha</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -48,7 +48,7 @@
                     <td><?= ucwords($element->nombre) ?>     <?= ucwords($element->apellidos) ?></td>
                     <td class="text-success"><?= number_format($element->pagado, 2) ?></td>
                     <td class="note-width hide-cell"><?= $element->observacion ?></td>
-                    <td><?= $element->creacion ?></td>
+                    <td class="hide-cell"><?= $element->creacion ?></td>
                     <td>
 
                         <?php if ($element->factura_venta_id > 0) { ?>

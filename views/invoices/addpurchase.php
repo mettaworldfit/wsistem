@@ -515,6 +515,16 @@
                         </div>
                     </div>
 
+                    <div class="form-group col-sm-3">
+                        <label class="form-check-label" for="">Dinero recibido</label>
+                        <div class="input-div">
+                            <div class="i">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <input class="form-custom-icon b-left" type="number" name="" value="" id="calc_return">
+                        </div>
+                    </div>
+
                     <div class="control-group mt-4">
                         <label class="control control-checkbox mt-2">
                             Incluir bono

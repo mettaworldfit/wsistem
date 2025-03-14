@@ -643,9 +643,14 @@
 
 
                     <div class="mt-4 modal-footer">
-                        <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal" id=""><i
-                                class="fas fa-window-close"></i> Salir</button>
-                        <button type="submit" class="btn btn-sm btn-success" id=""> Crear contacto</button>
+                        <button type="button" class="btn-custom btn-red" data-dismiss="modal" id="">
+                            <i class="fas fa-window-close"></i>
+                            <p>Salir</p>
+                        </button>
+                        <button type="submit" class="btn-custom btn-green" id="">
+                            <i class="fas fa-plus"></i>
+                            <p>Registrar</p>
+                        </button>
                     </div>
 
                 </form>

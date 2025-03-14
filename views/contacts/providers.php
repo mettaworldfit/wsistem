@@ -19,10 +19,10 @@
     <table id="example" class="table-custom table ">
         <thead>
             <tr>
-                <th>N°</th>
+                <th class="hide-cell">N°</th>
                 <th>Nombre/Razón social</th>
-                <th>Dirección</th>
-                <th>Correo</th>
+                <th class="hide-cell">Dirección</th>
+                <th class="hide-cell">Correo</th>
                 <th>Télefono 1</th>
                 <th>Fecha</th>
                 <th>Acciones</th>
@@ -33,10 +33,10 @@
             <?php while ($element = $providers->fetch_object()): ?>
               
                     <tr>
-                        <td><?= $element->proveedor_id ?></td>
+                        <td class="hide-cell"><?= $element->proveedor_id ?></td>
                         <td class="note-width"><?= $element->nombre_proveedor ?>         <?= $element->apellidos ?></td>
-                        <td class="note-width"><?= $element->direccion ?></td>
-                        <td><?= $element->email ?></td>
+                        <td class="note-width hide-cell"><?= $element->direccion ?></td>
+                        <td class="hide-cell"><?= $element->email ?></td>
                         <td><?= $element->telefono1 ?></td>
                         <td><?= $element->fecha ?></td>
                         <td>

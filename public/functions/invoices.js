@@ -7,6 +7,11 @@ function mysql_row_affected() {
     </div>`).set('basic', true);
 }
 
+function cashback(data) {
+    alertify.alert(`<div class='row-affected d-flex flex-column'>
+    <h2>Devolver</h2> <br>`+"<h1 class='text-danger'> $"+data+`</h1></div>`).set('basic', true);
+}
+
 function mysql_row_update() {
     alertify.alert(`<div class='row-affected'>
     <i class='icon-success far fa-check-circle'></i>
@@ -328,7 +333,7 @@ $(document).ready(function () {
                     $('#cash-pending').val('0.00')
 
                     $('#last_invoice_edit').show()
-                    $('#last_invoice_edit').attr('href', SITE_URL + '/invoices/edit&id=' + res) // botón para editar la  última factura agregada
+                    $('#last_invoice_edit').attr('href', SITE_URL + 'invoices/edit&id=' + res) // botón para editar la  última factura agregada
 
 
                 } else {
@@ -352,17 +357,31 @@ $(document).ready(function () {
 
                     if (res != "") {
 
-                        mysql_row_affected()
-                        reload()
+                        // Calcular devolucion
+
+                        var topay = $('#cash-topay').val().replace(/,/g, "");
+                        var received = $('#calc_return').val();
+                        let calc_return;
+
+                        if (received != '') {
+
+                            calc_return = received - topay;
+                            cashback(format.format(calc_return));
+
+                        } else {
+                            mysql_row_affected()
+                        }
+
+                        reload() // Actualizar datos
 
                       
                         // Imprimir ticket 
                         if (receipt == true) {
                             printer(invoice_id, res, data, "cash");
 
-                            // Imprimir pdf
+                            
                         } else {
-                           // GeneratePDF(invoice_id)
+                           // GeneratePDF(invoice_id) // Imprimir PDF
                         }
 
 
@@ -598,7 +617,7 @@ $(document).ready(function () {
         } else if (type == "credit") {
             file = "factura_credito.php"
         }
-console.log(file)
+          console.log(data)
 
         $.ajax({
             type: "post",

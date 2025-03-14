@@ -15,9 +15,8 @@
             <tr>
                 <th>N°</th>
                 <th>Nombre</th>
-                <th>Apellidos</th>
                 <th>Valor</th>
-                <th>Creado por</th>
+                <th class="hide-cell">Creado por</th>
                 <th>Fecha</th>
                 <th></th>
             </tr>
@@ -28,10 +27,9 @@
 
                 <tr>
                     <td><?= $element->bono_id ?></td>
-                    <td><?= ucwords($element->nombre) ?></td>
-                    <td><?= ucwords($element->apellidos) ?></td>
+                    <td class="note-width"><?= ucwords($element->nombre) ?> <?= ucwords($element->apellidos) ?></td>
                     <td><?= number_format($element->valor, 2) ?></td>
-                    <td><?= ucwords($element->nombre_usuario) ?>     <?= ucwords($element->apellidos_usuario) ?></td>
+                    <td class="hide-cell"><?= ucwords($element->nombre_usuario) ?> <?= ucwords($element->apellidos_usuario) ?></td>
                     <td><?= $element->fecha ?></td>
 
                     <td>

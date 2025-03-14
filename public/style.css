@@ -438,6 +438,13 @@ span.select2-container--default {
     font-size: 14px
 }
 
+
+@media (min-width: 576px) {
+    .modal-dialog {
+        max-width: 630px !important;
+    }
+}
+
 @media (max-width:1340px) {
     .form-check-label {
         font-size: 12px

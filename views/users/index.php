@@ -20,7 +20,7 @@
     <table id="example" class="table-custom table ">
         <thead>
             <tr>
-                <th>N°</th>
+                <th class="hide-cell">N°</th>
                 <th>Nombre</th>
                 <th>Rol</th>
                 <th>Estado</th>
@@ -33,11 +33,9 @@
 
         <tbody>
             <?php while ($element = $users->fetch_object()): ?>
-                <?php $parents = Help::verify_parent_user($element->usuario_id);
-                while ($parent = $parents->fetch_object()) { ?>
 
                     <tr>
-                        <td><?= $element->usuario_id ?></td>
+                        <td class="hide-cell"><?= $element->usuario_id ?></td>
                         <td><?= ucwords($element->nombre) ?>         <?= ucwords($element->apellidos) ?></td>
                         <td><?= $element->nombre_rol ?></td>
                         <td>
@@ -61,16 +59,13 @@
                                 <i class="fas fa-lightbulb"></i>
                             </span>
 
-                            <span <?php if ($parent->parent_row == 0) { ?> class="action-delete"
-                                    onclick="deleteUser('<?= $element->usuario_id ?>')" <?php } else { ?>
-                                    class="action-delete action-disable" <?php } ?> title="Eliminar">
+                            <span class="action-delete" onclick="deleteUser('<?= $element->usuario_id ?>')" title="Eliminar">
                                 <i class="fas fa-times"></i>
                             </span>
                         </td>
                     </tr>
 
-                <?php }
-            endwhile; ?>
+                <?php endwhile; ?>
         </tbody>
 
     </table>

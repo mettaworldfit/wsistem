@@ -22,11 +22,11 @@
             <tr>
                 <th>N°</th>
                 <th>Documento</th>
-                <th>Proveedor</th>
+                <th class="hide-cell">Proveedor</th>
                 <th>Monto</th>
-                <th>Observación</th>
+                <th class="hide-cell">Observación</th>
                 <th>Fecha</th>
-                <th>Acciones</th>
+                <th class="hide-cell">Acciones</th>
             </tr>
         </thead>
 
@@ -36,11 +36,11 @@
                 <tr>
                     <td><?= $element->id ?></td>
                     <td>FP-00<?= $element->factura_proveedor_id ?></td>
-                    <td><?= ucwords($element->nombre_proveedor) ?>     <?= ucwords($element->apellidos) ?></td>
+                    <td class="hide-cell"><?= ucwords($element->nombre_proveedor) ?>     <?= ucwords($element->apellidos) ?></td>
                     <td class="text-success"><?= number_format($element->pagado, 2) ?></td>
-                    <td class="note-width"><?= $element->observacion ?></td>
+                    <td class="note-width hide-cell"><?= $element->observacion ?></td>
                     <td><?= $element->creacion ?></td>
-                    <td>
+                    <td class="hide-cell">
 
                         <span style="font-size: 16px;" onclick="deletePaymentProvider('<?= $element->id ?>')"
                             class="action-delete"><i class="fas fa-times"></i></span>
