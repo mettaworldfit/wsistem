@@ -51,8 +51,6 @@ class Database
 
         try {
             $db = new mysqli($client['host'], $client['user'], $client['pass'], $client['dbname']);
-            $db->query("SET NAMES 'utf8'");
-            $db->query("SET time_zone = '-4:00'");
 
             if ($db->connect_errno) {
                 printf("Error de conexión: %s\n", $db->connect_error);

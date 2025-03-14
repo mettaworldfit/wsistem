@@ -441,7 +441,7 @@ span.select2-container--default {
 
 @media (min-width: 576px) {
     .modal-dialog {
-        max-width: 630px !important;
+        max-width: 710px !important;
     }
 }
 

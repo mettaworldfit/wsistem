@@ -1035,13 +1035,13 @@ class Help
       $db = Database::connect();
 
       $query = "CREATE TRIGGER restar_stock_piezas
-      AFTER INSERT ON detalle_ventas_con_piezas FOR EACH ROW
+      AFTER INSERT ON detalle_ventas_con_piezas_ FOR EACH ROW
       BEGIN
       
       declare ID int;
       declare Cant int;
       
-      SET @ID = (SELECT producto_id FROM detalle_ventas_con_piezas where detalle_venta_id = NEW.detalle_venta_id);
+      SET @ID = (SELECT producto_id FROM detalle_ventas_con_piezas_ where detalle_venta_id = NEW.detalle_venta_id);
       SET @Cant = (SELECT cantidad FROM detalle_facturas_ventas where detalle_venta_id = NEW.detalle_venta_id);
       
       IF (@ID != '') THEN 

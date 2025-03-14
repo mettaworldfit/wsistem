@@ -356,7 +356,7 @@ $(document).ready(function () {
                 success: function (res) {
 
                     if (res != "") {
-
+console.log(JSON.parse(res))
                         // Calcular devolucion
 
                         var topay = $('#cash-topay').val().replace(/,/g, "");
@@ -794,7 +794,7 @@ $(document).ready(function () {
      *  Imprimir la factura luego de ser facturada en la sección editar factura
      */
 
-console.log($('#select2-customer-container').attr('title'))
+
     $('#printer_inv').on('click', (e) => {
         e.preventDefault;
 
