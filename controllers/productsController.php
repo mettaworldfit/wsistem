@@ -41,6 +41,14 @@ class ProductsController
         }
     } 
 
+    public function stock()
+    {
+        $model = new Products();
+
+        $products = $model->showMinStock();
+        require_once './views/products/stock.php';
+    }
+
   
 
     

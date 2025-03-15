@@ -1,6 +1,6 @@
 {
     "name": "wsistem",
-    "short_name": "wsistem by codev",
+    "short_name": "Wsistem",
     "description": "Obtenga el control de su negocio desde cualquier lugar, vea estadísticas de ventas, stock, etc",
     "start_url": "home/index",
     "display_override": [

@@ -65,10 +65,10 @@ label {
     cursor: pointer !important
 }
 
-span.alert-notify p {
+/* span.alert-notify p {
     color: #fff;
     position: absolute;
-    background: #ac06ac;
+    background: #f7b204;
     border-radius: 50%;
     width: 15px;
     height: 15px;
@@ -78,6 +78,44 @@ span.alert-notify p {
     top: 0;
     font-size: 9px;
     font-weight: 700;
+} */
+
+.alert-notify p {
+    color: #fff;
+    position: absolute;
+    background: #f7b204;
+    border-radius: 50%;
+    top: 0;
+    font-weight: 700;
+}
+
+
+span.alert-notify-xs p {
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+    margin: 8px 0 0 12px;
+    padding-left: 5px;
+    font-size: 8px;
+}
+
+
+span.alert-notify-md p {
+    width: 15px;
+    height: 15px;
+    line-height: 16px;
+    margin: 8px 0 0 12px;
+    padding-left: 3px;
+    font-size: 8px;
+}
+
+span.alert-notify-lg p {
+    width: 17px;
+    height: 17px;
+    line-height: 17px;
+    margin: 5px 0 0 10px;
+    padding-left: 3px;
+    font-size: 7px;
 }
 
 p.list_db {
@@ -648,7 +686,13 @@ span.select2-container--default {
     box-shadow: 0 4px 8px -6px;
     border-radius: 5px;
     background: #fff;
-    width: 50%
+    width: 100%
+}
+
+@media (min-width: 920px) {
+    .generalContainer-medium {
+        width: 80%;
+    }
 }
 
 .user-content {
@@ -660,20 +704,31 @@ span.select2-container--default {
     float: right;
     width: 100%;
     margin-top: 60px;
-    padding: 0 19px
+    padding: 0 6px;
 }
+
+
 
 @media (min-width:1025px) {
     .wrap {
-        width: 81%
+        width: 81%;
+        padding: 0 19px;
     }
 }
 
 @media (min-width:970px) {
     .wrap {
-        width: 79%
+        width: 79%;
+        padding: 0 19px;
     }
 }
+
+@media (min-width:724px) {
+    .wrap {
+        padding: 0 19px;
+    }
+}
+
 
 .main {
     overflow: auto;
@@ -1381,10 +1436,6 @@ button.btn-del {
         flex-direction: column;
         width: 100%
     }
-}
-
-.align-content {
-    height: 190px
 }
 
 @media (min-width:724px) {
@@ -2297,18 +2348,18 @@ a.button-404:hover {
 
 .menu-movil {
     position: absolute;
-    width: 615px;
+    width: 311px;
     height: 100vh;
     overflow: auto;
-    box-shadow: 0 0 10px #4f2d58;
-    margin: -50px 0 0 -50px;
-    padding: 25px 0 25px 25px;
-    background-color: #212529;
+    margin: -25px 0 0 -35px;
+    padding: 64px 0 25px 10px;
+    background-color: #303741;
     -webkit-font-smoothing: antialiased;
     transform-origin: 0% 0%;
     transform: translate(-100%, 0);
     transition: transform 0.5s cubic-bezier(.77, .2, .05, 1)
 }
+
 
 @media (min-width:924px) {
     .menu-movil {

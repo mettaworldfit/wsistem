@@ -381,7 +381,7 @@ $(document).ready(function () {
 
                             
                         } else {
-                            GeneratePDF(invoice_id) // Imprimir PDF
+                           // GeneratePDF(invoice_id) // Imprimir PDF
                         }
 
 

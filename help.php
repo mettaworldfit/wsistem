@@ -1125,18 +1125,12 @@ class Help
 
    // Función para mostrar la cantidad de productos y servicios fuera de stock
 
-   public static function out_sock()
+   public static function MinStockProduct()
    {
 
       $db = Database::connect();
 
-      $query = "SELECT sum(stock) as stock FROM (
-    
-         select count(producto_id) as stock from productos where cantidad = 0
-         UNION ALL
-        select count(pieza_id) as stock from piezas where cantidad = 0
-         
-         ) productos_sin_stock;";
+      $query = "SELECT count(producto_id) as stock from productos where cantidad <= cantidad_min";
 
       $result = $db->query($query);
       $data = $result->fetch_object();

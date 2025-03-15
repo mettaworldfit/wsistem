@@ -131,7 +131,7 @@
               <span></span>
 
               <ul id="accordion-movil" class="accordion menu-movil">
-                <<li>
+                <li>
                   <div class="link"><a href="<?= base_url ?>home/index"><i class="mr-3 fas fa-home"></i>Inicio</a></div>
                   </li>
 
@@ -249,10 +249,28 @@
 
 
               <div class="out-stock">
-                <a href="<?= base_url ?>products/stock">
-                  <span class="alert-notify"><i class="fas fa-box"></i>
-                    <p><?= Help::out_sock() ?></p>
+                <a href="<?= base_url ?>products/stock" title="Casi agotados">
+                <?php 
+
+                   $stock = Help::MinStockProduct();
+                   $className = "";
+
+                   if($stock < 10) {
+                      $className .= "alert-notify alert-notify-xs";
+                   } elseif ($stock > 99) {
+                    $className .= "alert-notify alert-notify-lg";
+                    $stock = "99+"; // Nuevo stock
+                   } else {
+                    $className .= "alert-notify alert-notify-md";
+                   }
+                
+                ?>
+
+                  <span class="<?= $className ?>">
+                  <i class="fas fa-inbox"></i>
+                     <p><?= $stock; ?></p>
                   </span>
+
                 </a>
               </div>
 
