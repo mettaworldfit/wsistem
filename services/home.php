@@ -9,6 +9,7 @@ session_start();
 if ($_POST['action'] == 'ventas_meses') {
     $db = Database::connect();
 
+
     $query1 = "SET @@lc_time_names = 'es_DO';";
 
     $query2 = "SELECT monthname(fecha) AS 'mes' ,sum(total) as total FROM (
@@ -25,21 +26,20 @@ if ($_POST['action'] == 'ventas_meses') {
                                       
     ) ingresos_por_meses group by mes";
 
-             $db->query($query1);
+    $db->query($query1);
     $datos = $db->query($query2);
 
-    if ($datos->num_rows > 0){
+    if ($datos->num_rows > 0) {
 
         $result = $datos->fetch_all();
         echo json_encode($result, JSON_UNESCAPED_UNICODE);
-
-    }   
+    }
 }
 
 
- // Gastos de todos los meses
+// Gastos de todos los meses
 
- if ($_POST['action'] == 'gastos_meses') {
+if ($_POST['action'] == 'gastos_meses') {
     $db = Database::connect();
 
     $query1 = "SET @@lc_time_names = 'es_DO';";
@@ -59,13 +59,29 @@ if ($_POST['action'] == 'ventas_meses') {
                                       
     ) gastos_por_meses group by mes";
 
-             $db->query($query1);
+    $db->query($query1);
     $datos = $db->query($query2);
 
-    if ($datos->num_rows > 0){
+    if ($datos->num_rows > 0) {
 
         $result = $datos->fetch_all();
         echo json_encode($result, JSON_UNESCAPED_UNICODE);
+    }
+}
 
-    } 
- }
+
+if ($_POST['action'] == 'ventas_mes') {
+    $db = Database::connect();
+
+    $query = "SELECT DAY(fecha) AS dia, SUM(total) as total FROM facturas_ventas 
+            WHERE MONTH(fecha) = 3 AND YEAR(fecha) = 2025
+            GROUP BY dia ORDER BY dia";
+
+    $datos = $db->query($query);
+
+    if ($datos->num_rows > 0) {
+
+        $result = $datos->fetch_all();
+        echo json_encode($result, JSON_UNESCAPED_UNICODE);
+    }
+}

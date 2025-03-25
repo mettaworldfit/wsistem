@@ -1,7 +1,7 @@
 const PRINTER_SERVER = "http://localhost:81/tickets/";
-const SITE_URL =  window.location.protocol + '//' + window.location.host + '/';
+const SITE_URL = window.location.protocol + '//' + window.location.host + '/';
 
-function mysql_row_affected () {
+function mysql_row_affected() {
     alertify.alert(`<div class='row-affected'>
     <i class='icon-success far fa-check-circle'></i>
     <p>Registrado exitosamente</p>
@@ -23,16 +23,16 @@ function mysql_error(err) {
     </div>`).set('basic', true);
 }
 
-$(document).ready(function () {
+$(document).ready(function() {
 
-    $('.load').hide();
-    $('.missing').hide();
+        $('.load').hide();
+        $('.missing').hide();
 
 
-    // Iniciar sesión
+        // Iniciar sesión
 
-    $('#login').on('submit', (e) => {
-        e.preventDefault();
+        $('#login').on('submit', (e) => {
+            e.preventDefault();
 
             $.ajax({
                 type: "post",
@@ -42,11 +42,11 @@ $(document).ready(function () {
                     password: $('#userPassword').val(),
                     action: 'login'
                 },
-                beforeSend: function () {
+                beforeSend: function() {
                     $('#btn-txt').hide();
                     $('.load').show();
                 },
-                success: function (res) {
+                success: function(res) {
 
                     if (res == "approved") {
                         location.href = SITE_URL + "home/index";
@@ -60,38 +60,38 @@ $(document).ready(function () {
                 }
             });
 
-    })
+        })
 
 
-    // Cerrar sesión
+        // Cerrar sesión
 
-    $('#logout').on('click', (e) => {
-        e.preventDefault();
+        $('#logout').on('click', (e) => {
+            e.preventDefault();
 
-        $.ajax({
-            type: "post",
-            url: SITE_URL + "services/users.php",
-            data: {
-                action: 'logout'
-            },
-            success: function (res) {
+            $.ajax({
+                type: "post",
+                url: SITE_URL + "services/users.php",
+                data: {
+                    action: 'logout'
+                },
+                success: function(res) {
 
-                if (res == "ready") {
-                    location.reload();
+                    if (res == "ready") {
+                        location.reload();
+                    }
                 }
-            }
-        });
+            });
 
-    })
+        })
 
 
-}) // Ready
+    }) // Ready
 
 
 function deleteUser(user_id) {
 
-    alertify.confirm("Eliminar usuario","¿Estas seguro que deseas borrar este usuario? ",
-        function () {
+    alertify.confirm("Eliminar usuario", "¿Estas seguro que deseas borrar este usuario? ",
+        function() {
 
             $.ajax({
                 type: "post",
@@ -100,20 +100,20 @@ function deleteUser(user_id) {
                     action: "eliminar_usuario",
                     user_id: user_id
                 },
-                success: function (res) {
+                success: function(res) {
 
                     if (res == "ready") {
 
                         $(".table").load(location.href + " .table");
-        
+
                     } else if (res.includes("Error")) {
-        
-                       mysql_error(res)
+
+                        mysql_error(res)
                     }
                 }
             });
         },
-        function () {
+        function() {
 
         });
 }
@@ -134,24 +134,24 @@ function AddUser() {
             password: $('#password').val(),
             action: "crear_usuario"
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 
                 $('input[type="text"]').val('');
                 $('input[type="password"]').val('');
-               
+
                 mysql_row_affected();
 
             } else if (res == "duplicate") {
 
                 mysql_error('El nombre de usuario ya está siendo utilizado');
-                
+
             } else if (res.includes("Error")) {
                 mysql_error(res)
             }
 
-           
+
         }
     });
 }
@@ -172,23 +172,23 @@ function UpdateUser(user_id) {
             password: $('#password').val(),
             action: "actualizar_usuario"
         },
-        beforeSend: function () {
-           
+        beforeSend: function() {
+
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
-               mysql_row_update()
+                mysql_row_update()
 
             } else if (res == "duplicate") {
 
                 mysql_error('El nombre de usuario ya está siendo utilizado');
-                
+
             } else if (res.includes("Error")) {
                 mysql_error(res)
             }
 
-           
+
 
         }
     });
@@ -198,70 +198,68 @@ function UpdateUser(user_id) {
 // Desactivar usuario
 
 function disableUser(user_id) {
-    alertify.confirm("<i class='text-warning fas fa-exclamation-circle'></i> Desactivar usuario","¿Desea desactivar este usuario? ",
-      function () {
-        $.ajax({
-          type: "post",
-          url: SITE_URL + "services/users.php",
-          data: {
-            user_id: user_id,
-            action: "desactivar_usuario",
-          },
-          beforeSend: function () {
-          
-          },
-          success: function (res) {
+    alertify.confirm("<i class='text-warning fas fa-exclamation-circle'></i> Desactivar usuario", "¿Desea desactivar este usuario? ",
+        function() {
+            $.ajax({
+                type: "post",
+                url: SITE_URL + "services/users.php",
+                data: {
+                    user_id: user_id,
+                    action: "desactivar_usuario",
+                },
+                beforeSend: function() {
 
-            if (res == "ready") {
+                },
+                success: function(res) {
 
-                $("#example").load(" #example");
+                    if (res == "ready") {
 
-            } else {
-                mysql_error(res)
-            }
-           
+                        $("#example").load(" #example");
 
-          },
-        });
-      },
-      function () { }
+                    } else {
+                        mysql_error(res)
+                    }
+
+
+                },
+            });
+        },
+        function() {}
     );
-  }
-  
-  // Activar usuario
-  
-  function enableUser(user_id) {
-    alertify.confirm("Activar usuario","¿Desea activar este usuario? ",
-      function () {
+}
 
-        $.ajax({
-          type: "post",
-          url: SITE_URL + "services/users.php",
-          data: {
-            user_id: user_id,
-            action: "activar_usuario",
-          },
-          beforeSend: function () {
-            $(".loader").show();
-          },
-          success: function (res) {
+// Activar usuario
 
-            if (res == "ready") {
+function enableUser(user_id) {
+    alertify.confirm("Activar usuario", "¿Desea activar este usuario? ",
+        function() {
 
-                $("#example").load(" #example");
+            $.ajax({
+                type: "post",
+                url: SITE_URL + "services/users.php",
+                data: {
+                    user_id: user_id,
+                    action: "activar_usuario",
+                },
+                beforeSend: function() {
+                    $(".loader").show();
+                },
+                success: function(res) {
 
-            } else {
-                mysql_error(res)
-            }
+                    if (res == "ready") {
 
-            $(".loader").hide();
+                        $("#example").load(" #example");
 
-          },
+                    } else {
+                        mysql_error(res)
+                    }
+
+                    $(".loader").hide();
+
+                },
+            });
+        },
+        function() {
+
         });
-      },
-      function () { 
-
-      });
-  }
-
-  
+}

@@ -6,6 +6,20 @@ class HomeController
 
     public function index()
     {
+ 
+
+        // Abreviar cifras
+        function number_format_short($n, $precision = 1) {
+            if ($n < 900) {
+                return $n; // Menos de 900
+            } elseif ($n < 900000) {
+                return round($n / 1000, $precision) . 'K'; // Miles
+            } elseif ($n < 900000000) {
+                return round($n / 1000000, $precision) . 'M'; // Millones
+            } else {
+                return round($n / 1000000000, $precision) . 'B'; // Billones
+            }
+        }
 
         $model = new Home();
         $total_purchase = $model->Purchase_today();

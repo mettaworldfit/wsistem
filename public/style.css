@@ -65,6 +65,7 @@ label {
     cursor: pointer !important
 }
 
+
 /* span.alert-notify p {
     color: #fff;
     position: absolute;
@@ -89,7 +90,6 @@ label {
     font-weight: 700;
 }
 
-
 span.alert-notify-xs p {
     width: 14px;
     height: 14px;
@@ -98,7 +98,6 @@ span.alert-notify-xs p {
     padding-left: 5px;
     font-size: 8px;
 }
-
 
 span.alert-notify-md p {
     width: 15px;
@@ -139,7 +138,7 @@ p.list_db {
 p,
 a,
 input,
-select{
+select {
     font-family: "Nunito-Regular", sans-serif;
 }
 
@@ -180,7 +179,6 @@ h6 {
         padding: 12px;
         margin-left: 10px
     }
-
     .btn-custom:first-child {
         margin-left: 0
     }
@@ -190,7 +188,6 @@ h6 {
     .btn-custom {
         margin-left: 10px
     }
-
     .btn-custom:first-child {
         margin-left: 0
     }
@@ -476,7 +473,6 @@ span.select2-container--default {
     font-size: 14px
 }
 
-
 @media (min-width: 576px) {
     .modal-dialog {
         max-width: 710px !important;
@@ -487,7 +483,6 @@ span.select2-container--default {
     .form-check-label {
         font-size: 12px
     }
-
     span.select2-container--default {
         font-size: 11px
     }
@@ -532,7 +527,6 @@ span.select2-container--default {
 }
 
 @media (max-width:1340px) {
-
     .add_variant a,
     .add_variant_to_product a,
     .add_price_list a,
@@ -540,7 +534,6 @@ span.select2-container--default {
     .add_list_to_product a {
         font-size: 11px
     }
-
     .add_price_list,
     .add_variant,
     .add_list_to_product,
@@ -707,8 +700,6 @@ span.select2-container--default {
     padding: 0 6px;
 }
 
-
-
 @media (min-width:1025px) {
     .wrap {
         width: 81%;
@@ -728,7 +719,6 @@ span.select2-container--default {
         padding: 0 19px;
     }
 }
-
 
 .main {
     overflow: auto;
@@ -884,7 +874,6 @@ section.content-bar {
         font-size: 17px;
         margin-right: 16px
     }
-
     .user span {
         font-size: 12px
     }
@@ -997,7 +986,6 @@ section.content-bar {
         width: 70%
     }
 }
-
 
 .info p {
     font-family: "Nunito-Regular", sans-serif;
@@ -1150,7 +1138,6 @@ section.content-bar {
     font-family: "Nunito-Regular", sans-serif;
     color: #fff;
     font-size: 11px;
-    
     position: relative;
     -webkit-transition: all 0.4s ease;
     -o-transition: all 0.4s ease;
@@ -1168,11 +1155,9 @@ section.content-bar {
         padding: 25px 15px 25px 42px;
         font-size: 14px;
     }
-
-    .accordion .link a {   
-      font-size: 14px;
+    .accordion .link a {
+        font-size: 14px;
     }
-
 }
 
 .accordion .link:hover {
@@ -1243,7 +1228,6 @@ section.content-bar {
 }
 
 @media (min-width:1340px) {
-
     .submenu {
         font-size: 13px;
         font-weight: bold;
@@ -1516,25 +1500,20 @@ button.btn-del {
     .action-paid {
         font-size: 18px;
     }
-    
     .action-toggle {
         font-size: 18px;
     }
-    
     .action-view {
         font-size: 18px;
     }
-    
     .action-edit {
         font-size: 18px;
     }
-    
     .action-delete {
         font-size: 18px;
     }
-    
     .action-active {
-        font-size: 18px;  
+        font-size: 18px;
     }
 }
 
@@ -1645,7 +1624,6 @@ table#Detalle {
     .table-custom thead th {
         font-size: 12px
     }
-
     .table-custom tbody td {
         font-size: 11px
     }
@@ -1781,11 +1759,9 @@ textarea:focus {
     0% {
         transform: rotate(0deg)
     }
-
     50% {
         transform: rotate(22.5deg)
     }
-
     100% {
         transform: rotate(45deg)
     }
@@ -1925,14 +1901,12 @@ textarea:focus {
     .control {
         font-size: 12px
     }
-
     .control_indicator {
         top: 2px;
         left: 11px;
         height: 15px;
         width: 14px
     }
-
     .control-checkbox .control_indicator:after {
         left: 4px;
         width: 5px
@@ -1971,7 +1945,6 @@ textarea:focus {
         padding: 2.5px 0 2.5px 2px;
         font-size: 12px
     }
-
     .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
         font-size: 12px !important
     }
@@ -2064,12 +2037,10 @@ input[type="date"].form-custom-icon {
 }
 
 @media (max-width:1340px) {
-
     .head-content,
     .head-content h6 {
         font-size: 10pt
     }
-
     .modal-title {
         font-size: 14pt !important
     }
@@ -2207,7 +2178,6 @@ input[type="date"].form-custom-icon {
     .radio-item label {
         font-size: 12px
     }
-
     .select2-container--default .select2-selection--single .select2-selection__rendered {
         font-size: 11px !important
     }
@@ -2360,12 +2330,10 @@ a.button-404:hover {
     transition: transform 0.5s cubic-bezier(.77, .2, .05, 1)
 }
 
-
 @media (min-width:924px) {
     .menu-movil {
         display: none
     }
-
     #menuToggle {
         display: none
     }
@@ -2386,4 +2354,110 @@ a.button-404:hover {
 .queryContainer {
     height: 90vh;
     overflow: hidden
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(49%, 49%));
+    /* grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); */
+    gap: 7px;
+}
+
+@media (min-width: 970px) {
+    .grid-container {
+        grid-template-columns: repeat(6, 1fr);
+    }
+    .card-grid:nth-child(7) {
+        grid-column: 1 / 4 !important;
+    }
+    .card-grid:nth-child(8) {
+        grid-column: 4 / 7 !important;
+        grid-row: 1 / 3;
+    }
+    .card-grid:last-child {
+        grid-column: 4 / 7 !important;
+    }
+}
+
+@media (min-width: 1350px) {
+    .card-grid p {
+        font-size: 14px;
+    }
+    .card-grid:nth-child(7) {
+        height: 350px !important;
+    }
+    .card-grid:nth-child(8) {
+        height: 350px !important;
+    }
+    .card-grid:last-child {
+        height: 350px !important;
+    }
+}
+
+@media (min-width: 1750px) {
+    .card-grid:nth-child(7) {
+        height: 420px !important;
+    }
+    .card-grid:nth-child(8) {
+        height: 420px !important;
+    }
+    .card-grid:last-child {
+        height: 420px !important;
+    }
+}
+
+.card-grid {
+    display: grid;
+    height: 100%;
+    background: white;
+    box-shadow: 0px 0px 2px -1px #333;
+    border-radius: 2px;
+    gap: 2px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.card-grid:first-child span {
+    color: #2cc098;
+}
+
+.card-grid:nth-child(2) span {
+    color: #db2b2b;
+}
+
+.card-grid:nth-child(7) {
+    grid-column: 1 / 3;
+    height: 250px;
+    background: white;
+}
+
+.card-grid:nth-child(8) {
+    grid-column: 1 / 3;
+    height: 250px;
+    background: white;
+}
+
+.card-grid:last-child {
+    grid-column: 1 / 3;
+    height: 250px;
+    background: white;
+}
+
+.card-grid p {
+    font-size: 11px;
+    font-weight: 600;
+    margin: 0px;
+    color: #353535;
+}
+
+.card-grid p:nth-child(2) {
+    font-weight: 300;
+    margin: 0;
+}
+
+.card-grid span {
+    text-align: center;
+    font-size: 16pt;
+    font-weight: 800;
+    color: #353535;
 }

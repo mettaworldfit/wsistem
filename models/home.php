@@ -2,7 +2,8 @@
 
 require_once 'modelo.php';
 
-class Home extends ModeloBase {
+class Home extends ModeloBase
+{
 
 
     public function __construct()
@@ -56,7 +57,7 @@ class Home extends ModeloBase {
 
         return $element->total;
     }
-    
+
     public function All_providers()
     {
 
@@ -67,7 +68,7 @@ class Home extends ModeloBase {
 
         return $element->total;
     }
-    
+
 
     public function Purchase_today()
     {
@@ -127,4 +128,5 @@ class Home extends ModeloBase {
 
         return $element->total;
     }
-} 
+
+}

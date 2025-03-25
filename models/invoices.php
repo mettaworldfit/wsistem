@@ -27,10 +27,11 @@ class Invoices extends ModeloBase
     public function showInvoices()
     {
 
-        $query = "SELECT *, f.fecha as fecha_factura FROM facturas_ventas f 
-    INNER JOIN clientes c ON f.cliente_id = c.cliente_id
-    INNER JOIN estados_generales s ON f.estado_id = s.estado_id 
-    INNER JOIN metodos_de_pagos m ON f.metodo_pago_id = m.metodo_pago_id ORDER BY f.factura_venta_id ASC";
+        $query = "SELECT f.factura_venta_id, c.nombre, c.apellidos , f.total, f.recibido, f.pendiente,
+                f.bono, e.nombre_estado, f.fecha as fecha_factura FROM facturas_ventas f 
+                INNER JOIN clientes c ON f.cliente_id = c.cliente_id
+                INNER JOIN estados_generales e ON f.estado_id = e.estado_id  
+                ORDER BY f.factura_venta_id ASC";
 
         return $this->db->query($query);
     }

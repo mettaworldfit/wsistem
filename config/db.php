@@ -16,6 +16,14 @@ class Database
             //     'company' => 'wsistems.com', 
             //     'pdf-img' => ''],
 
+            'invitado' => [
+                'host' => 'localhost', 
+                'dbname' => 'invitados', 
+                'user' => 'Wilmin', 
+                'pass' => 'Mett@1106',
+                'company' => 'Modo Prueba', 
+                'pdf-img' => ''],
+
             'master' => [
                 'host' => 'localhost', 
                 'dbname' => 'master_movil', 
@@ -25,12 +33,12 @@ class Database
                 'pdf-img' => ''],
 
            'admin' => [
-                'host' => 'localhost', 
-                'dbname' => 'chino_com_mao', 
-                'user' => 'Wilmin', 
-                'pass' => 'Mett@1106',
-                'company' => 'Chino comunicaciones', 
-                'pdf-img' => ''],
+            'host' => 'localhost', 
+            'dbname' => 'chino_com_mao', 
+            'user' => 'Wilmin', 
+            'pass' => 'Mett@1106',
+            'company' => 'Chino comunicaciones', 
+            'pdf-img' => ''],
 
             'user' => [
                 'host' => 'localhost', 
