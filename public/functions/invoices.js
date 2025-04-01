@@ -198,7 +198,7 @@ $(document).ready(function() {
     $('#cash-in-finish-receipt').hide() // Botón de factura al contado con ticket
     $('#cash-in-finish').hide() // Botón de factura al contado
 
-    if (pageURL.includes("invoices/addpurchase") || pageURL.includes("invoices/edit") || pageURL.includes("invoices/edit_quote")) {
+    if (pageURL.includes("invoices/addpurchase") || pageURL.includes("invoices/edit") || pageURL.includes("invoices/edit_quote") || pageURL.includes("invoices/quote")) {
         invoice_total() // Cargar total de la factura actual
 
         // Cambiar tipo de item a agregar
