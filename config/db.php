@@ -9,45 +9,95 @@ class Database
         // Configuración de las bases de datos
         $dbConfig = [
             // 'admin' => [
-            //     'host' => 'localhost', 
-            //     'dbname' => 'proyecto', 
-            //     'user' => 'root', 
-            //     'pass' => '', 
-            //     'company' => 'wsistems.com', 
-            //     'pdf-img' => ''],
+            //     'host' => 'localhost',
+            //     'dbname' => 'proyecto',
+            //     'user' => 'root',
+            //     'pass' => '',
+
+            //     'company' => 'Localhost', // Localhost
+            //     'logo' => 'public/imagen/sistem/pdf.png', // logo
+            //     'slogan' => '',
+            //     'direction' => '',
+            //     'phone' => '',
+            //     'footer' => '',
+            //     'caption' => ''
+            // ],
 
             'invitado' => [
-                'host' => 'localhost', 
-                'dbname' => 'invitados', 
-                'user' => 'Wilmin', 
+                'host' => 'localhost',
+                'dbname' => 'invitados',
+                'user' => 'Wilmin',
                 'pass' => 'Mett@1106',
-                'company' => 'Modo Prueba', 
-                'pdf-img' => ''],
+
+                'company' => 'Modo Prueba', // Cliente Prueba 1
+                'logo' => 'public/imagen/sistem/pdf.png', // logo
+                'slogan' => '',
+                'direction' => '',
+                'phone' => '',
+                'footer' => '',
+                'caption' => ''
+            ],
+
+            'mambo' => [
+                'host' => 'localhost',
+                'dbname' => 'mamborestaurant',
+                'user' => 'Wilmin',
+                'pass' => 'Mett@1106',
+
+                'company' => 'Mamborestaurant', // Cliente Mambocafeteria
+                'logo' => 'public/imagen/sistem/pdf.png', // logo
+                'slogan' => '',
+                'direction' => '',
+                'phone' => '',
+                'footer' => '',
+                'caption' => ''
+            ],
 
             'master' => [
+                'host' => 'localhost',
+                'dbname' => 'master_movil',
+                'user' => 'Wilmin',
+                'pass' => 'Mett@1106',
+
+                'company' => 'Master Movil', // EliSaul Brito
+                'logo' => 'public/imagen/sistem/elisaul.png', // logo
+                'slogan' => '',
+                'direction' => '',
+                'phone' => '-',
+                'footer' => '',
+                'caption' => ''
+            ],
+
+            'admin' => [
                 'host' => 'localhost', 
-                'dbname' => 'master_movil', 
+                'dbname' => 'chino_com_mao', 
                 'user' => 'Wilmin', 
                 'pass' => 'Mett@1106',
-                'company' => 'Master Movil', 
-                'pdf-img' => ''],
 
-           'admin' => [
-            'host' => 'localhost', 
-            'dbname' => 'chino_com_mao', 
-            'user' => 'Wilmin', 
-            'pass' => 'Mett@1106',
-            'company' => 'Chino comunicaciones', 
-            'pdf-img' => ''],
+                'company' => 'Chino comunicaciones', // Chino comunicaciones
+                'logo' => 'public/imagen/sistem/chino_com.png', // logo
+                'slogan' => 'La garantía de tu comunicación',
+                'direction' => 'C/ 27 de Fébrero (Frente al correo) Mao, Valverde R.D.',
+                'phone' => '(809) 572-3846',
+                'footer' => 'Equipos vendidos incluyen 30 días de garantía en piezas y servicios, no garantía sin factura, no se reciben equipos: mojados, golpeados, apagados, pantallas rotas o pantallas en negro, manipulados por otros técnicos o sin sellos de garantía. Batería y cargadores 3 días de garantía, accesorios no tienen garantía a menos que se le indique.Pantallas y reparaciones no incluyen garantía.',
+                'caption' => 'No hay devolución de dinero en efectivo pasadas las 24 horas.'
+            ],
 
             'user' => [
-                'host' => 'localhost', 
-                'dbname' => 'el_furgonazo', 
-                'user' => 'Wilmin', 
+                'host' => 'localhost',
+                'dbname' => 'el_furgonazo',
+                'user' => 'Wilmin',
                 'pass' => 'Mett@1106',
-                'company' => 'El furgonazo', 
-                'pdf-img' => ''],
-           
+
+                'company' => 'El furgonazo', // El furgonazo
+                'logo' => 'public/imagen/sistem/pdf.png', // logo
+                'slogan' => '',
+                'direction' => '',
+                'phone' => '-',
+                'footer' => '',
+                'caption' => ''
+            ],
+
             // Agrega más clientes según sea necesario
         ];
 
@@ -69,13 +119,15 @@ class Database
             $_SESSION['infoClient'] = [
                 "dbname" => $client['dbname'],
                 "company" => $client['company'],
-                "pdf-img" => $client['pdf-img']
-
-            ]; 
+                "logo" => $client['logo'],
+                "slogan" => $client['slogan'],
+                "direction" => $client['direction'],
+                "phone" => $client['phone'],
+                "footer" => $client['footer'],
+                "caption" => $client['caption']
+            ];
 
             return $db;
-
-
         } catch (Exception $e) {
             echo "Error de conexión: " . $e->getMessage();
         }
@@ -103,7 +155,5 @@ class Database
         }
 
         return $db;
-
     }
-
 }

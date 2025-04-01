@@ -91,4 +91,14 @@ class Invoices extends ModeloBase
 
         return $this->db->query($query);
     }
+
+    public function showQuotes()
+    {
+
+        $query = "SELECT c.cotizacion_id, cl.nombre, cl.apellidos, c.total, c.fecha from cotizaciones c
+                    INNER JOIN clientes cl ON cl.cliente_id = c.cliente_id";
+
+        return $this->db->query($query);
+    }
+
 }

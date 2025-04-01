@@ -321,18 +321,18 @@ class Help
     * Variantes
      ---------------------------------------*/
 
-     // Función para contar el total de variantes
+   // Función para contar el total de variantes
 
-     public static function Count_Variant_pID($id)
-     {
-        $query = "SELECT count(variante_id) AS variante_total FROM variantes 
+   public static function Count_Variant_pID($id)
+   {
+      $query = "SELECT count(variante_id) AS variante_total FROM variantes 
                 WHERE producto_id = '$id' AND estado_id = 13";
-  
-        $db = Database::connect();
-        $datos = $db->query($query);
-        
-        return $datos->fetch_object();
-     }
+
+      $db = Database::connect();
+      $datos = $db->query($query);
+
+      return $datos->fetch_object();
+   }
 
    // Función para mostrar las variantes de un producto
 
@@ -351,21 +351,21 @@ class Help
       return $db->query($query);
    }
 
-    // Función para mostrar las variantes vendidas de un producto
+   // Función para mostrar las variantes vendidas de un producto
 
-    public static function showVariant_history($id)
-    {
-       $query = "SELECT  v.variante_id,v.imei,v.serial,c.color,v.caja,pv.nombre_proveedor,
+   public static function showVariant_history($id)
+   {
+      $query = "SELECT  v.variante_id,v.imei,v.serial,c.color,v.caja,pv.nombre_proveedor,
        v.costo_unitario, v.fecha as entrada FROM variantes v
                LEFT JOIN variantes_con_colores vc ON vc.variante_id = v.variante_id
                LEFT JOIN colores c ON c.color_id = vc.color_id
                LEFT JOIN variantes_con_proveedores vp ON vp.variante_id = v.variante_id
                LEFT JOIN proveedores pv ON pv.proveedor_id = vp.proveedor_id
                WHERE v.producto_id = '$id' AND v.estado_id = 14";
- 
-       $db = Database::connect();
-       return $db->query($query);
-    }
+
+      $db = Database::connect();
+      return $db->query($query);
+   }
 
    // Mostrar las variantes del producto en detalle_temporal
 
@@ -385,8 +385,8 @@ class Help
       // Cuerpo 
       while ($element = $datos->fetch_object()) {
 
-         $html .= '<p class="list_db">' . ucwords($element->descripcion) . ' ' . ucwords($element->color) . 
-         ' <br> ' . $element->imei . ' ' . $element->serial . '</p>';
+         $html .= '<p class="list_db">' . ucwords($element->descripcion) . ' ' . ucwords($element->color) .
+            ' <br> ' . $element->imei . ' ' . $element->serial . '</p>';
       }
 
       return $html;
@@ -412,12 +412,39 @@ class Help
       // Cuerpo 
       while ($element = $datos->fetch_object()) {
 
-         $html .= '<p class="list_db">' . ucwords($element->nombre_producto) . ' ' . ucwords($element->color) . 
-         ' <br> ' . ucwords($element->imei) . ' ' . ucwords($element->serial) . '</p>';
-
+         $html .= '<p class="list_db">' . ucwords($element->nombre_producto) . ' ' . ucwords($element->color) .
+            ' <br> ' . ucwords($element->imei) . ' ' . ucwords($element->serial) . '</p>';
       }
 
       return $html;
+   }
+
+   /**
+    * Cotizaciones
+    --------------------------------------*/
+
+    public static function INVOICE_DESCRIPT_QUOTE($id)
+    {
+ 
+       $db = Database::connect();
+ 
+       $query = "SELECT descripcion FROM cotizaciones 
+                WHERE cotizacion_id = '$id'";
+ 
+       $result = $db->query($query);
+       $element = $result->fetch_object();
+ 
+       return $element->descripcion;
+    }
+
+   public static function showQuotesDetail($id)
+   {
+
+      $query = "SELECT detalle_id, descripcion, cantidad, precio, impuesto, descuento 
+      FROM detalle_cotizaciones WHERE cotizacion_id = '$id'";
+
+      $db = Database::connect();
+      return $db->query($query);
    }
 
    /**
@@ -537,7 +564,6 @@ class Help
       WHERE l.lista_id = '$id'";
 
       return $db->query($query);
-    
    }
 
 
@@ -815,7 +841,7 @@ class Help
       $db = Database::connect();
       return $db->query($query);
    }
-   
+
    // Verificar si la orden ya fue facturada
 
    public static function IS_EXISTS_INVOICERP($id)
@@ -1137,7 +1163,6 @@ class Help
 
       return $data->stock;
    }
-
 } // Exit
 
 
@@ -1216,7 +1241,7 @@ class Expenses_Utils
 
       $db = Database::connect();
 
-      $query = "SELECT * FROM facturas_proveedores 
+      $query = "SELECT observacion FROM facturas_proveedores 
                WHERE factura_proveedor_id = '$id'";
 
       $result = $db->query($query);
@@ -1224,7 +1249,4 @@ class Expenses_Utils
 
       return $element->observacion;
    }
-
-
-   
 }

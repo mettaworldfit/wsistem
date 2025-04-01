@@ -371,9 +371,7 @@
                         <label class="form-check-label" for="">Fecha</label>
                         <div class="input-div">
 
-                            <input type="date" name="" class="form-custom-icon" id="cash-in-date" value="<?php date_default_timezone_set('America/New_York');
-                            ;
-                            echo date('Y-m-d'); ?>">
+                            <input type="date" name="" class="form-custom-icon" id="cash-in-date" value="<?php date_default_timezone_set('America/New_York'); echo date('Y-m-d'); ?>">
                         </div>
                     </div>
 

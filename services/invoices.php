@@ -156,7 +156,7 @@ if ($_POST['action'] == "precios_detalle_venta") {
 
   $db = Database::connect();
 
-  $invoice_id = $_POST['invoice_id'];
+  $invoice_id = $_POST['id'];
 
   $query = "SELECT sum(d.cantidad * d.impuesto) as taxes, sum(d.descuento) as descuentos, sum(d.cantidad * precio) as precios,
   f.total, f.pendiente, f.recibido
@@ -445,4 +445,137 @@ if ($_POST['action'] == 'actualizar_factura') {
     echo "Error : " . $data->msg;
   }
 
+}
+
+// Crear cotizaciones
+
+if ($_POST['action'] == "registrar_cotizaciones") {
+
+  $customer_id = $_POST['customer_id'];
+  $total = $_POST['total'];
+  $observation = $_POST['observation'];
+  $user_id = $_SESSION['identity']->usuario_id;
+  $date = $_POST['date'];
+
+  $db = Database::connect();
+
+  $query = "CALL ct_cotizacion($customer_id,$user_id,'$total','$observation','$date')";
+  $result = $db->query($query);
+  $data = $result->fetch_object();
+
+  if ($data->msg > 0) {
+
+    echo $data->msg;
+  } else if (str_contains($data->msg, 'SQL')) {
+
+    echo "Ha ocurrido un error al registrar: " . $data->msg;
+  }
+}
+
+// actualizar cotizaciones
+
+if ($_POST['action'] == "actualizar_cotizaciones") {
+
+  $customer_id = $_POST['customer_id'];
+  $observation = $_POST['observation'];
+  $user_id = $_SESSION['identity']->usuario_id;
+  $date = $_POST['date'];
+  $id = $_POST['quote_id'];
+
+  $db = Database::connect();
+
+  $query = "CALL ct_actualizarCotizacion($customer_id,$id,'$observation','$date')";
+  $result = $db->query($query);
+  $data = $result->fetch_object();
+
+  if ($data->msg == "ready") {
+
+    echo "ready";
+  } else if (str_contains($data->msg, 'SQL')) {
+
+    echo "Ha ocurrido un error al registrar: " . $data->msg;
+  }
+}
+
+// Agregar detalle de cotizacion
+
+
+if ($_POST['action'] == "agregar_detalle_cotizacion") {
+
+  $quote_id = $_POST['id'];
+  $user_id = $_SESSION['identity']->usuario_id;
+  $description = $_POST['description'];
+  $discount = (!empty($_POST['discount'])) ? $_POST['discount'] : 0;
+  $quantity = (!empty($_POST['quantity'])) ? $_POST['quantity'] : 0;
+  $taxes = (!empty($_POST['taxes'])) ? $_POST['taxes'] : 0;
+  $price = $_POST['price'];
+
+  $db = Database::connect();
+
+  $query = "INSERT INTO detalle_cotizaciones values (null,$quote_id,$user_id,'$description',$quantity,$price,$taxes,$discount,curdate());";
+  if ($db->query($query) === TRUE) {
+        echo "ready";
+  } else {
+    echo "Ha ocurrido un error";
+  }
+  
+}
+
+// Eliminar cotizacion
+
+if ($_POST['action'] == 'eliminar_cotizacion') {
+
+  $id = $_POST['id'];
+  $db = Database::connect();
+
+  $query = "CALL ct_eliminarCotizacion($id)";
+  $result = $db->query($query);
+  $data = $result->fetch_object();
+
+  if ($data->msg == "ready") {
+
+    echo "ready";
+  } else if (str_contains($data->msg, 'SQL')) {
+
+    echo "Ha ocurrido un error: " . $data->msg;
+  }
+}
+
+// Eliminar detalle cotizacion
+
+if ($_POST['action'] == 'eliminar_detalle_cotizacion') {
+
+  $id = $_POST['id'];
+  $db = Database::connect();
+
+  $query = "CALL ct_eliminarDetalle($id)";
+  $result = $db->query($query);
+  $data = $result->fetch_object();
+
+  if ($data->msg == "ready") {
+
+    echo "ready";
+  } else if (str_contains($data->msg, 'SQL')) {
+
+    echo "Ha ocurrido un error: " . $data->msg;
+  }
+}
+
+// Obtener total de la factura de cotizacion
+
+if ($_POST['action'] == "total_cotizacion") {
+
+  $db = Database::connect();
+
+  $id = $_POST['id'];
+
+  $query = "SELECT sum(d.cantidad * d.impuesto) as taxes, sum(d.descuento) as descuentos, sum(d.cantidad * d.precio) as precios,
+  c.total FROM detalle_cotizaciones d 
+  INNER JOIN cotizaciones c ON c.cotizacion_id = d.cotizacion_id
+   WHERE c.cotizacion_id = '$id'";
+
+  $datos = $db->query($query);
+  $result = $datos->fetch_assoc();
+
+  echo json_encode($result, JSON_UNESCAPED_UNICODE);
 }

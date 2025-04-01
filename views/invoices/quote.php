@@ -1,7 +1,7 @@
 <div class="section-wrapper">
     <div class="align-content clearfix">
         <div class="float-left">
-            <h1>Factura FT-00<?= $_GET['id'] ?></h1>
+            <h1>Cotización</h1>
         </div>
 
         <div class="float-right">
@@ -15,13 +15,11 @@
 </div>
 
 
-<input type="hidden" name="number" value="<?= $_GET['id'] ?>" id="invoice_id">
-
 <div class="generalContainer padding-10 box-shadow-low">
 
     <table id="Detalle" class="table-custom table">
         <thead>
-            <th class="text-left pl-3">Descripción</th>
+            <th>Descripción</th>
             <th>Cant</th>
             <th>Precio</th>
             <th class="hide-cell">Impuesto</th>
@@ -30,37 +28,9 @@
             <th></th>
         </thead>
 
-        <?php while ($element = $detalle_factura->fetch_object()): ?>
+        <tbody id="rows">
 
-            <tbody id="rows">
-                <tr>
-                    <td class="text-left pl-3">
-                        <?php
-                        if ($element->nombre_producto) {
-                            $variants = Help::showVariant($element->id);
-                            echo $variants;
-                        } else if ($element->nombre_pieza) {
-                            echo ucwords($element->nombre_pieza);
-
-                        } else if ($element->nombre_servicio) {
-                            echo ucwords($element->nombre_servicio);
-                        }
-                        ?>
-                    </td>
-                    <td><?= $element->cantidad_total ?></td>
-                    <td><?= number_format($element->precio, 2) ?></td>
-                    <td class="hide-cell"><?= number_format($element->cantidad_total * $element->impuesto, 2) ?> - (<?= $element->valor ?>%)
-                    </td>
-                    <td><?= number_format($element->descuento, 2) ?></td>
-                    <td><?= number_format(($element->cantidad_total * $element->precio) + ($element->cantidad_total * $element->impuesto) - $element->descuento, 2) ?></td>
-                    <td>
-                        <a class="text-danger pointer" style="font-size: 16px;"
-                            onclick="DELETE_DETAIL_INVOICE('<?= $element->id ?>')"><i class="fas fa-times"></i></a>
-                    </td>
-                </tr>
-            </tbody>
-
-        <?php endwhile; ?>
+        </tbody>
 
     </table>
     <br>
@@ -71,7 +41,7 @@
     <div class="row col-sm-12">
         <div class="form-group col-sm-8">
             <textarea class="form-custom" name="" value="" id="observation" cols="30" rows="6" maxlength="150"
-                placeholder="Observaciones"><?= $descripcion ?></textarea>
+                placeholder="Observaciones"></textarea>
         </div>
 
         <!-- Precio total -->
@@ -90,7 +60,6 @@
                     <span><input type="text" class="invisible-input" value="" id="in-discount" disabled></span>
                     <span><input type="text" class="invisible-input" value="" id="in-taxes" disabled></span>
                     <span><input type="text" class="invisible-input" value="" id="in-total" disabled></span>
-                    <input type="hidden" name="" value='<?= $detail ?>' id="detail_inv">
                 </div>
             </div>
 
@@ -100,36 +69,22 @@
     <br>
 
     <div class="button-container">
-
-        <button class="btn-custom btn-green" type="button" data-toggle="modal" data-target="#update_data_invoice" id="">
-            <i class="far fa-edit"></i>
-            <p>Actualizar datos</p>
+        <button class="btn-custom btn-blue" type="button" data-toggle="modal" data-target="#save_quote">
+            <i class="fas fa-file-invoice"></i>
+            <p>Registrar</p>
         </button>
 
-        <?php if ($_SESSION['identity']->nombre_rol == 'administrador') { ?>
-
-            <button class="btn-custom btn-blue" type="button" data-toggle="modal" data-target="#update_invoice">
-                <i class="fas fa-file-invoice"></i>
-                <p>Actualizar factura</p>
-            </button>
-        <?php } ?>
         <button class="btn-custom btn-default" type="button" data-toggle="modal" data-target="#add_detail" id="">
             <i class="fas fa-plus"></i>
             <p>Agregar detalle</p>
         </button>
-        <button class="btn-custom btn-orange" type="button" id="printer_inv">
-            <i class="fas fa-receipt"></i>
-            <p>Imprimir ticket</p>
-        </button>
-        <button class="btn-custom btn-red" type="button" id="generatePDF">
-            <i class="fas fa-file-pdf"></i>
-            <p>Generar factura PDF</p>
-        </button>
 
+        <button class="btn-custom btn-red" type="button" onclick="CancelQuote();">
+            <i class="fas fa-window-close"></i>
+            <p>Salir</p>
+        </button>
     </div>
-
 </div> <!-- generalConntainer -->
-
 
 
 <!--Modal agregar detalle-->
@@ -138,14 +93,14 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Agregar detalle de factura</h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Agregar detalle</h5>
 
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); ADD_DETAIL_INVOICE();">
+                <form action="" onsubmit="event.preventDefault(); AddDQuote();">
 
                     <div class="col-sm-12 row">
 
@@ -164,11 +119,7 @@
                                 <input type="radio" name="tipo" value="servicio" id="radio3">
                                 <label for="radio3">Servicios</label>
                             </div>
-
-
-
                         </div>
-
 
                     </div>
 
@@ -271,15 +222,10 @@
 
                     </div>
 
-                    <!-- Variantes del producto -->
-                    <div class="row">
-                        <div class="col-sm-6 product">
-                            <div class="modal-legend">
-                                <p>variantes del producto</p>
-                            </div>
-                        </div>
 
-                        <div class="col-sm-6 product">
+                    <div class="row">
+
+                        <div class="col-sm-12 product">
                             <div class="modal-legend ">
                                 <p>listas de precios</p>
                             </div>
@@ -295,20 +241,7 @@
 
                     <div class="row mt-1">
 
-                        <div class="col-sm-6 ml-3 product">
-                            <label class="form-check-label" for="">Variantes</label>
-                            <div class="input-div empty-variant">
-                                <div class="i b-right">
-                                    <i class="fas fa-list"></i>
-                                </div>
-                                <input type="hidden" name="" value="" id="total_variant">
 
-                                <select class="search" name="variant" multiple id="variant_id" disabled>
-                                    <option value="0" disabled>Seleccionar variante del producto</option>
-
-                                </select>
-                            </div>
-                        </div>
 
                         <div class="form-group col-sm-4 ml-2 product">
                             <label class="form-check-label" for="">Lista de precios</label>
@@ -347,7 +280,7 @@
 
                         <div class="form-group col-sm-3 product-piece">
                             <label class="form-check-label" for="">Cantidad</label>
-                            <div class="input-div">
+                            <div class="input-div verify-quantity">
                                 <div class="i">
                                     <i class="fas fa-box-open"></i>
                                 </div>
@@ -412,10 +345,7 @@
                             <i class="fas fa-window-close"></i>
                             <p>Salir</p>
                         </button>
-                        <button type="button" class="btn-custom btn-orange" id="add_item_free">
-                            <i class="fas fa-not-equal"></i>
-                            <p>Incluir</p>
-                        </button>
+                    
                         <button type="submit" class="btn-custom btn-green" id="add_item">
                             <i class="fas fa-plus"></i>
                             <p>Agregar</p>
@@ -429,203 +359,7 @@
 </div>
 
 
-<!--Modal actualizar datos de la factura-->
-<div class="modal fade" id="update_data_invoice" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Actualizar (Datos de Factura)</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); Update_info_purchase();">
 
-                    <!-- Head -->
-                    <?php $data = Help::INFO_INVOICE($_GET['id']);
-                    while ($info = $data->fetch_object()): ?>
-                        <div class="row col-sm-12 invoice-head-modal">
-
-                            <div class="col-sm-4 head-content">
-                                <h6>Total Pagado</h6>
-                                <input type="text" class="invisible-input text-success" value="" id="cash-received"
-                                    disabled>
-                            </div>
-
-                            <div class="col-sm-4 head-content">
-                                <h6>Monto a Pagar</h6>
-                                <input type="text" class="invisible-input text-primary" value="" id="cash-topay" disabled>
-                            </div>
-
-                            <div class="col-sm-4 head-content">
-                                <h6>Monto Pendiente</h6>
-                                <input type="text" class="invisible-input text-danger" value="" id="cash-pending" disabled>
-                            </div>
-
-                        </div>
-                        <br>
-
-                        <!-- Content -->
-                        <div class="row col-sm-12">
-
-                            <div class="form-group col-sm-4">
-                                <label class="form-check-label" for="">Cliente</label>
-                                <div class="input-div">
-                                    <div class="i b-right">
-                                        <i class="fas fa-portrait"></i>
-                                    </div>
-                                    <select class="form-custom-icon search" name="" id="customer" requireds>
-                                        <option value="<?= $info->cliente_id ?>" selected><?= ucwords($info->nombre_cliente)." ".ucwords($info->apellidos_cliente)?></option>
-                                        <?php $customers = Help::showCustomers();
-                                        while ($customer = $customers->fetch_object()): ?>
-                                            <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre)." ".ucwords($customer->apellidos)?></option>
-                                        <?php endwhile; ?>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group col-sm-4">
-                                <label class="form-check-label" for="">Método</label>
-                                <div class="input-div">
-                                    <div class="i b-right">
-                                        <i class="fas fa-list"></i>
-                                    </div>
-                                    <select class="form-custom-icon search " name="" id="method">
-                                        <option value="<?= $info->metodo_pago_id ?>" selected><?= $info->nombre_metodo ?>
-                                        </option>
-                                        <?php $methods = Help::showPaymentMethod();
-                                        while ($method = $methods->fetch_object()): ?>
-                                            <option value="<?= $method->metodo_pago_id ?>"><?= $method->nombre_metodo ?>
-                                            </option>
-                                        <?php endwhile; ?>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group col-sm-4">
-                                <label class="form-check-label" for="">Fecha</label>
-                                <div class="input-div">
-                                    <div class="i">
-                                        <i class="far fa-calendar-alt"></i>
-                                    </div>
-                                    <input class="form-custom-icon b-left" type="text" name=""
-                                        value="<?= $info->fecha_factura ?>" id="date" disabled>
-                                </div>
-                            </div>
-
-
-                        </div> <!-- Row -->
-
-                        <div class="row col-sm-12 mt-1">
-
-                            <div class="form-group col-sm-4">
-                                <label class="form-check-label" for="">Vendedor</label>
-                                <div class="input-div">
-                                    <div class="i">
-                                        <i class="fas fa-user-tie"></i>
-                                    </div>
-                                    <input class="form-custom-icon b-left" type="text" name=""
-                                        value="<?= ucwords($info->nombre_usuario) ?>" id="cash-in-seller" disabled>
-                                </div>
-                            </div>
-
-                        </div> <!-- Row -->
-                    <?php endwhile; ?>
-
-                    <div class="mt-4 modal-footer">
-                        <button type="button" class="btn-custom btn-red" data-dismiss="modal" id="">
-                            <i class="fas fa-window-close"></i>
-                            <p>Salir</p>
-                        </button>
-                        <button type="submit" class="btn-custom btn-green" id="">
-                            <i class="far fa-edit"></i>
-                            <p>Actualizar</p>
-                        </button>
-                    </div>
-
-                </form>
-            </div> <!-- Body -->
-        </div>
-    </div>
-</div>
-
-
-<!-- Actualizar (Dinero recibido) -->
-
-<div class="modal fade" id="update_invoice" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Actualizar (Dinero recibido)</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); UPDATE_CASH_RECEIVED(<?= $_GET['id']; ?>);">
-
-                    <!-- Head -->
-                    <?php $data = Help::INFO_INVOICE($_GET['id']);
-                    while ($info = $data->fetch_object()): ?>
-                        <div class="row col-sm-12 invoice-head-modal">
-
-                            <div class="col-sm-4 head-content">
-                                <h6>Total Pagado</h6>
-                                <input type="text" class="invisible-input text-success" value="" id="cash-received2"
-                                    disabled>
-                            </div>
-
-                            <div class="col-sm-4 head-content">
-                                <h6>Monto a Pagar</h6>
-                                <input type="text" class="invisible-input text-primary" value="" id="cash-topay2" disabled>
-                            </div>
-
-                            <div class="col-sm-4 head-content">
-                                <h6>Monto Pendiente</h6>
-                                <input type="text" class="invisible-input text-danger" value="" id="cash-pending2" disabled>
-                            </div>
-
-                        </div>
-                        <br>
-
-                        <!-- Content -->
-                        <div class="row col-sm-12">
-
-                            <div class="form-group col-sm-4">
-                                <label class="form-check-label" for="">Dinero recibido</label>
-                                <div class="input-div">
-                                    <div class="i b-right">
-                                        <i class="fas fa-dollar-sign"></i>
-                                    </div>
-                                    <input class="form-custom-icon b-left" type="text" name=""
-                                        value="<?= $info->recibido ?>" id="update-cash-received">
-                                </div>
-                            </div>
-
-
-                        </div> <!-- Row -->
-
-                    <?php endwhile; ?>
-
-                    <div class="mt-4 modal-footer">
-                        <button type="button" class="btn-custom btn-red" data-dismiss="modal" id="">
-                            <i class="fas fa-window-close"></i>
-                            <p>Salir</p>
-                        </button>
-                        <button type="submit" class="btn-custom btn-green" id="">
-                            <i class="far fa-edit"></i>
-                            <p>Actualizar</p>
-                        </button>
-                    </div>
-
-                </form>
-            </div> <!-- Body -->
-        </div>
-    </div>
-</div>
 
 
 <!-- Crear cliente -->
@@ -725,6 +459,88 @@
 
                 </form>
 
+            </div> <!-- Body -->
+        </div>
+    </div>
+</div>
+
+
+<!-- Registrar cotizacion -->
+
+<div class="modal fade" id="save_quote" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Registrar (Cotización)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" onsubmit="event.preventDefault(); saveQuote();">
+    
+                        <!-- Content -->
+                        <div class="row col-sm-12">
+
+                            <div class="form-group col-sm-6">
+                                <label class="form-check-label" for="">Cliente</label>
+                                <div class="input-div">
+                                    <div class="i b-right">
+                                        <i class="fas fa-portrait"></i>
+                                    </div>
+                                    <select class="form-custom-icon search" name="" id="customer" requireds>
+                                        <?php $customers = Help::showCustomers();
+                                        while ($customer = $customers->fetch_object()): ?>
+                                            <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre)." ".ucwords($customer->apellidos)?></option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group col-sm-4">
+                                <label class="form-check-label" for="">Fecha</label>
+                                <div class="input-div">
+                                    <div class="i">
+                                        <i class="far fa-calendar-alt"></i>
+                                    </div>
+                                    <input class="form-custom-icon b-left" type="date" name=""
+                                        value="<?php date_default_timezone_set('America/New_York'); echo date('Y-m-d'); ?>" id="date">
+                                </div>
+                            </div>
+
+
+                        </div> <!-- Row -->
+
+                        <div class="row col-sm-12 mt-1">
+
+                            <div class="form-group col-sm-4">
+                                <label class="form-check-label" for="">Vendedor</label>
+                                <div class="input-div">
+                                    <div class="i">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                    <input class="form-custom-icon b-left" type="text" name=""
+                                        value="<?= ucwords($_SESSION['identity']->nombre) ?>" id="user_id" disabled>
+                                </div>
+                            </div>
+
+                        </div> <!-- Row -->
+            
+
+                    <div class="mt-4 modal-footer">
+                        <button type="button" class="btn-custom btn-red" data-dismiss="modal" id="">
+                            <i class="fas fa-window-close"></i>
+                            <p>Salir</p>
+                        </button>
+                        <button type="submit" class="btn-custom btn-green" id="SaveQuote">
+                            <i class="fas fa-plus"></i>
+                            <p>Registrar</p>
+                        </button>
+                    </div>
+
+                </form>
             </div> <!-- Body -->
         </div>
     </div>

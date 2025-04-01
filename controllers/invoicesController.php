@@ -107,4 +107,30 @@ class InvoicesController
             require_once './views/layout/denied.php';
         }
     }
+
+    public function quote()
+    {
+
+        require_once './views/invoices/quote.php';
+    }
+
+    public function quotes()
+    {
+
+        $model = new Invoices();
+        $quotes = $model->showQuotes();
+        
+        require_once './views/invoices/quotes.php';
+    }
+
+    public function edit_quote()
+    {
+
+        $model = new Invoices();
+        $quotes = Help::showQuotesDetail($_GET['id']);
+
+        $descripcion = Help::INVOICE_DESCRIPT_QUOTE($_GET['id']);
+        
+        require_once './views/invoices/edit_quote.php';
+    }
 }

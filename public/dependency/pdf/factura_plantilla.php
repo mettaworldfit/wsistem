@@ -35,7 +35,7 @@
 			font-family: 'BrixSansBlack';
 			font-size: 12pt;
 			display: block;
-			background: #dc0404;
+			background: #484848;
 			font-weight: bold;
 			color: #FFF;
 			text-align: center;
@@ -162,7 +162,7 @@
 			<tr>
 				<td class="logo_factura">
 					<div>
-						<img src="<?= base_url ?>public/imagen/sistem/logo2.png">
+						<!-- <img src="<?= base_url ?>public/imagen/sistem/logo2.png"> -->
 					</div>
 				</td>
 				<td class="info_empresa">

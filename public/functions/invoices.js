@@ -9,7 +9,7 @@ function mysql_row_affected() {
 
 function cashback(data) {
     alertify.alert(`<div class='row-affected d-flex flex-column'>
-    <h2>Devolver</h2> <br>`+"<h1 class='text-danger'> $"+data+`</h1></div>`).set('basic', true);
+    <h2>Devolver</h2> <br>` + "<h1 class='text-danger'> $" + data + `</h1></div>`).set('basic', true);
 }
 
 function mysql_row_update() {
@@ -39,113 +39,126 @@ function invoice_total(bonus = 0) {
     // Verificar cual es el precio del detalle que va a mostrar la ventana
 
     if (pageURL.includes("invoices/addpurchase")) {
+
         action = 'precios_detalle_temp';
+        LoadTotal(action, $("#invoice_id").val())
+
+    } else if (pageURL.includes("invoices/edit_quote")) {
+
+        action = 'total_cotizacion';
+        LoadTotal(action, $("#quote_id").val())
+
     } else if (pageURL.includes("invoices/edit")) {
+
         action = 'precios_detalle_venta';
+        LoadTotal(action, $("#invoice_id").val())
     }
 
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/invoices.php",
-        data: {
-            action: action,
-            invoice_id: $('#invoice_id').val()
-        },
-        success: function (res) {
+    function LoadTotal(action, id) {
 
-            var data = JSON.parse(res);
+        $.ajax({
+            type: "post",
+            url: SITE_URL + "services/invoices.php",
+            data: {
+                action: action,
+                id: id
+            },
+            success: function(res) {
 
-            var discount = format.format(data.descuentos);
-            var taxes = format.format(data.taxes);
-            var subtotal = format.format(data.precios);
-            var total = format.format(parseFloat(data.precios) + parseFloat(data.taxes) - parseFloat(data.descuentos));
+                var data = JSON.parse(res);
 
-            var total_price = total.replace(/,/g, "")
+                var discount = format.format(data.descuentos);
+                var taxes = format.format(data.taxes);
+                var subtotal = format.format(data.precios);
+                var total = format.format(parseFloat(data.precios) + parseFloat(data.taxes) - parseFloat(data.descuentos));
 
-            $('#total_price').val(total_price)
-            $('#in-subtotal').val(subtotal)
-            $('#in-taxes').val(taxes)
-            $('#in-discount').val(discount)
+                var total_price = total.replace(/,/g, "")
 
-            if (total != 'NaN') {
-                $('#in-total').val(total)
-
-            } else {
-                $('#in-total').val('0')
-            }
-
-            // Modal Factura al contado y actualizar datos
-            $('#cash-received').val('0.00')
-            if (pageURL.includes("invoices/edit")) {
-
-                $('#cash-topay').val(data.total)
-                $('#cash-pending').val(data.pendiente)
-                $('#cash-received').val(data.recibido)
-
-                $('#cash-topay2').val(data.total)
-                $('#cash-pending2').val(data.pendiente)
-                $('#cash-received2').val(data.recibido)
-
-            } else {
+                $('#total_price').val(total_price)
+                $('#in-subtotal').val(subtotal)
+                $('#in-taxes').val(taxes)
+                $('#in-discount').val(discount)
 
                 if (total != 'NaN') {
-                    if (bonus != 0 || bonus == '') {
-                        $('#cash-bonus').val(format.format(bonus))
+                    $('#in-total').val(total)
 
-                        var totalXbonus = format.format(total.replace(/,/g, "") - bonus);
+                } else {
+                    $('#in-total').val('0')
+                }
 
-                        $('#cash-topay').val(totalXbonus)
-                        $('#cash-pending').val(totalXbonus)
+                // Modal Factura al contado y actualizar datos
+                $('#cash-received').val('0.00')
+                if (pageURL.includes("invoices/edit")) {
+
+                    $('#cash-topay').val(data.total)
+                    $('#cash-pending').val(data.pendiente)
+                    $('#cash-received').val(data.recibido)
+
+                    $('#cash-topay2').val(data.total)
+                    $('#cash-pending2').val(data.pendiente)
+                    $('#cash-received2').val(data.recibido)
+
+                } else {
+
+                    if (total != 'NaN') {
+                        if (bonus != 0 || bonus == '') {
+                            $('#cash-bonus').val(format.format(bonus))
+
+                            var totalXbonus = format.format(total.replace(/,/g, "") - bonus);
+
+                            $('#cash-topay').val(totalXbonus)
+                            $('#cash-pending').val(totalXbonus)
+
+                        } else {
+                            $('#cash-topay').val(total)
+                            $('#cash-pending').val(total)
+                            $('#cash-bonus').val('0.00')
+                        }
 
                     } else {
-                        $('#cash-topay').val(total)
-                        $('#cash-pending').val(total)
+                        $('#cash-topay').val('0.00')
+                        $('#cash-pending').val('0.00')
                         $('#cash-bonus').val('0.00')
                     }
 
+                }
+
+                // Modal Factura a crédito
+
+                $('#credit-received').val('0.00')
+                if (total != 'NaN') {
+
+                    $('#credit-topay').val(total)
+                    $('#credit-pending').val(total)
+
                 } else {
-                    $('#cash-topay').val('0.00')
-                    $('#cash-pending').val('0.00')
-                    $('#cash-bonus').val('0.00')
+                    $('#credit-topay').val('0.00')
+                    $('#credit-pending').val('0.00')
+                }
+
+                // Validar botón de procesar venta al contado
+
+                if (total != 'NaN') {
+                    $('#cash-in-finish').show();
+                    $('#cash-in-finish-receipt').show()
+                } else {
+                    $('#cash-in-finish').hide();
+                    $('#cash-in-finish-receipt').hide()
+                }
+
+                // Validar campo ingresar monto factura a crédito
+
+                if (total != 'NaN') {
+                    $('.pay').show();
+                } else {
+                    $('.pay').hide();
                 }
 
             }
+        }); // Ajax
 
+    } // function LoadTotal
 
-
-            // Modal Factura a crédito
-
-            $('#credit-received').val('0.00')
-            if (total != 'NaN') {
-
-                $('#credit-topay').val(total)
-                $('#credit-pending').val(total)
-
-            } else {
-                $('#credit-topay').val('0.00')
-                $('#credit-pending').val('0.00')
-            }
-
-            // Validar botón de procesar venta al contado
-
-            if (total != 'NaN') {
-                $('#cash-in-finish').show();
-                $('#cash-in-finish-receipt').show()
-            } else {
-                $('#cash-in-finish').hide();
-                $('#cash-in-finish-receipt').hide()
-            }
-
-            // Validar campo ingresar monto factura a crédito
-
-            if (total != 'NaN') {
-                $('.pay').show();
-            } else {
-                $('.pay').hide();
-            }
-
-        }
-    });
 }
 
 function reload() {
@@ -175,18 +188,18 @@ function reset_modal() {
 }
 
 
-$(document).ready(function () {
+$(document).ready(function() {
 
     // Default
-
+    $("#SaveQuote").css("display", "none"); // Botón registrar cotización
     $('#last_invoice_edit').hide() // Botón de editar última factura
     $('#credit-in-finish').hide() // Botón de factura a crédito
     $('#credit-in-finish-receipt').hide() // Botón de factura a crédito con ticket
     $('#cash-in-finish-receipt').hide() // Botón de factura al contado con ticket
     $('#cash-in-finish').hide() // Botón de factura al contado
 
-    if (pageURL.includes("invoices/addpurchase") || pageURL.includes("invoices/edit")) {
-        invoice_total() // Cargar total de la factura
+    if (pageURL.includes("invoices/addpurchase") || pageURL.includes("invoices/edit") || pageURL.includes("invoices/edit_quote")) {
+        invoice_total() // Cargar total de la factura actual
 
         // Cambiar tipo de item a agregar
 
@@ -197,7 +210,7 @@ $(document).ready(function () {
         $('#rp_service').attr('required', false)
         $("#add_item_free").hide()
 
-        $('input:radio[name=tipo]').change(function () {
+        $('input:radio[name=tipo]').change(function() {
             if ($(this).val() == "pieza") {
 
                 $('.piece').show()
@@ -325,7 +338,7 @@ $(document).ready(function () {
                 bonus: data.bonus,
                 date: data.date
             },
-            success: function (res) {
+            success: function(res) {
                 if (res > 0) {
 
                     REGISTER_DETAIL_ON_CASH(res, data, receipt);
@@ -353,7 +366,7 @@ $(document).ready(function () {
                     invoice_id: invoice_id,
                     date: $('#cash-in-date').val()
                 },
-                success: function (res) {
+                success: function(res) {
 
                     if (res != "") {
 
@@ -374,14 +387,14 @@ $(document).ready(function () {
 
                         reload() // Actualizar datos
 
-                      
+
                         // Imprimir ticket 
                         if (receipt == true) {
                             printer(invoice_id, res, data, "cash");
 
-                            
+
                         } else {
-                           // GeneratePDF(invoice_id) // Imprimir PDF
+                            GeneratePDF(invoice_id) // Imprimir PDF
                         }
 
 
@@ -426,13 +439,13 @@ $(document).ready(function () {
         e.preventDefault()
 
         var id = $('#invoice_id').val()
-       // GeneratePDF(id)
+        GeneratePDF(id)
     })
 
 
     // Consultar si el cliente a crédito tiene un bono
 
-    $("#include_bond").click(function () {
+    $("#include_bond").click(function() {
         if ($("#include_bond").is(':checked')) {
 
             // Aplicar bono
@@ -446,7 +459,7 @@ $(document).ready(function () {
                         action: "consultar_bono",
                         customer_id: customer_id
                     },
-                    success: function (res) {
+                    success: function(res) {
                         var data = JSON.parse(res);
 
                         if (data.valor > 0) {
@@ -543,7 +556,7 @@ $(document).ready(function () {
                 pending: pending,
                 date: $('#credit-in-date').val()
             },
-            success: function (res) {
+            success: function(res) {
                 if (res > 0) {
 
                     REGISTER_DETAIL_ON_CREDIT(res, data, receipt); // Cargar de nuevo el detalle
@@ -561,7 +574,7 @@ $(document).ready(function () {
 
                 } else {
                     mysql_error(res)
-                    // Ocultar los botones de facturar en ambos modal para evitar insertar datos vacios
+                        // Ocultar los botones de facturar en ambos modal para evitar insertar datos vacios
                     $('#credit-in-finish').hide()
                     $('#credit-in-finish-receipt').hide()
                     $('#cash-in-finish').hide()
@@ -580,7 +593,7 @@ $(document).ready(function () {
                     invoice_id: invoice_id,
                     date: $('#credit-in-date').val()
                 },
-                success: function (res) {
+                success: function(res) {
 
                     if (res != "") {
 
@@ -617,7 +630,7 @@ $(document).ready(function () {
         } else if (type == "credit") {
             file = "factura_credito.php"
         }
-          console.log(data)
+        console.log(data)
 
         $.ajax({
             type: "post",
@@ -627,9 +640,9 @@ $(document).ready(function () {
                 data: data,
                 id: invoice_id
             },
-            success: function (res) {
+            success: function(res) {
                 console.log(res)
-                // 'public/tickets/' + file
+                    // 'public/tickets/' + file
             }
         });
 
@@ -729,7 +742,7 @@ $(document).ready(function () {
                         detail_id: detail_id,
 
                     },
-                    success: function (res) {
+                    success: function(res) {
 
                         if (res == "ready") {
 
@@ -764,7 +777,7 @@ $(document).ready(function () {
                     price: $('#price_out').val().replace(/,/g, "")
 
                 },
-                success: function (res) {
+                success: function(res) {
 
                     if (res > 0) {
 
@@ -820,8 +833,8 @@ $(document).ready(function () {
                 detail: $('#detail_inv').val(),
                 data: data,
             },
-            success: function (res) {
-               
+            success: function(res) {
+
 
             }
         });
@@ -837,17 +850,70 @@ $(document).ready(function () {
     $('#date_query').change((e) => {
         e.preventDefault()
 
-        $(location).attr('href', SITE_URL +'public/dependency/excel/detalle-ventas-dia.php?date='+$('#date_query').val()); 
-      
+        $(location).attr('href', SITE_URL + 'public/dependency/excel/detalle-ventas-dia.php?date=' + $('#date_query').val());
+
     })
 
-  
-    
+
+    // Auto cargar detalle cotizacion desde LocalStorage
+
+    if (pageURL.includes("invoices/quote")) {
+
+        $(function() {
+
+            // Verificar
+            if (localStorage.getItem("detalle_cotizacion")) {
+                QuoteLocalStorage = JSON.parse(localStorage.getItem("detalle_cotizacion"));
+
+                // Loop del detalle en localStorage 
+                QuoteLocalStorage.forEach((element, index) => {
+
+                    let data = {
+                        description: element.description,
+                        quantity: element.quantity,
+                        price: element.price,
+                        tax_value: element.tax_value,
+                        discount: element.discount
+                    }
+
+                    ArrayItem.push(data); // Guardar de localStorage a ArrayItem
+
+                    CalcQuote(ArrayItem);
+
+                    var total = (element.quantity * element.price) - element.discount;
+                    var price = format.format(element.price);
+
+                    document.querySelector('#rows').innerHTML += `
+                 <tr>
+                     <td>${element.description}</td>
+                     <td>${element.quantity}</td>
+                     <td>${price}</td>
+                     <td>${0} - ${0}%</td>
+                     <td>${element.discount}</td>
+                     <td>${format.format(total)}</td>
+                     <td>
+                       <span class="action-delete" onClick="DeleteItemQ(${index});"><i class="fas fa-times"></i></span>
+                     </td>
+                 </tr>
+                 `;
+
+
+                });
+            }
+        })
+    }
+
+    // Generar cotizacion PDF al dar click
+
+    $('#QuotePDF').on('click', (e) => {
+        e.preventDefault()
+
+        var id = $('#quote_id').val()
+        GenerateQuotePDF(id)
+    })
 
 
 }); // Ready
-
-
 
 
 
@@ -947,7 +1013,7 @@ function ADD_DETAIL_INVOICE() {
                     detail_id: detail_id,
 
                 },
-                success: function (res) {
+                success: function(res) {
 
                     if (res == "ready") {
 
@@ -979,7 +1045,7 @@ function ADD_DETAIL_INVOICE() {
                 price: $('#price_out').val().replace(/,/g, "")
 
             },
-            success: function (res) {
+            success: function(res) {
 
                 if (res > 0) {
 
@@ -1023,7 +1089,7 @@ function DELETE_DETAIL_INVOICE(id) {
             action: action,
             id: id
         },
-        success: function (res) {
+        success: function(res) {
             if (res == "ready") {
                 invoice_total()
                 $('#Detalle').load(location.href + " #Detalle");
@@ -1041,7 +1107,7 @@ function DELETE_DETAIL_INVOICE(id) {
 function deleteInvoice(id) {
 
     alertify.confirm("Eliminar factura", "¿Estas seguro que deseas eliminar esta factura? ",
-        function () {
+        function() {
 
             $.ajax({
                 url: SITE_URL + "services/invoices.php",
@@ -1050,12 +1116,12 @@ function deleteInvoice(id) {
                     action: "eliminar_factura",
                     id: id
                 },
-                success: function (res) {
+                success: function(res) {
 
                     if (res == "ready") {
 
                         $("#example").load(location.href + " #example");
-                    
+
 
                     } else {
                         mysql_error(res)
@@ -1063,7 +1129,7 @@ function deleteInvoice(id) {
                 }
             });
         },
-        function () {
+        function() {
 
         });
 }
@@ -1082,7 +1148,7 @@ function Update_info_purchase() {
             method: $('#method').val(),
             id: $('#invoice_id').val()
         },
-        success: function (res) {
+        success: function(res) {
             if (res == "ready") {
 
                 mysql_row_update()
@@ -1095,37 +1161,404 @@ function Update_info_purchase() {
 
 }
 
-  /**
-     * ! Actualizar dinero recibido 
-     */
+/**
+ * ! Actualizar dinero recibido 
+ */
 
-  function UPDATE_CASH_RECEIVED(id) {
+function UPDATE_CASH_RECEIVED(id) {
 
     alertify.confirm("Actualizar factura", "¿Estas seguro que deseas actualizar el monto recibido de esta factura? ",
-    function () {
+        function() {
+
+            $.ajax({
+                url: SITE_URL + "services/invoices.php",
+                method: "post",
+                data: {
+                    action: "actualizar_dinero_recibido",
+                    id: id,
+                    received: $('#update-cash-received').val(),
+                    topay: $('#cash-topay2').val()
+                },
+                success: function(res) {
+
+                    if (res == "ready") {
+
+                        mysql_row_update()
+
+                    } else {
+                        mysql_error(res)
+                    }
+                }
+            });
+        },
+        function() {
+
+        });
+}
+
+
+
+// Agregar detalle de cotizacion
+
+let ArrayItem = [];
+
+function AddDQuote(onDb = false) {
+
+    if ($('input:radio[name=tipo]:checked').val() == 'servicio') {
+
+        var data = {
+            quantity: "1",
+            discount: $('#discount_service').val().replace(/,/g, ""),
+            service_id: $('#service').val(),
+            description: $('#select2-service-container').attr('title').trim(),
+            price: $('#price_out').val().replace(/,/g, ""),
+            tax_value: 0
+        }
+
+        if (onDb == true) {
+            addItemDB($("#quote_id").val(), data) // Agregar a Base de datos
+        } else {
+
+            ArrayItem.push(data); // Insertar datos al arreglo
+            CreateStorage(ArrayItem); // crear el localstorage del detalle
+        }
+
+    } else if ($('input:radio[name=tipo]:checked').val() == 'pieza') {
+
+        var data = {
+            piece_id: $('#piece').val(),
+            discount: $('#discount').val().replace(/,/g, ""),
+            quantity: $('#quantity').val(),
+            description: $('#select2-piece-container').attr('title').trim(),
+            price: $('#price_out').val().replace(/,/g, ""),
+            tax_value: 0
+        }
+
+
+        if (onDb == true) {
+            addItemDB($("#quote_id").val(), data) // Agregar a Base de datos
+        } else {
+            ArrayItem.push(data); // Insertar datos al arreglo
+            CreateStorage(ArrayItem); // crear el localstorage del detalle
+        }
+        // reset_modal()
+
+    } else if ($('input:radio[name=tipo]:checked').val() == 'producto') {
+
+
+        var data = {
+            discount: $('#discount').val().replace(/,/g, ""),
+            product_id: $('#product').val(),
+            quantity: $('#quantity').val(),
+            price: $('#price_out').val().replace(/,/g, ""),
+            description: $('#select2-product-container').attr('title').trim(),
+            tax_value: 0
+
+        }
+
+        $('.empty-variant').css("border", "1px solid #ced4da");
+
+        if (onDb == true) {
+            addItemDB($("#quote_id").val(), data) // Agregar a Base de datos
+        } else {
+            ArrayItem.push(data); // Insertar datos al arreglo
+            CreateStorage(ArrayItem); // crear el localstorage del detalle
+        }
+
+    }
+
+    // Agregar detalle a la base de datos
+    function addItemDB(id, data) {
+        RegisterDetail(id, true, data)
+    }
+
+} // function
+
+// Crear la base de datos en el localstorage
+
+function CreateStorage(Arr) {
+
+    localStorage.setItem('detalle_cotizacion', JSON.stringify(Arr));
+    ShowDB(); // Mostrar DB
+
+}
+
+let QuoteLocalStorage;
+
+function ShowDB() {
+
+    document.querySelector('#rows').innerHTML = ""; // Vaciar detalle
+
+    if (localStorage.getItem("detalle_cotizacion")) {
+        QuoteLocalStorage = JSON.parse(localStorage.getItem("detalle_cotizacion"));
+    }
+
+    // Loop del detalle en localStorage 
+    QuoteLocalStorage.forEach((element, index) => {
+
+        var total = (element.quantity * element.price) - element.discount;
+        var price = format.format(element.price);
+
+        document.querySelector('#rows').innerHTML += `
+         <tr>
+             <td>${element.description}</td>
+             <td>${element.quantity}</td>
+             <td>${price}</td>
+             <td>${0} - ${0}%</td>
+             <td>${element.discount}</td>
+             <td>${format.format(total)}</td>
+             <td>
+               <span class="action-delete" onClick="DeleteItemQ(${index});"><i class="fas fa-times"></i></span>
+             </td>
+         </tr>
+         `;
+
+    });
+
+    CalcQuote(QuoteLocalStorage);
+}
+
+// Calcular precio total
+
+function CalcQuote(arr) {
+
+    let subtotal = 0;
+    let taxes = 0;
+    let total = 0;
+    let discount = 0;
+
+    arr.forEach((element, index) => {
+
+        subtotal = subtotal + (parseFloat(element.quantity) * element.price.replace(/,/g, ""));
+        total = total + (subtotal + taxes - element.discount);
+        discount = parseInt(discount) + element.discount;
+
+        if (element.tax_value > 0) return taxes = parseInt(element.tax_value);
+    });
+
+    var sub = format.format(subtotal.toFixed(2));
+    final = format.format(subtotal + taxes - discount);
+
+    document.querySelector('#price').innerHTML = ""; // Vaciar precios de la factura
+
+    document.querySelector('#price').innerHTML += `
+         <span><input type="text" class="invisible-input" value="${sub}" id="in-subtotal" disabled></span>
+         <span><input type="text" class="invisible-input" value="${discount}" id="in-discount" disabled></span>
+         <span><input type="text" class="invisible-input" value="${taxes}" id="in-taxes" disabled></span>
+         <span><input type="text" class="invisible-input" value="${final}" id="in-total" disabled></span>
+         <input type="hidden" name="" value="${final}" id="total_invoice">
+     `;
+
+    $("#SaveQuote").show() // Botón registrar cotización
+
+} // function CalcQuote()
+
+
+// Borrar todo del localstorage
+
+function CancelQuote() {
+    localStorage.removeItem('detalle_cotizacion'); // Vaciar localstorage
+    ArrayItem = []; // Vaciar Arreglo
+    CalcQuote(ArrayItem); // Calcular precios
+    $('#rows').load(location.href + " #rows"); // actualizar detalle
+    $("#SaveQuote").css("display", "none"); // Botón registrar cotización
+}
+
+// Eliminar item del detalle
+
+function DeleteItemQ(index, onDb = false) {
+
+    if (onDb != true) {
+
+        ArrayItem.splice(index, 1);
+        CreateStorage(ArrayItem)
+
+    } else {
 
         $.ajax({
+            type: "post",
             url: SITE_URL + "services/invoices.php",
-            method: "post",
             data: {
-                action: "actualizar_dinero_recibido",
-                id: id,
-                received: $('#update-cash-received').val(),
-                topay: $('#cash-topay2').val()
+                action: "eliminar_detalle_cotizacion",
+                id: index
             },
-            success: function (res) {
+            success: function(res) {
+
+                if (res == "ready") {
+                    $('#Detalle').load(location.href + " #Detalle"); // Actualizar detalle
+                    invoice_total() // Cargar total de la cotizacion
+                } else {
+                    mysql_error(res)
+                }
+
+            }
+        });
+    }
+}
+
+
+// Crear detalle de cotizacion
+
+function saveQuote() {
+
+    $.ajax({
+        type: "post",
+        url: SITE_URL + "services/invoices.php",
+        data: {
+            action: "registrar_cotizaciones",
+            customer_id: $("#customer").val(),
+            total: $("#total_invoice").val(),
+            date: $("#date").val(),
+            observation: $("#observation").val()
+        },
+        success: function(res) {
+
+            if (res > 0) {
+
+                GenerateQuotePDF(res) // Generar PDF
+                RegisterDetail(res)
+
+            } else {
+                mysql_error(res)
+            }
+
+        }
+    });
+
+} // function
+
+
+// Agregar detalle de cotizacion
+function RegisterDetail(id, onDb = false, data) {
+
+    if (onDb != true) {
+        arrayL = JSON.parse(localStorage.getItem("detalle_cotizacion"));
+        arrayL.forEach((element, index) => {
+
+            // Registrar detalle antes de crear la factura
+            register(id, element.description, element.quantity, element.price, element.tax_value, element.discount)
+
+        }); // Loop
+    } else {
+        // Registrar detalle luego de crear la factura
+        register(id, data.description, data.quantity, data.price, data.tax_value, data.discount)
+    }
+
+
+    function register(id, description, quantity, price, tax_value, discount) {
+        $.ajax({
+            type: "post",
+            url: SITE_URL + "services/invoices.php",
+            data: {
+                action: "agregar_detalle_cotizacion",
+                id: id,
+                description: description,
+                quantity: quantity,
+                price: price,
+                taxes: tax_value,
+                discount: discount,
+            },
+            success: function(res) {
 
                 if (res == "ready") {
 
-                    mysql_row_update()
+                    $('#Detalle').load(location.href + " #Detalle"); // Actualizar detalle
+                    if (onDb == true) return invoice_total() // Cargar total de la cotizacion
+                    if (onDb != true) return CancelQuote() // Borrar todo del localstorage
 
                 } else {
                     mysql_error(res)
                 }
+
             }
         });
-    },
-    function () {
-
-    });
+    }
 }
+
+// Eliminar cotizacion
+
+function deleteQuote(id) {
+
+    alertify.confirm("Eliminar cotización", "¿Estas seguro que deseas eliminar esta cotización? ",
+        function() {
+
+            $.ajax({
+                type: "post",
+                url: SITE_URL + "services/invoices.php",
+                data: {
+                    action: "eliminar_cotizacion",
+                    id: id
+                },
+                success: function(res) {
+
+                    if (res == "ready") {
+
+                        mysql_row_affected()
+                        $('#example').load(location.href + " #example");
+
+                    } else {
+                        mysql_error(res)
+                    }
+
+                }
+            });
+        },
+        function() {
+
+        });
+}
+
+// Cotizacion PDF
+
+function GenerateQuotePDF(quote_id) {
+
+    data = {
+        subtotal: $('#in-subtotal').val().replace(/,/g, ""),
+        discount: $('#in-discount').val().replace(/,/g, ""),
+        taxes: $('#in-taxes').val().replace(/,/g, ""),
+        total: $('#in-total').val().replace(/,/g, ""),
+    }
+
+    console.log(data)
+
+    var width = 1000;
+    var height = 800;
+
+    // Centrar la ventana
+    var x = parseInt((window.screen.width / 2) - (width / 2));
+    var y = parseInt((window.screen.height / 2) - (height / 2));
+
+    var url = SITE_URL + 'public/dependency/pdf/generar_cotizacion.php?f=' + quote_id + '&sub=' + data.subtotal + '&dis=' + data.discount + '&tax=' + data.taxes + '&total=' + data.total;
+    window.open(url, 'Factura', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
+
+}
+
+// Actualizar cotizacion
+
+function updateQuote(id) {
+
+    $.ajax({
+        type: "post",
+        url: SITE_URL + "services/invoices.php",
+        data: {
+            action: "actualizar_cotizaciones",
+            quote_id: id,
+            customer_id: $("#customer").val(),
+            date: $("#date").val(),
+            observation: $("#observation").val()
+        },
+        success: function(res) {
+
+            if (res == "ready") {
+
+                //  GenerateQuotePDF(res) // Generar PDF
+                mysql_row_affected()
+
+            } else {
+                mysql_error(res)
+            }
+
+        }
+    });
+
+} // function

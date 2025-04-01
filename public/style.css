@@ -2460,4 +2460,5 @@ a.button-404:hover {
     font-size: 16pt;
     font-weight: 800;
     color: #353535;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont;
 }

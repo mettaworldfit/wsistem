@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, user-scalable=no, shrink-to-fit=no">
   <meta name="title" content="Sistema de Control de Inventario">
   <meta name="description"
     content="Obtenga el control de su negocio desde cualquier lugar, vea estadísticas de ventas, stock, etc, “WS SYSTEM” es un Sistema de Ventas Web que te ayudará a obtener todos estos beneficios, desarrollado para tener el control total de un negocio en forma ordenada, sencilla y efectiva, posee los módulos necesarios con diferentes funciones que te permitirá administrar tu negocio." />
@@ -20,7 +20,6 @@
   <meta name="theme-color" content="#000000">
   <meta name="msapplication-navbutton-color" content="#000000">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <!-- <meta name="msapplication-starturl" content="/"> -->
 
   <link rel="shortcut icon" href="<?= base_url ?>public/imagen/sistem/icon.ico" type="image/x-icon">
 
@@ -93,7 +92,6 @@
 <body>
 
   <?php if (isset($_SESSION['admin']) || isset($_SESSION['identity'])): ?>
-
 
     <section class="contenido">
 
@@ -312,6 +310,8 @@
                 <li class="page"><a href="<?= base_url ?>invoices/index">Facturas de ventas</a> <a
                     href="<?= base_url ?>invoices/addpurchase"><i class="fas fa-plus-circle"></i></a></li>
                 <li><a href="<?= base_url ?>invoices/index_repair">Facturas de reparaciones</a> </li>
+                <li class="page"><a href="<?= base_url ?>invoices/quotes">Cotizaciones</a> <a
+                href="<?= base_url ?>invoices/quote"><i class="fas fa-plus-circle"></i></a></li>
                 <li class="page"><a href="<?= base_url ?>payments/index">Pagos</a> <a
                     href="<?= base_url ?>payments/add"><i class="fas fa-plus-circle"></i></a></li>
               </ul>

@@ -7,7 +7,7 @@
 <div class="grid-container">
 
 
-  <div class="card-grid">
+  <a href="<?= base_url ?>reports/day" class="card-grid">
     <div>
       <p>Ventas</p>
       <p><?= date("d/m/Y"); ?></p>
@@ -16,9 +16,9 @@
     <span title="<?= number_format(floatval($total_purchase), 2) ?>">
       $<?= number_format_short(floatval($total_purchase)) ?>
     </span>
-  </div>
+  </a>
 
-  <div class="card-grid">
+  <a href="#" class="card-grid">
     <div>
       <p>Gastos</p>
       <p><?= date("d/m/Y"); ?></p>
@@ -26,41 +26,41 @@
     <span title="<?= number_format(floatval($total_expenses), 2) ?>">
       $<?= number_format_short(floatval($total_expenses)) ?>
     </span>
-  </div>
+  </a>
 
-  <div class="card-grid">
+  <a href="<?= base_url ?>contacts/customers" class="card-grid">
     <div>
       <p>Clientes</p>
       <p>Total clientes</p>
     </div>
     <span><?= number_format($customers) ?></span>
-  </div>
+  </a>
 
-  <div class="card-grid">
+  <a href="<?= base_url ?>contacts/providers" class="card-grid">
     <div>
       <p>Proveedores</p>
       <p>Total proveedores</p>
     </div>
     <span><?= number_format($providers) ?></span>
-  </div>
+  </a>
 
-  <div class="card-grid">
+  <a href="<?= base_url ?>products/index" class="card-grid">
     <div>
       <p>Productos</p>
       <p>Total productos</p>
     </div>
 
     <span><?= number_format($products) ?></span>
-  </div>
+  </a>
 
-  <div class="card-grid">
+  <a href="<?= base_url ?>pieces/index" class="card-grid">
     <div>
       <p>Piezas</p>
       <p>Total piezas</p>
     </div>
 
     <span><?= number_format($pieces) ?></span>
-  </div>
+  </a>
 
 
   <div class="card-grid">
@@ -128,7 +128,7 @@
     </div>
   </div>
 
-  
+
 
 
 

@@ -6,7 +6,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Factura de venta FT-00<?= $data->factura_venta_id ?></title>
+    <title>Cotizacion CT-00<?= $data->cotizacion_id ?></title>
 
     <style>
         @import url('fonts/BrixSansRegular.css');
@@ -187,12 +187,12 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
                 </td>
                 <td class="info_empresa">
                     <div>
-                        <span class="h2">FACTURA DE VENTA</span> <br>
+                        <span class="h2">COTIZACIÓN</span> <br>
                     </div>
                 </td>
                 <td class="info_factura">
                     <div class="round">
-                        <p>N° Factura: <strong>FT-00<?= $data->factura_venta_id ?></strong></p>
+                        <p>N° Factura: <strong>CT-00<?= $data->cotizacion_id ?></strong></p>
                         <p>Fecha.: <?= $data->fecha ?></p>
                         <p>Hora.: <?= date('h:i:s a', time()) ?></p>
 
@@ -216,7 +216,7 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
                             </tr>
                             <tr>
                                 <td><label>Nombre:</label>
-                                    <p><?= ucwords($data->nombre_cliente) ?> <?= ucwords($data->apellidos_cliente) ?></p>
+                                    <p><?= $data->nombre_cliente ?> <?= $data->apellidos_cliente ?></p>
                                 </td>
                                 <td><label>Télefono 2:</label>
                                     <p><?= $data->telefono2 ?></p>
@@ -254,23 +254,12 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
                 <?php while ($element = $result_detail->fetch_object()) : ?>
 
                     <tr>
-                        <td class="textcenter"><?= $element->cantidad_total ?></td>
-                        <td>
-                            <?php
-                            if ($element->nombre_producto) {
-                                echo ucwords($element->nombre_producto);
-                            } else if ($element->nombre_pieza) {
-                                echo ucwords($element->nombre_pieza);
-                            } else if ($element->nombre_servicio) {
-                                echo ucwords($element->nombre_servicio);
-                            }
-                            ?>
-
-                        </td>
+                        <td class="textcenter"><?= $element->cantidad ?></td>
+                        <td><?= $element->descripcion ?></td>
                         <td class="textright"><?= number_format($element->precio, 2) ?></td>
-                        <td class="textright"><?= number_format($element->cantidad_total * $element->impuesto, 2) ?> (<?= $element->valor ?>%)</td>
+                        <td class="textright"><?= number_format($element->cantidad * $element->impuesto, 2) ?></td>
                         <td class="textright"><?= number_format($element->descuento, 2) ?></td>
-                        <td class="textright"><?= number_format(($element->cantidad_total * $element->precio) + ($element->cantidad_total * $element->impuesto) - $element->descuento, 2) ?></td>
+                        <td class="textright"><?= number_format(($element->cantidad * $element->precio) + ($element->cantidad * $element->impuesto) - $element->descuento, 2) ?></td>
                     </tr>
 
                 <?php endwhile; ?>
