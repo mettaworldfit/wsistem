@@ -1,0 +1,22 @@
+{
+    "name": "codev/wsistem",
+    "description": "librerias de sistema wsistem",
+    "type": "project",
+    "require": {
+        "phpmailer/phpmailer": "^6.9",
+        "dompdf/dompdf": "^3.1",
+        "phpoffice/phpspreadsheet": "^4.1"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Codev\\Wsistem\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ing. Wilmin J. Sanchez"
+        }
+    ],
+    "minimum-stability": "stable"
+}

@@ -20,101 +20,101 @@ function mysql_error(err) {
     </div>`).set('basic', true);
 }
 
-$(document).ready(function () {
+$(document).ready(function() {
 
 
-/**
- * TODO: Imprimir orden de reparación
- */
+        /**
+         * TODO: Imprimir orden de reparación
+         */
 
 
- $('#printer_order').on('click', (e) => {
-    e.preventDefault;
+        $('#printer_order').on('click', (e) => {
+                e.preventDefault;
 
-   data = {
-    subtotal: $('#in-subtotal').val().replace(/,/g, ""),
-    discount: $('#in-discount').val().replace(/,/g, ""),
-    total: $('#in-total').val().replace(/,/g, ""),
-    observation: $('#observation').val(),
-    order_id: $('#orden_id').val()
-   }
+                data = {
+                    subtotal: $('#in-subtotal').val().replace(/,/g, ""),
+                    discount: $('#in-discount').val().replace(/,/g, ""),
+                    total: $('#in-total').val().replace(/,/g, ""),
+                    observation: $('#observation').val(),
+                    order_id: $('#orden_id').val()
+                }
 
-    $.ajax({
-        type: "post",
-        url: PRINTER_SERVER + "factura_ordenrp.php",
-        data: {
-            detail: $('#detail_order').val(),
-            device: $('#device_info').val(),
-            condition: $('#conditions').val(),
-            info: data
-        },
-        success: function (res) {
-            console.log('Imprimiendo ticket')
+                $.ajax({
+                    type: "post",
+                    url: PRINTER_SERVER + "factura_ordenrp.php",
+                    data: {
+                        detail: $('#detail_order').val(),
+                        device: $('#device_info').val(),
+                        condition: $('#conditions').val(),
+                        info: data
+                    },
+                    success: function(res) {
+                        console.log('Imprimiendo ticket')
 
-        }
-    }); // Ajax
-}) // Function
-
-
-// Buscar dispositivo
-
-$('#device').change(function(){
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/workshop.php",
-        data: {
-            device_id: $('#device').val(),
-            action: 'buscar_equipo'
-        },
-        success: function (res) {
-
-            var data = JSON.parse(res);
-
-            $('#brand').val(data.nombre_marca)
-            $('#model').val(data.modelo)
-        }
-    }); // Ajax
-}) // Function
+                    }
+                }); // Ajax
+            }) // Function
 
 
-}) // Ready
+        // Buscar dispositivo
+
+        $('#device').change(function() {
+                $.ajax({
+                    type: "post",
+                    url: SITE_URL + "services/workshop.php",
+                    data: {
+                        device_id: $('#device').val(),
+                        action: 'buscar_equipo'
+                    },
+                    success: function(res) {
+
+                        var data = JSON.parse(res);
+
+                        $('#brand').val(data.nombre_marca)
+                        $('#model').val(data.modelo)
+                    }
+                }); // Ajax
+            }) // Function
+
+
+    }) // Ready
 
 
 
 
 function add_ordenRP() {
 
-        $.ajax({
-            type: "post",
-            url: SITE_URL + "services/workshop.php",
-            data: {
-                action: 'agregar_orden_reparacion',
-                customer_id: $('#customer_id').val(),
-                device: $('#device').val(),
-                serie: $('#serie').val(),
-                observation: $('#observation').val(),
-                imei: $('#imei').val()
+    $.ajax({
+        type: "post",
+        url: SITE_URL + "services/workshop.php",
+        data: {
+            action: 'agregar_orden_reparacion',
+            customer_id: $('#customer_id').val(),
+            device: $('#device').val(),
+            serie: $('#serie').val(),
+            observation: $('#observation').val(),
+            imei: $('#imei').val()
 
-            },
-            success: function (res) {
+        },
+        success: function(res) {
 
-                if (res > 0) {
+            if (res > 0) {
 
-                    Assign_condition(res);
-                 //   GenerateOrderPDF(res)
+                Assign_condition(res);
+                //   GenerateOrderPDF(res)
 
-                    $('input[type="text"]').val('');
-                    $('input[type="number"]').val('');
-                    $(".table").load(location.href + " .table");
+                $('input[type="text"]').val('');
+                $('input[type="number"]').val('');
+                $(".table").load(location.href + " .table");
 
-                    window.location.href=SITE_URL + 'invoices/addrepair&id=' + res                 
+                window.location.href = SITE_URL + 'invoices/addrepair&id=' + res
 
-                } else {
-                    mysql_error(res)
-                }
+            } else {
+                mysql_error(res)
             }
-        });
- 
+        }
+    });
+
 }
 
 // Generar factura pdf
@@ -128,8 +128,8 @@ function GenerateOrderPDF(order) {
     var x = parseInt((window.screen.width / 2) - (width / 2));
     var y = parseInt((window.screen.height / 2) - (height / 2));
 
-    var url = SITE_URL + 'public/dependency/pdf/generar_order_rp.php?o=' + order;
-    window.open(url,'Factura','left='+x+',top='+y+',height='+height+',width='+width+',scrollball=yes,location=no')
+    var url = SITE_URL + 'src/pdf/generar_order_rp.php?o=' + order;
+    window.open(url, 'Factura', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
 
 }
 
@@ -138,32 +138,32 @@ function GenerateOrderPDF(order) {
 
 function Assign_condition(orden_id) {
 
-        array = $('#condition_id').val()
+    array = $('#condition_id').val()
 
-        array.forEach(element => {
+    array.forEach(element => {
 
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/workshop.php",
-                data: {
-                    action: "asignar_condiciones",
-                    condition_id: element,
-                    orden_id: orden_id
+        $.ajax({
+            type: "post",
+            url: SITE_URL + "services/workshop.php",
+            data: {
+                action: "asignar_condiciones",
+                condition_id: element,
+                orden_id: orden_id
 
-                },
-                success: function (res) {
+            },
+            success: function(res) {
 
-                    if (res == "ready") {
+                if (res == "ready") {
 
-                        mysql_row_affected()
+                    mysql_row_affected()
 
-                    } else {
-                        mysql_error(res)
-                    }
+                } else {
+                    mysql_error(res)
                 }
-            });
+            }
+        });
 
-        }); // Loop
+    }); // Loop
 }
 
 
@@ -184,10 +184,10 @@ function elegirEstado(el) { // recibimos por parametro el elemento select
             workshop_id: workshop_id,
             action: 'actualizar_estado_orden'
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
-    
+
 
             } else {
                 mysql_error(res)
@@ -200,9 +200,9 @@ function elegirEstado(el) { // recibimos por parametro el elemento select
 // Eliminar orden de reparación
 
 function deleteOrden(id) {
-    
+
     alertify.confirm("Eliminar orden", "¿Estas seguro que deseas eliminar esta orden? ",
-        function () {
+        function() {
 
             $.ajax({
                 type: "post",
@@ -211,7 +211,7 @@ function deleteOrden(id) {
                     id: id,
                     action: 'eliminar_orden'
                 },
-                success: function (res) {
+                success: function(res) {
 
                     if (res == "ready") {
 
@@ -225,7 +225,7 @@ function deleteOrden(id) {
                 }
             });
         },
-        function () {
+        function() {
 
         });
 }
@@ -234,7 +234,7 @@ function deleteOrden(id) {
 // Crear condición de reparación 
 
 function AddCondition() {
-    
+
     $.ajax({
         type: "post",
         url: SITE_URL + "services/workshop.php",
@@ -242,12 +242,12 @@ function AddCondition() {
             condition: $('#condition').val(),
             action: 'crear_condicion'
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 
                 mysql_row_affected()
-                setTimeout('document.location.reload()',1100);
+                setTimeout('document.location.reload()', 1100);
 
             } else {
                 mysql_error(res)
@@ -259,7 +259,7 @@ function AddCondition() {
 
 
 function AddDevice() {
-    
+
     $.ajax({
         type: "post",
         url: SITE_URL + "services/workshop.php",
@@ -269,12 +269,12 @@ function AddDevice() {
             model: $('#num_device').val(),
             action: 'crear_equipo'
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 
                 mysql_row_affected()
-                setTimeout('document.location.reload()',1100);
+                setTimeout('document.location.reload()', 1100);
 
             } else {
                 mysql_error(res)
@@ -282,13 +282,13 @@ function AddDevice() {
 
         }
     });
-    
+
 }
 
 
 
 function AddBrand() {
-    
+
     $.ajax({
         type: "post",
         url: SITE_URL + "services/workshop.php",
@@ -296,7 +296,7 @@ function AddBrand() {
             name: $('#brand_name').val(),
             action: 'crear_marca'
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 
@@ -308,12 +308,12 @@ function AddBrand() {
 
         }
     });
-    
+
 }
 
 
 function UpdateBrand(id) {
-    
+
     $.ajax({
         type: "post",
         url: SITE_URL + "services/workshop.php",
@@ -322,7 +322,7 @@ function UpdateBrand(id) {
             id: id,
             action: 'actualizar_marca'
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 
@@ -334,15 +334,15 @@ function UpdateBrand(id) {
 
         }
     });
-    
+
 }
 
 // Eliminar marca
 
 function deleteBrand(id) {
-    
+
     alertify.confirm("Eliminar marca", "¿Estas seguro que deseas eliminar esta marca? ",
-        function () {
+        function() {
 
             $.ajax({
                 type: "post",
@@ -351,7 +351,7 @@ function deleteBrand(id) {
                     id: id,
                     action: 'eliminar_marca'
                 },
-                success: function (res) {
+                success: function(res) {
 
                     if (res == "ready") {
 
@@ -365,7 +365,7 @@ function deleteBrand(id) {
                 }
             });
         },
-        function () {
+        function() {
 
         });
 }

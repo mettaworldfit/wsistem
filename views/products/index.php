@@ -6,7 +6,7 @@
 
 
         <div class="float-right">
-        <a href="<?= base_url?>public/dependency/excel/reporte-productos.php" class="btn-custom btn-green">
+        <a href="<?= base_url?>src/excel/reporte-productos.php" class="btn-custom btn-green">
             <i class="fas fa-file-excel"></i> <p>Excel</p> </a>
         <a href="<?=base_url?>products/add" class="btn-custom btn-default">
         <i class="fas fa-plus"></i>

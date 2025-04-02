@@ -427,7 +427,7 @@ $(document).ready(function() {
         var x = parseInt((window.screen.width / 2) - (width / 2));
         var y = parseInt((window.screen.height / 2) - (height / 2));
 
-        var url = SITE_URL + 'public/dependency/pdf/generar_factura_venta.php?f=' + invoice + '&sub=' + data.subtotal + '&dis=' + data.discount + '&tax=' + data.taxes + '&total=' + data.total;
+        var url = SITE_URL + 'src/pdf/generar_factura_venta.php?f=' + invoice + '&sub=' + data.subtotal + '&dis=' + data.discount + '&tax=' + data.taxes + '&total=' + data.total;
         window.open(url, 'Factura', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
 
 
@@ -1528,7 +1528,7 @@ function GenerateQuotePDF(quote_id) {
     var x = parseInt((window.screen.width / 2) - (width / 2));
     var y = parseInt((window.screen.height / 2) - (height / 2));
 
-    var url = SITE_URL + 'public/dependency/pdf/generar_cotizacion.php?f=' + quote_id + '&sub=' + data.subtotal + '&dis=' + data.discount + '&tax=' + data.taxes + '&total=' + data.total;
+    var url = SITE_URL + 'src/pdf/generar_cotizacion.php?f=' + quote_id + '&sub=' + data.subtotal + '&dis=' + data.discount + '&tax=' + data.taxes + '&total=' + data.total;
     window.open(url, 'Factura', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
 
 }
@@ -1551,7 +1551,6 @@ function updateQuote(id) {
 
             if (res == "ready") {
 
-                //  GenerateQuotePDF(res) // Generar PDF
                 mysql_row_affected()
 
             } else {

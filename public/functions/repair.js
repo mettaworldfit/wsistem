@@ -35,7 +35,7 @@ function invoice_total_rp() {
             action: 'precio_detalle',
             orden_id: $('#orden_id').val()
         },
-        success: function (res) {
+        success: function(res) {
 
             var data = JSON.parse(res);
 
@@ -130,329 +130,329 @@ function invoice_total_rp() {
 function reload_rp() {
     // Actualizar detalle
     $('#Detalle').load(location.href + " #Detalle");
-   
-    setTimeout('document.location.reload()',2000);
+
+    setTimeout('document.location.reload()', 2000);
 
 
 }
 
 
-$(document).ready(function () {
+$(document).ready(function() {
 
-    // Llamar funcion invoice_total_rp()
-    if (pageURL.includes("invoices/addrepair") || pageURL.includes("invoices/repair_edit")) {
-        invoice_total_rp() // Cargar total de la factura
+        // Llamar funcion invoice_total_rp()
+        if (pageURL.includes("invoices/addrepair") || pageURL.includes("invoices/repair_edit")) {
+            invoice_total_rp() // Cargar total de la factura
 
-        // Cambiar tipo de item a agregar
+            // Cambiar tipo de item a agregar
 
-        $('.service').hide()
-        $('#stock').attr('disabled', true)
-        $('#quantity').attr('disabled', true)
-        $('#quantity').val('0')
-        $('#discount').attr('disabled', true)
-        $('#price_out').attr('disabled', true)
-        $('#rp_service').attr('required', false)
-        $('#piece').attr('required', true)
+            $('.service').hide()
+            $('#stock').attr('disabled', true)
+            $('#quantity').attr('disabled', true)
+            $('#quantity').val('0')
+            $('#discount').attr('disabled', true)
+            $('#price_out').attr('disabled', true)
+            $('#rp_service').attr('required', false)
+            $('#piece').attr('required', true)
 
-        $('input:radio[name=tipo]').change(function () {
-            if ($(this).val() == "pieza") {
+            $('input:radio[name=tipo]').change(function() {
+                if ($(this).val() == "pieza") {
 
-                $('.piece').show()
-                $('.service').hide()
+                    $('.piece').show()
+                    $('.service').hide()
 
-                // Default
+                    // Default
 
-                $('#stock').attr('disabled', true)
-                $('#quantity').val('0')
-                $('#price_out').attr('disabled', true)
-                $('#rp_service').attr('required', false)
-                $('#piece').attr('required', true)
-                $('#quantity').attr('required', true)
+                    $('#stock').attr('disabled', true)
+                    $('#quantity').val('0')
+                    $('#price_out').attr('disabled', true)
+                    $('#rp_service').attr('required', false)
+                    $('#piece').attr('required', true)
+                    $('#quantity').attr('required', true)
 
-            } else if ($(this).val() == "servicio") {
+                } else if ($(this).val() == "servicio") {
 
-                $('.service').show()
-                $('.piece').hide()
+                    $('.service').show()
+                    $('.piece').hide()
 
-                // Default
+                    // Default
 
-                $('#discount').attr('disabled', false)
-                $('#price_out').attr('disabled', false)
-                $('#rp_service').attr('required', true)
-                $('#piece').attr('required', false)
-                $('#quantity').attr('required', false)
-                $('#price_out').val('')
-                $('#rp_add_item').show();
+                    $('#discount').attr('disabled', false)
+                    $('#price_out').attr('disabled', false)
+                    $('#rp_service').attr('required', true)
+                    $('#piece').attr('required', false)
+                    $('#quantity').attr('required', false)
+                    $('#price_out').val('')
+                    $('#rp_add_item').show();
 
-            }
-        });
-    }
-
-    // Crear factura al contado
-
-    $('#cash-in-finish_rp').on('click', (e) => {
-        e.preventDefault();
-
-        CASH_INV_FINISH();
-
-    })
-
-    $('#cash-in-finish-rp-receipt').on('click', (e) => {
-        e.preventDefault();
-
-        CASH_INV_FINISH(true);
-
-    })
-
-    function CASH_INV_FINISH(receipt = false) {
-
-        var total = $('#cash-topay').val().replace(/,/g, "");
-
-        $.ajax({
-            type: "post",
-            url: SITE_URL + "services/repair.php",
-            data: {
-                action: "factura_contado",
-                orden_id: $('#orden_id').val(),
-                customer_id: $('#cash-in-customer').val(),
-                payment_method: $('#cash-in-method').val(),
-                description: $('#observation').val(),
-                total_invoice: total,
-                date: $('#cash-in-date').val()
-            },
-            success: function (res) {
-                if (res > 0) {
-
-                     // Imprimir ticket 
-                     if (receipt == true) { 
-                        printer_inv(res, 'factura_rp_cash.php')
-                     }
-
-                    mysql_row_affected()
-                    reload_rp()
-                    $('#buttons').hide()
-                    $('#cash-received').val(format.format(total))
-                    $('#cash-pending').val('0.00')
-
-                } else {
-                    mysql_error(res)
                 }
+            });
+        }
+
+        // Crear factura al contado
+
+        $('#cash-in-finish_rp').on('click', (e) => {
+            e.preventDefault();
+
+            CASH_INV_FINISH();
+
+        })
+
+        $('#cash-in-finish-rp-receipt').on('click', (e) => {
+            e.preventDefault();
+
+            CASH_INV_FINISH(true);
+
+        })
+
+        function CASH_INV_FINISH(receipt = false) {
+
+            var total = $('#cash-topay').val().replace(/,/g, "");
+
+            $.ajax({
+                type: "post",
+                url: SITE_URL + "services/repair.php",
+                data: {
+                    action: "factura_contado",
+                    orden_id: $('#orden_id').val(),
+                    customer_id: $('#cash-in-customer').val(),
+                    payment_method: $('#cash-in-method').val(),
+                    description: $('#observation').val(),
+                    total_invoice: total,
+                    date: $('#cash-in-date').val()
+                },
+                success: function(res) {
+                    if (res > 0) {
+
+                        // Imprimir ticket 
+                        if (receipt == true) {
+                            printer_inv(res, 'factura_rp_cash.php')
+                        }
+
+                        mysql_row_affected()
+                        reload_rp()
+                        $('#buttons').hide()
+                        $('#cash-received').val(format.format(total))
+                        $('#cash-pending').val('0.00')
+
+                    } else {
+                        mysql_error(res)
+                    }
+                }
+            });
+        }
+
+
+        // Introducir monto
+
+        $('#credit-pay_rp').on('keyup', (e) => {
+            e.preventDefault();
+
+            var pay = $('#credit-pay_rp').val();
+            $('#credit-received').val(format.format(pay))
+
+            // Mostrar botón de facturar
+
+            var pay = parseInt($('#credit-pay_rp').val());
+            var pending = parseInt($('#credit-pending').val().replace(/,/g, ""));
+
+            if (pay < pending) {
+                $('#credit-in-finish_rp').show()
+                $('#credit-in-finish-rp-receipt').show()
+            } else {
+                $('#credit-in-finish_rp').hide()
+                $('#credit-in-finish-rp-receipt').hide()
             }
+
+
+        })
+
+        // Crear factura a crédito
+
+        $('#credit-in-finish_rp').on('click', (e) => {
+            e.preventDefault();
+            CREDIT_INV_FINISH();
         });
-    }
+
+        $('#credit-in-finish-rp-receipt').on('click', (e) => {
+            e.preventDefault();
+            CREDIT_INV_FINISH(true);
+        });
 
 
-    // Introducir monto
+        function CREDIT_INV_FINISH(receipt = false) {
 
-    $('#credit-pay_rp').on('keyup', (e) => {
-        e.preventDefault();
+            // Ocultar los botones de facturar en ambos modal para evitar insertar datos vacios
 
-        var pay = $('#credit-pay_rp').val();
-        $('#credit-received').val(format.format(pay))
-
-        // Mostrar botón de facturar
-
-        var pay = parseInt($('#credit-pay_rp').val());
-        var pending = parseInt($('#credit-pending').val().replace(/,/g, ""));
-
-        if (pay < pending) {
-            $('#credit-in-finish_rp').show()
-            $('#credit-in-finish-rp-receipt').show()
-        } else {
             $('#credit-in-finish_rp').hide()
+            $('#cash-in-finish_rp').hide()
             $('#credit-in-finish-rp-receipt').hide()
-        }
+
+            $.ajax({
+                type: "post",
+                url: SITE_URL + "services/repair.php",
+                data: {
+                    action: "factura_credito",
+                    customer_id: $('#credit-in-customer').val(),
+                    orden_id: $('#orden_id').val(),
+                    payment_method: $('#cash-in-method').val(),
+                    description: $('#observation').val(),
+                    total_invoice: $('#credit-topay').val().replace(/,/g, ""),
+                    pay: $('#credit-pay_rp').val(),
+                    pending: $('#credit-pending').val().replace(/,/g, ""),
+                    date: $('#cash-in-date').val()
+                },
+                success: function(res) {
+                    if (res > 0) {
+
+                        // Imprimir ticket 
+                        if (receipt == true) {
+                            printer_inv(res, 'factura_rp_credit.php')
+                        }
+
+                        mysql_row_affected()
+                        reload_rp()
+
+                        $('#buttons').hide()
+                            // Vaciar campos
+                        $('#in-subtotal').val('0')
+                        $('#in-discount').val('0')
+                        $('#in-total').val('0')
+                        $('#credit-pending').val(format.format(pending)) // Imprimir valor pendiente en el modal
 
 
-    })
-
-    // Crear factura a crédito
-
-    $('#credit-in-finish_rp').on('click', (e) => {
-        e.preventDefault();
-        CREDIT_INV_FINISH();
-    });
-
-    $('#credit-in-finish-rp-receipt').on('click', (e) => {
-        e.preventDefault();
-        CREDIT_INV_FINISH(true);    
-    });
-
-
-    function CREDIT_INV_FINISH(receipt = false) {
-
-        // Ocultar los botones de facturar en ambos modal para evitar insertar datos vacios
-
-        $('#credit-in-finish_rp').hide()
-        $('#cash-in-finish_rp').hide()
-        $('#credit-in-finish-rp-receipt').hide()
-
-        $.ajax({
-            type: "post",
-            url: SITE_URL + "services/repair.php",
-            data: {
-                action: "factura_credito",
-                customer_id: $('#credit-in-customer').val(),
-                orden_id: $('#orden_id').val(),
-                payment_method: $('#cash-in-method').val(),
-                description: $('#observation').val(),
-                total_invoice: $('#credit-topay').val().replace(/,/g, ""),
-                pay: $('#credit-pay_rp').val(),
-                pending: $('#credit-pending').val().replace(/,/g, ""),
-                date: $('#cash-in-date').val()
-            },
-            success: function (res) {
-                if (res > 0) {
-
-                     // Imprimir ticket 
-                     if (receipt == true) { 
-                        printer_inv(res, 'factura_rp_credit.php')
-                     }
-
-                    mysql_row_affected()
-                    reload_rp()
-
-                    $('#buttons').hide()
-                    // Vaciar campos
-                    $('#in-subtotal').val('0')
-                    $('#in-discount').val('0')
-                    $('#in-total').val('0')
-                    $('#credit-pending').val(format.format(pending)) // Imprimir valor pendiente en el modal
-
-
-                } else {
-                    mysql_error(res)
-                    // Ocultar los botones de facturar en ambos modal para evitar insertar datos vacios
-                    $('#credit-in-finish_rp').show()
-                    $('#cash-in-finish_rp').show()
-                    $('#credit-in-finish-rp-receipt').show()
+                    } else {
+                        mysql_error(res)
+                            // Ocultar los botones de facturar en ambos modal para evitar insertar datos vacios
+                        $('#credit-in-finish_rp').show()
+                        $('#cash-in-finish_rp').show()
+                        $('#credit-in-finish-rp-receipt').show()
+                    }
                 }
-            }
-        });
+            });
 
-    }
-
-
-    // Generar orden pdf
-
-    function GenerateOrderPDF(order) {
-
-        var width = 1000;
-        var height = 800;
-
-        // Centar la ventana
-        var x = parseInt((window.screen.width / 2) - (width / 2));
-        var y = parseInt((window.screen.height / 2) - (height / 2));
-
-        var url = SITE_URL + 'public/dependency/pdf/generar_order_rp.php?o=' + order;
-        window.open(url,'Factura','left='+x+',top='+y+',height='+height+',width='+width+',scrollball=yes,location=no')
-
-
-    }
-
-    // Generar factura PDF al dar click
-
-    // $('#generateOrderPDF').on('click',(e)=>{
-    //     e.preventDefault()
-
-    //     var id = $('#orden_id').val()
-    //     GenerateOrderPDF(id)
-    // })
-
-
-     // Generar factura pdf
-
-     function GenerateInvPDF(invoice,order) {
-
-        data = {
-            subtotal: $('#in-subtotal').val().replace(/,/g, ""),
-            discount: $('#in-discount').val().replace(/,/g, ""),
-            total: $('#in-total').val().replace(/,/g, ""),
         }
 
-        var width = 1000;
-        var height = 800;
 
-        // Centar la ventana
-        var x = parseInt((window.screen.width / 2) - (width / 2));
-        var y = parseInt((window.screen.height / 2) - (height / 2));
+        // Generar orden pdf
 
-        var url = SITE_URL + 'public/dependency/pdf/generar_factura_rp.php?f=' + invoice +'&o='+ order +'&sub='+data.subtotal+'&dis='+data.discount+'&total='+data.total;
-        window.open(url,'Factura','left='+x+',top='+y+',height='+height+',width='+width+',scrollball=yes,location=no')
+        function GenerateOrderPDF(order) {
 
-    }
+            var width = 1000;
+            var height = 800;
 
-    // Generar factura PDF al dar click
+            // Centar la ventana
+            var x = parseInt((window.screen.width / 2) - (width / 2));
+            var y = parseInt((window.screen.height / 2) - (height / 2));
 
-    $('#generateInvPDF').on('click',(e)=>{
-        e.preventDefault()
-
-        var Invid = $('#invoice_id').val()
-        var Orid = $('#orden_id').val()
-        GenerateInvPDF(Invid,Orid)
-    })
+            var url = SITE_URL + 'public/dependency/pdf/generar_order_rp.php?o=' + order;
+            window.open(url, 'Factura', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
 
 
-    /**
-     * TODO Imprimir facturas
-     */
-
-    function printer_inv(invoice, type) {
-
-        data = {
-            subtotal: $('#in-subtotal').val().replace(/,/g, ""),
-            discount: $('#in-discount').val().replace(/,/g, ""),
-            total: $('#in-total').val().replace(/,/g, ""),
-            order_id: $('#orden_id').val(),
-            pay: $('#credit-pay_rp').val(),
-            received: $('#cash-received').val().replace(/,/g, ""),
-            observation: $('#observation').val(),
-            inv_id: invoice
         }
-        console.log(data)
-        $.ajax({
-            type: "post",
-            url: PRINTER_SERVER + type,
-            data: {
-                detail: $('#detail_order').val(),
-                device: $('#device_info').val(),
-                info: data
-            },
-            success: function (res) {
-                console.log(res)
 
+        // Generar factura PDF al dar click
+
+        // $('#generateOrderPDF').on('click',(e)=>{
+        //     e.preventDefault()
+
+        //     var id = $('#orden_id').val()
+        //     GenerateOrderPDF(id)
+        // })
+
+
+        // Generar factura pdf
+
+        function GenerateInvPDF(invoice, order) {
+
+            data = {
+                subtotal: $('#in-subtotal').val().replace(/,/g, ""),
+                discount: $('#in-discount').val().replace(/,/g, ""),
+                total: $('#in-total').val().replace(/,/g, ""),
             }
-        });
 
-    }
+            var width = 1000;
+            var height = 800;
 
-/**
- * ! Botón de imprimir factura
- */
+            // Centar la ventana
+            var x = parseInt((window.screen.width / 2) - (width / 2));
+            var y = parseInt((window.screen.height / 2) - (height / 2));
 
-$('#printer_inv_rp').on('click',(e) => {
-    e.preventDefault();
+            var url = SITE_URL + 'src/pdf/generar_factura_rp.php?f=' + invoice + '&o=' + order + '&sub=' + data.subtotal + '&dis=' + data.discount + '&total=' + data.total;
+            window.open(url, 'Factura', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
 
-    var invId = $('#invoice_id').val()
+        }
 
-    printer_inv(invId,'factura_reparacion.php');
-   
+        // Generar factura PDF al dar click
 
-})
+        $('#generateInvPDF').on('click', (e) => {
+            e.preventDefault()
 
-
-
-
-
-
-
+            var Invid = $('#invoice_id').val()
+            var Orid = $('#orden_id').val()
+            GenerateInvPDF(Invid, Orid)
+        })
 
 
+        /**
+         * TODO Imprimir facturas
+         */
+
+        function printer_inv(invoice, type) {
+
+            data = {
+                subtotal: $('#in-subtotal').val().replace(/,/g, ""),
+                discount: $('#in-discount').val().replace(/,/g, ""),
+                total: $('#in-total').val().replace(/,/g, ""),
+                order_id: $('#orden_id').val(),
+                pay: $('#credit-pay_rp').val(),
+                received: $('#cash-received').val().replace(/,/g, ""),
+                observation: $('#observation').val(),
+                inv_id: invoice
+            }
+            console.log(data)
+            $.ajax({
+                type: "post",
+                url: PRINTER_SERVER + type,
+                data: {
+                    detail: $('#detail_order').val(),
+                    device: $('#device_info').val(),
+                    info: data
+                },
+                success: function(res) {
+                    console.log(res)
+
+                }
+            });
+
+        }
+
+        /**
+         * ! Botón de imprimir factura
+         */
+
+        $('#printer_inv_rp').on('click', (e) => {
+            e.preventDefault();
+
+            var invId = $('#invoice_id').val()
+
+            printer_inv(invId, 'factura_reparacion.php');
+
+
+        })
 
 
 
 
-}) // Ready
+
+
+
+
+
+
+
+
+
+    }) // Ready
 
 
 
@@ -496,10 +496,10 @@ function add_detail_rp() {
             discount: $('#discount').val(),
             price: $('#price_out').val().replace(/,/g, ""),
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res > 0) {
-          
+
                 invoice_total_rp()
                 reload_rp()
 
@@ -524,7 +524,7 @@ function deleteDetail(id) {
             action: "eliminar_detalle",
             id: id
         },
-        success: function (res) {
+        success: function(res) {
             if (res == "ready") {
 
                 invoice_total_rp()
@@ -543,7 +543,7 @@ function deleteDetail(id) {
 function deleteInvoiceRP(id) {
 
     alertify.confirm("Eliminar factura", "¿Estas seguro que deseas eliminar esta factura? ",
-        function () {
+        function() {
 
             $.ajax({
                 url: SITE_URL + "services/repair.php",
@@ -552,7 +552,7 @@ function deleteInvoiceRP(id) {
                     action: "eliminar_factura",
                     id: id
                 },
-                success: function (res) {
+                success: function(res) {
                     if (res == "ready") {
 
                         $('.table').load(location.href + " .table");
@@ -564,7 +564,7 @@ function deleteInvoiceRP(id) {
             });
 
         },
-        function () {
+        function() {
 
         });
 }
@@ -582,7 +582,7 @@ function Update_info() {
             method: $('#method').val(),
             id: $('#orden_id').val()
         },
-        success: function (res) {
+        success: function(res) {
             if (res == "ready") {
 
                 mysql_row_update()
@@ -596,37 +596,37 @@ function Update_info() {
 }
 
 /**
-     * ! Actualizar dinero recibido 
-     */
+ * ! Actualizar dinero recibido 
+ */
 
 function UPDATE_CASH_RECEIVED(id) {
 
     alertify.confirm("Actualizar factura", "¿Estas seguro que deseas actualizar el monto recibido de esta factura? ",
-    function () {
+        function() {
 
 
-        $.ajax({
-            url: SITE_URL + "services/repair.php",
-            method: "post",
-            data: {
-                action: "actualizar_dinero_recibido",
-                id: id,
-                received: $('#update-cash-received').val(),
-                topay: $('#cash-topay2').val().replace(/,/g, "")
-            },
-            success: function (res) {
+            $.ajax({
+                url: SITE_URL + "services/repair.php",
+                method: "post",
+                data: {
+                    action: "actualizar_dinero_recibido",
+                    id: id,
+                    received: $('#update-cash-received').val(),
+                    topay: $('#cash-topay2').val().replace(/,/g, "")
+                },
+                success: function(res) {
 
-                if (res == "ready") {
+                    if (res == "ready") {
 
-                    mysql_row_update()
+                        mysql_row_update()
 
-                } else {
-                    mysql_error(res)
+                    } else {
+                        mysql_error(res)
+                    }
                 }
-            }
-        });
-    },
-    function () {
+            });
+        },
+        function() {
 
-    });
+        });
 }
