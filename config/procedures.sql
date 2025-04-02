@@ -2029,3 +2029,65 @@ BEGIN
  
 END $$
 DELIMITER ;
+
+
+#--------------- Cotizaciones ------------------
+
+
+DELIMITER $$
+CREATE PROCEDURE `ct_cotizacion`(in cliente_id int, in usuario_id int, in total int, 
+in descripcion varchar(150), in fecha date)
+BEGIN
+
+ DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
+ DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+
+ insert into cotizaciones values (null,usuario_id,cliente_id,total,descripcion,fecha);
+ select last_insert_id() AS msg;
+ 
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE `ct_eliminarCotizacion`(in id int)
+BEGIN
+
+ DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
+ DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+
+delete from cotizaciones where cotizacion_id = id;
+select 'ready' AS msg;
+
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE `ct_eliminarDetalle`(in id int)
+BEGIN
+
+ DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
+ DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+
+delete from detalle_cotizaciones where detalle_id = id;
+select 'ready' AS msg;
+
+END $$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE `ct_actualizarCotizacion`(in cliente_id int,in id int, in descripcion varchar(150), in fecha date)
+BEGIN
+
+ DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
+ DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+
+UPDATE cotizaciones SET cliente_id = cliente_id, total = total, 
+fecha = fecha, descripcion = descripcion WHERE cotizacion_id = id;
+
+ select "ready" AS msg;
+ 
+END $$
+DELIMITER ;
+
+

@@ -625,6 +625,40 @@ END //
 DELIMITER ;
 
 
+#______________________________________________________________________
+# TRIGGERS
+# Cotizaciones
+#______________________________________________________________________
+
+
+DELIMITER //
+DROP TRIGGER IF EXISTS  agregar_item_cotizacion //
+
+CREATE TRIGGER agregar_item_cotizacion
+AFTER INSERT ON detalle_cotizaciones FOR EACH ROW
+BEGIN
+
+Update cotizaciones
+set total = total + (NEW.cantidad * (NEW.impuesto + NEW.precio )- NEW.descuento)
+where cotizacion_id = NEW.cotizacion_id;
+
+END //
+DELIMITER ;
+
+
+DELIMITER //
+DROP TRIGGER IF EXISTS eliminar_item_detalle_cotizaciones //
+
+CREATE TRIGGER eliminar_item_detalle_cotizaciones
+BEFORE DELETE ON detalle_cotizaciones FOR EACH ROW
+BEGIN
+
+Update cotizaciones
+set total = total - (OLD.cantidad * (OLD.impuesto + OLD.precio - OLD.descuento))
+where cotizacion_id = OLD.cotizacion_id;
+
+END //
+DELIMITER ;
 
 
 SHOW TRIGGERS;

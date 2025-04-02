@@ -959,3 +959,39 @@ CONSTRAINT pagos_proveedores_usuarios FOREIGN KEY (usuario_id) REFERENCES usuari
 CONSTRAINT pagos_proveedores_facturas_proveedores FOREIGN KEY (factura_proveedor_id) REFERENCES facturas_proveedores(factura_proveedor_id) ON DELETE CASCADE ON UPDATE CASCADE 
 
 )ENGINE = InnoDb; 
+
+
+CREATE TABLE cotizaciones (
+
+cotizacion_id int auto_increment NOT NULL,
+usuario_id int NOT NULL,
+cliente_id int NOT NULL,
+total int NOT NULL,
+descripcion varchar(100) NULL,
+fecha date NULL,
+
+PRIMARY KEY (cotizacion_id),
+CONSTRAINT cotizaciones_usuarios FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id) ON UPDATE CASCADE,
+CONSTRAINT cotizaciones_clientes FOREIGN KEY (cliente_id) REFERENCES clientes(cliente_id) ON UPDATE CASCADE ON DELETE CASCADE
+
+)ENGINE = InnoDb; 
+
+
+CREATE TABLE detalle_cotizaciones (
+
+detalle_id int auto_increment NOT NULL,
+cotizacion_id int NOT NULL,
+usuario_id int NOT NULL,
+descripcion varchar(70) NOT NULL,
+cantidad int NOT NULL,
+precio int NOT NULL,
+impuesto int NULL,
+descuento int NULL,
+fecha date NULL,
+
+PRIMARY KEY (detalle_id),
+CONSTRAINT detalle_cotizaciones_usuarios FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id) ON UPDATE CASCADE,
+CONSTRAINT detalle_cotizaciones_cotizaciones FOREIGN KEY (cotizacion_id) REFERENCES cotizaciones(cotizacion_id) ON UPDATE CASCADE ON DELETE CASCADE
+
+)ENGINE = InnoDb; 
+
