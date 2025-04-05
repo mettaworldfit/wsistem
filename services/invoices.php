@@ -426,26 +426,7 @@ if ($_POST['action'] == 'actualizar_factura') {
     echo "Error : " . $data->msg;
   }
 
-} else if ($_POST['action'] == 'actualizar_dinero_recibido') {
-
-  $id = $_POST['id'];
-  $received = $_POST['received'];
-  $pending = $_POST['topay'] - $_POST['received'];
-  $db = Database::connect();
-
-  $query = "CALL vt_actualizarDineroFactura($id,$received,$pending)";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo "ready";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error : " . $data->msg;
-  }
-
-}
+} 
 
 // Crear cotizaciones
 

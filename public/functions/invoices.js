@@ -392,9 +392,15 @@ $(document).ready(function() {
                         if (receipt == true) {
                             printer(invoice_id, res, data, "cash");
 
+                            // Enviar email
+                            if ($("#sendMail").is(':checked')) return SendmailCashft(invoice_id)
 
                         } else {
                             GeneratePDF(invoice_id) // Imprimir PDF
+
+                            // Enviar email
+                            if ($("#sendMail").is(':checked')) return SendmailCashft(invoice_id)
+
                         }
 
 
@@ -423,13 +429,12 @@ $(document).ready(function() {
         var width = 1000;
         var height = 800;
 
-        // Centar la ventana
+        // Centrar la ventana
         var x = parseInt((window.screen.width / 2) - (width / 2));
         var y = parseInt((window.screen.height / 2) - (height / 2));
 
         var url = SITE_URL + 'src/pdf/generar_factura_venta.php?f=' + invoice + '&sub=' + data.subtotal + '&dis=' + data.discount + '&tax=' + data.taxes + '&total=' + data.total;
         window.open(url, 'Factura', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
-
 
     }
 
@@ -440,6 +445,56 @@ $(document).ready(function() {
 
         var id = $('#invoice_id').val()
         GeneratePDF(id)
+    })
+
+
+    // Generar Email de factura al contado
+
+    function SendmailCashft(invoice) {
+
+        data = {
+            subtotal: $('#in-subtotal').val().replace(/,/g, ""),
+            discount: $('#in-discount').val().replace(/,/g, ""),
+            taxes: $('#in-taxes').val().replace(/,/g, ""),
+            total: $('#in-total').val().replace(/,/g, ""),
+            method: $('#select2-cash-in-method-container').attr('title') != null ? $('#select2-cash-in-method-container').attr('title') : $('#select2-method-container').attr('title'),
+            date: $('#cash-in-date').val() != null ? $('#cash-in-date').val() : $('#date').val()
+        }
+
+        fetch(SITE_URL + 'src/phpmailer/mail.php?f=' + invoice + '&sub=' + data.subtotal + '&dis=' + data.discount + '&tax=' + data.taxes + '&total=' + data.total + '&method=' + data.method + '&date=' + data.date, {
+                method: 'POST'
+            })
+            .then(response => {
+
+                mdtoast("Enviado correctamente", {
+                    type: 'info',
+                    interaction: !0,
+                    interactionTimeout: 1500,
+                    position: "bottom right",
+                    actionText: "OK!",
+                });
+
+            })
+            .catch((error) => {
+                console.error('Error al enviar email:', error);
+
+                mdtoast("Ha ocurrido un error!", {
+                    type: 'error',
+                    interaction: !0,
+                    position: "bottom right",
+                    actionText: "OK!",
+                });
+            });
+    }
+
+
+    // Generar Email al dar click
+
+    $('#SendmailCashft').on('click', (e) => {
+        e.preventDefault()
+
+        var id = $('#invoice_id').val()
+        SendmailCashft(id)
     })
 
 
@@ -1160,43 +1215,6 @@ function Update_info_purchase() {
     });
 
 }
-
-/**
- * ! Actualizar dinero recibido 
- */
-
-function UPDATE_CASH_RECEIVED(id) {
-
-    alertify.confirm("Actualizar factura", "¿Estas seguro que deseas actualizar el monto recibido de esta factura? ",
-        function() {
-
-            $.ajax({
-                url: SITE_URL + "services/invoices.php",
-                method: "post",
-                data: {
-                    action: "actualizar_dinero_recibido",
-                    id: id,
-                    received: $('#update-cash-received').val(),
-                    topay: $('#cash-topay2').val()
-                },
-                success: function(res) {
-
-                    if (res == "ready") {
-
-                        mysql_row_update()
-
-                    } else {
-                        mysql_error(res)
-                    }
-                }
-            });
-        },
-        function() {
-
-        });
-}
-
-
 
 // Agregar detalle de cotizacion
 

@@ -467,6 +467,7 @@
                                 <?php $customers = Help::showCustomers();
                                 while ($customer = $customers->fetch_object()): ?>
                                     <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre)." ".ucwords($customer->apellidos)?></option>
+                                
                                 <?php endwhile; ?>
                             </select>
                         </div>
@@ -525,8 +526,16 @@
 
                     <div class="control-group mt-4">
                         <label class="control control-checkbox mt-2">
-                            Incluir bono
+                        <i class="fas fa-dollar-sign"></i> Bono
                             <input type="checkbox" id="include_bond" />
+                            <div class="control_indicator"></div>
+                        </label>
+                    </div>
+
+                    <div class="control-group mt-4">
+                        <label class="control control-checkbox mt-2">
+                        <i class="fas fa-envelope"></i> Email
+                            <input type="checkbox" id="sendMail" />
                             <div class="control_indicator"></div>
                         </label>
                     </div>

@@ -8,7 +8,7 @@ class Database
 
         // Configuración de las bases de datos
         $dbConfig = [
-            'admin' => [
+            'local' => [
                 'host' => 'localhost',
                 'dbname' => 'proyecto',
                 'user' => 'root',
@@ -68,20 +68,20 @@ class Database
                 'caption' => ''
             ],
 
-            // 'admin' => [
-            //     'host' => 'localhost', 
-            //     'dbname' => 'chino_com_mao', 
-            //     'user' => 'Wilmin', 
-            //     'pass' => 'Mett@1106',
+            'admin' => [
+                'host' => 'localhost',
+                'dbname' => 'chino_com_mao',
+                'user' => 'Wilmin',
+                'pass' => 'Mett@1106',
 
-            //     'company' => 'Chino comunicaciones', // Chino comunicaciones
-            //     'logo' => 'public/imagen/sistem/chino_com.png', // logo
-            //     'slogan' => 'La garantía de tu comunicación',
-            //     'direction' => 'C/ 27 de Fébrero (Frente al correo) Mao, Valverde R.D.',
-            //     'phone' => '(809) 572-3846',
-            //     'footer' => 'Equipos vendidos incluyen 30 días de garantía en piezas y servicios, no garantía sin factura, no se reciben equipos: mojados, golpeados, apagados, pantallas rotas o pantallas en negro, manipulados por otros técnicos o sin sellos de garantía. Batería y cargadores 3 días de garantía, accesorios no tienen garantía a menos que se le indique.Pantallas y reparaciones no incluyen garantía.',
-            //     'caption' => 'No hay devolución de dinero en efectivo pasadas las 24 horas.'
-            // ],
+                'company' => 'Chino comunicaciones', // Chino comunicaciones
+                'logo' => 'public/imagen/sistem/chino_com.png', // logo
+                'slogan' => 'La garantía de tu comunicación',
+                'direction' => 'C/ 27 de Fébrero (Frente al correo) Mao, Valverde R.D.',
+                'phone' => '(809) 572-3846',
+                'footer' => 'Equipos vendidos incluyen 30 días de garantía en piezas y servicios, no garantía sin factura, no se reciben equipos: mojados, golpeados, apagados, pantallas rotas o pantallas en negro, manipulados por otros técnicos o sin sellos de garantía. Batería y cargadores 3 días de garantía, accesorios no tienen garantía a menos que se le indique.Pantallas y reparaciones no incluyen garantía.',
+                'caption' => 'No hay devolución de dinero en efectivo pasadas las 24 horas.'
+            ],
 
             'user' => [
                 'host' => 'localhost',

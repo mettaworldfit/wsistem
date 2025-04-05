@@ -105,14 +105,6 @@
             <i class="far fa-edit"></i>
             <p>Actualizar datos</p>
         </button>
-
-        <?php if ($_SESSION['identity']->nombre_rol == 'administrador') { ?>
-
-            <button class="btn-custom btn-blue" type="button" data-toggle="modal" data-target="#update_invoice">
-                <i class="fas fa-file-invoice"></i>
-                <p>Actualizar factura</p>
-            </button>
-        <?php } ?>
         <button class="btn-custom btn-default" type="button" data-toggle="modal" data-target="#add_detail" id="">
             <i class="fas fa-plus"></i>
             <p>Agregar detalle</p>
@@ -120,6 +112,10 @@
         <button class="btn-custom btn-orange" type="button" id="printer_inv">
             <i class="fas fa-receipt"></i>
             <p>Imprimir ticket</p>
+        </button>
+        <button class="btn-custom btn-blue" type="button" id="SendmailCashft">
+            <i class="fas fa-envelope"></i>
+            <p>Enviar</p>
         </button>
         <button class="btn-custom btn-red" type="button" id="generatePDF">
             <i class="fas fa-file-pdf"></i>
@@ -550,83 +546,6 @@
         </div>
     </div>
 </div>
-
-
-<!-- Actualizar (Dinero recibido) -->
-
-<div class="modal fade" id="update_invoice" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Actualizar (Dinero recibido)</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); UPDATE_CASH_RECEIVED(<?= $_GET['id']; ?>);">
-
-                    <!-- Head -->
-                    <?php $data = Help::INFO_INVOICE($_GET['id']);
-                    while ($info = $data->fetch_object()): ?>
-                        <div class="row col-sm-12 invoice-head-modal">
-
-                            <div class="col-sm-4 head-content">
-                                <h6>Total Pagado</h6>
-                                <input type="text" class="invisible-input text-success" value="" id="cash-received2"
-                                    disabled>
-                            </div>
-
-                            <div class="col-sm-4 head-content">
-                                <h6>Monto a Pagar</h6>
-                                <input type="text" class="invisible-input text-primary" value="" id="cash-topay2" disabled>
-                            </div>
-
-                            <div class="col-sm-4 head-content">
-                                <h6>Monto Pendiente</h6>
-                                <input type="text" class="invisible-input text-danger" value="" id="cash-pending2" disabled>
-                            </div>
-
-                        </div>
-                        <br>
-
-                        <!-- Content -->
-                        <div class="row col-sm-12">
-
-                            <div class="form-group col-sm-4">
-                                <label class="form-check-label" for="">Dinero recibido</label>
-                                <div class="input-div">
-                                    <div class="i b-right">
-                                        <i class="fas fa-dollar-sign"></i>
-                                    </div>
-                                    <input class="form-custom-icon b-left" type="text" name=""
-                                        value="<?= $info->recibido ?>" id="update-cash-received">
-                                </div>
-                            </div>
-
-
-                        </div> <!-- Row -->
-
-                    <?php endwhile; ?>
-
-                    <div class="mt-4 modal-footer">
-                        <button type="button" class="btn-custom btn-red" data-dismiss="modal" id="">
-                            <i class="fas fa-window-close"></i>
-                            <p>Salir</p>
-                        </button>
-                        <button type="submit" class="btn-custom btn-green" id="">
-                            <i class="far fa-edit"></i>
-                            <p>Actualizar</p>
-                        </button>
-                    </div>
-
-                </form>
-            </div> <!-- Body -->
-        </div>
-    </div>
-</div>
-
 
 <!-- Crear cliente -->
 

@@ -216,7 +216,7 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
                             </tr>
                             <tr>
                                 <td><label>Nombre:</label>
-                                    <p><?= ucwords($data->nombre_cliente) ?> <?= ucwords($data->apellidos_cliente) ?></p>
+                                    <p><?= $data->nombre_cliente ?> <?= $data->apellidos_cliente ?></p>
                                 </td>
                                 <td><label>Télefono 2:</label>
                                     <p><?= $data->telefono2 ?></p>
