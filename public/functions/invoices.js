@@ -905,7 +905,7 @@ $(document).ready(function() {
     $('#date_query').change((e) => {
         e.preventDefault()
 
-        $(location).attr('href', SITE_URL + 'public/dependency/excel/detalle-ventas-dia.php?date=' + $('#date_query').val());
+        $(location).attr('href', SITE_URL + 'src/excel/detalle-ventas-dia.php?date=' + $('#date_query').val());
 
     })
 
