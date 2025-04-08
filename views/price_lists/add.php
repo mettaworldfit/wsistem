@@ -25,7 +25,7 @@
 
                 <div class="form-group mt-3 d-flex">
                     <label for="" class="col-sm-4 text-right ">Observación</label>
-                    <textarea class="form-control" name="" id="list_comment" cols="23" rows="5"></textarea>
+                    <textarea class="form-custom" name="" id="list_comment" cols="23" rows="5"></textarea>
                 </div>
             </div>
 

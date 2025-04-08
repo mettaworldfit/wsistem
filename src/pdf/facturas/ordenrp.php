@@ -35,7 +35,7 @@
             font-family: 'BrixSansBlack';
             font-size: 10pt;
             display: block;
-            background: #dc0404;
+            background: #484848;
             font-weight: bold;
             color: #FFF;
             text-align: center;
@@ -168,7 +168,7 @@
 </head>
 
 <?php
-$nombreImagen = base_url."public/imagen/sistem/logo2.png";
+$nombreImagen = base_url. $Logo_pdf;
 $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nombreImagen));
 ?>
 
@@ -180,9 +180,9 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
                 <td class="logo_factura">
                     <div>
                         <img src="<?= $imagenBase64 ?>"> <br>
-                        <span class="eslogan">La garantía de tu comunicación</span>
-                        <p>C/ 27 de Fébrero (Frente al correo) Mao, Valverde R.D.</p>
-                        <p>(809) 572-3846</p>
+                        <span class="eslogan"><?= $Slogan ?></span>
+                        <p><?= $Dir ?></p>
+                        <p><?= $Tel ?></p>
                     </div>
                 </td>
                 <td class="info_empresa">
@@ -196,13 +196,12 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
                         <p>N° Orden: <strong>OR-00<?= $data->orden_rp_id ?></strong></p>
                         <p>Fecha impresión.: <?= date('d-m-Y', time()) ?></p>
                         <p>Hora impresión.: <?= date('h:i:s a', time()) ?></p>
+                        <p>Fecha de ingreso.: <?= $data->fecha_entrada ?></p>
                     </div>
                 </td>
             </tr>
         </table>
 
-        <br>
-        <p>Fecha de ingreso: <?= $data->fecha_entrada ?></p>
         <table id="factura_cliente">
             <tr>
                 <td class="info_cliente">
@@ -288,9 +287,11 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
             <br><br>
             <h4>Importante:</h4>
             <p class="nota">- Debe presentar este documento o referir el N° de Orden para recoger el equipo.</p>
-            <p class="nota">- No nos responsabilizamos por los equipos dejados por más de 30 días sin recoger.</p>
+            <br>
+            <p class="nota textcenter"><?= $Policy ?></p>
+       
             <br><br>
-            <h4 class="label_gracias">¡Gracias por confiar en nosotros!</h4>
+            <h4 class="label_gracias">¡Gracias por su compra!</h4>
         </div>
 
     </div>

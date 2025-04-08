@@ -25,15 +25,15 @@ if (!empty($_REQUEST['f'])) {
 	$taxes = $_REQUEST['tax'];
 	$total = $_REQUEST['total'];
 
-	/**
-	 * TODO: Datos cliente
- -------------------------------------------------------------------------------------------------------------------------------*/
+	// ================================
+    // Datos cliente
+    // ================================
 
 	date_default_timezone_set('America/New_York');
 
 	$query = "SELECT c.cedula ,c.nombre as nombre_cliente, c.apellidos as apellidos_cliente,c.telefono1,c.telefono2,
- c.email,c.direccion, u.nombre as nombre_usuario, u.apellidos as apellidos_usuario, 
- ct.cotizacion_id, ct.fecha, ct.descripcion FROM cotizaciones ct
+				c.email,c.direccion, u.nombre as nombre_usuario, u.apellidos as apellidos_usuario, 
+				ct.cotizacion_id, ct.fecha, ct.descripcion FROM cotizaciones ct
 				INNER JOIN clientes c ON c.cliente_id = ct.cliente_id
 				INNER JOIN usuarios u ON u.usuario_id = ct.usuario_id
 				WHERE ct.cotizacion_id = '$ID'";
@@ -41,23 +41,31 @@ if (!empty($_REQUEST['f'])) {
 	$data = $db->query($query)->fetch_object();
 
 
-	/**
-	 * TODO: Detalle de factura
- -------------------------------------------------------------------------------------------------------------------------------*/
+   // ================================================
+   // Detalle de factura
+   //=================================================
 
 	$query_detail = "SELECT descripcion, precio, cantidad, descuento, impuesto 
     FROM detalle_cotizaciones WHERE cotizacion_id = '$ID'";
 
 	$result_detail = $db->query($query_detail);
 
-	// datos de las sesion del cliente
-	$logoPDF = $_SESSION['infoClient']['logo'];
-	$slogan = $_SESSION['infoClient']['slogan'];
-	$direction = $_SESSION['infoClient']['direction'];
-	$tel = $_SESSION['infoClient']['phone'];
-	$policyPDF = $_SESSION['infoClient']['footer'];
-	$footerPDF = $_SESSION['infoClient']['caption'];
-	
+	// ==============================================================
+    // Obtener datos de la factura desde la base de datos
+    // ==============================================================
+
+	$query3 = "SELECT logo_pdf,tel,direccion,slogan,condiciones,titulo 
+	FROM configuraciones WHERE config_id = 1";
+
+	$conf = $db->query($query3)->fetch_object();
+
+	$Logo_pdf = $conf->logo_pdf;
+	$Tel = $conf->tel;
+	$Dir = $conf->direccion;
+	$Slogan = $conf->slogan;
+	$Policy = $conf->condiciones;
+	$Title = $conf->titulo;
+
 
 	ob_start();
 	include(dirname('__FILE__') . '/facturas/cotizacion.php');

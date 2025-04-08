@@ -2359,7 +2359,6 @@ a.button-404:hover {
 .grid-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(49%, 49%));
-    /* grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); */
     gap: 7px;
 }
 
@@ -2461,4 +2460,39 @@ a.button-404:hover {
     font-weight: 800;
     color: #353535;
     font-family: system-ui, -apple-system, BlinkMacSystemFont;
+}
+
+.grid-config {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50%));
+    gap: 7px;
+}
+
+@media (min-width: 724px) {
+    .grid-config {
+        grid-template-columns: repeat(auto-fit, minmax(49%, 49%));
+    }
+}
+
+@media (min-width: 970px) {
+    .grid-config {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.card-config {
+    background: white;
+    padding: 10px;
+}
+
+.card-config span {
+    font-size: 11pt;
+    font-weight: 800;
+    color: #353535;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont;
+}
+
+.card-config a {
+    color: #353535;
+    font-size: 10pt;
 }

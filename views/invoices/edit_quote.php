@@ -87,6 +87,11 @@
             <p>Agregar detalle</p>
         </button>
 
+        <button class="btn-custom btn-blue" type="button" id="SendmailQuote">
+            <i class="fas fa-envelope"></i>
+            <p>Enviar</p>
+        </button>
+
         <button class="btn-custom btn-red" type="button" id="QuotePDF">
             <i class="fas fa-file-pdf"></i>
             <p>Generar PDF</p>

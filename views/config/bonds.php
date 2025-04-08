@@ -1,7 +1,7 @@
 <div class="section-wrapper">
     <div class="align-content clearfix">
         <div class="float-left">
-            <h1>Bonos de clientes</h1>
+            <h1>Bonos</h1>
         </div>
 
     </div>

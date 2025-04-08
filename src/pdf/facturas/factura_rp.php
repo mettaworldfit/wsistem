@@ -168,7 +168,7 @@
 </head>
 
 <?php
-$nombreImagen = base_url."public/imagen/sistem/logo2.png";
+$nombreImagen = base_url . $Logo_pdf;
 $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nombreImagen));
 ?>
 
@@ -180,9 +180,9 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
                 <td class="logo_factura">
                     <div>
                         <img src="<?= $imagenBase64 ?>"> <br>
-                        <span class="eslogan">La garantía de tu comunicación</span>
-                        <p>C/ 27 de Fébrero (Frente al correo) Mao, Valverde R.D.</p>
-                        <p>(809) 572-3846</p>
+                        <span class="eslogan"><?= $Slogan ?></span>
+                        <p><?= $Dir ?></p>
+                        <p><?= $Tel ?></p>
                     </div>
                 </td>
                 <td class="info_empresa">
@@ -296,14 +296,12 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
             <br><br>
             <p>_______________________________________</p>
             <p>Le atendió.: <?= $data->nombre_usuario ?> <?= $data->apellidos_usuario ?></p>
-
-
-
             <br><br>
 
+            <p class="nota textcenter"><?= $Policy ?></p>
+            <br>
+            <p class="nota textcenter"><b><?= $Title ?></b></p>
 
-            <p class="nota">Si usted tiene preguntas sobre esta factura, <br>pongase en contacto con nombre, teléfono y Email</p>
-           
             <h4 class="label_gracias">¡Gracias por su compra!</h4>
             <br>
             <p class="nota textcenter">De acuerdo con la Ley No. 172-13 que tiene por objeto la protección integral de los datos personales, le informamos que el tratamiento de los datos que nos proporcione solo serán utilizados para ofrecer nuestros servicios.</p>

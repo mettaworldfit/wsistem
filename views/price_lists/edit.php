@@ -29,7 +29,7 @@ while ($element = $list->fetch_object()): ?>
 
                     <div class="form-group mt-3 d-flex">
                         <label for="" class="col-sm-4 text-right ">Observación</label>
-                        <textarea class="form-control" name="" id="list_comment" cols="23"
+                        <textarea class="form-custom" name="" id="list_comment" cols="23"
                             rows="5"><?= $element->descripcion ?></textarea>
                     </div>
                 </div>

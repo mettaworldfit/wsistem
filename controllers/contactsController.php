@@ -36,18 +36,4 @@ class ContactsController
         require_once './views/contacts/edit_provider.php';
     }
 
-    public function customer_bonds()
-    {
-        // Verificar rol de usuario
-        if ($_SESSION['identity']->nombre_rol == 'administrador') {
-
-            $method = new Contacts();
-            $bonds = $method->showCustomer_bonds();
-
-            require_once './views/contacts/customer_bonds.php';
-        } else {
-            // Permiso denegado
-            require_once './views/layout/denied.php';
-        }
-    }
 }

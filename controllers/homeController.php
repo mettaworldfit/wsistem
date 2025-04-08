@@ -61,11 +61,5 @@ class HomeController
     {
         require_once './views/layout/denied.php';
     }
-
-    public function version()
-    {
-        require_once './views/layout/version.php';
-    }
-
   
 }

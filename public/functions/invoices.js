@@ -414,7 +414,6 @@ $(document).ready(function() {
 
     }
 
-
     // Generar factura pdf
 
     function GeneratePDF(invoice) {
@@ -461,30 +460,16 @@ $(document).ready(function() {
             date: $('#cash-in-date').val() != null ? $('#cash-in-date').val() : $('#date').val()
         }
 
-        fetch(SITE_URL + 'src/phpmailer/mail.php?f=' + invoice + '&sub=' + data.subtotal + '&dis=' + data.discount + '&tax=' + data.taxes + '&total=' + data.total + '&method=' + data.method + '&date=' + data.date, {
-                method: 'POST'
-            })
-            .then(response => {
+        var width = 500;
+        var height = 500;
 
-                mdtoast("Enviado correctamente", {
-                    type: 'info',
-                    interaction: !0,
-                    interactionTimeout: 1500,
-                    position: "bottom right",
-                    actionText: "OK!",
-                });
+        // Centrar la ventana
+        var x = parseInt((window.screen.width / 2) - (width / 2));
+        var y = parseInt((window.screen.height / 2) - (height / 2));
 
-            })
-            .catch((error) => {
-                console.error('Error al enviar email:', error);
+        var url = SITE_URL + 'src/phpmailer/ventas.php?f=' + invoice + '&sub=' + data.subtotal + '&dis=' + data.discount + '&tax=' + data.taxes + '&total=' + data.total + '&method=' + data.method + '&date=' + data.date;
+        window.open(url, 'Factura', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
 
-                mdtoast("Ha ocurrido un error!", {
-                    type: 'error',
-                    interaction: !0,
-                    position: "bottom right",
-                    actionText: "OK!",
-                });
-            });
     }
 
 
@@ -968,6 +953,16 @@ $(document).ready(function() {
     })
 
 
+    // Enviar cotizacion por Email 
+
+    $('#SendmailQuote').on('click', (e) => {
+        e.preventDefault()
+
+        var id = $('#quote_id').val()
+        SendmailQuote(id)
+    })
+
+
 }); // Ready
 
 
@@ -1433,7 +1428,13 @@ function saveQuote() {
 
             if (res > 0) {
 
-                GenerateQuotePDF(res) // Generar PDF
+
+                if ($("#sendMail").is(':checked')) {
+                    SendmailQuote(res) // Enviar mail
+                } else {
+                    GenerateQuotePDF(res) // Generar PDF
+                }
+
                 RegisterDetail(res)
 
             } else {
@@ -1579,3 +1580,28 @@ function updateQuote(id) {
     });
 
 } // function
+
+
+// Generar Email de la cotizacion
+
+function SendmailQuote(invoice) {
+
+    data = {
+        subtotal: $('#in-subtotal').val().replace(/,/g, ""),
+        discount: $('#in-discount').val().replace(/,/g, ""),
+        taxes: $('#in-taxes').val().replace(/,/g, ""),
+        total: $('#in-total').val().replace(/,/g, ""),
+        date: $('#cash-in-date').val() != null ? $('#cash-in-date').val() : $('#date').val()
+    }
+
+    var width = 500;
+    var height = 500;
+
+    // Centrar la ventana
+    var x = parseInt((window.screen.width / 2) - (width / 2));
+    var y = parseInt((window.screen.height / 2) - (height / 2));
+
+    var url = SITE_URL + 'src/phpmailer/cotizaciones.php?f=' + invoice + '&sub=' + data.subtotal + '&dis=' + data.discount + '&tax=' + data.taxes + '&total=' + data.total + '&date=' + data.date;
+    window.open(url, 'Cotizacion', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
+
+}

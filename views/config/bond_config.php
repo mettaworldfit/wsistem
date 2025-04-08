@@ -16,17 +16,17 @@ while ($element = $config->fetch_object()): ?>
         <form action="" onsubmit="event.preventDefault(); UpdateBond_config();">
             <div class="container row">
 
-                <div class="form-group col-md-8">
+                <div class="form-group col-md-10">
                     <div class="form-group d-flex">
-                        <label for="" class="col-sm-3 text-right ">Mínimo de factura<span class="text-danger">*</span></label>
-                        <input class="form-custom col-sm-12" type="text" name="" id="min_invoice" value="<?= $element->min_factura ?>" required>
-                        <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Popover title" data-content="And here's some amazing content. It's very engaging. Right?"><i class="far fa-question-circle"></i></a>
+                        <label for="min" class="col-sm-3 text-right ">Mínimo de factura<span class="text-danger">*</span></label>
+                        <input class="form-custom col-sm-5" type="text" name="min" id="min_invoice" value="<?= $element->min_factura ?>" required>
+                        <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Mínimo de factura" data-content="Valor mínimo para aplicar el bono"><i class="far fa-question-circle"></i></a>
                     </div>
 
                     <div class="form-group mt-3 d-flex">
                         <label for="" class="col-sm-4 text-right ">Valor del bono<span class="text-danger">*</span></label>
                         <input class="form-custom col-sm-5" type="number" name="" value="<?= $element->valor ?>" id="bonus_value" required>
-                        <span class="ml-1">$</span>
+                        <span class="ml-1"><i class="fas fa-dollar-sign"></i></span>
 
                     </div>
 

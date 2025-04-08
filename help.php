@@ -4,6 +4,28 @@
 class Help
 {
 
+   public static function ConfigPDF()
+   {
+
+      $db = Database::connect();
+
+      $query = "SELECT logo_pdf,slogan,tel,direccion,condiciones,titulo
+                FROM configuraciones WHERE config_id = 1";
+
+      return $db->query($query);
+   }
+
+   public static function ConfigElectronicInvoice()
+   {
+
+      $db = Database::connect();
+
+      $query = "SELECT logo_url,empresa,email,password,host,puerto,link_fb,link_ws,link_ig 
+      FROM configuraciones WHERE config_id = 1";
+
+      return $db->query($query);
+   }
+
    // Función para mostrar los equipos
 
    public static function showDevices()
@@ -423,19 +445,19 @@ class Help
     * Cotizaciones
     --------------------------------------*/
 
-    public static function INVOICE_DESCRIPT_QUOTE($id)
-    {
- 
-       $db = Database::connect();
- 
-       $query = "SELECT descripcion FROM cotizaciones 
+   public static function INVOICE_DESCRIPT_QUOTE($id)
+   {
+
+      $db = Database::connect();
+
+      $query = "SELECT descripcion FROM cotizaciones 
                 WHERE cotizacion_id = '$id'";
- 
-       $result = $db->query($query);
-       $element = $result->fetch_object();
- 
-       return $element->descripcion;
-    }
+
+      $result = $db->query($query);
+      $element = $result->fetch_object();
+
+      return $element->descripcion;
+   }
 
    public static function showQuotesDetail($id)
    {

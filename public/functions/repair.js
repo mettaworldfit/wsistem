@@ -344,20 +344,19 @@ $(document).ready(function() {
             var x = parseInt((window.screen.width / 2) - (width / 2));
             var y = parseInt((window.screen.height / 2) - (height / 2));
 
-            var url = SITE_URL + 'public/dependency/pdf/generar_order_rp.php?o=' + order;
+            var url = SITE_URL + 'src/pdf/generar_orden_rp.php?o=' + order;
             window.open(url, 'Factura', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
-
 
         }
 
         // Generar factura PDF al dar click
 
-        // $('#generateOrderPDF').on('click',(e)=>{
-        //     e.preventDefault()
+        $('#generateOrderPDF').on('click', (e) => {
+            e.preventDefault()
 
-        //     var id = $('#orden_id').val()
-        //     GenerateOrderPDF(id)
-        // })
+            var id = $('#orden_id').val()
+            GenerateOrderPDF(id)
+        })
 
 
         // Generar factura pdf

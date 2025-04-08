@@ -201,7 +201,6 @@
                     <div class="link"><i class="mr-3 fas fa-address-book"></i>Contactos <i
                         class="fas fa-chevron-down"></i></div>
                     <ul class="submenu">
-                      <li class=""><a href="<?= base_url ?>contacts/customer_bonds">Bonos</a></li>
                       <li class="page"><a href="<?= base_url ?>contacts/customers">Clientes</a> <a
                           href="<?= base_url ?>contacts/add"><i class="fas fa-plus-circle"></i></a></li>
                       <li class="page"><a href="<?= base_url ?>contacts/providers">Proveedores</a> <a
@@ -373,7 +372,6 @@
               <div class="link"><i class="mr-3 fas fa-address-book"></i>Contactos <i class="fas fa-chevron-down"></i>
               </div>
               <ul class="submenu">
-                <li class=""><a href="<?= base_url ?>contacts/customer_bonds">Bonos</a></li>
                 <li class="page"><a href="<?= base_url ?>contacts/customers">Clientes</a> <a
                     href="<?= base_url ?>contacts/add"><i class="fas fa-plus-circle"></i></a></li>
                 <li class="page"><a href="<?= base_url ?>contacts/providers">Proveedores</a> <a

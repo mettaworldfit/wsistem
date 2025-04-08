@@ -51,6 +51,21 @@ if (!empty($_REQUEST['o'])) {
 
 	$result_condition = $db->query($query_condition);
 
+	// ==============================================================
+    // Obtener datos de la factura desde la base de datos
+    // ==============================================================
+
+	$query3 = "SELECT logo_pdf,tel,direccion,slogan,condiciones,titulo 
+	FROM configuraciones WHERE config_id = 1";
+
+	$conf = $db->query($query3)->fetch_object();
+
+	$Logo_pdf = $conf->logo_pdf;
+	$Tel = $conf->tel;
+	$Dir = $conf->direccion;
+	$Slogan = $conf->slogan;
+	$Policy = $conf->condiciones;
+
 
 	ob_start();
 	include(dirname('__FILE__') . '/facturas/ordenrp.php');
@@ -62,16 +77,15 @@ if (!empty($_REQUEST['o'])) {
 	// instantiate and use the dompdf class
 	$dompdf = new Dompdf($options);
 
-
 	$dompdf->loadHtml($html);
 	// (Optional) Setup the paper size and orientation
 	$dompdf->setPaper('letter', 'portrait');
 	// Render the HTML as PDF
 	$dompdf->render();
 	// Output the generated PDF to Browser
-	$dompdf->stream('factura.pdf', array('Attachment' => 0));
+	$dompdf->stream('orden_reparacion.pdf', array('Attachment' => 0));
 	exit;
 
 } else {
-	echo "No es posible generar la factura.";
+	echo "No es posible generar la orden.";
 }

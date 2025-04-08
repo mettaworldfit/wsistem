@@ -14,7 +14,6 @@ require_once '../../config/db.php';
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-
 if (!empty($_REQUEST['f'])) {
 
 	$db = Database::connect();
@@ -60,13 +59,21 @@ df.detalle_venta_id as 'id', df.descuento, df.impuesto, i.valor FROM detalle_fac
 
 	$result_detail = $db->query($query_detail);
 
-	// datos de las sesion del cliente
-	$logoPDF = $_SESSION['infoClient']['logo'];
-	$slogan = $_SESSION['infoClient']['slogan'];
-	$direction = $_SESSION['infoClient']['direction'];
-	$tel = $_SESSION['infoClient']['phone'];
-	$policyPDF = $_SESSION['infoClient']['footer'];
-	$footerPDF = $_SESSION['infoClient']['caption'];
+	 // ==============================================================
+    // Obtener datos de la factura desde la base de datos
+    // ==============================================================
+
+	$query3 = "SELECT logo_pdf,tel,direccion,slogan,condiciones,titulo 
+	           FROM configuraciones WHERE config_id = 1";
+    
+    $conf = $db->query($query3)->fetch_object();
+
+    $Logo_pdf = $conf->logo_pdf;
+    $Tel = $conf->tel;
+    $Dir = $conf->direccion;
+	$Slogan = $conf->slogan;
+	$Policy = $conf->condiciones;
+	$Title = $conf->titulo;
 	
 
 	ob_start();

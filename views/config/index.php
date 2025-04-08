@@ -6,18 +6,25 @@
     </div>
 </div>
 
-<div class="configuration">
-    <div class="setting-content">
+<div class="grid-config">
 
-        <div class="setting-section">
-            <div class="section-title">
-                <h4>Bonos</h4>
-            </div>
+    <div class="card-config">
+        <span>Bonos</span>
 
-            <ul><li><a href="<?= base_url ?>config/bond_config">Configuración</a></li></ul>
-
-            
-        </div>
-
+        <ul>
+            <li><a href="<?= base_url ?>config/bond_config">Configuración</a></li>
+            <li> <a href="<?= base_url ?>config/bonds">Bonos</a></li>
+        </ul>
     </div>
+
+
+    <div class="card-config">
+        <span>Facturas</span>
+
+        <ul>
+            <li><a href="<?= base_url ?>config/electronic_invoice">Facturación electrónica</a></li>
+            <li><a href="<?= base_url ?>config/pdf">Facturación PDF</a></li>
+        </ul>
+    </div>
+
 </div>

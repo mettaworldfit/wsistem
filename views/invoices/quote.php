@@ -526,6 +526,14 @@
                                 </div>
                             </div>
 
+                            <div class="control-group mt-4">
+                                <label class="control control-checkbox mt-2">
+                                <i class="fas fa-envelope"></i> Email
+                                    <input type="checkbox" id="sendMail" />
+                                    <div class="control_indicator"></div>
+                                </label>
+                            </div>
+
                         </div> <!-- Row -->
             
 
