@@ -22,7 +22,7 @@ try {
     $mail->isSendmail(); // Usa sendmail (Postfix lo maneja por defecto)
     
     // Destinatarios
-    $mail->setFrom('ventas@wsistems.com', 'Wilmin Jose Sanchez');
+    $mail->setFrom('ventas@wsistems.com', 'Wilmin Sanchez');
     $mail->addAddress('mettaworldfit@gmail.com', 'Receptor'); // Agregar un destinatario
 
     // Contenido del correo
