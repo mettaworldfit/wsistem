@@ -35,7 +35,7 @@ try {
 
     // Contenido del correo
     $mail->isHTML(true); // Establecer el formato de correo 
-    $mail->Subject = 'Asunto del correo';
+    $mail->Subject = 'Prueba desde servidor ubuntu';
     $mail->Body    = 'Este correo contiene un PDF generado dinámicamente con dompdf y enviado mediante PHPMailer.';
 
     // $mail->Body = 'Hola, <br/>Esta es una prueba desde <b>Gmail</b>.';
