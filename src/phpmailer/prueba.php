@@ -21,11 +21,9 @@ try {
     // Configuración del servidor
     $mail->SMTPDebug = 2;
     $mail->isSMTP(); // Usar SMTP
-    $mail->Host = 'smtp.gmail.com'; // Especificar el servidor SMTP
-    $mail->SMTPAuth = true; // Habilitar autenticación SMTP
-    $mail->Username = 'wjose260@gmail.com'; // Tu correo
-    $mail->Password = 'wlgh cdau vgqo beeg'; // Tu contraseña
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Habilitar encriptación TLS
+    $mail->Host = 'localhost'; // Especificar el servidor SMTP
+    $mail->SMTPAuth = false; // Habilitar autenticación SMTP
+    $mail->SMTPSecure = ''; // Habilitar encriptación TLS
     $mail->CharSet = 'UTF-8';
     $mail->Port = 587; // Puerto TCP para TLS
 
@@ -37,20 +35,6 @@ try {
     $mail->isHTML(true); // Establecer el formato de correo 
     $mail->Subject = 'Prueba desde servidor ubuntu';
     $mail->Body    = 'Este correo contiene un PDF generado dinámicamente con dompdf y enviado mediante PHPMailer.';
-
-    // $mail->Body = 'Hola, <br/>Esta es una prueba desde <b>Gmail</b>.';
-
-    // Adjuntar un archivo
-    //  $mail->addAttachment('/ruta/al/archivo.pdf'); // Ruta al archivo que deseas adjuntar
-
-     // Añadir imagen embebida
-    // $mail->addEmbeddedImage('chino_com.png', 'cid:chino_com');
-
-    // Lee el contenido del archivo HTML
-    // $html = file_get_contents('ejemplo1.html');
-
-    // Asigna el contenido HTML al cuerpo del correo
-    // $mail->Body = $html;
 
     $mail->send(); // Enviar correo
 
