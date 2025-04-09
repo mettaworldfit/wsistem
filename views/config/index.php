@@ -24,6 +24,7 @@
         <ul>
             <li><a href="<?= base_url ?>config/electronic_invoice">Facturación electrónica</a></li>
             <li><a href="<?= base_url ?>config/pdf">Facturación PDF</a></li>
+            <li><a href="<?= base_url ?>src/phpmailer/prueba.php">Probar</a></li>
         </ul>
     </div>
 
