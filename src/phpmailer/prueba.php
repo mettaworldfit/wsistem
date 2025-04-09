@@ -8,25 +8,19 @@ use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 $mail = new PHPMailer(true); // Instancia de PHPMailer
-$mail->SMTPOptions = array(
-    'ssl' => array(
-        'verify_peer' => false,
-        'verify_peer_name' => false,
-        'allow_self_signed' => true
-    )
-);
 
 try {
 
     // Configuración del servidor
-    $mail->SMTPDebug = 2;
-    $mail->isSMTP(); // Usar SMTP
-    $mail->Host = 'localhost'; // Especificar el servidor SMTP
-    $mail->SMTPAuth = false; // Habilitar autenticación SMTP
-    $mail->SMTPSecure = ''; // Habilitar encriptación TLS
-    $mail->CharSet = 'UTF-8';
-    $mail->Port = 587; // Puerto TCP para TLS
-
+    // $mail->SMTPDebug = 2;
+    // $mail->isSMTP(); // Usar SMTP
+    // $mail->Host = 'localhost'; // Especificar el servidor SMTP
+    // $mail->SMTPAuth = false; // Habilitar autenticación SMTP
+    // $mail->SMTPSecure = ''; // Habilitar encriptación TLS
+    // $mail->CharSet = 'UTF-8';
+    // $mail->Port = 587; // Puerto TCP para TLS
+    $mail->isSendmail(); // Usa sendmail (Postfix lo maneja por defecto)
+    
     // Destinatarios
     $mail->setFrom('wjose260@gmail.com', 'Wilmin Jose Sanchez');
     $mail->addAddress('mettaworldfit@gmail.com', 'Receptor'); // Agregar un destinatario
