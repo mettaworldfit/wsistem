@@ -145,17 +145,17 @@ df.detalle_venta_id as 'id', df.descuento, df.impuesto, i.valor FROM detalle_fac
 
     try {
 
-        // Configuración del servidor
-      //  $mail->SMTPDebug = 2;
-        $mail->isSendmail(); // Usa sendmail (Postfix lo maneja por defecto)
-        // $mail->isSMTP(); // Usar SMTP
-        // $mail->Host = $Host; // Especificar el servidor SMTP
-        // $mail->SMTPAuth = true; // Habilitar autenticación SMTP
-        // $mail->Username = $Email; // Tu correo
-        // $mail->Password = $Pass; // Tu contraseña mi contrasena 'wlgh cdau vgqo beeg'
-        // $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Habilitar encriptación TLS
-        // $mail->CharSet = 'UTF-8';
-        // $mail->Port = $Port; // Puerto TCP para TLS
+       // $mail->isSendmail(); // Usa sendmail (Postfix lo maneja por defecto)
+       // Configuración del servidor
+        $mail->SMTPDebug = 2;
+        $mail->isSMTP(); // Usar SMTP
+        $mail->Host = $Host; // Especificar el servidor SMTP
+        $mail->SMTPAuth = true; // Habilitar autenticación SMTP
+        $mail->Username = $Email; // Tu correo
+        $mail->Password = $Pass; // Tu contraseña mi contrasena 'wlgh cdau vgqo beeg'
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Habilitar encriptación TLS
+        $mail->CharSet = 'UTF-8';
+        $mail->Port = $Port; // Puerto TCP para TLS
 
         // Destinatarios
         $mail->setFrom($Email, $Company);
