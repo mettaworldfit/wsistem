@@ -36,13 +36,14 @@ if ($_POST['action'] == 'actualizar_bono_config') {
     $password = $_POST['password'];
     $host = $_POST['host'];
     $port = $_POST['port'];
+    $smtps = $_POST['smtps'];
     $fb = $_POST['facebook'];
     $ws = $_POST['whatsapp'];
     $ig = $_POST['instagram'];
     
     $db = Database::connect();
   
-    $query = "CALL cf_factElectronica('$logo','$company','$email','$password','$host',$port,'$fb','$ws','$ig')";
+    $query = "CALL cf_factElectronica('$logo','$company','$email','$password','$host','$smtps',$port,'$fb','$ws','$ig')";
     $result = $db->query($query);
     $data = $result->fetch_object();
   

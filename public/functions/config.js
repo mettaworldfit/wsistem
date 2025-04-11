@@ -63,6 +63,7 @@ function ConfigElectronicInv() {
             password: $('#password').val(),
             host: $('#host').val(),
             port: $('#port').val(),
+            smtps: $('#smtps').val(),
             facebook: $('#facebook').val(),
             whatsapp: $('#whatsapp').val(),
             instagram: $('#instagram').val(),
