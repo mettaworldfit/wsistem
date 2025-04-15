@@ -154,23 +154,6 @@ if (!empty($_REQUEST['f'])) {
             $mail->SMTPAuth = false;
         }
 
-        // if ($Host == "localhost") {
-        //     $mail->isSendmail(); // Usa sendmail (Postfix lo maneja por defecto)
-        // } else {
-
-        //     // Configuración del servidor
-        //     $mail->isSMTP(); // Usar SMTP
-        //     $mail->Host = $Host; // Especificar el servidor SMTP
-        //     $mail->SMTPAuth = true; // Habilitar autenticación SMTP
-        //     $mail->Username = $Email; // Tu correo
-        //     $mail->Password = $Pass; // Tu contraseña mi contrasena 'wlgh cdau vgqo beeg'
-        //     $mail->SMTPSecure = $SMTPS; // Habilitar encriptación TLS
-        //     $mail->CharSet = 'UTF-8';
-        //     $mail->Port = $Port; // Puerto TCP para TLS
-
-        // }
-
-
         // Destinatarios
         $mail->setFrom($Email, $Company);
         $mail->addAddress($CustMail, 'Para'); // Agregar un destinatario

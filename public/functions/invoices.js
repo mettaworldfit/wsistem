@@ -1428,11 +1428,12 @@ function saveQuote() {
 
             if (res > 0) {
 
-
+                console.log(res)
                 if ($("#sendMail").is(':checked')) {
                     SendmailQuote(res) // Enviar mail
                 } else {
                     GenerateQuotePDF(res) // Generar PDF
+                    console.log('Generando PDF')
                 }
 
                 RegisterDetail(res)
