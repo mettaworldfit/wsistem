@@ -146,20 +146,24 @@ df.detalle_venta_id as 'id', df.descuento, df.impuesto, i.valor FROM detalle_fac
 
     try {
 
-        if ($Host == "localhost") {
-            $mail->isSendmail(); // Usa sendmail (Postfix lo maneja por defecto)
-        } else {
-            
-            // Configuración del servidor
-            $mail->isSMTP(); // Usar SMTP
-            $mail->Host = $Host; // Especificar el servidor SMTP
-            $mail->SMTPAuth = true; // Habilitar autenticación SMTP
-            $mail->Username = $Email; // Tu correo
-            $mail->Password = $Pass; // Tu contraseña mi contrasena 'wlgh cdau vgqo beeg'
-            $mail->SMTPSecure = $SMTPS; // Habilitar encriptación TLS o SSL
-            $mail->CharSet = 'UTF-8';
-            $mail->Port = $Port; // Puerto TCP para TLS
+        $mail->isSMTP();
+        $mail->CharSet = 'UTF-8';
 
+        // CAMBIA ESTA VARIABLE SEGÚN TU CONFIGURACIÓN
+        $smtpHost = $Host; // o 'smtp.gmail.com', etc.
+        $mail->Host = $smtpHost;
+
+        // Puerto recomendado para localhost (sin TLS)
+        $mail->Port = ($smtpHost === 'localhost') ? 25 : $Port;
+
+        // Si no es localhost, activamos TLS y autenticación
+        if ($smtpHost !== 'localhost') {
+            $mail->SMTPAuth = true;
+            $mail->SMTPSecure = $SMTPS;
+            $mail->Username = $Email;
+            $mail->Password = $Pass;
+        } else {
+            $mail->SMTPAuth = false;
         }
 
         // Destinatarios
