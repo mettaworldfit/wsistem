@@ -33,7 +33,7 @@ if (!empty($_REQUEST['f'])) {
     // Obtener configuracion del servidor SMTP desde la base de datos
     // ==============================================================
 
-    $query3 = "SELECT empresa,email,password,host,puerto,smtp_secure,logo_url,logo_pdf,slogan,tel,direccion,
+    $query3 = "SELECT empresa,email,password,host,puerto,smtps,logo_url,logo_pdf,slogan,tel,direccion,
     link_fb,link_ws,link_ig,condiciones,titulo FROM configuraciones WHERE config_id = 1";
 
     $conf = $db->query($query3)->fetch_object();
@@ -43,7 +43,7 @@ if (!empty($_REQUEST['f'])) {
     $Email = $conf->email;
     $Company = $conf->empresa;
     $Port = $conf->puerto;
-    $SMTP_SECURE = $conf->smtp_secure;
+    $SMTPS = $conf->smtps;
     $Logo_url = $conf->logo_url;
     $Logo_pdf = $conf->logo_pdf;
     $Slogan = $conf->slogan;
@@ -156,7 +156,7 @@ df.detalle_venta_id as 'id', df.descuento, df.impuesto, i.valor FROM detalle_fac
             $mail->SMTPAuth = true; // Habilitar autenticación SMTP
             $mail->Username = $Email; // Tu correo
             $mail->Password = $Pass; // Tu contraseña mi contrasena 'wlgh cdau vgqo beeg'
-            $mail->SMTPSecure = $SMTP_SECURE; // Habilitar encriptación TLS
+            $mail->SMTPSecure = $SMTPS; // Habilitar encriptación TLS o SSL
             $mail->CharSet = 'UTF-8';
             $mail->Port = $Port; // Puerto TCP para TLS
 

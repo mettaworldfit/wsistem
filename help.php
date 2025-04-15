@@ -20,7 +20,7 @@ class Help
 
       $db = Database::connect();
 
-      $query = "SELECT logo_url,empresa,email,password,host,puerto,link_fb,link_ws,link_ig 
+      $query = "SELECT logo_url,empresa,email,password,host,smtps,puerto,link_fb,link_ws,link_ig 
       FROM configuraciones WHERE config_id = 1";
 
       return $db->query($query);

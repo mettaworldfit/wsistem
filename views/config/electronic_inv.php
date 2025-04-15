@@ -87,6 +87,7 @@
                         <label for="port" class="col-sm-3 text-right ">SMTP Secure</label>
                         <select class="form-custom col-sm-12 ml-3" name="" id="smtps">
                             <option value="no">Ninguno</option>
+                            <option value="<?= $element->smtps ?>" selected><?= $element->smtps ?></option>
                             <option value="ssl">SSL (Secure Sockets Layer)</option>
                             <option value="tls">TLS (Transport Layer Security)</option>
                         </select>

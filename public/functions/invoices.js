@@ -1538,8 +1538,6 @@ function GenerateQuotePDF(quote_id) {
         total: $('#in-total').val().replace(/,/g, ""),
     }
 
-    console.log(data)
-
     var width = 1000;
     var height = 800;
 

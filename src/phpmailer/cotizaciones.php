@@ -21,19 +21,19 @@ if (!empty($_REQUEST['f'])) {
 
     $db = Database::connect();
 
-	$ID = $_REQUEST['f'];
+    $ID = $_REQUEST['f'];
     $date = $_REQUEST['date'];
     $subtotal = $_REQUEST['sub'];
-	$discount = $_REQUEST['dis'];
-	$taxes = $_REQUEST['tax'];
-	$total = $_REQUEST['total'];
+    $discount = $_REQUEST['dis'];
+    $taxes = $_REQUEST['tax'];
+    $total = $_REQUEST['total'];
 
-    
+
     // ==============================================================
     // Obtener configuracion del servidor SMTP desde la base de datos
     // ==============================================================
 
-    $query3 = "SELECT empresa,email,password,host,puerto,smtp_secure,logo_url,logo_pdf,slogan,tel,direccion,
+    $query3 = "SELECT empresa,email,password,host,puerto,smtps,logo_url,logo_pdf,slogan,tel,direccion,
                link_fb,link_ws,link_ig FROM configuraciones WHERE config_id = 1";
 
     $conf = $db->query($query3)->fetch_object();
@@ -43,7 +43,7 @@ if (!empty($_REQUEST['f'])) {
     $Email = $conf->email;
     $Company = $conf->empresa;
     $Port = $conf->puerto;
-    $SMTP_SECURE = $conf->smtp_secure;
+    $SMTPS = $conf->smtps;
     $Logo_url = $conf->logo_url;
     $Logo_pdf = $conf->logo_pdf;
     $Slogan = $conf->slogan;
@@ -60,20 +60,20 @@ if (!empty($_REQUEST['f'])) {
 
     date_default_timezone_set('America/New_York');
 
-	$query = "SELECT c.cedula ,c.nombre as nombre_cliente, c.apellidos as apellidos_cliente,c.telefono1,c.telefono2,
+    $query = "SELECT c.cedula ,c.nombre as nombre_cliente, c.apellidos as apellidos_cliente,c.telefono1,c.telefono2,
     c.email,c.direccion, u.nombre as nombre_usuario, u.apellidos as apellidos_usuario, 
     ct.cotizacion_id, ct.fecha, ct.descripcion FROM cotizaciones ct
 				INNER JOIN clientes c ON c.cliente_id = ct.cliente_id
 				INNER JOIN usuarios u ON u.usuario_id = ct.usuario_id
 				WHERE ct.cotizacion_id = '$ID'";
 
-	$data = $db->query($query)->fetch_object();
+    $data = $db->query($query)->fetch_object();
 
-   // ================================================
-   // Detalle de factura
-   //=================================================
-   
-   $query_detail = "SELECT descripcion, precio, cantidad, descuento, impuesto 
+    // ================================================
+    // Detalle de factura
+    //=================================================
+
+    $query_detail = "SELECT descripcion, precio, cantidad, descuento, impuesto 
                      FROM detalle_cotizaciones WHERE cotizacion_id = '$ID'";
 
     $result_detail = $db->query($query_detail);
@@ -134,21 +134,41 @@ if (!empty($_REQUEST['f'])) {
 
     try {
 
-        if ($Host == "localhost") {
-            $mail->isSendmail(); // Usa sendmail (Postfix lo maneja por defecto)
-        } else {
-            
-            // Configuración del servidor
-            $mail->isSMTP(); // Usar SMTP
-            $mail->Host = $Host; // Especificar el servidor SMTP
-            $mail->SMTPAuth = true; // Habilitar autenticación SMTP
-            $mail->Username = $Email; // Tu correo
-            $mail->Password = $Pass; // Tu contraseña mi contrasena 'wlgh cdau vgqo beeg'
-            $mail->SMTPSecure = $SMTP_SECURE; // Habilitar encriptación TLS
-            $mail->CharSet = 'UTF-8';
-            $mail->Port = $Port; // Puerto TCP para TLS
+        $mail->isSMTP();
+        $mail->CharSet = 'UTF-8';
 
+        // CAMBIA ESTA VARIABLE SEGÚN TU CONFIGURACIÓN
+        $smtpHost = $Host; // o 'smtp.gmail.com', etc.
+        $mail->Host = $smtpHost;
+
+        // Puerto recomendado para localhost (sin TLS)
+        $mail->Port = ($smtpHost === 'localhost') ? 25 : $Port;
+
+        // Si no es localhost, activamos TLS y autenticación
+        if ($smtpHost !== 'localhost') {
+            $mail->SMTPAuth = true;
+            $mail->SMTPSecure = $SMTPS;
+            $mail->Username = $Email;
+            $mail->Password = $Pass;
+        } else {
+            $mail->SMTPAuth = false;
         }
+
+        // if ($Host == "localhost") {
+        //     $mail->isSendmail(); // Usa sendmail (Postfix lo maneja por defecto)
+        // } else {
+
+        //     // Configuración del servidor
+        //     $mail->isSMTP(); // Usar SMTP
+        //     $mail->Host = $Host; // Especificar el servidor SMTP
+        //     $mail->SMTPAuth = true; // Habilitar autenticación SMTP
+        //     $mail->Username = $Email; // Tu correo
+        //     $mail->Password = $Pass; // Tu contraseña mi contrasena 'wlgh cdau vgqo beeg'
+        //     $mail->SMTPSecure = $SMTPS; // Habilitar encriptación TLS
+        //     $mail->CharSet = 'UTF-8';
+        //     $mail->Port = $Port; // Puerto TCP para TLS
+
+        // }
 
 
         // Destinatarios
