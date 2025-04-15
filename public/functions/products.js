@@ -140,7 +140,7 @@ $(document).ready(function() {
                     product_price(data[0].IDproducto);
                 }
 
-                if (data[1].variante_total > 0) {
+                if (data[1].variante_total > 0 && !pageURL.includes("invoices/quote")) {
                     $('#total_variant').val(data[1].variante_total) // total de variantes
                     product_variants(data[0].IDproducto) // Buscar variantes del producto
 
@@ -215,7 +215,7 @@ $(document).ready(function() {
                 }
 
 
-                if (data[1].variante_total > 0) {
+                if (data[1].variante_total > 0 && !pageURL.includes("invoices/quote")) {
 
                     $('#total_variant').val(data[1].variante_total) // total de variantes
                     product_variants(data[0].IDproducto) // Buscar variantes del producto

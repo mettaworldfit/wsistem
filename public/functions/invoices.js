@@ -1432,7 +1432,7 @@ function saveQuote() {
                 if ($("#sendMail").is(':checked')) {
                     SendmailQuote(res) // Enviar mail
                 } else {
-                    GenerateQuotePDF(res) // Generar PDF
+                    //   GenerateQuotePDF(res) // Generar PDF
                     console.log('Generando PDF')
                 }
 
