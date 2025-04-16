@@ -1426,6 +1426,7 @@ function saveQuote() {
         },
         success: function(res) {
 
+            console.log("respuesta: " + res)
             if (res > 0) {
 
                 RegisterDetail(res)
@@ -1480,7 +1481,9 @@ function RegisterDetail(id, onDb = false, data) {
 
                     } else if (onDb != true) {
                         GenerateQuotePDF(id) // Generar PDF
-                        if ($("#sendMail").is(':checked')) return SendmailQuote(id); // Enviar mail
+                        if ($("#sendMail").is(':checked')) {
+                            SendmailQuote(id); // Enviar mail
+                        }
 
                         CancelQuote() // Borrar todo del localstorage
                     }
