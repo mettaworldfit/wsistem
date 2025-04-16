@@ -493,7 +493,7 @@ if ($_POST['action'] == "agregar_detalle_cotizacion") {
 
   $db = Database::connect();
 
-  $query = "INSERT INTO detalle_cotizaciones values (null,$quote_id,$user_id,'$description',$quantity,$price,$taxes,$discount,curdate());";
+  $query = "INSERT INTO detalle_cotizaciones values (null,$quote_id,$user_id,'$description','$quantity','$price','$taxes','$discount',curdate());";
   if ($db->query($query) === TRUE) {
         echo "ready";
   } else {
