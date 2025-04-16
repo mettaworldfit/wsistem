@@ -1479,9 +1479,10 @@ function RegisterDetail(id, onDb = false, data) {
                         $('#Detalle').load(location.href + " #Detalle"); // Actualizar detalle
 
                     } else if (onDb != true) {
+                        GenerateQuotePDF(id) // Generar PDF
+                        if ($("#sendMail").is(':checked')) return SendmailQuote(id); // Enviar mail
+
                         CancelQuote() // Borrar todo del localstorage
-                        GenerateQuotePDF(res) // Generar PDF
-                        if ($("#sendMail").is(':checked')) return SendmailQuote(res); // Enviar mail
                     }
 
                 } else {
