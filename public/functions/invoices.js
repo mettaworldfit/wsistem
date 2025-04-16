@@ -1472,7 +1472,7 @@ function RegisterDetail(id, onDb = false, data) {
             },
             success: function(res) {
 
-                if (res > 0) {
+                if (res == "ready") {
 
                     $('#Detalle').load(location.href + " #Detalle"); // Actualizar detalle
                     if (onDb == true) return invoice_total() // Cargar total de la cotizacion
