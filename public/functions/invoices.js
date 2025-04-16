@@ -1472,18 +1472,17 @@ function RegisterDetail(id, onDb = false, data) {
             },
             success: function(res) {
 
-                if (res == "ready") {
-
-                    if ($("#sendMail").is(':checked')) {
-                        SendmailQuote(res) // Enviar mail
-                    } else {
-                        GenerateQuotePDF(res) // Generar PDF
-                        console.log('Generando PDF')
-                    }
+                if (res > 0) {
 
                     $('#Detalle').load(location.href + " #Detalle"); // Actualizar detalle
                     if (onDb == true) return invoice_total() // Cargar total de la cotizacion
                     if (onDb != true) return CancelQuote() // Borrar todo del localstorage
+
+                    GenerateQuotePDF(res) // Generar PDF
+                    if ($("#sendMail").is(':checked')) return SendmailQuote(res); // Enviar mail
+
+                    console.log('Generando cotizacion')
+
 
                 } else {
                     mysql_error(res)
