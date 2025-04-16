@@ -3,18 +3,18 @@ const CACHE_DYNAMIC_NAME = "dynamic-v1";
 const CACHE_INMUTABLE_NAME = "inmutable-v2";
 const CACHE_DYNAMIC_LIMIT = 20;
 
-function limpiarCache( cacheName, numeroItems ) {
+function limpiarCache(cacheName, numeroItems) {
 
 
-    caches.open( cacheName )
-        .then( cache => {
+    caches.open(cacheName)
+        .then(cache => {
 
             return cache.keys()
-                .then( keys => {
-                    
-                    if ( keys.length > numeroItems ) {
-                        cache.delete( keys[0] )
-                            .then( limpiarCache(cacheName, numeroItems) );
+                .then(keys => {
+
+                    if (keys.length > numeroItems) {
+                        cache.delete(keys[0])
+                            .then(limpiarCache(cacheName, numeroItems));
                     }
                 });
         });
@@ -22,29 +22,29 @@ function limpiarCache( cacheName, numeroItems ) {
 
 
 self.addEventListener("install", (e) => {
-  const cacheProm = caches.open(CACHE_STATIC_NAME)
+    const cacheProm = caches.open(CACHE_STATIC_NAME)
         .then((cache) => {
             return cache.addAll([
-           
-            "public/style.css",
-            "public/imagen/sistem/icon.ico",
-            "public/imagen/img/img1.webp",
-            "public/imagen/img/img2.webp",
-            "public/imagen/img/img3.webp",
-            "public/login.css",
-            "public/jquery/jquery.js",
-            "public/fonts/Cabin-Regular.ttf",
-            "public/fonts/Cabin-SemiBold.ttf",
-            "public/fonts/Quicksand-Light.ttf",
-            "public/fonts/Nunito-Regular.ttf",
-            "public/fonts/Barlow-Regular.ttf",
-            "public/fonts/Quicksand-Regular.ttf",
-            "public/font-awesome/all.min.css",
-            "public/font-awesome/all.min.js"
+
+                "public/style.css",
+                "public/imagen/sistem/icon.ico",
+                "public/imagen/img/img1.jpg",
+                "public/imagen/img/img2.jpg",
+                "public/imagen/img/img3.jpg",
+                "public/login.css",
+                "public/jquery/jquery.js",
+                "public/fonts/Cabin-Regular.ttf",
+                "public/fonts/Cabin-SemiBold.ttf",
+                "public/fonts/Quicksand-Light.ttf",
+                "public/fonts/Nunito-Regular.ttf",
+                "public/fonts/Barlow-Regular.ttf",
+                "public/fonts/Quicksand-Regular.ttf",
+                "public/font-awesome/all.min.css",
+                "public/font-awesome/all.min.js"
             ]);
         });
 
-  const cacheInmutable = caches.open(CACHE_INMUTABLE_NAME).then((cache) => {
+    const cacheInmutable = caches.open(CACHE_INMUTABLE_NAME).then((cache) => {
         return cache.addAll([
             "public/mdtoast/mdtoast.min.js",
             "public/mdtoast/mdtoast.min.css",
@@ -60,23 +60,23 @@ self.addEventListener("install", (e) => {
             "public/select2/select2.min.css",
             "public/select2/select2.full.min.js",
             "https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"
-           
-        ]);
-  });
 
-  e.waitUntil(Promise.all([cacheProm, cacheInmutable]));
+        ]);
+    });
+
+    e.waitUntil(Promise.all([cacheProm, cacheInmutable]));
 });
 
 
 self.addEventListener('activate', e => {
 
 
-    const respuesta = caches.keys().then( keys => {
+    const respuesta = caches.keys().then(keys => {
 
-        keys.forEach( key => {
+        keys.forEach(key => {
 
             // static-v1
-            if (  key !== CACHE_STATIC_NAME && key.includes('static') ) {
+            if (key !== CACHE_STATIC_NAME && key.includes('static')) {
                 return caches.delete(key);
             }
 
@@ -84,7 +84,7 @@ self.addEventListener('activate', e => {
 
     });
 
-    e.waitUntil( respuesta );
+    e.waitUntil(respuesta);
 
 });
 
@@ -94,39 +94,39 @@ self.addEventListener("fetch", (event) => {
     const request = event.request;
     const contentType = request.headers.get('Content-Type');
 
-    
-        // Manejamos el resto de las solicitudes con cache firts
 
-        const resp = caches.match(request).then((response) => {
+    // Manejamos el resto de las solicitudes con cache firts
 
-            // Responder solicitud es encontrada en el cache
-            if (response) {
+    const resp = caches.match(request).then((response) => {
 
-              return response.clone();
-            
-            } else {
+        // Responder solicitud es encontrada en el cache
+        if (response) {
 
-              // No se encontro la peticion en el cache, buscar en internet
-              return fetch(request).then((response) => {
+            return response.clone();
+
+        } else {
+
+            // No se encontro la peticion en el cache, buscar en internet
+            return fetch(request).then((response) => {
 
                 // Almacenamos la respuesta en caché excluyendo peticiones POST
                 if (!request.method.includes("POST") && !event.request.destination === 'document') { //ojo
 
                     caches.open(CACHE_DYNAMIC_NAME).then((cache) => {
                         cache.put(request, response.clone());
-                        limpiarCache( CACHE_DYNAMIC_NAME, CACHE_DYNAMIC_LIMIT ); // Limpiar versiones anteriores del cache Dynamic
+                        limpiarCache(CACHE_DYNAMIC_NAME, CACHE_DYNAMIC_LIMIT); // Limpiar versiones anteriores del cache Dynamic
                     });
-                
-                }
-              
-                return response.clone();
-              });
 
-            }
-          })
-       
-      
-      event.respondWith(resp);
-    
+                }
+
+                return response.clone();
+            });
+
+        }
+    })
+
+
+    event.respondWith(resp);
+
 
 });

@@ -1420,13 +1420,12 @@ function saveQuote() {
         data: {
             action: "registrar_cotizaciones",
             customer_id: $("#customer").val(),
-            total: $("#total_invoice").val(),
+            total: $("#total_invoice").val().replace(/,/g, ""),
             date: $("#date").val(),
             observation: $("#observation").val()
         },
         success: function(res) {
 
-            console.log("respuesta: " + res)
             if (res > 0) {
 
                 RegisterDetail(res)
