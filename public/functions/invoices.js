@@ -1428,13 +1428,6 @@ function saveQuote() {
 
             if (res > 0) {
 
-                if ($("#sendMail").is(':checked')) {
-                    SendmailQuote(res) // Enviar mail
-                } else {
-                    GenerateQuotePDF(res) // Generar PDF
-                    console.log('Generando PDF')
-                }
-
                 RegisterDetail(res)
 
             } else {
@@ -1482,7 +1475,17 @@ function RegisterDetail(id, onDb = false, data) {
                 if (res == "ready") {
 
                     $('#Detalle').load(location.href + " #Detalle"); // Actualizar detalle
-                    if (onDb == true) return invoice_total() // Cargar total de la cotizacion
+                    if (onDb == true) {
+
+                        if ($("#sendMail").is(':checked')) {
+                            SendmailQuote(res) // Enviar mail
+                        } else {
+                            GenerateQuotePDF(res) // Generar PDF
+                            console.log('Generando PDF')
+                        }
+
+                        invoice_total() // Cargar total de la cotizacion
+                    }
                     if (onDb != true) return CancelQuote() // Borrar todo del localstorage
 
                 } else {
