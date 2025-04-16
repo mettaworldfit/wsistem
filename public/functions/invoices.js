@@ -396,9 +396,9 @@ $(document).ready(function() {
                             if ($("#sendMail").is(':checked')) return SendmailCashft(invoice_id)
 
                         } else {
-                            GeneratePDF(invoice_id) // Imprimir PDF
 
-                            // Enviar email
+                            GeneratePDF(invoice_id) // Imprimir PDF
+                                // Enviar email
                             if ($("#sendMail").is(':checked')) return SendmailCashft(invoice_id)
 
                         }
@@ -1474,15 +1474,15 @@ function RegisterDetail(id, onDb = false, data) {
 
                 if (res == "ready") {
 
-                    $('#Detalle').load(location.href + " #Detalle"); // Actualizar detalle
-                    if (onDb == true) return invoice_total() // Cargar total de la cotizacion
-                    if (onDb != true) return CancelQuote() // Borrar todo del localstorage
+                    if (onDb == true) {
+                        invoice_total() // Cargar total de la cotizacion
+                        $('#Detalle').load(location.href + " #Detalle"); // Actualizar detalle
 
-                    GenerateQuotePDF(res) // Generar PDF
-                    if ($("#sendMail").is(':checked')) return SendmailQuote(res); // Enviar mail
-
-                    console.log('Generando cotizacion')
-
+                    } else if (onDb != true) {
+                        CancelQuote() // Borrar todo del localstorage
+                        GenerateQuotePDF(res) // Generar PDF
+                        if ($("#sendMail").is(':checked')) return SendmailQuote(res); // Enviar mail
+                    }
 
                 } else {
                     mysql_error(res)
