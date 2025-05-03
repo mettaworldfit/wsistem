@@ -134,7 +134,6 @@ $(document).ready(function() {
                     $("#discount").val("");
                 }
 
-
                 // Cargar lista de precios del producto
                 if (data[0].valor_lista > 0) {
                     product_price(data[0].IDproducto);
@@ -265,7 +264,7 @@ $(document).ready(function() {
 
     function product_price(product_id) {
         $.ajax({
-            url: SITE_URL + "ajax/price_lists.php",
+            url: SITE_URL + "services/price_lists.php",
             method: "post",
             data: {
                 product_id: product_id,
@@ -284,7 +283,7 @@ $(document).ready(function() {
     $("#list_id").change(function() {
         if ($(this).val() > 0) {
             $.ajax({
-                url: SITE_URL + "ajax/price_lists.php",
+                url: SITE_URL + "services/price_lists.php",
                 method: "post",
                 data: {
                     list_id: $(this).val(),
@@ -482,7 +481,7 @@ $(document).ready(function() {
             arrayL.forEach((element, index) => {
                 $.ajax({
                     type: "post",
-                    url: SITE_URL + "ajax/price_lists.php",
+                    url: SITE_URL + "services/price_lists.php",
                     data: {
                         action: "asignar_lista_de_precios",
                         type: "producto",
