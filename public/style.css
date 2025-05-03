@@ -795,7 +795,10 @@ section.content-bar {
 ul#search_result {
     position: absolute;
     width: 100%;
+    max-height: 350px;
+    overflow-y: auto;
     box-shadow: 0px 1px 5px -2px #000000;
+    z-index: 1000;
 }
 
 ul#search_result li {
@@ -825,6 +828,15 @@ ul#search_result li:hover {
 @media (min-width:970px) {
     section.content-bar {
         width: 83%
+    }
+    ul#search_result {
+        width: 640px;
+    }
+}
+
+@media (min-width:1240px) {
+    ul#search_result {
+        width: 640px;
     }
 }
 
