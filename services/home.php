@@ -138,7 +138,7 @@ if ($_POST['action'] == 'buscador') {
 
         $factura_venta = $db->query("SELECT f.factura_venta_id,c.nombre,c.apellidos FROM facturas_ventas f
         INNER JOIN clientes c ON c.cliente_id = f.cliente_id 
-        WHERE c.nombre LIKE '%$keyword%' or f.factura_venta_id LIKE '%$keyword%' LIMIT 2");
+        WHERE c.nombre LIKE '%$keyword%' or f.factura_venta_id LIKE '%$keyword%' LIMIT 10");
         while ($row = $factura_venta->fetch_assoc()) {
             $result[] = [
                 'tipo' => 'Factura_venta',
@@ -150,7 +150,7 @@ if ($_POST['action'] == 'buscador') {
 
         $ordenrp = $db->query("SELECT o.orden_rp_id,c.nombre,c.apellidos FROM ordenes_rp o
         INNER JOIN clientes c ON c.cliente_id = o.cliente_id 
-        WHERE c.nombre LIKE '%$keyword%' or o.orden_rp_id LIKE '%$keyword%' LIMIT 2");
+        WHERE c.nombre LIKE '%$keyword%' or o.orden_rp_id LIKE '%$keyword%' LIMIT 10");
         while ($row = $ordenrp->fetch_assoc()) {
             $result[] = [
                 'tipo' => 'Orden_reparacion',
