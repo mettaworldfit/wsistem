@@ -182,4 +182,73 @@ $(document).ready(function() {
         $(".out-stock p").fadeTo(1200, 0.1).fadeTo(1200, 1);
     }, 1600);
 
+
+    // Buscador
+
+    const result = document.getElementById('search_result');
+
+    $('#keyword').on('keyup', (e) => {
+        e.preventDefault();
+
+        const q = $('#keyword').val().trim();
+
+        if (q.length < 1) {
+            result.innerHTML = '';
+            return;
+        }
+
+        $.ajax({
+            type: "post",
+            url: SITE_URL + "services/home.php",
+            data: {
+                action: 'buscador',
+                search: q
+            },
+            success: function(res) {
+
+                var data = JSON.parse(res)
+
+                console.log(data)
+
+                result.innerHTML = '';
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+
+                    if (item.tipo == "Cliente") {
+                        a.textContent = `${item.tipo}: ${item.nombre} ${item.apellidos}`;
+                        a.href = SITE_URL + `contacts/edit_customer&id=${item.id}`;
+                    } else if (item.tipo == "Producto") {
+                        a.textContent = `${item.tipo}: ${item.nombre} $${format.format(item.precio)}`;
+                        a.href = SITE_URL + `products/edit&id=${item.id}`;
+                    } else if (item.tipo == "Pieza") {
+                        a.textContent = `${item.tipo}: ${item.nombre} $${format.format(item.precio)}`;
+                        a.href = SITE_URL + `pieces/edit&id=${item.id}`;
+                    } else if (item.tipo == "Proveedor") {
+                        a.textContent = `${item.tipo}: ${item.nombre}`;
+                        a.href = SITE_URL + `contacts/edit_provider&id=${item.id}`;
+                    } else if (item.tipo == "Factura_venta") {
+                        a.textContent = `${item.tipo}: FT-00${item.id} ${item.nombre} ${item.apellidos}`;
+                        a.href = SITE_URL + `invoices/edit&id=${item.id}`;
+                    } else if (item.tipo == "Orden_reparacion") {
+                        a.textContent = `${item.tipo}: OR-00${item.id} ${item.nombre} ${item.apellidos}`;
+                        a.href = SITE_URL + `invoices/addrepair&id=${item.id}`;
+                    }
+
+                    a.style.textDecoration = "none"; // Opcional: quitar subrayado
+                    a.style.color = "#333"; // Opcional: color del texto
+
+                    li.appendChild(a);
+                    result.appendChild(li);
+                });
+            }
+        });
+
+    })
+
+    // $('#keyword').blur(function() {
+    //     search_result.innerHTML = '';
+    // });
+
+
 });

@@ -85,3 +85,83 @@ if ($_POST['action'] == 'ventas_mes') {
         echo json_encode($result, JSON_UNESCAPED_UNICODE);
     }
 }
+
+
+if ($_POST['action'] == 'buscador') {
+
+    $db = Database::connect();
+
+    $keyword = isset($_POST['search']) ? $db->real_escape_string($_POST['search']) : '';
+
+    // $keyword = $_POST['search'];
+    $result = [];
+
+    if ($keyword !== '') {
+        $clientes = $db->query("SELECT cliente_id,nombre,apellidos FROM clientes WHERE nombre LIKE '%$keyword%' LIMIT 5");
+        while ($row = $clientes->fetch_assoc()) {
+            $result[] = [
+                'tipo' => 'Cliente',
+                'id' => $row['cliente_id'],
+                'nombre' => $row['nombre'],
+                'apellidos' => $row['apellidos']
+            ];
+        }
+
+        $proveedores = $db->query("SELECT proveedor_id,nombre_proveedor FROM proveedores WHERE nombre_proveedor LIKE '%$keyword%' LIMIT 5");
+        while ($row = $proveedores->fetch_assoc()) {
+            $result[] = [
+                'tipo' => 'Proveedor',
+                'id' => $row['proveedor_id'],
+                'nombre' => $row['nombre_proveedor']
+            ];
+        }
+
+        $productos = $db->query("SELECT producto_id, nombre_producto, precio_unitario FROM productos WHERE nombre_producto LIKE '%$keyword%' LIMIT 5");
+        while ($row = $productos->fetch_assoc()) {
+            $result[] = [
+                'tipo' => 'Producto',
+                'id' => $row['producto_id'],
+                'nombre' => $row['nombre_producto'],
+                'precio' => $row['precio_unitario']
+            ];
+        }
+
+        $piezas = $db->query("SELECT pieza_id, nombre_pieza, precio_unitario FROM piezas WHERE nombre_pieza LIKE '%$keyword%' LIMIT 5");
+        while ($row = $piezas->fetch_assoc()) {
+            $result[] = [
+                'tipo' => 'Pieza',
+                'id' => $row['pieza_id'],
+                'nombre' => $row['nombre_pieza'],
+                'precio' => $row['precio_unitario']
+            ];
+        }
+
+        $factura_venta = $db->query("SELECT f.factura_venta_id,c.nombre,c.apellidos FROM facturas_ventas f
+        INNER JOIN clientes c ON c.cliente_id = f.cliente_id 
+        WHERE c.nombre LIKE '%$keyword%' or f.factura_venta_id LIKE '%$keyword%' LIMIT 2");
+        while ($row = $factura_venta->fetch_assoc()) {
+            $result[] = [
+                'tipo' => 'Factura_venta',
+                'id' => $row['factura_venta_id'],
+                'nombre' => $row['nombre'],
+                'apellidos' => $row['apellidos']
+            ];
+        }
+
+        $ordenrp = $db->query("SELECT o.orden_rp_id,c.nombre,c.apellidos FROM ordenes_rp o
+        INNER JOIN clientes c ON c.cliente_id = o.cliente_id 
+        WHERE c.nombre LIKE '%$keyword%' or o.orden_rp_id LIKE '%$keyword%' LIMIT 2");
+        while ($row = $ordenrp->fetch_assoc()) {
+            $result[] = [
+                'tipo' => 'Orden_reparacion',
+                'id' => $row['orden_rp_id'],
+                'nombre' => $row['nombre'],
+                'apellidos' => $row['apellidos']
+            ];
+        }
+    }
+
+    echo json_encode($result);
+}
+
+

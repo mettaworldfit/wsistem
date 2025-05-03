@@ -120,6 +120,12 @@
               </ul>
             </nav>
 
+            <div class="explorer">
+            <i class="fas fa-search"></i>
+              <input type="text" class="form-custom" name="" placeholder="Clientes / proveedores / productos / piezas / facturas / ordenes" id="keyword">
+              <ul id="search_result"></ul>
+            </div>
+           
 
             <!-- menú movil -->
             <div id="menuToggle">

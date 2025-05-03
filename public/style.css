@@ -760,7 +760,66 @@ span.select2-container--default {
 section.content-bar {
     width: 100%;
     display: flex;
-    justify-content: space-between
+    /* justify-content: space-between */
+}
+
+.admin-left {
+    width: 100%;
+    display: flex;
+}
+
+.explorer input {
+    height: 31px;
+    font-size: 13px;
+    padding-left: 30px;
+    border-radius: 16px;
+    background: #efefef;
+}
+
+.explorer {
+    display: none;
+    position: relative;
+    margin-left: 20px;
+    width: 100%;
+}
+
+.explorer svg {
+    position: absolute;
+    top: 53%;
+    left: 10px;
+    font-size: 14px;
+    transform: translateY(-50%);
+    color: #353535;
+}
+
+ul#search_result {
+    position: absolute;
+    width: 100%;
+    box-shadow: 0px 1px 5px -2px #000000;
+}
+
+ul#search_result li {
+    background: white;
+    font-family: "Cabin-Regular", sans-serif;
+    border-bottom: 0.5px solid #ccc;
+    font-size: 12px;
+    height: 40px;
+    line-height: 40px;
+    padding: 0px 10px;
+}
+
+ul#search_result li:last-child {
+    border: none;
+}
+
+ul#search_result li:hover {
+    background: #e6e6e6;
+}
+
+@media (min-width:724px) {
+    .explorer {
+        display: block;
+    }
 }
 
 @media (min-width:970px) {
@@ -773,7 +832,7 @@ section.content-bar {
     display: none;
     color: #353535;
     font-size: 25px;
-    line-height: 54px;
+    line-height: 60px;
     margin-left: 10px;
     cursor: pointer
 }
@@ -793,7 +852,8 @@ section.content-bar {
 .nav-container {
     display: none;
     z-index: 1;
-    position: relative;
+    position: absolute;
+    top: 60px;
     width: 175px;
     height: 240px;
     color: #fff;
@@ -1230,7 +1290,6 @@ section.content-bar {
 @media (min-width:1340px) {
     .submenu {
         font-size: 13px;
-        font-weight: bold;
     }
 }
 
@@ -1983,7 +2042,6 @@ input[type="date"].form-custom-icon {
 
 .price-container {
     display: flex;
-    font-size: 15px
 }
 
 .price-content {
@@ -1994,11 +2052,17 @@ input[type="date"].form-custom-icon {
 
 .price-content span {
     border-bottom: 1px solid #ccc;
-    padding: 4px 0;
+    padding: 5px 0;
     font-size: 10px
 }
 
-@media (min-width:1025px) {
+@media (min-width:1325px) {
+    .price-content span {
+        font-size: 13px
+    }
+}
+
+@media (min-width:724px) {
     .price-content span {
         font-size: 12px
     }
