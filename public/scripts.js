@@ -190,9 +190,10 @@ $(document).ready(function() {
     $('#keyword').on('keyup', (e) => {
         e.preventDefault();
 
+        const format = new Intl.NumberFormat('en'); // Formato 0,000
         const q = $('#keyword').val().trim();
 
-        if (q.length < 1) {
+        if (q.length < 0) {
             result.innerHTML = '';
             return;
         }
@@ -208,7 +209,7 @@ $(document).ready(function() {
 
                 var data = JSON.parse(res)
 
-                console.log(data)
+                // console.log(data)
 
                 result.innerHTML = '';
                 data.forEach(item => {
@@ -246,9 +247,9 @@ $(document).ready(function() {
 
     })
 
-    // $('#keyword').blur(function() {
-    //     search_result.innerHTML = '';
-    // });
+    $('#keyword').blur(function() {
+        search_result.innerHTML = '';
+    });
 
 
 });
