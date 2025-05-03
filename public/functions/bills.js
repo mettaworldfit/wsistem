@@ -549,27 +549,30 @@ function AddBills() {
         observation: $('#observation_item').val()
     }
 
+    ArrayBills.push(data); // Insertar datos al arreglo
+    CreateLocalstorage(ArrayBills); // crear el localstorage del detalle
+
     // Buscar coincidencia si existe un "Motivo de gasto" en el localStorage
-    if (data.reason_id > 0) return FindAMatch(ArrayBills);
+    // if (data.reason_id > 0) return FindAMatch(ArrayBills);
 
-    function FindAMatch(arr) {
+    // function FindAMatch(arr) {
 
-        if (arr.length < 1) {
+    //     if (arr.length < 1) {
 
-            arr.push(data); // Insertar datos al arreglo
-            CreateLocalstorage(ArrayBills); // crear el localstorage del detalle
+    //         arr.push(data); // Insertar datos al arreglo
+    //         CreateLocalstorage(ArrayBills); // crear el localstorage del detalle
 
-        } else {
+    //     } else {
 
-            let found = arr.find(element => element.name == data.name)
+    //         let found = arr.find(element => element.name == data.name)
 
-            if (found == undefined) {
+    //         if (found == undefined) {
 
-                arr.push(data);
-                CreateLocalstorage(ArrayBills);
-            }
-        }
-    } // Function
+    //             arr.push(data);
+    //             CreateLocalstorage(ArrayBills);
+    //         }
+    //     }
+    // } // Function
 
 } // function AddBills()
 
