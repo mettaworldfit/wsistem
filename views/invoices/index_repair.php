@@ -14,6 +14,7 @@
 
 
 <div class="generalContainer">
+<div id="loader"></div>
     <table id="example" class="table-custom table ">
         <thead>
             <tr>

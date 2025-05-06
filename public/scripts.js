@@ -130,8 +130,13 @@ $(document).ready(function() {
             infoFiltered: "(Filtrado de _MAX_  registros)",
         },
         initComplete: function() {
-            $('#loader').hide(); // Oculta el loader
-            $('#miTabla').fadeIn(300); // Muestra la tabla
+            // $('#loader').hide(); // Oculta el loader
+            // $('#example').fadeIn(300); // Muestra la tabla
+
+            $('#loader').fadeOut(1000, function() { // Oculta el loader
+                $('#example').fadeIn(900); // Muestra la tabla
+                $('#example_wrapper').fadeIn(900);
+            });
         }
     });
 
@@ -213,7 +218,7 @@ $(document).ready(function() {
 
                 var data = JSON.parse(res)
 
-                // console.log(data)
+                console.log(data)
 
                 result.innerHTML = '';
                 data.forEach(item => {
@@ -238,6 +243,9 @@ $(document).ready(function() {
                     } else if (item.tipo == "Orden_reparacion") {
                         a.textContent = `${item.tipo}: OR-00${item.id} ${item.nombre} ${item.apellidos}`;
                         a.href = SITE_URL + `invoices/addrepair&id=${item.id}`;
+                    } else if (item.tipo == "Factura_reparacion") {
+                        a.textContent = `${item.tipo}: RP-00${item.id} ${item.nombre} ${item.apellidos}`;
+                        a.href = SITE_URL + `invoices/repair_edit&o=${item.orden_id}&f=${item.id}`;
                     }
 
                     a.style.textDecoration = "none"; // Opcional: quitar subrayado
