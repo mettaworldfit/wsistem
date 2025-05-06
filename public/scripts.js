@@ -242,10 +242,12 @@ $(document).ready(function() {
                     } else if (item.tipo == "Orden_reparacion") {
                         a.textContent = `${item.tipo}: OR-00${item.id} ${item.nombre} ${item.apellidos}`;
                         a.href = SITE_URL + `invoices/addrepair&id=${item.id}`;
-                    } else if (item.tipo == "Factura_reparacion") {
-                        a.textContent = `${item.tipo}: RP-00${item.id} ${item.nombre} ${item.apellidos}`;
-                        a.href = SITE_URL + `invoices/repair_edit&o=${item.orden_id}&f=${item.id}`;
                     }
+
+                    // else if (item.tipo == "Factura_reparacion") {
+                    //     a.textContent = `${item.tipo}: RP-00${item.id} ${item.nombre} ${item.apellidos}`;
+                    //     a.href = SITE_URL + `invoices/repair_edit&o=${item.orden_id}&f=${item.id}`;
+                    // }
 
                     a.style.textDecoration = "none"; // Opcional: quitar subrayado
                     a.style.color = "#333"; // Opcional: color del texto
