@@ -24,6 +24,13 @@
   <link rel="shortcut icon" href="<?= base_url ?>public/imagen/sistem/icon.ico" type="image/x-icon">
 
   <script src="<?= base_url ?>public/jquery/jquery.js"></script>
+
+   <!-- Font-Awesome -->
+
+   <link rel="preload" href="<?= base_url ?>public/font-awesome/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <script src="<?= base_url ?>public/font-awesome/all.min.js" type="text/javascript"></script>
+
+
   <script src="<?= base_url ?>public/scripts.js"></script>
 
 
@@ -51,11 +58,6 @@
   <!-- Scripts -->
 
   <script src="<?= base_url ?>public/functions/users.js" type="text/javascript"></script>
-
-  <!-- Font-Awesome -->
-
-  <link rel="preload" href="<?= base_url ?>public/font-awesome/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <script src="<?= base_url ?>public/font-awesome/all.min.js" type="text/javascript"></script>
 
   <!-- Lazy loading -->
   <?php require_once "lazy_load.php"; ?>
