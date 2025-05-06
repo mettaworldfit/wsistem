@@ -51,17 +51,19 @@
   <!-- Scripts -->
 
   <script src="<?= base_url ?>public/functions/users.js" type="text/javascript"></script>
+
+  <!-- Font-Awesome -->
+
+  <link rel="stylesheet" href="<?= base_url ?>public/font-awesome/all.min.css" type="text/css">
+  <script src="<?= base_url ?>public/font-awesome/all.min.js" type="text/javascript"></script>
+
+  <!-- Lazy loading -->
   <?php require_once "lazy_load.php"; ?>
 
 
   <!-- Material toast -->
   <link rel="stylesheet" href="<?= base_url ?>public/mdtoast/mdtoast.min.css" type="text/css">
   <script src="<?= base_url ?>public/mdtoast/mdtoast.min.js" type="text/javascript"></script>
-
-  <!-- Font-Awesome -->
-
-  <link rel="stylesheet" href="<?= base_url ?>public/font-awesome/all.min.css" type="text/css">
-  <script src="<?= base_url ?>public/font-awesome/all.min.js" type="text/javascript"></script>
 
   <!-- Bootstrap4 -->
 
@@ -121,11 +123,11 @@
             </nav>
 
             <div class="explorer">
-            <i class="fas fa-search"></i>
+              <i class="fas fa-search"></i>
               <input type="text" class="form-custom" name="" placeholder="Clientes / proveedores / productos / piezas / facturas / ordenes" id="keyword">
               <ul id="search_result"></ul>
             </div>
-           
+
 
             <!-- menú movil -->
             <div id="menuToggle">
@@ -137,109 +139,109 @@
               <ul id="accordion-movil" class="accordion menu-movil">
                 <li>
                   <div class="link"><a href="<?= base_url ?>home/index"><i class="mr-3 fas fa-home"></i>Inicio</a></div>
-                  </li>
+                </li>
 
-                  <li class="dropdown-1">
-                    <div class="link"><i class="mr-3 fas fa-arrow-circle-down"></i>Ingresos <i
-                        class="fas fa-chevron-down"></i></div>
-                    <ul class="submenu">
-                      <li class="page"><a href="<?= base_url ?>invoices/index">Facturas de ventas</a> <a
-                          href="<?= base_url ?>invoices/addpurchase"><i class="fas fa-plus-circle"></i></a></li>
-                      <li><a href="<?= base_url ?>invoices/index_repair">Facturas de reparaciones</a> </li>
-                      <li class="page"><a href="<?= base_url ?>payments/index">Pagos</a> <a
-                          href="<?= base_url ?>payments/add"><i class="fas fa-plus-circle"></i></a></li>
-                    </ul>
-                  </li>
+                <li class="dropdown-1">
+                  <div class="link"><i class="mr-3 fas fa-arrow-circle-down"></i>Ingresos <i
+                      class="fas fa-chevron-down"></i></div>
+                  <ul class="submenu">
+                    <li class="page"><a href="<?= base_url ?>invoices/index">Facturas de ventas</a> <a
+                        href="<?= base_url ?>invoices/addpurchase"><i class="fas fa-plus-circle"></i></a></li>
+                    <li><a href="<?= base_url ?>invoices/index_repair">Facturas de reparaciones</a> </li>
+                    <li class="page"><a href="<?= base_url ?>payments/index">Pagos</a> <a
+                        href="<?= base_url ?>payments/add"><i class="fas fa-plus-circle"></i></a></li>
+                  </ul>
+                </li>
 
-                  <li class="dropdown-2">
-                    <div class="link"><i class="mr-3 fas fa-arrow-circle-up"></i>Egresos <i
-                        class="fas fa-chevron-down"></i></div>
-                    <ul class="submenu ">
-                      <li class="page"><a href="<?= base_url ?>bills/invoices">Facturas de proveedores</a> <a
-                          href="<?= base_url ?>bills/addinvoice"><i class="fas fa-plus-circle"></i></a></li>
-                      <li class="page"><a href="<?= base_url ?>bills/bills">Gastos</a> <a
-                          href="<?= base_url ?>bills/addbills"><i class="fas fa-plus-circle"></i></a></li>
-                      <li class="page"><a href="<?= base_url ?>bills/payments">Pagos</a> <a
-                          href="<?= base_url ?>bills/add_payment"><i class="fas fa-plus-circle"></i></a></li>
-                      <li class="page"><a href="<?= base_url ?>bills/orders">Órdenes de compras</a> <a
-                          href="<?= base_url ?>bills/add_order"><i class="fas fa-plus-circle"></i></a></li>
+                <li class="dropdown-2">
+                  <div class="link"><i class="mr-3 fas fa-arrow-circle-up"></i>Egresos <i
+                      class="fas fa-chevron-down"></i></div>
+                  <ul class="submenu ">
+                    <li class="page"><a href="<?= base_url ?>bills/invoices">Facturas de proveedores</a> <a
+                        href="<?= base_url ?>bills/addinvoice"><i class="fas fa-plus-circle"></i></a></li>
+                    <li class="page"><a href="<?= base_url ?>bills/bills">Gastos</a> <a
+                        href="<?= base_url ?>bills/addbills"><i class="fas fa-plus-circle"></i></a></li>
+                    <li class="page"><a href="<?= base_url ?>bills/payments">Pagos</a> <a
+                        href="<?= base_url ?>bills/add_payment"><i class="fas fa-plus-circle"></i></a></li>
+                    <li class="page"><a href="<?= base_url ?>bills/orders">Órdenes de compras</a> <a
+                        href="<?= base_url ?>bills/add_order"><i class="fas fa-plus-circle"></i></a></li>
 
-                    </ul>
-                  </li>
+                  </ul>
+                </li>
 
-                  <li class="dropdown-3">
-                    <div class="link"><i class="mr-3 fas fa-tools"></i>Servicios <i class="fas fa-chevron-down"></i></div>
-                    <ul class="submenu ">
-                      <li><a href="<?= base_url ?>workshop/index">Órdenes de servicios</a> </li>
+                <li class="dropdown-3">
+                  <div class="link"><i class="mr-3 fas fa-tools"></i>Servicios <i class="fas fa-chevron-down"></i></div>
+                  <ul class="submenu ">
+                    <li><a href="<?= base_url ?>workshop/index">Órdenes de servicios</a> </li>
 
-                    </ul>
-                  </li>
+                  </ul>
+                </li>
 
-                  <li class="dropdown-4">
-                    <div class="link"><i class="mr-3 fas fa-box"></i>Inventario <i class="fas fa-chevron-down"></i></div>
-                    <ul class="submenu ">
-                      <li class="page"><a href="<?= base_url ?>products/index">Productos</a> <a
-                          href="<?= base_url ?>products/add"><i class="fas fa-plus-circle"></i></a></li>
-                      <li class="page"><a href="<?= base_url ?>pieces/index">Piezas</a> <a
-                          href="<?= base_url ?>pieces/add"><i class="fas fa-plus-circle"></i></a></li>
-                      <li class="page"><a href="<?= base_url ?>services/index">Servicios</a> <a
-                          href="<?= base_url ?>services/add"><i class="fas fa-plus-circle"></i></a></li>
-                      <li><a href="<?= base_url ?>inventory_control/inventory">Valor de inventario</a></li>
-                      <li class="page"><a href="<?= base_url ?>warehouses/index">Almacenes</a> <a
-                          href="<?= base_url ?>warehouses/add"><i class="fas fa-plus-circle"></i></a></li>
-                      <li class="page"><a href="<?= base_url ?>categories/index">Categorías</a> <a
-                          href="<?= base_url ?>categories/add"><i class="fas fa-plus-circle"></i></a></li>
-                      <li class="page"><a href="<?= base_url ?>price_lists/index">Listas de precios</a> <a
-                          href="<?= base_url ?>price_lists/add"><i class="fas fa-plus-circle"></i></a></li>
-                      <li class="page"><a href="<?= base_url ?>brands/index">Marcas</a> <a
-                          href="<?= base_url ?>brands/add"><i class="fas fa-plus-circle"></i></a></li>
-                      <li class="page"><a href="<?= base_url ?>taxes/index">Impuestos</a> <a
-                          href="<?= base_url ?>taxes/add"><i class="fas fa-plus-circle"></i></a></li>
-                      <li class="page"><a href="<?= base_url ?>positions/index">Posiciones</a> <a
-                          href="<?= base_url ?>positions/add"><i class="fas fa-plus-circle"></i></a></li>
-                      <li class="page"><a href="<?= base_url ?>offers/index">Ofertas</a> <a
-                          href="<?= base_url ?>offers/add"><i class="fas fa-plus-circle"></i></a></li>
+                <li class="dropdown-4">
+                  <div class="link"><i class="mr-3 fas fa-box"></i>Inventario <i class="fas fa-chevron-down"></i></div>
+                  <ul class="submenu ">
+                    <li class="page"><a href="<?= base_url ?>products/index">Productos</a> <a
+                        href="<?= base_url ?>products/add"><i class="fas fa-plus-circle"></i></a></li>
+                    <li class="page"><a href="<?= base_url ?>pieces/index">Piezas</a> <a
+                        href="<?= base_url ?>pieces/add"><i class="fas fa-plus-circle"></i></a></li>
+                    <li class="page"><a href="<?= base_url ?>services/index">Servicios</a> <a
+                        href="<?= base_url ?>services/add"><i class="fas fa-plus-circle"></i></a></li>
+                    <li><a href="<?= base_url ?>inventory_control/inventory">Valor de inventario</a></li>
+                    <li class="page"><a href="<?= base_url ?>warehouses/index">Almacenes</a> <a
+                        href="<?= base_url ?>warehouses/add"><i class="fas fa-plus-circle"></i></a></li>
+                    <li class="page"><a href="<?= base_url ?>categories/index">Categorías</a> <a
+                        href="<?= base_url ?>categories/add"><i class="fas fa-plus-circle"></i></a></li>
+                    <li class="page"><a href="<?= base_url ?>price_lists/index">Listas de precios</a> <a
+                        href="<?= base_url ?>price_lists/add"><i class="fas fa-plus-circle"></i></a></li>
+                    <li class="page"><a href="<?= base_url ?>brands/index">Marcas</a> <a
+                        href="<?= base_url ?>brands/add"><i class="fas fa-plus-circle"></i></a></li>
+                    <li class="page"><a href="<?= base_url ?>taxes/index">Impuestos</a> <a
+                        href="<?= base_url ?>taxes/add"><i class="fas fa-plus-circle"></i></a></li>
+                    <li class="page"><a href="<?= base_url ?>positions/index">Posiciones</a> <a
+                        href="<?= base_url ?>positions/add"><i class="fas fa-plus-circle"></i></a></li>
+                    <li class="page"><a href="<?= base_url ?>offers/index">Ofertas</a> <a
+                        href="<?= base_url ?>offers/add"><i class="fas fa-plus-circle"></i></a></li>
 
-                    </ul>
-                  </li>
+                  </ul>
+                </li>
 
-                  <li class="dropdown-5">
-                    <div class="link"><i class="mr-3 fas fa-address-book"></i>Contactos <i
-                        class="fas fa-chevron-down"></i></div>
-                    <ul class="submenu">
-                      <li class="page"><a href="<?= base_url ?>contacts/customers">Clientes</a> <a
-                          href="<?= base_url ?>contacts/add"><i class="fas fa-plus-circle"></i></a></li>
-                      <li class="page"><a href="<?= base_url ?>contacts/providers">Proveedores</a> <a
-                          href="<?= base_url ?>contacts/add"><i class="fas fa-plus-circle"></i></a></li>
-                    </ul>
-                  </li>
+                <li class="dropdown-5">
+                  <div class="link"><i class="mr-3 fas fa-address-book"></i>Contactos <i
+                      class="fas fa-chevron-down"></i></div>
+                  <ul class="submenu">
+                    <li class="page"><a href="<?= base_url ?>contacts/customers">Clientes</a> <a
+                        href="<?= base_url ?>contacts/add"><i class="fas fa-plus-circle"></i></a></li>
+                    <li class="page"><a href="<?= base_url ?>contacts/providers">Proveedores</a> <a
+                        href="<?= base_url ?>contacts/add"><i class="fas fa-plus-circle"></i></a></li>
+                  </ul>
+                </li>
 
-                  <li class="dropdown-6">
-                    <div class="link"><i class="mr-3 fas fa-chart-bar"></i>Reportes <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <ul class="submenu">
-                      <li class="page"><a href="<?= base_url ?>reports/day">Ventas del día</a></li>
-                      <li class="page"><a href="<?= base_url ?>reports/querys">Consultas</a></li>
+                <li class="dropdown-6">
+                  <div class="link"><i class="mr-3 fas fa-chart-bar"></i>Reportes <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <ul class="submenu">
+                    <li class="page"><a href="<?= base_url ?>reports/day">Ventas del día</a></li>
+                    <li class="page"><a href="<?= base_url ?>reports/querys">Consultas</a></li>
 
-                      <!-- <li class="page"><a href="<?= base_url ?>reports/month">Ventas del mes</a> </li>
+                    <!-- <li class="page"><a href="<?= base_url ?>reports/month">Ventas del mes</a> </li>
                 <li class="page"><a href="<?= base_url ?>reports/date">Reporte de fecha</a> </li> -->
-                      <li class="page"><a href="<?= base_url ?>reports/spendings">Reporte de gastos</a></li>
-                      <li class="page"><a href="<?= base_url ?>reports/pending">Cuentas por cobrar</a> </li>
+                    <li class="page"><a href="<?= base_url ?>reports/spendings">Reporte de gastos</a></li>
+                    <li class="page"><a href="<?= base_url ?>reports/pending">Cuentas por cobrar</a> </li>
 
-                    </ul>
-                  </li>
+                  </ul>
+                </li>
 
+                <li>
+                  <div class="link"><a href="<?= base_url ?>users/index"><i class="mr-3 fas fa-users"></i>Usuarios</a>
+                  </div>
+                </li>
+
+                <?php if ($_SESSION['identity']->nombre_rol == 'administrador'): ?>
                   <li>
-                    <div class="link"><a href="<?= base_url ?>users/index"><i class="mr-3 fas fa-users"></i>Usuarios</a>
-                    </div>
+                    <div class="link"><a href="<?= base_url ?>config/index"><i
+                          class="mr-3 fas fa-cog"></i>Configuración</a></div>
                   </li>
-
-                  <?php if ($_SESSION['identity']->nombre_rol == 'administrador'): ?>
-                    <li>
-                      <div class="link"><a href="<?= base_url ?>config/index"><i
-                            class="mr-3 fas fa-cog"></i>Configuración</a></div>
-                    </li>
-                  <?php endif; ?>
+                <?php endif; ?>
               </ul>
             </div>
 
@@ -253,25 +255,25 @@
 
               <div class="out-stock">
                 <a href="<?= base_url ?>products/stock" title="Casi agotados">
-                <?php 
+                  <?php
 
-                   $stock = Help::MinStockProduct();
-                   $className = "";
+                  $stock = Help::MinStockProduct();
+                  $className = "";
 
-                   if($stock < 10) {
-                      $className .= "alert-notify alert-notify-xs";
-                   } elseif ($stock > 99) {
+                  if ($stock < 10) {
+                    $className .= "alert-notify alert-notify-xs";
+                  } elseif ($stock > 99) {
                     $className .= "alert-notify alert-notify-lg";
                     $stock = "99+"; // Nuevo stock
-                   } else {
+                  } else {
                     $className .= "alert-notify alert-notify-md";
-                   }
-                
-                ?>
+                  }
+
+                  ?>
 
                   <span class="<?= $className ?>">
-                  <i class="fas fa-inbox"></i>
-                     <p><?= $stock; ?></p>
+                    <i class="fas fa-inbox"></i>
+                    <p><?= $stock; ?></p>
                   </span>
 
                 </a>
@@ -316,7 +318,7 @@
                     href="<?= base_url ?>invoices/addpurchase"><i class="fas fa-plus-circle"></i></a></li>
                 <li><a href="<?= base_url ?>invoices/index_repair">Facturas de reparaciones</a> </li>
                 <li class="page"><a href="<?= base_url ?>invoices/quotes">Cotizaciones</a> <a
-                href="<?= base_url ?>invoices/quote"><i class="fas fa-plus-circle"></i></a></li>
+                    href="<?= base_url ?>invoices/quote"><i class="fas fa-plus-circle"></i></a></li>
                 <li class="page"><a href="<?= base_url ?>payments/index">Pagos</a> <a
                     href="<?= base_url ?>payments/add"><i class="fas fa-plus-circle"></i></a></li>
               </ul>
