@@ -2599,19 +2599,3 @@ a.button-404:hover {
 div#example_wrapper {
     display: none;
 }
-
-.fa,
-.fas,
-.far,
-.fal,
-.fab {
-    visibility: hidden;
-}
-
-body.fontawesome-ready .fa,
-body.fontawesome-ready .fas,
-body.fontawesome-ready .far,
-body.fontawesome-ready .fal,
-body.fontawesome-ready .fab {
-    visibility: visible;
-}
