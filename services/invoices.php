@@ -560,3 +560,86 @@ if ($_POST['action'] == "total_cotizacion") {
 
   echo json_encode($result, JSON_UNESCAPED_UNICODE);
 }
+
+if ($_POST['action'] == "facturas") {
+ 
+  // Conexión a la base de datos
+  $db = Database::connect();
+  
+  // Parámetros de DataTables
+  $draw = intval($_POST['draw']);
+  $start = intval($_POST['start']);
+  $length = intval($_POST['length']);
+  $searchValue = $_POST['search']['value'];
+  
+  // Columnas disponibles para ordenamiento
+  $columns = [
+    'f.factura_venta_id',
+    'c.nombre',
+    'c.apellidos',
+    'f.total',
+    'f.recibido',
+    'f.pendiente',
+    'f.bono',
+    'e.nombre_estado',
+    'f.fecha'
+  ];
+  
+  // Ordenamiento
+  $orderColumnIndex = $_POST['order'][0]['column'];
+  $orderColumn = $columns[$orderColumnIndex] ?? 'f.factura_venta_id';
+  $orderDir = $_POST['order'][0]['dir'] === 'desc' ? 'DESC' : 'ASC';
+  
+  // Filtro de búsqueda
+  $searchQuery = "";
+  if (!empty($searchValue)) {
+      $searchEscaped = $db->real_escape_string($searchValue);
+      $searchQuery = " AND (
+          c.nombre LIKE '%$searchEscaped%' OR 
+          c.apellidos LIKE '%$searchEscaped%' OR 
+          e.nombre_estado LIKE '%$searchEscaped%' OR 
+          f.factura_venta_id LIKE '%$searchEscaped%' OR 
+          f.fecha LIKE '%$searchEscaped%' 
+      )";
+  }
+  
+  // Total de registros sin filtrar
+  $resTotal = $db->query("SELECT COUNT(*) AS total FROM facturas_ventas");
+  $totalRecords = $resTotal->fetch_assoc()['total'];
+  
+  // Total de registros filtrados
+  $resFilter = $db->query("SELECT COUNT(*) AS total 
+      FROM facturas_ventas f
+      INNER JOIN clientes c ON f.cliente_id = c.cliente_id
+      INNER JOIN estados_generales e ON f.estado_id = e.estado_id
+      WHERE 1 $searchQuery
+  ");
+  $filteredRecords = $resFilter->fetch_assoc()['total'];
+  
+  // Datos paginados y filtrados
+  $sql = "SELECT f.factura_venta_id, c.nombre, c.apellidos, f.total, f.recibido, 
+             f.pendiente, f.bono, e.nombre_estado, f.fecha as fecha_factura 
+      FROM facturas_ventas f
+      INNER JOIN clientes c ON f.cliente_id = c.cliente_id
+      INNER JOIN estados_generales e ON f.estado_id = e.estado_id
+      WHERE 1 $searchQuery
+      ORDER BY $orderColumn $orderDir
+      LIMIT $start, $length";
+
+  $result = $db->query($sql);
+  
+  // Crear arreglo de datos
+  $data = [];
+  while ($row = $result->fetch_assoc()) {
+      $data[] = $row;
+  }
+  
+  // Respuesta JSON
+  echo json_encode([
+      "draw" => $draw,
+      "recordsTotal" => $totalRecords,
+      "recordsFiltered" => $filteredRecords,
+      "data" => $data
+  ]);
+  
+}

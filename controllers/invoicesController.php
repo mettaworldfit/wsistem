@@ -133,4 +133,10 @@ class InvoicesController
         
         require_once './views/invoices/edit_quote.php';
     }
+
+    public function prueba()
+    {
+        
+        require_once './views/invoices/prueba.php';
+    }
 }
