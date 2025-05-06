@@ -14,10 +14,9 @@
     </div>
 </div>
 
-
-
 <div class="generalContainer">
-    <table id="example" class="table-custom table">
+<div id="loader"></div>
+    <table id="example" class="table-custom table" style="display: none;">
         <thead>
             <tr>
                 <th>N°</th>

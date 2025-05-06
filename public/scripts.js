@@ -130,8 +130,6 @@ $(document).ready(function() {
             infoFiltered: "(Filtrado de _MAX_  registros)",
         },
         initComplete: function() {
-            // $('#loader').hide(); // Oculta el loader
-            // $('#example').fadeIn(300); // Muestra la tabla
 
             $('#loader').fadeOut(1000, function() { // Oculta el loader
                 $('#example').fadeIn(900); // Muestra la tabla
@@ -218,6 +216,7 @@ $(document).ready(function() {
 
                 var data = JSON.parse(res)
 
+                console.log(res)
                 console.log(data)
 
                 result.innerHTML = '';
