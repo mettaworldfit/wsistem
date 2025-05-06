@@ -260,9 +260,4 @@ $(document).ready(function() {
 
     })
 
-    // $('#keyword').blur(function() {
-    //     search_result.innerHTML = '';
-    // });
-
-
 });
