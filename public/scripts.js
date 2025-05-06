@@ -129,6 +129,10 @@ $(document).ready(function() {
             infoEmpty: "Página no disponible",
             infoFiltered: "(Filtrado de _MAX_  registros)",
         },
+        initComplete: function() {
+            $('#loader').hide(); // Oculta el loader
+            $('#miTabla').fadeIn(300); // Muestra la tabla
+        }
     });
 
     table.column("0:visible").order("asc").draw();

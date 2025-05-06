@@ -18,7 +18,7 @@
 
 
 <div class="generalContainer">
-    <table id="example" class="table-custom table ">
+    <table id="example" class="table-custom table">
         <thead>
             <tr>
                 <th class="hide-cell">Código</th>

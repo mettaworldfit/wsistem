@@ -159,6 +159,18 @@ if ($_POST['action'] == 'buscador') {
                 'apellidos' => $row['apellidos']
             ];
         }
+
+        $factura_rp = $db->query("SELECT f.facturaRP_id,c.nombre,c.apellidos FROM facturasrp f
+        INNER JOIN clientes c ON c.cliente_id = f.cliente_id 
+        WHERE c.nombre LIKE '%$keyword%' or f.facturaRP_id LIKE '%$keyword%' LIMIT 10");
+        while ($row = $factura_rp->fetch_assoc()) {
+            $result[] = [
+                'tipo' => 'Factura_reparacion',
+                'id' => $row['facturaRP_id'],
+                'nombre' => $row['nombre'],
+                'apellidos' => $row['apellidos']
+            ];
+        }
     }
 
     echo json_encode($result);
