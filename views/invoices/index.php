@@ -16,8 +16,7 @@
 
 
 <div class="generalContainer">
-<div id="loader">Cargando datos...</div>
-    <table id="example" class="table-custom table"  style="display: none;">
+    <table id="example" class="table-custom table">
         <thead>
             <tr>
                 <th>N°</th>
