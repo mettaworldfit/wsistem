@@ -54,7 +54,7 @@
 
   <!-- Font-Awesome -->
 
-  <link rel="stylesheet" href="<?= base_url ?>public/font-awesome/all.min.css" type="text/css">
+  <link rel="preload" href="<?= base_url ?>public/font-awesome/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <script src="<?= base_url ?>public/font-awesome/all.min.js" type="text/javascript"></script>
 
   <!-- Lazy loading -->
