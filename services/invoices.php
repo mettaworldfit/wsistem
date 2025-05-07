@@ -1,6 +1,7 @@
 <?php
 
 require_once '../config/db.php';
+require_once '../config/parameters.php';
 require_once '../help.php';
 session_start();
 
@@ -104,19 +105,16 @@ if ($_POST['action'] == "agregar_detalle_venta") {
     if ($product_id > 0) {
 
       $query1 = "INSERT INTO detalle_ventas_con_productos values ($detail_id,$product_id,$invoice_id)";
-      if ($db->query($query1) === TRUE) { 
+      if ($db->query($query1) === TRUE) {
 
-      echo  $db->query("select last_insert_id() AS msg")->fetch_object()->msg;
-        
+        echo  $db->query("select last_insert_id() AS msg")->fetch_object()->msg;
       } else {
         echo "Ha ocurrido un error al insertar el producto";
       }
-
-      
     } else if ($piece_id > 0) {
 
       $query2 = "INSERT INTO detalle_ventas_con_piezas_ values ($detail_id,$piece_id,$invoice_id)";
-      if ($db->query($query2) === TRUE) { 
+      if ($db->query($query2) === TRUE) {
         echo 1;
       } else {
         echo "Ha ocurrido un error al insertar la pieza";
@@ -124,7 +122,7 @@ if ($_POST['action'] == "agregar_detalle_venta") {
     } else if ($service_id > 0) {
 
       $query3 = "INSERT INTO detalle_ventas_con_servicios values ($detail_id,$service_id,$invoice_id)";
-      if ($db->query($query3) === TRUE) { 
+      if ($db->query($query3) === TRUE) {
         echo 1;
       } else {
         echo "Ha ocurrido un error al insertar el servicio";
@@ -425,8 +423,7 @@ if ($_POST['action'] == 'actualizar_factura') {
 
     echo "Error : " . $data->msg;
   }
-
-} 
+}
 
 // Crear cotizaciones
 
@@ -495,11 +492,10 @@ if ($_POST['action'] == "agregar_detalle_cotizacion") {
 
   $query = "INSERT INTO detalle_cotizaciones values (null,$quote_id,$user_id,'$description','$quantity','$price','$taxes','$discount',curdate());";
   if ($db->query($query) === TRUE) {
-        echo "ready";
+    echo "ready";
   } else {
     echo "Ha ocurrido un error";
   }
-  
 }
 
 // Eliminar cotizacion
@@ -561,40 +557,45 @@ if ($_POST['action'] == "total_cotizacion") {
   echo json_encode($result, JSON_UNESCAPED_UNICODE);
 }
 
-if ($_POST['action'] == "facturas") {
- 
+
+if ($_POST['action'] == "index_facturas_ventas") {
+
   // Conexión a la base de datos
   $db = Database::connect();
-  
+
   // Parámetros de DataTables
-  $draw = intval($_POST['draw']);
-  $start = intval($_POST['start']);
-  $length = intval($_POST['length']);
-  $searchValue = $_POST['search']['value'];
-  
+  $draw = intval($_POST['draw'] ?? 0);
+  $start = intval($_POST['start'] ?? 0);
+  $length = intval($_POST['length'] ?? 10);
+  $searchValue = $_POST['search']['value'] ?? '';
+
+
   // Columnas disponibles para ordenamiento
   $columns = [
     'f.factura_venta_id',
     'c.nombre',
     'c.apellidos',
+    'f.fecha',
     'f.total',
     'f.recibido',
     'f.pendiente',
     'f.bono',
-    'e.nombre_estado',
-    'f.fecha'
+    'e.nombre_estado'
   ];
-  
+
+
   // Ordenamiento
-  $orderColumnIndex = $_POST['order'][0]['column'];
+  $orderColumnIndex = $_POST['order'][0]['column'] ?? 0;
   $orderColumn = $columns[$orderColumnIndex] ?? 'f.factura_venta_id';
-  $orderDir = $_POST['order'][0]['dir'] === 'desc' ? 'DESC' : 'ASC';
-  
+  $orderDir = ($_POST['order'][0]['dir'] ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
+
+
+
   // Filtro de búsqueda
   $searchQuery = "";
   if (!empty($searchValue)) {
-      $searchEscaped = $db->real_escape_string($searchValue);
-      $searchQuery = " AND (
+    $searchEscaped = $db->real_escape_string($searchValue);
+    $searchQuery = " AND (
           c.nombre LIKE '%$searchEscaped%' OR 
           c.apellidos LIKE '%$searchEscaped%' OR 
           e.nombre_estado LIKE '%$searchEscaped%' OR 
@@ -602,20 +603,30 @@ if ($_POST['action'] == "facturas") {
           f.fecha LIKE '%$searchEscaped%' 
       )";
   }
-  
+
   // Total de registros sin filtrar
-  $resTotal = $db->query("SELECT COUNT(*) AS total FROM facturas_ventas");
-  $totalRecords = $resTotal->fetch_assoc()['total'];
-  
+  // $resTotal = $db->query("SELECT COUNT(*) AS total FROM facturas_ventas");
+  $resTotal = $db->query("
+  SELECT COUNT(*) AS total 
+  FROM facturas_ventas f
+  INNER JOIN clientes c ON f.cliente_id = c.cliente_id
+  INNER JOIN estados_generales e ON f.estado_id = e.estado_id
+");
+  $totalRecords = $resTotal->fetch_assoc()['total'] ?? 0;
+
+
   // Total de registros filtrados
-  $resFilter = $db->query("SELECT COUNT(*) AS total 
-      FROM facturas_ventas f
-      INNER JOIN clientes c ON f.cliente_id = c.cliente_id
-      INNER JOIN estados_generales e ON f.estado_id = e.estado_id
-      WHERE 1 $searchQuery
-  ");
-  $filteredRecords = $resFilter->fetch_assoc()['total'];
-  
+
+  $resFilter = $db->query("
+    SELECT COUNT(*) AS total 
+    FROM facturas_ventas f
+    INNER JOIN clientes c ON f.cliente_id = c.cliente_id
+    INNER JOIN estados_generales e ON f.estado_id = e.estado_id
+    WHERE 1 $searchQuery
+");
+  $filteredRecords = $resFilter->fetch_assoc()['total'] ?? 0;
+
+
   // Datos paginados y filtrados
   $sql = "SELECT f.factura_venta_id, c.nombre, c.apellidos, f.total, f.recibido, 
              f.pendiente, f.bono, e.nombre_estado, f.fecha as fecha_factura 
@@ -627,19 +638,44 @@ if ($_POST['action'] == "facturas") {
       LIMIT $start, $length";
 
   $result = $db->query($sql);
-  
-  // Crear arreglo de datos
+
+  // Crear arreglo de datos con formato HTML para cada celda
+
   $data = [];
   while ($row = $result->fetch_assoc()) {
-      $data[] = $row;
+
+    $acciones = '<a ';
+    if ($_SESSION['identity']->nombre_rol == 'administrador') {
+      $acciones .= 'class="action-edit" href="' . base_url . 'invoices/edit&id=' . $row['factura_venta_id'] . '"';
+    } else {
+      $acciones .= 'class="action-edit action-disable" href="#"';
+    }
+    $acciones .= ' title="editar"><i class="fas fa-pencil-alt"></i></a>';
+
+    $acciones .= '<span onclick="deleteInvoice(\'' . $row['factura_venta_id'] . '\')" class="action-delete"><i class="fas fa-times"></i></span>';
+
+
+    $data[] = [
+      'factura_venta_id' => 'FT-00' . $row['factura_venta_id'],
+      'nombre' => ucwords($row['nombre'] . ' ' . $row['apellidos']),
+      'fecha_factura' => $row['fecha_factura'],
+      'total' => '<span class="text-primary hide-cell">' . number_format($row['total'], 2) . '</span>',
+      'recibido' => '<span class="text-success hide-cell">' . number_format($row['recibido'], 2) . '</span>',
+      'pendiente' => '<span class="text-danger hide-cell">' . number_format($row['pendiente'], 2) . '</span>',
+      'bono' => '<span class="text-warning hide-cell">' . number_format($row['bono'], 2) . '</span>',
+      'nombre_estado' => '<p class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</p>',
+      'acciones' => $acciones
+    ];
   }
-  
+
+
   // Respuesta JSON
   echo json_encode([
-      "draw" => $draw,
-      "recordsTotal" => $totalRecords,
-      "recordsFiltered" => $filteredRecords,
-      "data" => $data
+    "draw" => $draw,
+    "recordsTotal" => $totalRecords,
+    "recordsFiltered" => $filteredRecords,
+    "data" => $data
   ]);
-  
+
+  exit;
 }

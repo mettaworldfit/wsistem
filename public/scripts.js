@@ -258,30 +258,10 @@ $(document).ready(function() {
             }
         });
 
-    })
-
-
-    $('#facturas').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: SITE_URL + 'services/invoices.php',
-            type: 'POST',
-            data: {
-                action: 'facturas'
-            },
-        },
-        columns: [
-            { data: 'factura_venta_id' },
-            { data: 'nombre' },
-            { data: 'apellidos' },
-            { data: 'total' },
-            { data: 'recibido' },
-            { data: 'pendiente' },
-            { data: 'bono' },
-            { data: 'nombre_estado' },
-            { data: 'fecha_factura' }
-        ]
     });
+
+
+
+
 
 });

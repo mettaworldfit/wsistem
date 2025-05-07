@@ -190,6 +190,91 @@ function reset_modal() {
 
 $(document).ready(function() {
 
+    // language: {
+    //     lengthMenu: "Mostrar _MENU_ registros por página",
+    //     zeroRecords: "Aún no tienes datos para mostrar",
+    //     info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+    //     infoEmpty: "Mostrando 0 a 0 de 0 registros",
+    //     infoFiltered: "(Filtrado de _MAX_ registros)",
+    //     paginate: {
+    //         first: "Primero",
+    //         last: "Último",
+    //         next: "Siguiente",
+    //         previous: "Anterior"
+    //     }
+    // },
+
+    //url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+
+    $('#invoice').DataTable({
+        processing: false, // Oculta el spinner interno de DataTables
+        serverSide: true,
+        language: {
+            lengthMenu: "_MENU_",
+            zeroRecords: "Aún no tienes datos para mostrar",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Página no disponible",
+            infoFiltered: "(Filtrado de _MAX_  registros)",
+            search: "", // Cambia el texto
+            processing: "Buscando...",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "<i class='fas fa-caret-right'></i>",
+                previous: "Anterior"
+            }
+        },
+        ajax: function(data, callback, settings) {
+            // Mostrar loader
+            const $tbody = $('#invoice tbody');
+            $tbody.html(`
+                <tr>
+                    <td colspan="100%">
+                        <div class="spinner-container">
+                            <div class="spinner"></div>
+                            <div style="margin-top: 10px;">Cargando datos...</div>
+                        </div>
+                    </td>
+                </tr>
+            `);
+
+            // Simular retardo de 900ms antes de hacer la llamada AJAX real
+            setTimeout(() => {
+                $.ajax({
+                    url: SITE_URL + 'services/invoices.php',
+                    type: 'POST',
+                    data: {
+                        action: 'index_facturas_ventas',
+                        ...data // Importante: esto pasa los datos de paginación, búsqueda, etc.
+
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        const json = typeof response === 'string' ? JSON.parse(response) : response;
+                        callback(json);
+                        console.log(json);
+                    }
+                });
+            }, 300);
+        },
+        columns: [
+            { data: 'factura_venta_id' },
+            { data: 'nombre' },
+            { data: 'fecha_factura' },
+            { data: 'total' },
+            { data: 'recibido' },
+            { data: 'pendiente' },
+            { data: 'bono' },
+            { data: 'nombre_estado' },
+            { data: 'acciones', orderable: false, searchable: false },
+
+        ],
+        initComplete: function() {
+
+        }
+
+    });
+
     // Default
     $("#SaveQuote").css("display", "none"); // Botón registrar cotización
     $('#last_invoice_edit').hide() // Botón de editar última factura
