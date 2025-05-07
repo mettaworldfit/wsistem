@@ -121,25 +121,6 @@ $(document).ready(function() {
  * Activar librerías JavaScript
 ------------------------------------- */
 
-    var table = $("#example").DataTable({
-        language: {
-            lengthMenu: "_MENU_",
-            zeroRecords: "Aún no tienes datos para mostrar",
-            info: "_PAGE_ de _PAGES_",
-            infoEmpty: "Página no disponible",
-            infoFiltered: "(Filtrado de _MAX_  registros)",
-        },
-        initComplete: function() {
-
-            $('#loader').fadeOut(1000, function() { // Oculta el loader
-                $('#example').fadeIn(900); // Muestra la tabla
-                $('#example_wrapper').fadeIn(900);
-            });
-        }
-    });
-
-    table.column("0:visible").order("asc").draw();
-
     $(".search").select2();
 
     /**
@@ -261,8 +242,43 @@ $(document).ready(function() {
     });
 
 
+    var table_default = $("#example").DataTable({
+        language: {
+            lengthMenu: "_MENU_",
+            zeroRecords: "Aún no tienes datos para mostrar",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Página no disponible",
+            infoFiltered: "(Filtrado de _MAX_  registros)",
+            search: "Buscar:", // Cambia el texto
+            processing: "Buscando...",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "<i class='fas fa-caret-right'></i>",
+                previous: "Anterior"
+            }
+        },
+        initComplete: function() {
+
+        }
+    });
+
+    table_default.column("0:visible").order("asc").draw();
 
 
+    // $.ajax({
+    //     type: "post",
+    //     url: SITE_URL + "services/products.php",
+    //     data: {
+    //         action: "index",
+
+    //     },
+    //     success: function(res) {
+
+    //         console.log(res)
+
+    //     }
+    // });
 
 
 });

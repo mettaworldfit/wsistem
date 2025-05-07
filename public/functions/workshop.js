@@ -20,9 +20,12 @@ function mysql_error(err) {
     </div>`).set('basic', true);
 }
 
+let dt_workshop; // Declarada globalmente
+
 $(document).ready(function() {
 
-        $('#workshop').DataTable({
+        // index ordenes de servicios
+        dt_workshop = $('#workshop').DataTable({
             processing: false, // Oculta el spinner interno de DataTables
             serverSide: true,
             language: {
@@ -254,7 +257,7 @@ function elegirEstado(el) { // recibimos por parametro el elemento select
         success: function(res) {
 
             if (res == "ready") {
-
+                dt_workshop.ajax.reload();
 
             } else {
                 mysql_error(res)
@@ -282,8 +285,7 @@ function deleteOrden(id) {
 
                     if (res == "ready") {
 
-                        mysql_row_affected()
-                        $(".table").load(location.href + " .table");
+                        dt_workshop.ajax.reload();
 
                     } else {
                         mysql_error(res)

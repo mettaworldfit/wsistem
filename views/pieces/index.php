@@ -19,8 +19,7 @@
 
 
 <div class="generalContainer">
-<div id="loader"></div>
-    <table id="example" class="table-custom table" style="display: none;">
+    <table id="example" class="table-custom table">
         <thead>
             <tr>
                 <th class="hide-cell">Código</th>

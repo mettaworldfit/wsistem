@@ -7,11 +7,6 @@ class ProductsController
 
     public function index()
     {
-        $symbol = "DOP";
-        
-        $model = new Products();
-
-        $products = $model->showProducts();
         require_once './views/products/index.php';
     }
 

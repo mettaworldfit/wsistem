@@ -1,4 +1,5 @@
 var pageURL = $(location).attr("pathname");
+let dt_invoices; // Declarada globalmente
 
 function mysql_row_affected() {
     alertify.alert(`<div class='row-affected'>
@@ -192,7 +193,7 @@ $(document).ready(function() {
 
     // Cargar datos del index de factura ventas
 
-    $('#invoice').DataTable({
+    dt_invoices = $('#invoice').DataTable({
         processing: false, // Oculta el spinner interno de DataTables
         serverSide: true,
         language: {
@@ -1239,9 +1240,7 @@ function deleteInvoice(id) {
                 success: function(res) {
 
                     if (res == "ready") {
-
-                        $("#example").load(location.href + " #example");
-
+                        dt_invoices.ajax.reload();
 
                     } else {
                         mysql_error(res)

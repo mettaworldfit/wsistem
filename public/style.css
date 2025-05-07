@@ -2559,32 +2559,6 @@ a.button-404:hover {
     font-size: 10pt;
 }
 
-#loader {
-    position: absolute;
-    right: 50%;
-    transform: translate(-50%, -50%);
-    border: 5px solid #f3f3f3;
-    border-top: 5px solid #6a3cc0;
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    animation: spin 1s linear infinite;
-    z-index: 9999;
-}
-
-@keyframes spin {
-    0% {
-        transform: translate(-50%, -50%) rotate(0deg);
-    }
-    100% {
-        transform: translate(-50%, -50%) rotate(360deg);
-    }
-}
-
-div#example_wrapper {
-    display: none;
-}
-
 
 /* Loader de datatable */
 

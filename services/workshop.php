@@ -100,15 +100,15 @@ if ($_POST['action'] == "index_taller") {
 
     $data[] = [
       'orden' =>
-    '<span>
+      '<span>
         <a href="#" class="' . ($row['facturaRP_id'] > 0 ? 'text-secondary' : 'text-danger') . '">OR-00' . $row['id'] . '</a>
         <span id="toggle" class="toggle-right toggle-md">
             No. Orden: OR-00' . $row['id'] . '<br>
-            No. Factura: ' . 
-                ($row['facturaRP_id'] > 0
-                    ? '<a class="text-danger" href="' . base_url . 'invoices/repair_edit&o=' . $row['id'] . '&f=' . $row['facturaRP_id'] . '">RP-00' . $row['facturaRP_id'] . '</a>'
-                    : '<a class="text-danger" href="#">No facturado</a>'
-                ) .
+            No. Factura: ' .
+        ($row['facturaRP_id'] > 0
+          ? '<a class="text-danger" href="' . base_url . 'invoices/repair_edit&o=' . $row['id'] . '&f=' . $row['facturaRP_id'] . '">RP-00' . $row['facturaRP_id'] . '</a>'
+          : '<a class="text-danger" href="#">No facturado</a>'
+        ) .
         '</span>
     </span>',
       'nombre' => ucwords($row['nombre_cliente'] . ' ' . $row['apellidos_cliente']),
@@ -133,14 +133,12 @@ if ($_POST['action'] == "index_taller") {
               <option class="No se pudo" workshop_id="' . $row['id'] . '" value="10">No se pudo</option>
               <option class="Listo" workshop_id="' . $row['id'] . '" value="9">Listo</option>
           </select>',
+          
       'acciones' =>
-      '<a href="' . base_url . 'contacts/edit_customer&id=' . $row['cliente_id'] . '" title="Información del cliente" class="action-view">
-        <i class="fas fa-user"></i>
-    </a>
-    <a href="' . base_url . 'invoices/addrepair&id=' . $row['id'] . '" title="Agregar factura" class="action-edit">
+      '<a href="' . base_url . 'invoices/addrepair&id=' . $row['id'] . '" title="Agregar factura" class="action-edit">
         <i class="fas fa-shopping-cart"></i>
     </a>
-    <span class="action-delete action-disable" onclick="deleteOrden(\'' . $row['id'] . '\')" title="Eliminar">
+    <span class="action-delete" onclick="deleteOrden(\'' . $row['id'] . '\')" title="Eliminar">
         <i class="fas fa-times"></i>
     </span>'
 
@@ -378,4 +376,3 @@ if ($_POST['action'] == "actualizar_marca") {
     echo "Error 54:" . $data->msg;
   }
 }
-
