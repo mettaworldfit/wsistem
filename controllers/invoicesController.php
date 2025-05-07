@@ -21,10 +21,6 @@ class InvoicesController
 
     public function index()
     {
-
-        $method = new Invoices();
-        $invoices = $method->showInvoices();
-
         require_once './views/invoices/index.php';
     }
 

@@ -190,21 +190,7 @@ function reset_modal() {
 
 $(document).ready(function() {
 
-    // language: {
-    //     lengthMenu: "Mostrar _MENU_ registros por página",
-    //     zeroRecords: "Aún no tienes datos para mostrar",
-    //     info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-    //     infoEmpty: "Mostrando 0 a 0 de 0 registros",
-    //     infoFiltered: "(Filtrado de _MAX_ registros)",
-    //     paginate: {
-    //         first: "Primero",
-    //         last: "Último",
-    //         next: "Siguiente",
-    //         previous: "Anterior"
-    //     }
-    // },
-
-    //url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+    // Cargar datos del index de factura ventas
 
     $('#invoice').DataTable({
         processing: false, // Oculta el spinner interno de DataTables
@@ -215,7 +201,7 @@ $(document).ready(function() {
             info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
             infoEmpty: "Página no disponible",
             infoFiltered: "(Filtrado de _MAX_  registros)",
-            search: "", // Cambia el texto
+            search: "Buscar:", // Cambia el texto
             processing: "Buscando...",
             paginate: {
                 first: "Primero",
@@ -252,7 +238,6 @@ $(document).ready(function() {
                     success: function(response) {
                         const json = typeof response === 'string' ? JSON.parse(response) : response;
                         callback(json);
-                        console.log(json);
                     }
                 });
             }, 300);

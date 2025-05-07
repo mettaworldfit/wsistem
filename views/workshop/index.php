@@ -33,8 +33,7 @@
 
 
 <div class="generalContainer">
-<div id="loader"></div>
-    <table id="example" class="table-custom table" style="display: none;">
+    <table id="workshop" class="table-custom table">
         <thead>
             <tr>
                 <th>N°</th>
@@ -48,101 +47,9 @@
             </tr>
         </thead>
 
-        <tbody>
-            <?php while ($element = $workshops->fetch_object()): ?>
-
-                <tr>
-                    <td>
-                        <span>
-                            <a href="#"
-                                class="<?php if ($element->facturaRP_id > 0) { ?> text-secondary <?php } else { ?> text-danger <?php } ?>">OR-00<?= $element->id ?></a>
-                            <!-- Toggle -->
-                            <span id="toggle" class="toggle-right toggle-md">
-                                No. Orden: OR-00<?= $element->id ?> <br>
-                                No. Factura: <?php
-
-                                if ($element->facturaRP_id > 0) {
-
-                                    echo "<a class='text-danger' href='" . base_url . "invoices/repair_edit&o=" . $element->id . "&f=" . $element->facturaRP_id . "' >";
-                                    echo "RP-00";
-                                    echo $element->facturaRP_id;
-                                    echo "</a>";
-                                } else {
-
-                                    echo "<a class='text-danger' href='#' >";
-                                    echo "No facturado";
-                                    echo "</a>";
-                                } ?>
-                            </span>
-
-                        </span>
-
-                    </td>
-
-                    <td><?= ucwords($element->nombre_cliente) ?>     <?= ucwords($element->apellidos_cliente) ?></td>
-                    <td>
-                        <span>
-                            <a href="#" class="text-secondary"><?= ucwords($element->nombre_marca) ?>
-                                <?= ucwords($element->nombre_modelo) ?>     <?= $element->modelo ?></a>
-
-                            <span id="toggle" class="toggle-right toggle-xl">
-                                Marca: <?= $element->nombre_marca ?> <br>
-                                Modelo: <?= $element->modelo ?> <br>
-                                IMEI: <?= $element->imei ?> <br>
-                                Serie: <?= $element->serie ?> <br>
-
-
-                            </span>
-                        </span>
-
-                    </td>
-                    <td class="text-success hide-cell"><?= $element->fecha_entrada ?></td>
-                    <td class="text-danger hide-cell"><?= $element->fecha_salida ?></td>
-                    <td class="hide-cell"><?= Help::SHOW_CONDITONS_ORDER($element->id) ?></td>
-
-                    <td>
-                        <select class="form-custom <?= $element->nombre_estado ?>" name="" id="status_rp"
-                            onchange="elegirEstado(this);">
-                            <option workshop_id="<?= $element->id ?>" value="<?= $element->estado_id ?>" selected>
-                                <?= $element->nombre_estado ?>
-                            </option>
-                            <option class="Pendiente" workshop_id="<?= $element->id ?>" value="6">Pendiente</option>
-                            <option class="En Proceso" workshop_id="<?= $element->id ?>" value="8">En Proceso</option>
-                            <option class="Entregado" workshop_id="<?= $element->id ?>" value="7">Entregado</option>
-                            <option class="No se pudo" workshop_id="<?= $element->id ?>" value="10">No se pudo</option>
-                            <option class="Listo" workshop_id="<?= $element->id ?>" value="9">Listo</option>
-                        </select>
-                    </td>
-
-                    <td>
-
-                        <a href="<?= base_url ?>contacts/edit_customer&id=<?= $element->cliente_id ?>"
-                            title="Información del cliente" class="action-view"><i class="fas fa-user"></i></a>
-
-<!-- 
-                        <a href="<?= base_url ?>invoices/repair_edit&o=<?= $element->id ?>&f=<?= $element->facturaRP_id ?>"
-                            title="Ver factura" class="action-paid"><i class="fas fa-eye"></i></a> -->
-
-                        <a href="<?= base_url ?>invoices/addrepair&id=<?= $element->id ?>" title="Agregar factura"
-                            class="action-edit"><i class="fas fa-shopping-cart"></i></a>
-
-                        <span class="action-delete" onclick="deleteOrden('<?= $element->id ?>')"
-                            class="action-delete action-disable" title="Eliminar">
-                            <i class="fas fa-times"></i>
-                        </span>
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-        </tbody>
-
-
-
-
+       
     </table>
 </div>
-
-
-
 
 <!--Modal agregar orden-->
 <div class="modal fade" id="orden" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"

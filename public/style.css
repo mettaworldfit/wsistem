@@ -2615,7 +2615,7 @@ div#example_wrapper {
 
 /* footer legendad Datatable */
 
-div#invoice_info {
+div.dataTables_info {
     font-size: 13px;
 }
 

@@ -22,6 +22,73 @@ function mysql_error(err) {
 
 $(document).ready(function() {
 
+        $('#workshop').DataTable({
+            processing: false, // Oculta el spinner interno de DataTables
+            serverSide: true,
+            language: {
+                lengthMenu: "_MENU_",
+                zeroRecords: "Aún no tienes datos para mostrar",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                infoEmpty: "Página no disponible",
+                infoFiltered: "(Filtrado de _MAX_  registros)",
+                search: "Buscar:", // Cambia el texto
+                processing: "Buscando...",
+                paginate: {
+                    first: "Primero",
+                    last: "Último",
+                    next: "<i class='fas fa-caret-right'></i>",
+                    previous: "Anterior"
+                }
+            },
+            ajax: function(data, callback, settings) {
+                // Mostrar loader
+                const $tbody = $('#workshop tbody');
+                $tbody.html(`
+                <tr>
+                    <td colspan="100%">
+                        <div class="spinner-container">
+                            <div class="spinner"></div>
+                            <div style="margin-top: 10px;">Cargando datos...</div>
+                        </div>
+                    </td>
+                </tr>
+            `);
+
+                // Simular retardo de 900ms antes de hacer la llamada AJAX real
+                setTimeout(() => {
+                    $.ajax({
+                        url: SITE_URL + 'services/workshop.php',
+                        type: 'POST',
+                        data: {
+                            action: 'index_taller',
+                            ...data // Importante: esto pasa los datos de paginación, búsqueda, etc.
+
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            const json = typeof response === 'string' ? JSON.parse(response) : response;
+                            callback(json);
+                        }
+                    });
+                }, 300);
+            },
+            columns: [
+                { data: 'orden' },
+                { data: 'nombre' },
+                { data: 'equipo' },
+                { data: 'fecha_entrada' },
+                { data: 'fecha_salida' },
+                { data: 'condicion' },
+                { data: 'estado' },
+                { data: 'acciones', orderable: false, searchable: false },
+
+            ],
+            initComplete: function() {
+
+            }
+
+        });
+
 
         /**
          * TODO: Imprimir orden de reparación
