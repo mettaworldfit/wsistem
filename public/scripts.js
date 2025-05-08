@@ -266,7 +266,7 @@ $(document).ready(function() {
 
     // $.ajax({
     //     type: "post",
-    //     url: SITE_URL + "services/products.php",
+    //     url: SITE_URL + "services/reports.php",
     //     data: {
     //         action: "index",
 
@@ -277,6 +277,8 @@ $(document).ready(function() {
 
     //     }
     // });
+
+
 
 
 });

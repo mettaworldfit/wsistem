@@ -1241,6 +1241,7 @@ function deleteInvoice(id) {
 
                     if (res == "ready") {
                         dt_invoices.ajax.reload();
+                        dt_today.ajax.reload();
 
                     } else {
                         mysql_error(res)

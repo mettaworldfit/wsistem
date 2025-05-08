@@ -107,6 +107,7 @@
     <script src="<?= base_url ?>public/functions/invoices.js" type="text/javascript"></script>
     <script src="<?= base_url ?>public/functions/repair.js" type="text/javascript"></script>
     <script src="<?= base_url ?>public/functions/payments.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/reports.js" type="text/javascript"></script>
     <?php
 
 } elseif (str_contains($_SERVER["REQUEST_URI"], "brands")) {

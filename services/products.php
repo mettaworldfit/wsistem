@@ -4,6 +4,8 @@ require_once '../config/db.php';
 require_once '../config/parameters.php';
 session_start();
 
+// mostrar tabla de productos
+
 if ($_POST['action'] == "index_productos") {
 
   $db = Database::connect();
@@ -75,12 +77,24 @@ if ($_POST['action'] == "index_productos") {
 
   $data = [];
   while ($row = $result->fetch_assoc()) {
+
+    $cantidad = '<span ';
+    if ($row['cantidad'] > $row['cantidad_min']) {
+      $cantidad .= 'class="text-success">';
+    } elseif ($row['cantidad'] < 1) {
+      $cantidad .= 'class="text-danger">';
+    } else {
+      $cantidad .= 'class="text-warning">';
+    }
+    $cantidad .= $row['cantidad'] . '</span>';
+
+
     $data[] = [
       'codigo' => $row['cod_producto'],
       'nombre' => $row['nombre_producto'],
       'categoria' => $row['nombre_categoria'],
       'almacen' => $row['nombre_almacen'],
-      'cantidad' => $row['cantidad'],
+      'cantidad' => $cantidad,
       'precio_costo' => number_format($row['precio_costo'], 2),
       'precio_unitario' => number_format($row['precio_unitario'], 2),
       'estado' => '<span class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</span>',

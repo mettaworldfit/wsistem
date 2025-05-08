@@ -554,7 +554,7 @@ function deleteInvoiceRP(id) {
                 success: function(res) {
                     if (res == "ready") {
 
-                        $('.table').load(location.href + " .table");
+                        dt_today.ajax.reload()
 
                     } else {
                         mysql_error(res)
