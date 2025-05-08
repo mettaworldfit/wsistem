@@ -1,31 +1,9 @@
-function mysql_row_affected() {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registrado exitosamente</p>
-    </div>`).set('basic', true);
-}
-
-function mysql_row_update() {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registro actualizado correctamente</p>
-    </div>`).set('basic', true);
-}
-
-
-function mysql_error(err) {
-    alertify.alert(`<div class='error-info'>
-    <i class='icon-error fas fa-exclamation-circle'></i> 
-    <p>${err}</p>
-    </div>`).set('basic', true);
-}
-
-$(document).ready(function () {
+$(document).ready(function() {
 
     /**
-      *  Calcular impuesto al recargar la ventada
-      *  Esto se utiliza si el producto ya está creado
-      * */
+     *  Calcular impuesto al recargar la ventada
+     *  Esto se utiliza si el producto ya está creado
+     * */
     var pageURL = $(location).attr("pathname");
 
     if (pageURL.includes("products/add")) {
@@ -39,7 +17,7 @@ $(document).ready(function () {
 
     // Incluir ofertas
 
-    $("#include_offer").change(function () {
+    $("#include_offer").change(function() {
         if (this.checked) {
             $('.offer').slideToggle('fast');
         } else {
@@ -49,7 +27,7 @@ $(document).ready(function () {
 
     // Incluir Proveedor
 
-    $("#include_provider").change(function () {
+    $("#include_provider").change(function() {
         if (this.checked) {
             $('.provider').slideToggle();
         } else {
@@ -68,7 +46,7 @@ $(document).ready(function () {
                 action: "buscarImpuesto",
                 tax: tax,
             },
-            success: function (res) {
+            success: function(res) {
                 var data = JSON.parse(res);
 
                 var tax_value = (data.valor / 100);
@@ -89,7 +67,7 @@ $(document).ready(function () {
 
     // Calcular al cambiar impuesto 
 
-    $("#tax").change(function () {
+    $("#tax").change(function() {
 
         var tax = $("#select2-tax-container").attr("title");
 
@@ -104,9 +82,9 @@ $(document).ready(function () {
 
     // Calcular precio al escribir
 
-   if (pageURL.includes("products/add") || pageURL.includes("products/edit")) {
+    if (pageURL.includes("products/add") || pageURL.includes("products/edit")) {
 
-        $("#inputPrice_out").keyup(function (e) {
+        $("#inputPrice_out").keyup(function(e) {
             e.preventDefault();
 
             calculate_final_price();
@@ -114,11 +92,11 @@ $(document).ready(function () {
 
     } else if (pageURL.includes("pieces/add") || pageURL.includes("pieces/edit")) {
 
-        $("#inputPrice_out").keyup(function (e) {
+        $("#inputPrice_out").keyup(function(e) {
             e.preventDefault();
 
             var price_out = $("#inputPrice_out").val();
-      
+
             $("#FinalPrice_out").val(price_out);
             $("#precioTotal").val(format.format(price_out) + ".00");
         });
@@ -145,15 +123,15 @@ $(document).ready(function () {
             search_tax(tax_selected);
         } else {
             var price_out = $("#inputPrice_out").val();
-      
+
             $("#FinalPrice_out").val(price_out);
             $("#precioTotal").val(format.format(price_out) + ".00");
-         
-          }
+
+        }
     }
 
 
-    
+
 
 
 
@@ -175,10 +153,10 @@ function AddTax() {
             value: $('#tax_value').val(),
             action: 'agregar_impuesto'
         },
-        beforeSend: function () {
+        beforeSend: function() {
 
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 
@@ -213,10 +191,10 @@ function UpdateTax(tax_id) {
             value: $('#tax_value').val(),
             action: 'actualizar_impuesto'
         },
-        beforeSend: function () {
+        beforeSend: function() {
 
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 
@@ -239,7 +217,7 @@ function UpdateTax(tax_id) {
 function deleteTax(id) {
 
     alertify.confirm("Eliminar impuesto", "¿Estas seguro que deseas borrar este impuesto? ",
-        function () {
+        function() {
 
             $.ajax({
                 type: "post",
@@ -248,10 +226,10 @@ function deleteTax(id) {
                     tax_id: id,
                     action: 'eliminar_impuesto'
                 },
-                beforeSend: function () {
+                beforeSend: function() {
 
                 },
-                success: function (res) {
+                success: function(res) {
 
                     if (res == "ready") {
 
@@ -265,9 +243,7 @@ function deleteTax(id) {
                 }
             });
         },
-        function () {
+        function() {
 
         });
 }
-
-

@@ -1,25 +1,3 @@
-function mysql_row_affected() {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registrado exitosamente</p>
-    </div>`).set('basic', true);
-}
-
-function mysql_row_update() {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registro actualizado correctamente</p>
-    </div>`).set('basic', true);
-}
-
-
-function mysql_error(err) {
-    alertify.alert(`<div class='error-info'>
-    <i class='icon-error fas fa-exclamation-circle'></i> 
-    <p>${err}</p>
-    </div>`).set('basic', true);
-}
-
 $(document).ready(function() {
 
 
@@ -45,43 +23,43 @@ $(document).ready(function() {
     })
 
 
-     // Buscar servicio por nombre
+    // Buscar servicio por nombre
 
-  $("#service").change(function () {
-    var service_id = $(this).val();
-    SearchService(service_id);
-  });
+    $("#service").change(function() {
+        var service_id = $(this).val();
+        SearchService(service_id);
+    });
 
 
-  function SearchService(service_id) {
+    function SearchService(service_id) {
 
-    $.ajax({
-        url: SITE_URL + "services/services.php",
-        method: "post",
-        data: {
-          service_id: service_id,
-          action: "buscar_servicios"
-        },
-        success: function (res) {
-          var data = JSON.parse(res);
+        $.ajax({
+            url: SITE_URL + "services/services.php",
+            method: "post",
+            data: {
+                service_id: service_id,
+                action: "buscar_servicios"
+            },
+            success: function(res) {
+                var data = JSON.parse(res);
 
-          $("#price_out").val('')
-          $("#price_out").attr("disabled",true);
-        
-          if(data.precio > 0 ) {
+                $("#price_out").val('')
+                $("#price_out").attr("disabled", true);
 
-            $("#price_out").val(format.format(data.precio));
-        
-          } else {
-           
-            $("#price_out").attr("disabled",false);
-          }
-         
-        }
+                if (data.precio > 0) {
 
-    })
-    
-  }
+                    $("#price_out").val(format.format(data.precio));
+
+                } else {
+
+                    $("#price_out").attr("disabled", false);
+                }
+
+            }
+
+        })
+
+    }
 
 }); // Ready
 

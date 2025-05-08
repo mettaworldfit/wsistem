@@ -1,29 +1,3 @@
-var pageURL = $(location).attr("pathname");
-
-function mysql_row_affected() {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registrado exitosamente</p>
-    </div>`).set('basic', true);
-}
-
-function mysql_row_update() {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registro actualizado correctamente</p>
-    </div>`).set('basic', true);
-}
-
-
-function mysql_error(err) {
-    alertify.alert(`<div class='error-info'>
-    <i class='icon-error fas fa-exclamation-circle'></i> 
-    <p>${err}</p>
-    </div>`).set('basic', true);
-}
-
-
-
 // Total de la factura
 
 function invoice_total_rp() {
@@ -554,7 +528,7 @@ function deleteInvoiceRP(id) {
                 success: function(res) {
                     if (res == "ready") {
 
-                        dt_today.ajax.reload()
+                        dt_today.ajax.reload() // actualizar tabla
 
                     } else {
                         mysql_error(res)

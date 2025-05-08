@@ -1,30 +1,3 @@
-var pageURL = $(location).attr("pathname");
-const format = new Intl.NumberFormat('en'); // Formato 0,000
-
-function mysql_row_affected() {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registrado exitosamente</p>
-    </div>`).set('basic', true);
-}
-
-function mysql_row_update() {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registro actualizado correctamente</p>
-    </div>`).set('basic', true);
-}
-
-
-function mysql_error(err) {
-    alertify.alert(`<div class='error-info'>
-    <i class='icon-error fas fa-exclamation-circle'></i> 
-    <p>${err}</p>
-    </div>`).set('basic', true);
-}
-
-
-
 $(document).ready(function() {
 
         // Defaults 

@@ -1,110 +1,6 @@
-let dt_products; // Declarada globalmente
-
 $(document).ready(function() {
 
-    dt_products = $('#products').DataTable({
-        processing: false, // Oculta el spinner interno de DataTables
-        serverSide: true,
-        language: {
-            lengthMenu: "_MENU_",
-            zeroRecords: "Aún no tienes datos para mostrar",
-            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-            infoEmpty: "Página no disponible",
-            infoFiltered: "(Filtrado de _MAX_  registros)",
-            search: "Buscar:", // Cambia el texto
-            processing: "Buscando...",
-            paginate: {
-                first: "Primero",
-                last: "Último",
-                next: "<i class='fas fa-caret-right'></i>",
-                previous: "Anterior"
-            }
-        },
-        ajax: function(data, callback, settings) {
-            // Mostrar loader
-            const $tbody = $('#products tbody');
-            $tbody.html(`
-            <tr>
-                <td colspan="100%">
-                    <div class="spinner-container">
-                        <div class="spinner"></div>
-                        <div style="margin-top: 10px;">Cargando datos...</div>
-                    </div>
-                </td>
-            </tr>
-        `);
-
-            // Simular retardo de 900ms antes de hacer la llamada AJAX real
-            setTimeout(() => {
-                $.ajax({
-                    url: SITE_URL + 'services/products.php',
-                    type: 'POST',
-                    data: {
-                        action: 'index_productos',
-                        ...data // Importante: esto pasa los datos de paginación, búsqueda, etc.
-
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        const json = typeof response === 'string' ? JSON.parse(response) : response;
-                        callback(json);
-
-                    }
-                });
-            }, 300);
-        },
-        columns: [
-            { data: 'codigo' },
-            { data: 'nombre' },
-            { data: 'categoria' },
-            { data: 'almacen' },
-            { data: 'cantidad' },
-            { data: 'precio_costo' },
-            { data: 'precio_unitario' },
-            { data: 'acciones', orderable: false, searchable: false }
-        ],
-        initComplete: function() {
-
-        }
-
-    });
-
-
     const format = new Intl.NumberFormat('en'); // Formato 0,000
-    var pageURL = $(location).attr("pathname");
-
-    function mysql_row_affected() {
-        alertify
-            .alert(
-                `<div class='row-affected'>
-      <i class='icon-success far fa-check-circle'></i>
-      <p>Registrado exitosamente</p>
-      </div>`
-            )
-            .set("basic", true);
-    }
-
-    function mysql_row_update() {
-        alertify
-            .alert(
-                `<div class='row-affected'>
-      <i class='icon-success far fa-check-circle'></i>
-      <p>Registro actualizado correctamente</p>
-      </div>`
-            )
-            .set("basic", true);
-    }
-
-    function mysql_error(err) {
-        alertify
-            .alert(
-                `<div class='error-info'>
-      <i class='icon-error fas fa-exclamation-circle'></i> 
-      <p>${err}</p>
-      </div>`
-            )
-            .set("basic", true);
-    }
 
     // Función para limpiar los campos
 
@@ -1088,7 +984,7 @@ function disableProduct(product_id) {
                     action: "desactivar_producto",
                 },
                 success: function(res) {
-                    dt_products.ajax.reload();
+                    datatable.ajax.reload();
                 },
             });
         },
@@ -1111,7 +1007,7 @@ function enableProduct(product_id) {
                     action: "activar_producto",
                 },
                 success: function(res) {
-                    dt_products.ajax.reload();
+                    datatable.ajax.reload();
                 },
             });
 
@@ -1137,7 +1033,7 @@ function deleteProduct(id) {
                 success: function(res) {
 
                     if (res == "ready") {
-                        dt_products.ajax.reload();
+                        datatable.ajax.reload();
 
                     } else {
                         alertify.alert("<div class='error-info'><i class='text-danger fas fa-exclamation-circle'></i>" + " " + res + "</div>").set('basic', true);

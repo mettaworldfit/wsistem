@@ -1,4 +1,87 @@
-navigator.serviceWorker && navigator.serviceWorker.register("../sw.js");
+navigator.serviceWorker && navigator.serviceWorker.register("../sw.js"); // Activacion del service worker
+const PRINTER_SERVER = "http://localhost:81/tickets/"; // URL local de la impresora
+const SITE_URL = window.location.protocol + '//' + window.location.host + '/'; // Raiz del sistema
+let pageURL = $(location).attr("pathname");
+let datatable; //Variable declarada globalmente
+const format = new Intl.NumberFormat('en'); // Formato 0,000
+
+// Funcion para mostrar datos con DataTable 
+function initCustomDataTable(selector, ajaxUrl, ajaxAction, columns, loadTime = 300) {
+    return $(selector).DataTable({
+        processing: false,
+        serverSide: true,
+        language: {
+            lengthMenu: "_MENU_",
+            zeroRecords: "Aún no tienes datos para mostrar",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Página no disponible",
+            infoFiltered: "(Filtrado de _MAX_  registros)",
+            search: "Buscar:",
+            processing: "Buscando...",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "<i class='fas fa-caret-right'></i>",
+                previous: "Anterior"
+            }
+        },
+        ajax: function(data, callback, settings) {
+            const $tbody = $(selector + ' tbody');
+            $tbody.html(`
+                <tr>
+                    <td colspan="100%">
+                        <div class="spinner-container">
+                            <div class="spinner"></div>
+                            <div style="margin-top: 10px;">Cargando datos...</div>
+                        </div>
+                    </td>
+                </tr>
+            `);
+
+            setTimeout(() => {
+                $.ajax({
+                    url: SITE_URL + ajaxUrl,
+                    type: 'POST',
+                    data: {
+                        action: ajaxAction,
+                        ...data
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        const json = typeof response === 'string' ? JSON.parse(response) : response;
+                        callback(json);
+                        console.log(json)
+                        console.log(selector)
+                    }
+                });
+            }, loadTime);
+        },
+        columns: columns,
+        initComplete: function() {}
+    });
+}
+
+function mysql_row_affected() {
+    alertify.alert(`<div class='row-affected'>
+    <i class='icon-success far fa-check-circle'></i>
+    <p>Registrado exitosamente</p>
+    </div>`).set('basic', true);
+}
+
+function mysql_row_update() {
+    alertify.alert(`<div class='row-affected'>
+    <i class='icon-success far fa-check-circle'></i>
+    <p>Registro actualizado correctamente</p>
+    </div>`).set('basic', true);
+}
+
+
+function mysql_error(err) {
+    alertify.alert(`<div class='error-info'>
+    <i class='icon-error fas fa-exclamation-circle'></i> 
+    <p>${err}</p>
+    </div>`).set('basic', true);
+}
 
 $(document).ready(function() {
 
@@ -20,10 +103,7 @@ $(document).ready(function() {
     window.addEventListener("online", e);
     window.addEventListener("offline", e);
 
-    /**
-     *  Menú Accordeon
-     * ------------------------------------
-     */
+    // Menú Accordeon
 
     $(function() {
         var Accordion = function(el, multiple) {
@@ -57,12 +137,9 @@ $(document).ready(function() {
         var accordion = new Accordion($("#accordion"), false);
     });
 
-    /**
-* Verificar la página actual
---------------------------------------------*/
+    // Mantener el menu de accordion abierto
 
     $(function() {
-        var pageURL = $(location).attr("pathname");
 
         if (
             pageURL.includes("invoices/index") ||
@@ -78,7 +155,7 @@ $(document).ready(function() {
         ) {
             $(".dropdown-1 ul.submenu").css("display", "block");
             $(".accordion .dropdown-1").addClass("open");
-        } else if (pageURL.includes("expenses")) {
+        } else if (pageURL.includes("bills")) {
             $(".dropdown-2 ul.submenu").css("display", "block");
             $(".accordion .dropdown-2").addClass("open");
         } else if (pageURL.includes("workshop")) {
@@ -171,7 +248,7 @@ $(document).ready(function() {
     }, 1600);
 
 
-    // Buscador
+    // Buscador global
 
     const result = document.getElementById('search_result');
 
@@ -196,9 +273,6 @@ $(document).ready(function() {
             success: function(res) {
 
                 var data = JSON.parse(res)
-
-                console.log(res)
-                console.log(data)
 
                 result.innerHTML = '';
                 data.forEach(item => {
@@ -239,6 +313,7 @@ $(document).ready(function() {
 
     });
 
+    // Inicializar datos de tablas Datatable
 
     var table_default = $("#example").DataTable({
         language: {
@@ -263,6 +338,74 @@ $(document).ready(function() {
 
     table_default.column("0:visible").order("asc").draw();
 
+    // Cargar datos del index de factura ventas
+
+    datatable = initCustomDataTable('#invoice', 'services/invoices.php', 'index_facturas_ventas', [
+        { data: 'factura_venta_id' },
+        { data: 'nombre' },
+        { data: 'fecha_factura' },
+        { data: 'total' },
+        { data: 'recibido' },
+        { data: 'pendiente' },
+        { data: 'bono' },
+        { data: 'nombre_estado' },
+        { data: 'acciones', orderable: false, searchable: false },
+
+    ]);
+
+    datatable = initCustomDataTable('#today', 'services/reports.php', 'index_ventas_hoy', [
+        { data: 'id' },
+        { data: 'nombre' },
+        { data: 'fecha' },
+        { data: 'total' },
+        { data: 'recibido' },
+        { data: 'pendiente' },
+        { data: 'estado' },
+        { data: 'acciones', orderable: false, searchable: false }
+    ]);
+
+    datatable = initCustomDataTable('#customers', 'services/contacts.php', 'index_clientes', [
+        { data: 'id' },
+        { data: 'nombre' },
+        { data: 'direccion' },
+        { data: 'cedula' },
+        { data: 'telefono' },
+        { data: 'fecha' },
+        { data: 'acciones', orderable: false, searchable: false }
+    ]);
+
+    datatable = initCustomDataTable('#providers', 'services/contacts.php', 'index_proveedores', [
+        { data: 'id' },
+        { data: 'nombre' },
+        { data: 'correo' },
+        { data: 'telefono' },
+        { data: 'fecha' },
+        { data: 'acciones', orderable: false, searchable: false }
+    ]);
+
+    datatable = initCustomDataTable('#workshop', 'services/workshop.php', 'index_taller', [
+        { data: 'orden' },
+        { data: 'nombre' },
+        { data: 'equipo' },
+        { data: 'fecha_entrada' },
+        { data: 'fecha_salida' },
+        { data: 'condicion' },
+        { data: 'estado' },
+        { data: 'acciones', orderable: false, searchable: false },
+
+    ]);
+
+    datatable = initCustomDataTable('#products', 'services/products.php', 'index_productos', [
+        { data: 'codigo' },
+        { data: 'nombre' },
+        { data: 'categoria' },
+        { data: 'almacen' },
+        { data: 'cantidad' },
+        { data: 'precio_costo' },
+        { data: 'precio_unitario' },
+        { data: 'acciones', orderable: false, searchable: false }
+    ]);
+
 
     // $.ajax({
     //     type: "post",
@@ -279,6 +422,4 @@ $(document).ready(function() {
     // });
 
 
-
-
-});
+}); // Ready

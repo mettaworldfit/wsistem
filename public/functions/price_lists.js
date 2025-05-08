@@ -1,26 +1,4 @@
-function mysql_row_affected() {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registrado exitosamente</p>
-    </div>`).set('basic', true);
-}
-
-function mysql_row_update() {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registro actualizado correctamente</p>
-    </div>`).set('basic', true);
-}
-
-
-function mysql_error(err) {
-    alertify.alert(`<div class='error-info'>
-    <i class='icon-error fas fa-exclamation-circle'></i> 
-    <p>${err}</p>
-    </div>`).set('basic', true);
-}
-
-$(document).ready(function () {
+$(document).ready(function() {
 
     //  Defaults
 
@@ -94,7 +72,7 @@ $(document).ready(function () {
         // Loop de las listas de precios en localStorage 
         arrayLocalStorage.forEach((element, index) => {
 
-           var list_value = format.format(element.list_value);
+            var list_value = format.format(element.list_value);
 
             document.querySelector('#list').innerHTML += `
           <div class="form-group col-sm-6 list">
@@ -125,13 +103,13 @@ $(document).ready(function () {
 
                 if (e.path) {
 
-                   deleteDB(e.path[2].childNodes[1].attributes[4].nodeValue)
-                  
+                    deleteDB(e.path[2].childNodes[1].attributes[4].nodeValue)
+
 
                 } else if (e.path) {
 
                     deleteDB(e.path[3].childNodes[1].attributes[4].nodeValue);
-                   
+
                 }
 
                 function deleteDB(name) {
@@ -162,20 +140,20 @@ $(document).ready(function () {
         e.preventDefault();
 
         var product_id = $('#product_id').val()
-        add_list_to_db(product_id,"editar_lista_de_precio_de_un_producto")
+        add_list_to_db(product_id, "editar_lista_de_precio_de_un_producto")
     });
 
-     // Editar listas de precios de una pieza
+    // Editar listas de precios de una pieza
 
     $('.add_list_to_piece').on('click', (e) => {
         e.preventDefault();
 
         var piece_id = $('#piece_id').val()
-        add_list_to_db(piece_id,"editar_lista_de_precio_de_una_pieza")
+        add_list_to_db(piece_id, "editar_lista_de_precio_de_una_pieza")
     });
 
 
-    function add_list_to_db(id,action) {
+    function add_list_to_db(id, action) {
 
         let data = {
             list_value: $('#list_value').val(),
@@ -199,10 +177,10 @@ $(document).ready(function () {
                     list_value: data.list_value
 
                 },
-                success: function (res) {
-              
+                success: function(res) {
+
                     if (res > 0) {
-                        
+
                         document.querySelector('#list').innerHTML += `
                         
             <div class="form-group col-sm-6 list">
@@ -231,7 +209,7 @@ $(document).ready(function () {
 
 // Agregar lista de precios
 
- function AddList(){
+function AddList() {
 
     var list_name = $('#list_name').val();
     var list_comment = $('#list_comment').val();
@@ -244,29 +222,29 @@ $(document).ready(function () {
             list_comment: list_comment,
             action: 'agregar_lista'
         },
-        success: function (res) {
-            
+        success: function(res) {
+
             if (res == "ready") {
 
                 $('input[type="text"]').val('');
-               
+
                 mysql_row_affected();
 
             } else if (res == "duplicate") {
 
                 mysql_error('El nombre de esta lista ya está siendo utilizado');
-                
+
             } else if (res.includes("Error")) {
                 mysql_error(res)
             }
-           
+
         }
     });
- }
+}
 
- // Actualizar lista de precios
+// Actualizar lista de precios
 
- function UpdateList(list_id) {
+function UpdateList(list_id) {
 
     $.ajax({
         type: "post",
@@ -277,8 +255,8 @@ $(document).ready(function () {
             list_comment: $('#list_comment').val(),
             action: 'actualizar-lista'
         },
-        success: function (res) {
-            
+        success: function(res) {
+
             if (res == "ready") {
 
                 mysql_row_update()
@@ -286,20 +264,20 @@ $(document).ready(function () {
             } else if (res == "duplicate") {
 
                 mysql_error('El nombre de esta lista ya está siendo utilizado');
-                
+
             } else if (res.includes("Error")) {
                 mysql_error(res)
             }
         }
     });
 
- }
+}
 
- // Eliminar lista de precios
+// Eliminar lista de precios
 
- function deletePriceList(id) {
+function deletePriceList(id) {
     alertify.confirm("Eliminar lista de precio", "¿Estas seguro que deseas borrar esta lista? ",
-        function () {
+        function() {
 
             $.ajax({
                 type: "post",
@@ -308,7 +286,7 @@ $(document).ready(function () {
                     id: id,
                     action: 'eliminar_lista'
                 },
-                success: function (res) {
+                success: function(res) {
 
                     if (res == "ready") {
 
@@ -320,7 +298,7 @@ $(document).ready(function () {
                 }
             });
         },
-        function () {
+        function() {
 
         });
 }
@@ -336,25 +314,25 @@ function deleteList(id, list_id) {
         type = "producto";
     } else if (pageURL.includes("pieces/edit")) {
         type = "pieza";
-       
+
     }
 
     console.log(type)
     $.ajax({
-      type: "post",
-      url: SITE_URL + "services/price_lists.php",
-      data: {
-        action: "desasignar_lista_de_precio",
-        id: id,
-        type: type,
-      },
-      success: function (res) {
-        if (res == "ready") {
-          $("input[identity=" + list_id + "]").hide();
-          $("span[identity=" + list_id + "]").hide();
-        } else {
-          mysql_error(res);
-        }
-      },
+        type: "post",
+        url: SITE_URL + "services/price_lists.php",
+        data: {
+            action: "desasignar_lista_de_precio",
+            id: id,
+            type: type,
+        },
+        success: function(res) {
+            if (res == "ready") {
+                $("input[identity=" + list_id + "]").hide();
+                $("span[identity=" + list_id + "]").hide();
+            } else {
+                mysql_error(res);
+            }
+        },
     });
-  }
+}

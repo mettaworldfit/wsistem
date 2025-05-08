@@ -1,25 +1,3 @@
-function mysql_row_affected () {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registrado exitosamente</p>
-    </div>`).set('basic', true);
-}
-
-function mysql_row_update() {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registro actualizado correctamente</p>
-    </div>`).set('basic', true);
-}
-
-
-function mysql_error(err) {
-    alertify.alert(`<div class='error-info'>
-    <i class='icon-error fas fa-exclamation-circle'></i> 
-    <p>${err}</p>
-    </div>`).set('basic', true);
-}
-
 /**
 * Agregar Oferta
 ------------------------------------------*/
@@ -35,7 +13,7 @@ function AddOffer() {
             value: $('#offer_value').val(),
             action: 'agregar_oferta'
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 
@@ -46,7 +24,7 @@ function AddOffer() {
                 $(".table").load(location.href + " .table");
 
             } else {
-               mysql_error(res)
+                mysql_error(res)
             }
 
         }
@@ -70,7 +48,7 @@ function UpdateOffer(offer_id) {
             value: $('#offer_value').val(),
             action: 'actualizar_oferta'
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 
@@ -78,7 +56,7 @@ function UpdateOffer(offer_id) {
                 mysql_row_update()
 
             } else {
-               mysql_error(res)
+                mysql_error(res)
             }
 
         }
@@ -92,8 +70,8 @@ function UpdateOffer(offer_id) {
 
 function deleteOffer(id) {
 
-    alertify.confirm("Eliminar oferta","¿Estas seguro que deseas borrar esta oferta? ",
-        function () {
+    alertify.confirm("Eliminar oferta", "¿Estas seguro que deseas borrar esta oferta? ",
+        function() {
 
             $.ajax({
                 type: "post",
@@ -102,26 +80,24 @@ function deleteOffer(id) {
                     offer_id: id,
                     action: 'eliminar_oferta'
                 },
-                beforeSend: function () {
-                   
+                beforeSend: function() {
+
                 },
-                success: function (res) {
-                   
+                success: function(res) {
+
                     if (res == "ready") {
-                        
+
                         $(".table").load(location.href + " .table");
 
                     } else {
-                       mysql_error(res)
+                        mysql_error(res)
                     }
-                   
+
 
                 }
             });
         },
-        function () { 
-            
+        function() {
+
         });
 }
-
-

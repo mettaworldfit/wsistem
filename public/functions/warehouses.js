@@ -1,26 +1,3 @@
-function mysql_row_affected () {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registrado exitosamente</p>
-    </div>`).set('basic', true);
-}
-
-function mysql_row_update() {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registro actualizado correctamente</p>
-    </div>`).set('basic', true);
-}
-
-
-function mysql_error(err) {
-    alertify.alert(`<div class='error-info'>
-    <i class='icon-error fas fa-exclamation-circle'></i> 
-    <p>${err}</p>
-    </div>`).set('basic', true);
-}
-
-
 /**
 * Agregar Almacen
 ------------------------------------------*/
@@ -35,10 +12,10 @@ function AddWarehouse() {
             comment: $('#warehouse_comment').val(),
             action: 'agregar_almacen'
         },
-        beforeSend: function () {
-           
+        beforeSend: function() {
+
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 
@@ -48,7 +25,7 @@ function AddWarehouse() {
                 $(".table").load(location.href + " .table");
 
             } else {
-               mysql_error(res)
+                mysql_error(res)
             }
 
         }
@@ -72,10 +49,10 @@ function UpdateWarehouse(warehouse_id) {
             comment: $('#warehouse_comment').val(),
             action: 'actualizar_almacen'
         },
-        beforeSend: function () {
-         
+        beforeSend: function() {
+
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 
@@ -83,7 +60,7 @@ function UpdateWarehouse(warehouse_id) {
                 mysql_row_update()
 
             } else {
-               mysql_error(res)
+                mysql_error(res)
             }
 
         }
@@ -95,10 +72,10 @@ function UpdateWarehouse(warehouse_id) {
  * Eliminar Almacen
  ----------------------------------*/
 
- function deleteWarehouse(id) {
+function deleteWarehouse(id) {
 
-    alertify.confirm("Eliminar almacen","¿Estas seguro que deseas borrar este almacen? ",
-        function () {
+    alertify.confirm("Eliminar almacen", "¿Estas seguro que deseas borrar este almacen? ",
+        function() {
 
             $.ajax({
                 type: "post",
@@ -107,24 +84,24 @@ function UpdateWarehouse(warehouse_id) {
                     warehouse_id: id,
                     action: 'eliminar_almacen'
                 },
-                beforeSend: function () {
-                   
+                beforeSend: function() {
+
                 },
-                success: function (res) {
-                   
+                success: function(res) {
+
                     if (res == "ready") {
-                        
+
                         $(".table").load(location.href + " .table");
 
                     } else {
-                       mysql_error(res)
+                        mysql_error(res)
                     }
-                   
+
 
                 }
             });
         },
-        function () { 
-            
+        function() {
+
         });
 }

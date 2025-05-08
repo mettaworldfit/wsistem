@@ -4,26 +4,27 @@ require_once '../config/db.php';
 require_once '../config/parameters.php';
 session_start();
 
-function formatTel($numero) {
+function formatTel($numero)
+{
   // Eliminar todo lo que no sea dígito
-   // Asegura que $numero no sea null, sino una cadena vacía si lo es
-   $numero = preg_replace('/\D/', '', $numero ?? '');
+  // Asegura que $numero no sea null, sino una cadena vacía si lo es
+  $numero = preg_replace('/\D/', '', $numero ?? '');
 
   // Si tiene más de 10 dígitos, separar el código de país
   if (strlen($numero) > 10) {
-      $codigoPais = substr($numero, 0, strlen($numero) - 10);
-      $numeroLocal = substr($numero, -10);
-      return '+' . $codigoPais . ' (' .
-          substr($numeroLocal, 0, 3) . ') ' .
-          substr($numeroLocal, 3, 3) . '-' .
-          substr($numeroLocal, 6);
+    $codigoPais = substr($numero, 0, strlen($numero) - 10);
+    $numeroLocal = substr($numero, -10);
+    return '+' . $codigoPais . ' (' .
+      substr($numeroLocal, 0, 3) . ') ' .
+      substr($numeroLocal, 3, 3) . '-' .
+      substr($numeroLocal, 6);
   } elseif (strlen($numero) === 10) {
-      // Sin código de país
-      return '(' . substr($numero, 0, 3) . ') ' .
-             substr($numero, 3, 3) . '-' .
-             substr($numero, 6);
+    // Sin código de país
+    return '(' . substr($numero, 0, 3) . ') ' .
+      substr($numero, 3, 3) . '-' .
+      substr($numero, 6);
   } else {
-      return $numero; // No formatear si tiene menos de 10 dígitos
+    return $numero; // No formatear si tiene menos de 10 dígitos
   }
 };
 
@@ -103,9 +104,102 @@ if ($_POST['action'] == "index_clientes") {
                    <span class="action-delete" onclick="deleteCustomer(\'' . $row['cliente_id'] . '\')"  title="Eliminar"><i class="fas fa-times"></i></span>'
     ];
   }
-    
+
 
   // Devolver los datos en formato JSON como lo espera DataTables
+  echo json_encode([
+    "draw" => $draw,
+    "recordsTotal" => $totalRecords,
+    "recordsFiltered" => $filteredRecords,
+    "data" => $data
+  ]);
+  exit;
+}
+
+// Mostrar index de todos lo proveedores
+
+if ($_POST['action'] == "index_proveedores") {
+
+  // Conexión a la base de datos
+  $db = Database::connect();
+
+  // Parámetros de DataTables
+  $draw = intval($_POST['draw'] ?? 0);
+  $start = intval($_POST['start'] ?? 0);
+  $length = intval($_POST['length'] ?? 10);
+  $searchValue = $_POST['search']['value'] ?? '';
+
+  // Columnas disponibles para ordenamiento
+  $columns = [
+    'nombre_proveedor',
+    'apellidos',
+    'direccion',
+    'email',
+    'telefono1',
+    'fecha'
+  ];
+
+  // Ordenamiento
+  $orderColumnIndex = $_POST['order'][0]['column'] ?? 0;
+  $orderColumn = $columns[$orderColumnIndex] ?? 'nombre_proveedor';
+  $orderDir = ($_POST['order'][0]['dir'] ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
+
+  // Filtro de búsqueda
+  $searchQuery = '';
+  if (!empty($searchValue)) {
+    $searchEscaped = $db->real_escape_string($searchValue);
+    $searchQuery = " AND (
+        nombre_proveedor LIKE '%$searchEscaped%' OR
+        apellidos LIKE '%$searchEscaped%' OR
+        direccion LIKE '%$searchEscaped%' OR
+        email LIKE '%$searchEscaped%' OR
+        telefono1 LIKE '%$searchEscaped%'
+    )";
+  }
+
+  // Total de registros sin filtrar
+  $totalResult = $db->query("SELECT COUNT(*) AS total FROM proveedores");
+  $totalRecords = $totalResult->fetch_assoc()['total'] ?? 0;
+
+  // Total de registros filtrados
+  $filteredResult = $db->query("
+    SELECT COUNT(*) AS total
+    FROM proveedores
+    WHERE 1 $searchQuery
+");
+  $filteredRecords = $filteredResult->fetch_assoc()['total'] ?? 0;
+
+  // Consulta de datos paginados
+  $query = "
+    SELECT nombre_proveedor, apellidos, direccion, email, telefono1, fecha, proveedor_id
+    FROM proveedores
+    WHERE 1 $searchQuery
+    ORDER BY $orderColumn $orderDir
+    LIMIT $start, $length
+";
+
+  $result = $db->query($query);
+
+  $data = [];
+  while ($row = $result->fetch_assoc()) {
+    
+    $data[] = [
+      'id' => $row['proveedor_id'],
+      'nombre'    => ucwords($row['nombre_proveedor'] . ' ' . $row['apellidos']),
+      'correo'     => $row['email'],
+      'telefono'  => formatTel($row['telefono1']),
+      'fecha'     => $row['fecha'],
+      
+      'acciones' => '<a class="action-edit" href="' . base_url . 'contacts/edit_provider&id=' . $row['proveedor_id'] . '" title="Editar">
+          <i class="fas fa-pencil-alt"></i>
+          </a>
+
+       <span class="action-delete" onclick="deleteProveedor(\'' . $row['proveedor_id'] . '\')"  title="Eliminar"><i class="fas fa-times"></i></span>'
+    
+    ];
+  }
+
+  // Respuesta en formato JSON
   echo json_encode([
     "draw" => $draw,
     "recordsTotal" => $totalRecords,

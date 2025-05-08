@@ -1,25 +1,3 @@
-function mysql_row_affected() {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registrado exitosamente</p>
-    </div>`).set('basic', true);
-}
-
-function mysql_row_update() {
-    alertify.alert(`<div class='row-affected'>
-    <i class='icon-success far fa-check-circle'></i>
-    <p>Registro actualizado correctamente</p>
-    </div>`).set('basic', true);
-}
-
-
-function mysql_error(err) {
-    alertify.alert(`<div class='error-info'>
-    <i class='icon-error fas fa-exclamation-circle'></i> 
-    <p>${err}</p>
-    </div>`).set('basic', true);
-}
-
 // Función para limpiar los campos
 
 function reset_input() {
@@ -68,8 +46,8 @@ $(document).ready(function() {
                 // Cargar lista de precios de la pieza
 
                 if (data.valor_lista > 0) {
-                    piece_price(data.IDpieza) 
-                }            
+                    piece_price(data.IDpieza)
+                }
 
                 $("#add_item_free").show()
 
@@ -251,144 +229,144 @@ $(document).ready(function() {
 
 
 
-function AddPiece() {
+    function AddPiece() {
 
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/pieces.php",
-        data: {
-            name: $("#piece_name").val(),
-            piece_code: $("#piece_code").val(),
-            price_out: $("#inputPrice_out").val(),
-            price_in: $("#inputPrice_in").val(),
-            quantity: $("#piece_quantity").val(),
-            min_quantity: $("#min_quantity").val(),
-            // Keys
-            provider: $('#provider').val(),
-            brand: $("#brand").val(),
-            offer: $("#offer").val(),
-            category: $("#category").val(),
-            position: $("#position").val(),
-            warehouse: $("#warehouse").val(),
-            action: "agregar_pieza",
-        },
-        success: function(res) {
+        $.ajax({
+            type: "post",
+            url: SITE_URL + "services/pieces.php",
+            data: {
+                name: $("#piece_name").val(),
+                piece_code: $("#piece_code").val(),
+                price_out: $("#inputPrice_out").val(),
+                price_in: $("#inputPrice_in").val(),
+                quantity: $("#piece_quantity").val(),
+                min_quantity: $("#min_quantity").val(),
+                // Keys
+                provider: $('#provider').val(),
+                brand: $("#brand").val(),
+                offer: $("#offer").val(),
+                category: $("#category").val(),
+                position: $("#position").val(),
+                warehouse: $("#warehouse").val(),
+                action: "agregar_pieza",
+            },
+            success: function(res) {
 
-            if (res > 0) {
+                if (res > 0) {
 
-                if (localStorage.getItem("lista_de_precios")) {
-                    Assign_piece_price(res);
-                } else {
-
-                    reset_input()
-
-                    mysql_row_affected();
-                }
-
-            } else if (res == "duplicate") {
-
-                mysql_error('El código de la pieza ya está siendo utilizado');
-
-            } else if (res.includes("Error")) {
-                mysql_error(res)
-            }
-
-        }
-    });
-
-}
-
-
-// Asignar precios a una pieza
-
-function Assign_piece_price(piece_id) {
-
-    if (localStorage.getItem("lista_de_precios")) {
-
-        arrayL = JSON.parse(localStorage.getItem("lista_de_precios"));
-
-        arrayL.forEach((element, index) => {
-
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "ajax/price_lists.php",
-                data: {
-                    action: "asignar_lista_de_precios",
-                    type: "pieza",
-                    list_id: element.list_id,
-                    list_value: element.list_value,
-                    id: piece_id
-
-                },
-                success: function(res) {
-
-                    if (res == "ready") {
+                    if (localStorage.getItem("lista_de_precios")) {
+                        Assign_piece_price(res);
+                    } else {
 
                         reset_input()
 
-                        mysql_row_affected()
-
-                    } else {
-                        mysql_error(res)
+                        mysql_row_affected();
                     }
+
+                } else if (res == "duplicate") {
+
+                    mysql_error('El código de la pieza ya está siendo utilizado');
+
+                } else if (res.includes("Error")) {
+                    mysql_error(res)
                 }
-            });
 
-        }); // Loop
+            }
+        });
+
     }
-}
+
+
+    // Asignar precios a una pieza
+
+    function Assign_piece_price(piece_id) {
+
+        if (localStorage.getItem("lista_de_precios")) {
+
+            arrayL = JSON.parse(localStorage.getItem("lista_de_precios"));
+
+            arrayL.forEach((element, index) => {
+
+                $.ajax({
+                    type: "post",
+                    url: SITE_URL + "ajax/price_lists.php",
+                    data: {
+                        action: "asignar_lista_de_precios",
+                        type: "pieza",
+                        list_id: element.list_id,
+                        list_value: element.list_value,
+                        id: piece_id
+
+                    },
+                    success: function(res) {
+
+                        if (res == "ready") {
+
+                            reset_input()
+
+                            mysql_row_affected()
+
+                        } else {
+                            mysql_error(res)
+                        }
+                    }
+                });
+
+            }); // Loop
+        }
+    }
 
 
 
 
-// Editar pieza
+    // Editar pieza
 
-$("#editPiece").on("click",(e)=>{
-    e.preventDefault()
+    $("#editPiece").on("click", (e) => {
+        e.preventDefault()
 
-   editPiece();
-    
-  })
+        editPiece();
 
-  function editPiece() {
+    })
+
+    function editPiece() {
 
 
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/pieces.php",
-        data: {
-          action: "editar_pieza",
-          name: $("#piece_name").val(),
-          piece_id: $("#piece_id").val(),
-          piece_code: $("#input_piece_code").val(),
-          price_out: $("#inputPrice_out").val(),
-          price_in: $("#inputPrice_in").val(),
-          quantity: $("#input_quantity").val(),
-          min_quantity: $("#input_min_quantity").val(),
-          // Keys
-          provider: $("#provider").val(),
-          brand: $("#brand").val(),
-          offer: $("#offer").val(),
-          category: $("#category").val(),
-          position: $("#position").val(),
-          warehouse: $("#warehouse").val()
-          
-        },
-        success: function (res) {
-      
+        $.ajax({
+            type: "post",
+            url: SITE_URL + "services/pieces.php",
+            data: {
+                action: "editar_pieza",
+                name: $("#piece_name").val(),
+                piece_id: $("#piece_id").val(),
+                piece_code: $("#input_piece_code").val(),
+                price_out: $("#inputPrice_out").val(),
+                price_in: $("#inputPrice_in").val(),
+                quantity: $("#input_quantity").val(),
+                min_quantity: $("#input_min_quantity").val(),
+                // Keys
+                provider: $("#provider").val(),
+                brand: $("#brand").val(),
+                offer: $("#offer").val(),
+                category: $("#category").val(),
+                position: $("#position").val(),
+                warehouse: $("#warehouse").val()
 
-          if (res > 0) {
-            mysql_row_update();
-          } else if (res == "duplicate") {
-            mysql_error("El código del producto ya está siendo utilizado");
-          } else if (res.includes("Error")) {
-            mysql_error(res);
-          }
-        },
-  
-      });
+            },
+            success: function(res) {
 
-  }
+
+                if (res > 0) {
+                    mysql_row_update();
+                } else if (res == "duplicate") {
+                    mysql_error("El código del producto ya está siendo utilizado");
+                } else if (res.includes("Error")) {
+                    mysql_error(res);
+                }
+            },
+
+        });
+
+    }
 
 
 
@@ -403,47 +381,47 @@ $("#editPiece").on("click",(e)=>{
 
 function disablePiece(piece_id) {
     alertify.confirm(
-      "<i class='text-warning fas fa-exclamation-circle'></i> Desactivar pieza",
-      "¿Desea desactivar esta pieza? ",
-      function () {
-        $.ajax({
-          type: "post",
-          url: SITE_URL + "services/pieces.php",
-          data: {
-            piece_id: piece_id,
-            action: "desactivar_pieza",
-          },
-          success: function (res) {
-            $("#example").load(" #example");
-          },
-        });
-      },
-      function () {}
+        "<i class='text-warning fas fa-exclamation-circle'></i> Desactivar pieza",
+        "¿Desea desactivar esta pieza? ",
+        function() {
+            $.ajax({
+                type: "post",
+                url: SITE_URL + "services/pieces.php",
+                data: {
+                    piece_id: piece_id,
+                    action: "desactivar_pieza",
+                },
+                success: function(res) {
+                    $("#example").load(" #example");
+                },
+            });
+        },
+        function() {}
     );
-  }
-  
-  // Activar pieza
-  
-  function enablePiece(piece_id) {
+}
+
+// Activar pieza
+
+function enablePiece(piece_id) {
     alertify.confirm(
-      "Activar pieza",
-      "¿Desea activar esta pieza? ",
-      function () {
-        $.ajax({
-          type: "post",
-          url: SITE_URL + "services/pieces.php",
-          data: {
-            piece_id: piece_id,
-            action: "activar_pieza",
-          },
-          success: function (res) {
-            $("#example").load(" #example");
-          },
-        });
-      },
-      function () {}
+        "Activar pieza",
+        "¿Desea activar esta pieza? ",
+        function() {
+            $.ajax({
+                type: "post",
+                url: SITE_URL + "services/pieces.php",
+                data: {
+                    piece_id: piece_id,
+                    action: "activar_pieza",
+                },
+                success: function(res) {
+                    $("#example").load(" #example");
+                },
+            });
+        },
+        function() {}
     );
-  }
+}
 
 
 
@@ -451,31 +429,31 @@ function disablePiece(piece_id) {
 
 function deletePiece(id) {
 
-    alertify.confirm("Eliminar pieza","¿Estas seguro que deseas borrar esta pieza? ",
-      function () {
-  
-        $.ajax({
-          url: SITE_URL + "services/pieces.php",
-          method: "post",
-          data: {
-            action: "eliminarPieza",
-            pieza_id: id,
-          },
-          success: function (res) {
-  
-            if (res == "ready") {
-  
-              $("#example").load(" #example");
-  
-            } else {
-              alertify.alert("<div class='error-info'><i class='text-danger fas fa-exclamation-circle'></i>" + " " + res + "</div>").set('basic', true);
-            }
-           
-          }
-  
-        });
-  
-      },
-      function () {}
+    alertify.confirm("Eliminar pieza", "¿Estas seguro que deseas borrar esta pieza? ",
+        function() {
+
+            $.ajax({
+                url: SITE_URL + "services/pieces.php",
+                method: "post",
+                data: {
+                    action: "eliminarPieza",
+                    pieza_id: id,
+                },
+                success: function(res) {
+
+                    if (res == "ready") {
+
+                        $("#example").load(" #example");
+
+                    } else {
+                        alertify.alert("<div class='error-info'><i class='text-danger fas fa-exclamation-circle'></i>" + " " + res + "</div>").set('basic', true);
+                    }
+
+                }
+
+            });
+
+        },
+        function() {}
     );
-  }
+}
