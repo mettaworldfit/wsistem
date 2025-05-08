@@ -266,9 +266,9 @@ $(document).ready(function() {
 
     // $.ajax({
     //     type: "post",
-    //     url: SITE_URL + "services/reports.php",
+    //     url: SITE_URL + "services/contacts.php",
     //     data: {
-    //         action: "index",
+    //         action: "index_clientes",
 
     //     },
     //     success: function(res) {

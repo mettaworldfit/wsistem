@@ -11,11 +11,13 @@ if ($_POST['action'] == "index_ventas_hoy") {
 
     $db = Database::connect();
 
+    // Parámetros de DataTables
     $draw = intval($_POST['draw'] ?? 0);
     $start = intval($_POST['start'] ?? 0);
     $length = intval($_POST['length'] ?? 10);
     $searchValue = $_POST['search']['value'] ?? '';
 
+    // Columnas disponibles para ordenamiento
     $columns = [
         'orden',
         'id',
@@ -29,10 +31,12 @@ if ($_POST['action'] == "index_ventas_hoy") {
         'tipo'
     ];
 
+    // Ordenamiento 
     $orderColumnIndex = $_POST['order'][0]['column'] ?? 0;
     $orderColumn = $columns[$orderColumnIndex] ?? 'id';
     $orderDir = ($_POST['order'][0]['dir'] ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
 
+    // Filtro de búsqueda
     $searchQuery = '';
     if (!empty($searchValue)) {
         $searchEscaped = $db->real_escape_string($searchValue);
@@ -44,6 +48,7 @@ if ($_POST['action'] == "index_ventas_hoy") {
         estado LIKE '%$searchEscaped%'
       )";
     }
+
 
     $totalQuery = "SELECT COUNT(*) AS total FROM (
       SELECT f.fecha FROM facturas_ventas f 
@@ -57,6 +62,8 @@ if ($_POST['action'] == "index_ventas_hoy") {
 
     $totalResult = $db->query($totalQuery);
     $totalRecords = $totalResult->fetch_assoc()['total'] ?? 0;
+
+    // Datos paginados y filtrados
 
     $query = "SELECT id, tipo, orden, nombre, apellidos, total, recibido, pendiente, estado, fecha_factura FROM (
       SELECT c.nombre, c.apellidos, f.factura_venta_id AS id, 'n/d' AS orden, f.fecha AS fecha_factura,
@@ -99,8 +106,9 @@ if ($_POST['action'] == "index_ventas_hoy") {
     LIMIT $start, $length";
 
     $result = $db->query($query);
-    $data = [];
 
+    // Crear arreglo de datos con formato HTML para cada celda
+    $data = [];
     while ($row = $result->fetch_assoc()) {
         $acciones = '';
 
@@ -144,6 +152,7 @@ if ($_POST['action'] == "index_ventas_hoy") {
         ];
     }
 
+    // Respuesta JSON
     echo json_encode([
         "draw" => $draw,
         "recordsTotal" => $totalRecords,

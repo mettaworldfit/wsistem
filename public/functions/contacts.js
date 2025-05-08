@@ -20,10 +20,77 @@ function mysql_error(err) {
     </div>`).set('basic', true);
 }
 
-$(document).ready(function () {
+let dt_customers; // Declarada globalmente
+
+$(document).ready(function() {
+
+    dt_customers = $('#customers').DataTable({
+        processing: false, // Oculta el spinner interno de DataTables
+        serverSide: true,
+        language: {
+            lengthMenu: "_MENU_",
+            zeroRecords: "Aún no tienes datos para mostrar",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Página no disponible",
+            infoFiltered: "(Filtrado de _MAX_  registros)",
+            search: "Buscar:", // Cambia el texto
+            processing: "Buscando...",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "<i class='fas fa-caret-right'></i>",
+                previous: "Anterior"
+            }
+        },
+        ajax: function(data, callback, settings) {
+            // Mostrar loader
+            const $tbody = $('#customer tbody');
+            $tbody.html(`
+            <tr>
+                <td colspan="100%">
+                    <div class="spinner-container">
+                        <div class="spinner"></div>
+                        <div style="margin-top: 10px;">Cargando datos...</div>
+                    </div>
+                </td>
+            </tr>
+        `);
+
+            // Simular retardo de 900ms antes de hacer la llamada AJAX real
+            setTimeout(() => {
+                $.ajax({
+                    url: SITE_URL + 'services/contacts.php',
+                    type: 'POST',
+                    data: {
+                        action: 'index_clientes',
+                        ...data // Importante: esto pasa los datos de paginación, búsqueda, etc.
+
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        const json = typeof response === 'string' ? JSON.parse(response) : response;
+                        callback(json);
+                    }
+                });
+            }, 300);
+        },
+        columns: [
+            { data: 'id' },
+            { data: 'nombre' },
+            { data: 'direccion' },
+            { data: 'cedula' },
+            { data: 'telefono' },
+            { data: 'fecha' },
+            { data: 'acciones', orderable: false, searchable: false }
+        ],
+        initComplete: function() {
+
+        }
+
+    });
 
 
-    $('input:radio[name=contact]').change(function () {
+    $('input:radio[name=contact]').change(function() {
         if ($(this).val() == "cliente") {
             $('#cod_client').slideToggle('fast');
 
@@ -57,7 +124,7 @@ function AddContact() {
             action: 'crear_contacto'
 
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 
@@ -98,7 +165,7 @@ function AddContactModal() {
             action: 'crear_contacto'
 
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 
@@ -106,7 +173,7 @@ function AddContactModal() {
                 $('input[type="number"]').val('');
 
                 mysql_row_affected();
-                setTimeout('document.location.reload()',1100);
+                setTimeout('document.location.reload()', 1100);
 
             } else if (res == "duplicate") {
 
@@ -142,7 +209,7 @@ function UpdateCustomer(customer_id) {
             action: 'actualizar_cliente'
 
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 
@@ -166,7 +233,7 @@ function UpdateCustomer(customer_id) {
 function deleteCustomer(id) {
 
     alertify.confirm("Eliminar cliente", "¿Estas seguro que deseas eliminar este cliente? ",
-        function () {
+        function() {
 
             $.ajax({
                 url: SITE_URL + "services/contacts.php",
@@ -175,11 +242,11 @@ function deleteCustomer(id) {
                     customer_id: id,
                     action: 'eliminar_cliente'
                 },
-                success: function (res) {
+                success: function(res) {
 
                     if (res == "ready") {
 
-                        $(".table").load(location.href + " .table");
+                        dt_customers.ajax.reload();
 
                     } else if (res.includes("Error")) {
 
@@ -190,7 +257,7 @@ function deleteCustomer(id) {
             });
 
         },
-        function () {
+        function() {
 
         });
 }
@@ -214,7 +281,7 @@ function UpdateProvider(proveedor_id) {
             action: 'actualizar_proveedor'
 
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 
@@ -233,7 +300,7 @@ function UpdateProvider(proveedor_id) {
 function deleteProveedor(id) {
 
     alertify.confirm("Eliminar proveedor", "¿Estas seguro que deseas eliminar este proveedor? ",
-        function () {
+        function() {
 
             $.ajax({
                 url: SITE_URL + "services/contacts.php",
@@ -242,7 +309,7 @@ function deleteProveedor(id) {
                     proveedor_id: id,
                     action: 'eliminar_proveedor'
                 },
-                success: function (res) {
+                success: function(res) {
 
                     if (res == "ready") {
 
@@ -257,7 +324,7 @@ function deleteProveedor(id) {
             });
 
         },
-        function () {
+        function() {
 
         });
 }
@@ -274,7 +341,7 @@ function deleteBond(id) {
             bond_id: id,
             action: 'eliminar_bono'
         },
-        success: function (res) {
+        success: function(res) {
 
             if (res == "ready") {
 

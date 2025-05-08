@@ -36,8 +36,20 @@
     </table>
 </div>
 
+<?php
+$total_vendido = "0";
+$total_pendiente = "0";
+$total_recibido = "0";
 
-<!-- 
+while ($element = $invoices->fetch_object()):
+
+    $total_recibido += $element->recibido;
+    $total_vendido += $element->total;
+    $total_pendiente += $element->pendiente;
+?>
+
+<?php endwhile; ?>
+
 <div class="buttons clearfix">
     <div class="floatButtons">
         <div class="inventoryTable">
@@ -59,4 +71,4 @@
         </div>
 
     </div>
-</div> -->
+</div>

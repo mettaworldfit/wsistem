@@ -13,7 +13,7 @@ class Contacts extends ModeloBase {
 
     public function showCustomers(){
 
-        $query = "SELECT nombre,apellidos,cedula,telefono1,fecha,cliente_id from clientes ORDER BY nombre";
+        $query = "SELECT nombre,apellidos,cedula,telefono1,fecha,cliente_id,direccion from clientes ORDER BY nombre";
 
         $datos = $this->db->query($query);
         return $datos;
