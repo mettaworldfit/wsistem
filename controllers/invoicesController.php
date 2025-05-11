@@ -1,6 +1,5 @@
 <?php
 
-require_once './models/invoices.php';
 require_once './models/workshop.php';
 require_once './help.php';
 
@@ -11,11 +10,7 @@ class InvoicesController
     public function addpurchase()
     {
 
-        $model = new Invoices();
-
-        $detalles = $model->show_detalle_temp(); // Datos detalle temporar
-        // $result = $detalles->fetch_object();
-
+        $details = Help::loadDetailTemp();
         require_once './views/invoices/addpurchase.php';
     }
 
@@ -70,10 +65,6 @@ class InvoicesController
 
     public function index_repair()
     {
-
-        $method = new Invoices();
-        $invoices = $method->showInvoicesRP();
-
         require_once './views/invoices/index_repair.php';
     }
 
@@ -113,21 +104,15 @@ class InvoicesController
     public function quotes()
     {
 
-        $model = new Invoices();
-        $quotes = $model->showQuotes();
-        
         require_once './views/invoices/quotes.php';
     }
 
     public function edit_quote()
     {
 
-        $model = new Invoices();
         $quotes = Help::showQuotesDetail($_GET['id']);
-
         $descripcion = Help::INVOICE_DESCRIPT_QUOTE($_GET['id']);
-        
+
         require_once './views/invoices/edit_quote.php';
     }
-
 }

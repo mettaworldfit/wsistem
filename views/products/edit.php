@@ -266,9 +266,9 @@ while ($element = $product->fetch_object()): ?>
                         </div>
 
 
-                        <div class="add_variant_to_product">
+                        <div class="add_variant">
                             <i class="fas fa-plus-circle"></i>
-                            <a href="#">Agregar variante</a>
+                            <a href="#" onClick="addVariantDb();">Agregar variante</a>
                         </div>
 
 
@@ -295,16 +295,16 @@ while ($element = $product->fetch_object()): ?>
                                 <?php $variants = Help::showVariant_with_productID($element->IDproducto);
                                 while ($variant = $variants->fetch_object()): ?>
                                     <tr>
-                                        <td><?= ucwords($variant->nombre_proveedor) ?></td>
+                                        <td><?= ucwords($variant->nombre_proveedor ?? '') ?></td>
                                         <td><?= $variant->imei ?></td>
                                         <td><?= $variant->serial ?></td>
-                                        <td><?= ucwords($variant->color) ?></td>
+                                        <td><?= ucwords($variant->color ?? '') ?></td>
                                         <td><?= number_format($variant->costo_unitario) ?></td>
                                         <td><?= $variant->caja ?></td>
                                         <td><?= $variant->entrada ?></td>
                                         <?php if ($_SESSION['identity']->nombre_rol == 'administrador') { ?>
                                             <td> <span class="action-delete"
-                                                    onclick="deleteVariant('<?= $variant->var_id ?>','<?= $variant->costo_unitario ?>')"><i
+                                                    onclick="deleteVariantDb('<?= $variant->var_id ?>','<?= $variant->costo_unitario ?>')"><i
                                                         class="far fa-minus-square"></i></span></td>
                                         <?php } else { ?>
                                             <td></td>
@@ -499,7 +499,7 @@ while ($element = $product->fetch_object()): ?>
                             <div class="row-price">
                                 <span>DOP</span>
                                 <input type="text" class="invisible-input col-sm-12 text-left"
-                                    value="<?= number_format($element->precio_unitario, 2); ?>" id="precioTotal" disabled>
+                                    value="<?= number_format($element->precio_unitario, 2); ?>" id="totalPrice" disabled>
                             </div>
                             <input type="hidden" name="" value="" id="FinalPrice_out">
                         </div>
@@ -508,7 +508,7 @@ while ($element = $product->fetch_object()): ?>
                     <br>
                     <div class="col-sm-12 d-flex justify-content-end">
                         <a class="btn btn-sm btn-danger" href="<?= base_url ?>product/index">Cancelar</a>
-                        <input class="btn btn-sm btn-primary ml-2" type="button" value="Guardar" id="editProduct" />
+                        <input class="btn btn-sm btn-primary ml-2" type="button" onClick="editProduct();" value="Guardar" />
                     </div>
 
                 </div>

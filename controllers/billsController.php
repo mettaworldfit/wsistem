@@ -1,7 +1,5 @@
 <?php
 
-require_once './models/bills.php';
-require_once './models/payments.php';
 
 class BillsController
 {
@@ -20,8 +18,7 @@ class BillsController
 
     public function orders()
     {
-        $method = new Bills();
-        $orders = $method->showOrders();
+       
         require_once './views/bills/orders.php';
     }
 
@@ -32,8 +29,6 @@ class BillsController
 
     public function invoices()
     {
-        $method = new Bills();
-        $invoices = $method->showInvoices();
         require_once './views/bills/invoices.php';
     }
 
@@ -59,8 +54,6 @@ class BillsController
 
     public function bills()
     {
-        $method = new Bills();
-        $spendings = $method->showBills();
         require_once './views/bills/bills.php';
     }
 
@@ -71,8 +64,6 @@ class BillsController
 
     public function payments()
     {
-        $model = new Payments();
-        $payments = $model->showPayments_providers();
         require_once './views/bills/payments.php';
     }
 }

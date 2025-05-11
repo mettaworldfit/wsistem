@@ -165,7 +165,8 @@ function elegirEstado(el) { // recibimos por parametro el elemento select
         success: function(res) {
 
             if (res == "ready") {
-                dt_workshop.ajax.reload();
+
+                dataTablesInstances['workshop'].ajax.reload(); // Actualizar datatable
 
             } else {
                 mysql_error(res)
@@ -193,7 +194,7 @@ function deleteOrden(id) {
 
                     if (res == "ready") {
 
-                        dt_workshop.ajax.reload();
+                        dataTablesInstances['workshop'].ajax.reload(); // Actualizar datatable
 
                     } else {
                         mysql_error(res)

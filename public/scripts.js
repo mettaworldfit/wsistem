@@ -1,9 +1,14 @@
 navigator.serviceWorker && navigator.serviceWorker.register("../sw.js"); // Activacion del service worker
 const PRINTER_SERVER = "http://localhost:81/tickets/"; // URL local de la impresora
-const SITE_URL = window.location.protocol + '//' + window.location.host + '/'; // Raiz del sistema
+const pathParts = window.location.pathname.split('/');
+const baseDir = pathParts[1]; 
+const SITE_URL = `${window.location.protocol}//${window.location.host}/${baseDir}/`;
+
 let pageURL = $(location).attr("pathname");
-let datatable; //Variable declarada globalmente
 const format = new Intl.NumberFormat('en'); // Formato 0,000
+
+// Variable global para acceder a las instancias DataTable desde cualquier parte
+const dataTablesInstances = {};
 
 // Funcion para mostrar datos con DataTable 
 function initCustomDataTable(selector, ajaxUrl, ajaxAction, columns, loadTime = 300) {
@@ -50,14 +55,50 @@ function initCustomDataTable(selector, ajaxUrl, ajaxAction, columns, loadTime = 
                     success: function(response) {
                         const json = typeof response === 'string' ? JSON.parse(response) : response;
                         callback(json);
-                        console.log(json)
-                        console.log(selector)
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error en AJAX:", status, error);
+                        console.error("Respuesta del servidor:", xhr.responseText);
+
+                        $tbody.html(`
+                            <tr>
+                                <td colspan="100%">
+                                    <div class="error-message" style="color: red; padding: 20px; text-align: center;">
+                                        Error al cargar los datos. Por favor, intenta nuevamente.
+                                    </div>
+                                </td>
+                            </tr>
+                        `);
+                        callback({
+                            data: [],
+                            recordsTotal: 0,
+                            recordsFiltered: 0
+                        });
                     }
                 });
             }, loadTime);
         },
         columns: columns,
         initComplete: function() {}
+    });
+}
+
+// Función genérica para enviar peticiones AJAX POST reutilizable
+function sendAjaxRequest({ url, data, successCallback, errorCallback }) {
+    $.ajax({
+        type: "post",
+        url: SITE_URL + url,
+        data,
+        success: function(res) {
+            if (res || res === "ready" || res > 0) {
+                // Ejecuta la función successCallback si fue pasada y está definida
+                successCallback ?.(res); // Devuelve la response
+            } else if (res === "duplicate") {
+                mysql_error('Existen datos que ya están siendo utilizado');
+            } else if (res.includes("Error")) {
+                errorCallback ? errorCallback(res) : mysql_error(res);
+            }
+        }
     });
 }
 
@@ -86,22 +127,22 @@ function mysql_error(err) {
 $(document).ready(function() {
 
     // Alerta de cuando se pierde la conexión a internet
-    function e() {
-        navigator.onLine ?
-            mdtoast("Conexión establecida", {
-                interaction: !0,
-                interactionTimeout: 1500,
-                position: "bottom right",
-                actionText: "OK!",
-            }) :
-            mdtoast("Conexión pérdida", {
-                interaction: !0,
-                position: "bottom right",
-                actionText: "OK!",
-            });
+    function handleConnectionChange() {
+        const isOnline = navigator.onLine;
+        const message = isOnline ? "Conexión establecida" : "Conexión perdida";
+    
+        mdtoast(message, {
+            interaction: true,
+            interactionTimeout: 1500,
+            position: "bottom right",
+            actionText: "OK!"
+        });
     }
-    window.addEventListener("online", e);
-    window.addEventListener("offline", e);
+    
+    // Escuchar cambios en el estado de conexión
+    window.addEventListener("online", handleConnectionChange);
+    window.addEventListener("offline", handleConnectionChange);
+    
 
     // Menú Accordeon
 
@@ -139,52 +180,24 @@ $(document).ready(function() {
 
     // Mantener el menu de accordion abierto
 
-    $(function() {
-
-        if (
-            pageURL.includes("invoices/index") ||
-            pageURL.includes("invoices/edit") ||
-            pageURL.includes("invoices/addpurchase") ||
-            pageURL.includes("invoices/index_repair") ||
-            pageURL.includes("invoices/repair_edit") ||
-            pageURL.includes("payments/index") ||
-            pageURL.includes("payments/add") ||
-            pageURL.includes("invoices/quotes") ||
-            pageURL.includes("invoices/quote") ||
-            pageURL.includes("invoices/edit_quote")
-        ) {
-            $(".dropdown-1 ul.submenu").css("display", "block");
-            $(".accordion .dropdown-1").addClass("open");
-        } else if (pageURL.includes("bills")) {
-            $(".dropdown-2 ul.submenu").css("display", "block");
-            $(".accordion .dropdown-2").addClass("open");
-        } else if (pageURL.includes("workshop")) {
-            $(".dropdown-3 ul.submenu").css("display", "block");
-            $(".accordion .dropdown-3").addClass("open");
-        } else if (
-            pageURL.includes("products") ||
-            pageURL.includes("inventory_control") ||
-            pageURL.includes("services/index") ||
-            pageURL.includes("services/add") ||
-            pageURL.includes("price_list") ||
-            pageURL.includes("categories") ||
-            pageURL.includes("taxes") ||
-            pageURL.includes("offers") ||
-            pageURL.includes("pieces") ||
-            pageURL.includes("warehouses") ||
-            pageURL.includes("positions") ||
-            pageURL.includes("brands")
-        ) {
-            $(".dropdown-4 ul.submenu").css("display", "block");
-            $(".accordion .dropdown-4").addClass("open");
-        } else if (pageURL.includes("contacts")) {
-            $(".dropdown-5 ul.submenu").css("display", "block");
-            $(".accordion .dropdown-5").addClass("open");
-        } else if (pageURL.includes("reports")) {
-            $(".dropdown-6 ul.submenu").css("display", "block");
-            $(".accordion .dropdown-6").addClass("open");
-        }
+    $(function () {
+        const menuMap = [
+            { keywords: ["invoices/index", "invoices/edit", "invoices/addpurchase", "invoices/index_repair", "invoices/repair_edit", "payments/index", "payments/add", "invoices/quotes", "invoices/quote", "invoices/edit_quote"], dropdown: "dropdown-1" },
+            { keywords: ["bills"], dropdown: "dropdown-2" },
+            { keywords: ["workshop"], dropdown: "dropdown-3" },
+            { keywords: ["products", "inventory_control", "services/index", "services/add", "price_list", "categories", "taxes", "offers", "pieces", "warehouses", "positions", "brands"], dropdown: "dropdown-4" },
+            { keywords: ["contacts"], dropdown: "dropdown-5" },
+            { keywords: ["reports"], dropdown: "dropdown-6" },
+        ];
+    
+        menuMap.forEach(({ keywords, dropdown }) => {
+            if (keywords.some(keyword => pageURL.includes(keyword))) {
+                $(`.${dropdown} ul.submenu`).css("display", "block");
+                $(`.accordion .${dropdown}`).addClass("open");
+            }
+        });
     });
+    
 
 
     /**
@@ -338,88 +351,139 @@ $(document).ready(function() {
 
     table_default.column("0:visible").order("asc").draw();
 
-    // Cargar datos del index de factura ventas
 
-    datatable = initCustomDataTable('#invoice', 'services/invoices.php', 'index_facturas_ventas', [
-        { data: 'factura_venta_id' },
-        { data: 'nombre' },
-        { data: 'fecha_factura' },
-        { data: 'total' },
-        { data: 'recibido' },
-        { data: 'pendiente' },
-        { data: 'bono' },
-        { data: 'nombre_estado' },
-        { data: 'acciones', orderable: false, searchable: false },
+    // Configuración de DataTable Server-Side para las tablas
+    const tableConfigs = [{
+            id: '#invoice',
+            url: 'services/invoices.php',
+            action: 'index_facturas_ventas',
+            columns: [
+                'factura_venta_id', 'nombre', 'fecha_factura', 'total', 'recibido', 'pendiente', 'bono', 'nombre_estado', 'acciones'
+            ]
+        },
+        {
+            id: '#today',
+            url: 'services/reports.php',
+            action: 'index_ventas_hoy',
+            columns: [
+                'id', 'nombre', 'fecha', 'total', 'recibido', 'pendiente', 'estado', 'acciones'
+            ]
+        },
+        {
+            id: '#customers',
+            url: 'services/contacts.php',
+            action: 'index_clientes',
+            columns: [
+                'id', 'nombre', 'direccion', 'cedula', 'telefono', 'fecha', 'acciones'
+            ]
+        },
+        {
+            id: '#providers',
+            url: 'services/contacts.php',
+            action: 'index_proveedores',
+            columns: [
+                'id', 'nombre', 'correo', 'telefono', 'fecha', 'acciones'
+            ]
+        },
+        {
+            id: '#workshop',
+            url: 'services/workshop.php',
+            action: 'index_taller',
+            columns: [
+                'orden', 'nombre', 'equipo', 'fecha_entrada', 'fecha_salida', 'condicion', 'estado', 'acciones'
+            ]
+        },
+        {
+            id: '#products',
+            url: 'services/products.php',
+            action: 'index_productos',
+            columns: [
+                'codigo', 'nombre', 'categoria', 'almacen', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
+            ]
+        },
+        {
+            id: '#invoicesrp',
+            url: 'services/repair.php',
+            action: 'index_facturas_reparacion',
+            columns: [
+                'id', 'nombre', 'fecha', 'total', 'recibido', 'pendiente', 'estado', 'acciones'
+            ]
+        },
+        {
+            id: '#quotes',
+            url: 'services/invoices.php',
+            action: 'index_cotizaciones',
+            columns: [
+                'id', 'nombre', 'fecha', 'total', 'acciones'
+            ]
+        },
+        {
+            id: '#payments',
+            url: 'services/payments.php',
+            action: 'index_pagos_facturas_ventas',
+            columns: [
+                'pago_id', 'factura_id', 'nombre', 'recibido', 'observacion', 'fecha', 'acciones'
+            ]
+        },
+        {
+            id: '#ordersc',
+            url: 'services/bills.php',
+            action: 'index_ordenes_compras',
+            columns: [
+                'orden_id', 'proveedor', 'articulos', 'fecha', 'expiracion', 'estado', 'acciones'
+            ]
+        },
+        {
+            id: '#invoicesp',
+            url: 'services/bills.php',
+            action: 'index_facturas_proveedores',
+            columns: [
+                'id', 'proveedor', 'fecha', 'total', 'pagado', 'por_pagar', 'estado', 'acciones'
+            ]
+        },
+        {
+            id: '#bills',
+            url: 'services/bills.php',
+            action: 'index_gastos',
+            columns: [
+                'id', 'proveedor', 'gastos', 'fecha', 'total', 'pagado', 'acciones'
+            ]
+        },
+        {
+            id: '#payments_providers',
+            url: 'services/payments.php',
+            action: 'index_pagos_proveedores',
+            columns: [
+                'pago_id', 'factura', 'proveedor', 'recibido', 'observacion', 'fecha', 'acciones'
+            ]
+        },
+        {
+            id: '#pieces',
+            url: 'services/pieces.php',
+            action: 'index_piezas',
+            columns: [
+                'id', 'nombre', 'categoria', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
+            ]
+        },
+        {
+            id: '#minStockProduct',
+            url: 'services/products.php',
+            action: 'index_casi_agotados',
+            columns: [
+                'cod_producto', 'nombre', 'categoria', 'almacen', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
+            ]
+        }
+        
+    ];
 
-    ]);
-
-    datatable = initCustomDataTable('#today', 'services/reports.php', 'index_ventas_hoy', [
-        { data: 'id' },
-        { data: 'nombre' },
-        { data: 'fecha' },
-        { data: 'total' },
-        { data: 'recibido' },
-        { data: 'pendiente' },
-        { data: 'estado' },
-        { data: 'acciones', orderable: false, searchable: false }
-    ]);
-
-    datatable = initCustomDataTable('#customers', 'services/contacts.php', 'index_clientes', [
-        { data: 'id' },
-        { data: 'nombre' },
-        { data: 'direccion' },
-        { data: 'cedula' },
-        { data: 'telefono' },
-        { data: 'fecha' },
-        { data: 'acciones', orderable: false, searchable: false }
-    ]);
-
-    datatable = initCustomDataTable('#providers', 'services/contacts.php', 'index_proveedores', [
-        { data: 'id' },
-        { data: 'nombre' },
-        { data: 'correo' },
-        { data: 'telefono' },
-        { data: 'fecha' },
-        { data: 'acciones', orderable: false, searchable: false }
-    ]);
-
-    datatable = initCustomDataTable('#workshop', 'services/workshop.php', 'index_taller', [
-        { data: 'orden' },
-        { data: 'nombre' },
-        { data: 'equipo' },
-        { data: 'fecha_entrada' },
-        { data: 'fecha_salida' },
-        { data: 'condicion' },
-        { data: 'estado' },
-        { data: 'acciones', orderable: false, searchable: false },
-
-    ]);
-
-    datatable = initCustomDataTable('#products', 'services/products.php', 'index_productos', [
-        { data: 'codigo' },
-        { data: 'nombre' },
-        { data: 'categoria' },
-        { data: 'almacen' },
-        { data: 'cantidad' },
-        { data: 'precio_costo' },
-        { data: 'precio_unitario' },
-        { data: 'acciones', orderable: false, searchable: false }
-    ]);
-
-
-    // $.ajax({
-    //     type: "post",
-    //     url: SITE_URL + "services/contacts.php",
-    //     data: {
-    //         action: "index_clientes",
-
-    //     },
-    //     success: function(res) {
-
-    //         console.log(res)
-
-    //     }
-    // });
+    // Inicialización automática
+    tableConfigs.forEach(({ id, url, action, columns }) => {
+        const columnDefs = columns.map(col => (
+            col === 'acciones' ? { data: col, orderable: false, searchable: false } : { data: col }
+        ));
+        const tableId = id.replace('#', '');
+        dataTablesInstances[tableId] = initCustomDataTable(id, url, action, columnDefs);
+    });
 
 
 }); // Ready

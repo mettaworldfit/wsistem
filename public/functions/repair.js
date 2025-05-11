@@ -528,7 +528,10 @@ function deleteInvoiceRP(id) {
                 success: function(res) {
                     if (res == "ready") {
 
-                        dt_today.ajax.reload() // actualizar tabla
+                        // Actualizar datatable
+                        (pageURL.includes("invoices/index_repair")) ?
+                        dataTablesInstances['invoicesrp'].ajax.reload(): dataTablesInstances['sales'].ajax.reload()
+
 
                     } else {
                         mysql_error(res)

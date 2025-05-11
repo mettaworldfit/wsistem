@@ -9,19 +9,11 @@ $(document).ready(function() {
         }
     });
 
-
-
-
 }); // Ready
 
-
-// Agregar cliente
-
 function AddContact() {
-
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/contacts.php",
+    sendAjaxRequest({
+        url: "services/contacts.php",
         data: {
             name: $('#name').val(),
             lastname: $('#lastname').val(),
@@ -32,37 +24,17 @@ function AddContact() {
             email: $('#email').val(),
             type: $('input:radio[name=contact]:checked').val(),
             action: 'crear_contacto'
-
         },
-        success: function(res) {
-
-            if (res == "ready") {
-
-                $('input[type="text"]').val('');
-                $('input[type="number"]').val('');
-
-                mysql_row_affected();
-
-            } else if (res == "duplicate") {
-
-                mysql_error('El RNC o Cédula del cliente ya está siendo utilizado');
-
-            } else if (res.includes("Error")) {
-                mysql_error(res)
-            }
-
+        successCallback: () => {
+            $('input[type="text"], input[type="number"]').val('');
+            mysql_row_affected();
         }
     });
-
 }
 
-// Agregar cliente
-
 function AddContactModal() {
-
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/contacts.php",
+    sendAjaxRequest({
+        url: "services/contacts.php",
         data: {
             name: $('#name').val(),
             lastname: $('#lastname').val(),
@@ -73,40 +45,18 @@ function AddContactModal() {
             email: $('#email').val(),
             type: "cliente",
             action: 'crear_contacto'
-
         },
-        success: function(res) {
-
-            if (res == "ready") {
-
-                $('input[type="text"]').val('');
-                $('input[type="number"]').val('');
-
-                mysql_row_affected();
-                setTimeout('document.location.reload()', 1100);
-
-            } else if (res == "duplicate") {
-
-                mysql_error('El RNC o Cédula del cliente ya está siendo utilizado');
-
-            } else if (res.includes("Error")) {
-                mysql_error(res)
-            }
-
+        successCallback: () => {
+            $('input[type="text"], input[type="number"]').val('');
+            mysql_row_affected();
+            setTimeout(() => location.reload(), 900);
         }
     });
-
 }
 
-
-
-// Actualizar cliente
-
 function UpdateCustomer(customer_id) {
-
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/contacts.php",
+    sendAjaxRequest({
+        url: "services/contacts.php",
         data: {
             id: customer_id,
             name: $('#name').val(),
@@ -117,69 +67,29 @@ function UpdateCustomer(customer_id) {
             tel2: $('#tel2').val(),
             email: $('#email').val(),
             action: 'actualizar_cliente'
-
         },
-        success: function(res) {
-
-            if (res == "ready") {
-
-                mysql_row_affected();
-
-            } else if (res == "duplicate") {
-
-                mysql_error('El RNC o Cédula del cliente ya está siendo utilizado');
-
-            } else if (res.includes("Error")) {
-                mysql_error(res)
-            }
-
-        }
+        successCallback: mysql_row_affected
     });
 }
 
-
-// Eliminar cliente
-
 function deleteCustomer(id) {
-
-    alertify.confirm("Eliminar cliente", "¿Estas seguro que deseas eliminar este cliente? ",
+    alertify.confirm("Eliminar cliente", "¿Estas seguro que deseas eliminar este cliente?",
         function() {
-
-            $.ajax({
-                url: SITE_URL + "services/contacts.php",
-                method: "post",
+            sendAjaxRequest({
+                url: "services/contacts.php",
                 data: {
                     customer_id: id,
                     action: 'eliminar_cliente'
                 },
-                success: function(res) {
-
-                    if (res == "ready") {
-
-                        datatable.ajax.reload(); // actualizar tabla
-
-                    } else if (res.includes("Error")) {
-
-                        mysql_error(res)
-                    }
-
-                }
+                successCallback: () => dataTablesInstances['customers'].ajax.reload()
             });
-
         },
-        function() {
-
-        });
+        function() {});
 }
 
-
-// Actualizar proveedor
-
 function UpdateProvider(proveedor_id) {
-
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/contacts.php",
+    sendAjaxRequest({
+        url: "services/contacts.php",
         data: {
             id: proveedor_id,
             name: $('#name').val(),
@@ -189,80 +99,33 @@ function UpdateProvider(proveedor_id) {
             tel2: $('#tel2').val(),
             email: $('#email').val(),
             action: 'actualizar_proveedor'
-
         },
-        success: function(res) {
-
-            if (res == "ready") {
-
-                mysql_row_affected();
-
-            } else if (res.includes("Error")) {
-                mysql_error(res)
-            }
-
-        }
+        successCallback: mysql_row_affected
     });
 }
 
-// Eliminar proveedor
-
 function deleteProveedor(id) {
-
-    alertify.confirm("Eliminar proveedor", "¿Estas seguro que deseas eliminar este proveedor? ",
+    alertify.confirm("Eliminar proveedor", "¿Estas seguro que deseas eliminar este proveedor?",
         function() {
-
-            $.ajax({
-                url: SITE_URL + "services/contacts.php",
-                method: "post",
+            sendAjaxRequest({
+                url: "services/contacts.php",
                 data: {
                     proveedor_id: id,
                     action: 'eliminar_proveedor'
                 },
-                success: function(res) {
-
-                    if (res == "ready") {
-
-                        datatable.ajax.reload(); // actualizar tabla
-
-                    } else if (res.includes("Error")) {
-
-                        mysql_error(res)
-                    }
-
-                }
+                successCallback: () => dataTablesInstances['providers'].ajax.reload()
             });
-
         },
-        function() {
-
-        });
+        function() {});
 }
 
-
-// Eliminar bono
-
 function deleteBond(id) {
-
-    $.ajax({
-        url: SITE_URL + "services/contacts.php",
-        method: "post",
+    sendAjaxRequest({
+        url: "services/contacts.php",
         data: {
             bond_id: id,
             action: 'eliminar_bono'
         },
-        success: function(res) {
-
-            if (res == "ready") {
-
-                $(".table").load(location.href + " .table");
-
-            } else if (res.includes("Error")) {
-
-                mysql_error(res)
-            }
-
-        }
+        successCallback: () => $(".table").load(location.href + " .table")
     });
-
 }

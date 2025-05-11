@@ -1,14 +1,8 @@
 <?php
 
-require_once './models/pieces.php';
-
 class PiecesController {
 
-    public function index(){
-
-        $method = new Pieces;
-        $pieces = $method->showPieces();
-        
+    public function index(){       
         require_once './views/pieces/index.php';
     }
     

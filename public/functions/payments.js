@@ -279,7 +279,10 @@ function deletePayment(id, factura_id, facturaRP_id) {
 
                     if (res == "ready") {
 
-                        dt_today.ajax.reload()
+                        // Actualizar datatable
+                        (pageURL.includes("payments/index")) ?
+                        dataTablesInstances['payments'].ajax.reload(): dataTablesInstances['sales'].ajax.reload()
+
 
                     } else {
                         mysql_error(res)
@@ -310,7 +313,10 @@ function deletePaymentProvider(id) {
 
                     if (res == "ready") {
 
-                        dt_today.ajax.reload()
+                        // Recarga datatable
+                        (pageURL.includes("bills/payments")) ?
+                        dataTablesInstances['payments_providers'].ajax.reload(): dataTablesInstances['sales'].ajax.reload();
+
 
                     } else {
                         mysql_error(res)

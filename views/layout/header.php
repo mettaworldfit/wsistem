@@ -255,7 +255,7 @@
                 <a href="<?= base_url ?>products/stock" title="Casi agotados">
                   <?php
 
-                  $stock = Help::MinStockProduct();
+                  $stock = Help::minStockProductAlert();
                   $className = "";
 
                   if ($stock < 10) {

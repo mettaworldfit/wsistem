@@ -2,7 +2,86 @@
 
 require_once '../config/db.php';
 require_once '../config/parameters.php';
+require_once 'functions/functions.php';
 session_start();
+
+if ($_POST['action'] == "index_casi_agotados") {
+
+  $db = Database::connect();
+
+  handleDataTableRequest($db, [
+    'columns' => [
+      'p.nombre_producto',
+      'p.cod_producto',
+      'c.nombre_categoria',
+      'a.nombre_almacen',
+      'p.cantidad',
+      'p.cantidad_min',
+      'p.precio_costo',
+      'p.precio_unitario',
+      'e.nombre_estado'
+
+    ],
+    'searchable' => [
+      'p.cod_producto',
+      'p.nombre_producto',
+      'c.nombre_categoria',
+      'a.nombre_almacen'
+    ],
+    'base_table' => 'productos p',
+    'table_with_joins' => 'productos p 
+        INNER JOIN estados_generales e ON p.estado_id = e.estado_id
+        INNER JOIN almacenes a ON p.almacen_id = a.almacen_id
+        LEFT JOIN productos_con_categorias pc ON p.producto_id = pc.producto_id
+        LEFT JOIN categorias c ON pc.categoria_id = c.categoria_id',
+    'base_condition' => 'p.cantidad <= p.cantidad_min AND e.estado_id = 1',
+    'select' => 'SELECT p.cod_producto, p.nombre_producto,c.nombre_categoria,
+                a.nombre_almacen,p.cantidad_min,p.cantidad,p.precio_costo,
+                p.precio_unitario,e.nombre_estado,e.estado_id,p.producto_id',
+    'table_rows' => function ($row) {
+      return [
+        'cod_producto' => $row['cod_producto'],
+        'nombre' => ucwords($row['nombre_producto']),
+        'categoria' => ucwords($row['nombre_categoria'] ?? ''),
+        'almacen' => ucwords($row['nombre_almacen'] ?? ''),
+
+        'cantidad' => $row['cantidad'] < 1
+          ? '<span class="text-danger">' . $row['cantidad'] . '</span>'
+          : ($row['cantidad'] <= $row['cantidad_min']
+            ? '<span class="text-warning">' . $row['cantidad'] . '</span>'
+            : '<span class="text-success">' . $row['cantidad'] . '</span>'),
+
+        'precio_costo' => number_format($row['precio_costo'], 2),
+        'precio_unitario' => number_format($row['precio_unitario'], 2),
+
+        'acciones' =>
+        // Botón editar
+        '<a class="action-edit ' . ($row['nombre_estado'] != 'Activo' ? 'action-disable' : '') . '" title="Editar" href="' .
+          ($row['nombre_estado'] == 'Activo' ? base_url . 'products/edit&id=' . $row['producto_id'] : '#') . '">' .
+          '<i class="fas fa-pencil-alt"></i></a> ' .
+
+          // Botón activar/desactivar
+          '<span class="' . ($row['nombre_estado'] == 'Activo' ? 'action-active' : 'action-delete') . '" ' .
+          (
+            ($_SESSION['identity']->nombre_rol == 'administrador')
+            ? (
+              $row['nombre_estado'] == 'Activo'
+              ? 'onclick="disableProduct(\'' . $row['producto_id'] . '\')"'
+              : 'onclick="enableProduct(\'' . $row['producto_id'] . '\')"'
+            )
+            : ''
+          ) . ' title="' . ($row['nombre_estado'] == 'Activo' ? 'Desactivar ítem' : 'Activar') . '">' .
+          '<i class="fas fa-lightbulb"></i></span> ' .
+
+          // Botón eliminar
+          '<span class="' .
+          ($_SESSION['identity']->nombre_rol == 'administrador' ? 'action-delete' : 'action-delete action-disable') . '" ' .
+          ($_SESSION['identity']->nombre_rol == 'administrador' ? 'onclick="deleteProduct(\'' . $row['producto_id'] . '\')"' : '') .
+          ' title="Eliminar"><i class="fas fa-times"></i></span>'
+      ];
+    }
+  ]);
+}
 
 // mostrar tabla de productos
 
@@ -10,96 +89,55 @@ if ($_POST['action'] == "index_productos") {
 
   $db = Database::connect();
 
-  $draw = intval($_POST['draw'] ?? 0);
-  $start = intval($_POST['start'] ?? 0);
-  $length = intval($_POST['length'] ?? 10);
-  $searchValue = $_POST['search']['value'] ?? '';
-
-  // Columnas ordenables (ajusta si agregas más)
-  $columns = [
-    'p.cod_producto',
-    'p.nombre_producto',
-    'c.nombre_categoria',
-    'a.nombre_almacen',
-    'p.cantidad_min',
-    'p.cantidad',
-    'p.precio_costo',
-    'p.precio_unitario',
-    'e.nombre_estado'
-  ];
-
-  $orderColumnIndex = $_POST['order'][0]['column'] ?? 0;
-  $orderColumn = $columns[$orderColumnIndex] ?? 'p.nombre_producto';
-  $orderDir = ($_POST['order'][0]['dir'] ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
-
-  // Filtro
-  $searchQuery = "";
-  if (!empty($searchValue)) {
-    $searchEscaped = $db->real_escape_string($searchValue);
-    $searchQuery = " AND (
-            p.cod_producto LIKE '%$searchEscaped%' OR 
-            p.nombre_producto LIKE '%$searchEscaped%' OR 
-            c.nombre_categoria LIKE '%$searchEscaped%' OR 
-            a.nombre_almacen LIKE '%$searchEscaped%'
-        )";
-  }
-
-  // Total sin filtro
-  $resTotal = $db->query("SELECT COUNT(*) AS total FROM productos");
-  $totalRecords = $resTotal->fetch_assoc()['total'] ?? 0;
-
-  // Total con filtro
-  $resFiltered = $db->query("
-        SELECT COUNT(*) AS total 
-        FROM productos p 
+  handleDataTableRequest($db, [
+    'columns' => [
+      'p.nombre_producto',
+      'p.cod_producto',
+      'c.nombre_categoria',
+      'a.nombre_almacen',
+      'p.cantidad_min',
+      'p.cantidad',
+      'p.precio_costo',
+      'p.precio_unitario',
+      'e.nombre_estado'
+    ],
+    'searchable' => [
+      'p.cod_producto',
+      'p.nombre_producto',
+      'c.nombre_categoria',
+      'a.nombre_almacen'
+    ],
+    'base_table' => 'productos',
+    'table_with_joins' => 'productos p 
         INNER JOIN estados_generales e ON p.estado_id = e.estado_id
         INNER JOIN almacenes a on p.almacen_id = a.almacen_id
         LEFT JOIN productos_con_categorias pc ON p.producto_id = pc.producto_id
-        LEFT JOIN categorias c ON pc.categoria_id = c.categoria_id
-        WHERE 1 $searchQuery
-    ");
-  $filteredRecords = $resFiltered->fetch_assoc()['total'] ?? 0;
-
-  // Consulta final con datos
-  $query = "SELECT p.cod_producto,p.producto_id, p.nombre_producto, c.nombre_categoria,
+        LEFT JOIN categorias c ON pc.categoria_id = c.categoria_id',
+    'select' => 'SELECT p.cod_producto,p.producto_id, p.nombre_producto, c.nombre_categoria,
                a.nombre_almacen, p.cantidad_min, p.cantidad, p.precio_costo,
-               p.precio_unitario, e.nombre_estado, p.producto_id as idproducto
-        FROM productos p 
-        INNER JOIN estados_generales e ON p.estado_id = e.estado_id
-        INNER JOIN almacenes a on p.almacen_id = a.almacen_id
-        LEFT JOIN productos_con_categorias pc ON p.producto_id = pc.producto_id
-        LEFT JOIN categorias c ON pc.categoria_id = c.categoria_id
-        WHERE 1 $searchQuery
-        ORDER BY $orderColumn $orderDir
-        LIMIT $start, $length";
+               p.precio_unitario, e.nombre_estado, p.producto_id as idproducto',
+    'table_rows' => function ($row) {
+      $cantidad = '<span ';
+      if ($row['cantidad'] > $row['cantidad_min']) {
+        $cantidad .= 'class="text-success">';
+      } elseif ($row['cantidad'] < 1) {
+        $cantidad .= 'class="text-danger">';
+      } else {
+        $cantidad .= 'class="text-warning">';
+      }
+      $cantidad .= $row['cantidad'] . '</span>';
 
-  $result = $db->query($query);
+      return [
+        'codigo' => $row['cod_producto'],
+        'nombre' => $row['nombre_producto'],
+        'categoria' => $row['nombre_categoria'],
+        'almacen' => $row['nombre_almacen'],
+        'cantidad' => $cantidad,
+        'precio_costo' => number_format($row['precio_costo'], 2),
+        'precio_unitario' => number_format($row['precio_unitario'], 2),
+        'estado' => '<span class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</span>',
 
-  $data = [];
-  while ($row = $result->fetch_assoc()) {
-
-    $cantidad = '<span ';
-    if ($row['cantidad'] > $row['cantidad_min']) {
-      $cantidad .= 'class="text-success">';
-    } elseif ($row['cantidad'] < 1) {
-      $cantidad .= 'class="text-danger">';
-    } else {
-      $cantidad .= 'class="text-warning">';
-    }
-    $cantidad .= $row['cantidad'] . '</span>';
-
-
-    $data[] = [
-      'codigo' => $row['cod_producto'],
-      'nombre' => $row['nombre_producto'],
-      'categoria' => $row['nombre_categoria'],
-      'almacen' => $row['nombre_almacen'],
-      'cantidad' => $cantidad,
-      'precio_costo' => number_format($row['precio_costo'], 2),
-      'precio_unitario' => number_format($row['precio_unitario'], 2),
-      'estado' => '<span class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</span>',
-
-      'acciones' => '
+        'acciones' => '
     <a class="action-edit ' . ($row['nombre_estado'] != 'Activo' ? 'action-disable' : '') . '" 
        title="Editar"
        href="' . ($row['nombre_estado'] == 'Activo' ? base_url . 'products/edit&id=' . $row['idproducto'] : '#') . '"> 
@@ -108,35 +146,27 @@ if ($_POST['action'] == "index_productos") {
 
     <span class="' . ($row['nombre_estado'] == 'Activo' ? 'action-active' : 'action-delete') . '" 
           ' . (
-        $row['nombre_estado'] == 'Activo' && $_SESSION['identity']->nombre_rol == 'administrador'
-        ? 'onclick="disableProduct(\'' . $row['idproducto'] . '\')"'
-        : ($_SESSION['identity']->nombre_rol == 'administrador'
-          ? 'onclick="enableProduct(\'' . $row['idproducto'] . '\')"'
-          : '')
-      ) . '
+          $row['nombre_estado'] == 'Activo' && $_SESSION['identity']->nombre_rol == 'administrador'
+          ? 'onclick="disableProduct(\'' . $row['idproducto'] . '\')"'
+          : ($_SESSION['identity']->nombre_rol == 'administrador'
+            ? 'onclick="enableProduct(\'' . $row['idproducto'] . '\')"'
+            : '')
+        ) . '
           ' . ($row['nombre_estado'] == 'Activo' ? 'title="Desactivar ítem"' : 'title="Activar"') . '>
         <i class="fas fa-lightbulb"></i>
     </span>
 
     <span ' .
-        ($_SESSION['identity']->nombre_rol == 'administrador'
-          ? 'class="action-delete" onclick="deleteProduct(\'' . $row['idproducto'] . '\')"'
-          : 'class="action-delete action-disable"'
-        ) . ' title="Eliminar">
+          ($_SESSION['identity']->nombre_rol == 'administrador'
+            ? 'class="action-delete" onclick="deleteProduct(\'' . $row['idproducto'] . '\')"'
+            : 'class="action-delete action-disable"'
+          ) . ' title="Eliminar">
         <i class="fas fa-times"></i>
     </span>'
 
-    ];
-  }
-
-  echo json_encode([
-    'draw' => $draw,
-    'recordsTotal' => $totalRecords,
-    'recordsFiltered' => $filteredRecords,
-    'data' => $data
+      ];
+    }
   ]);
-
-  exit;
 }
 
 
@@ -443,7 +473,7 @@ if ($_POST['action'] == "asignar_variante") {
 
 // Agregar variantes a un producto
 
-if ($_POST['action'] == "editar_variantes") {
+if ($_POST['action'] == "agregar_variantes") {
 
   $product_id = $_POST['product_id'];
   $colour = (!empty($_POST['colour_id'])) ? $_POST['colour_id'] : 0;

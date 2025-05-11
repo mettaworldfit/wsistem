@@ -12,10 +12,6 @@ class PaymentsController
 
     public function index()
     {
-
-        $model = new Payments();
-        $payments = $model->showPayments();
-
         require_once './views/payments/index.php';
     }
 

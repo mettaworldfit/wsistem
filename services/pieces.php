@@ -1,7 +1,88 @@
 <?php
 
 require_once '../config/db.php';
+require_once '../config/parameters.php';
+require_once 'functions/functions.php';
 session_start();
+
+if ($_POST['action'] == "index_piezas") {
+  $db = Database::connect();
+
+  handleDataTableRequest($db, [
+    'columns' => [
+      'p.nombre_pieza',
+      'p.cod_pieza',
+      'p.pieza_id',
+      'c.nombre_categoria',
+      'p.cantidad_min',
+      'p.cantidad',
+      'p.precio_costo',
+      'p.precio_unitario',
+      'e.nombre_estado'
+    ],
+    'searchable' => [
+      'p.cod_pieza',
+      'p.nombre_pieza',
+      'c.nombre_categoria',
+      'e.nombre_estado'
+    ],
+    'base_table' => 'piezas',
+    'table_with_joins' => 'piezas p
+        INNER JOIN estados_generales e ON p.estado_id = e.estado_id
+        INNER JOIN almacenes a ON p.almacen_id = a.almacen_id
+        LEFT JOIN piezas_con_categorias pc ON p.pieza_id = pc.pieza_id
+        LEFT JOIN categorias c ON pc.categoria_id = c.categoria_id',
+    'select' => 'SELECT p.cod_pieza,p.nombre_pieza,p.pieza_id,c.nombre_categoria, 
+                p.cantidad_min,p.cantidad,p.precio_costo,p.precio_unitario,e.nombre_estado',
+    'table_rows' => function ($row) {
+      // Estado de cantidad
+      if ($row['cantidad'] > $row['cantidad_min']) {
+        $cantidadFormatted = '<td class="text-success">' . $row['cantidad'] . '</td>';
+      } else if ($row['cantidad'] < 1) {
+        $cantidadFormatted = '<td class="text-danger">' . $row['cantidad'] . '</td>';
+      } else {
+        $cantidadFormatted = '<td class="text-warning">' . $row['cantidad'] . '</td>';
+      }
+
+      // Acción editar
+      $editLink = ($row['nombre_estado'] === 'Activo')
+        ? '<a class="action-edit" title="Editar" href="' . base_url . 'pieces/edit&id=' . $row['pieza_id'] . '"><i class="fas fa-pencil-alt"></i></a>'
+        : '<a class="action-edit action-disable" title="Editar" href="#"><i class="fas fa-pencil-alt"></i></a>';
+
+      // Acción activar/desactivar
+      if ($_SESSION['identity']->nombre_rol == 'administrador') {
+        if ($row['nombre_estado'] === 'Activo') {
+          $toggleAction = '<span class="action-active" title="Desactivar ítem" onclick="disablePiece(\'' . $row['pieza_id'] . '\')"><i class="fas fa-lightbulb"></i></span>';
+        } else {
+          $toggleAction = '<span class="action-delete" title="Activar" onclick="enablePiece(\'' . $row['pieza_id'] . '\')"><i class="fas fa-lightbulb"></i></span>';
+        }
+      } else {
+        $toggleAction = '<span class="action-disable"><i class="fas fa-lightbulb"></i></span>';
+      }
+
+      // Acción eliminar
+      if ($_SESSION['identity']->nombre_rol == 'administrador') {
+        $deleteAction = '<span class="action-delete" title="Eliminar" onclick="deletePiece(\'' . $row['pieza_id'] . '\')"><i class="fas fa-times"></i></span>';
+      } else {
+        $deleteAction = '<span class="action-delete action-disable" title="Eliminar"><i class="fas fa-times"></i></span>';
+      }
+
+      // Acciones completas
+      $acciones = $editLink . ' ' . $toggleAction . ' ' . $deleteAction;
+
+      return [
+        'id' => $row['cod_pieza'],
+        'nombre' => ucwords($row['nombre_pieza']),
+        'categoria' => ucwords($row['nombre_categoria'] ?? 'N/A'),
+        'cantidad' => $row['cantidad'], // solo el valor, sin el <td> envuelto
+        'precio_costo' => number_format($row['precio_costo'], 2),
+        'precio_unitario' => number_format($row['precio_unitario'], 2),
+        'acciones' => $acciones
+      ];
+    }
+  ]);
+}
+
 
 /**
  * Buscar pieza por código

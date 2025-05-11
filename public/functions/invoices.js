@@ -1143,7 +1143,9 @@ function deleteInvoice(id) {
                 success: function(res) {
 
                     if (res == "ready") {
-                        datatable.ajax.reload(); // Reload datatable
+
+                        (pageURL.includes("invoices/index")) ?
+                        dataTablesInstances['invoice'].ajax.reload(): dataTablesInstances['sales'].ajax.reload();
 
                     } else {
                         mysql_error(res)
@@ -1349,7 +1351,7 @@ function CancelQuote() {
     $("#SaveQuote").css("display", "none"); // Botón registrar cotización
 }
 
-// Eliminar item del detalle
+// Eliminar item del detalle y localstorage
 
 function DeleteItemQ(index, onDb = false) {
 
@@ -1486,8 +1488,7 @@ function deleteQuote(id) {
 
                     if (res == "ready") {
 
-                        mysql_row_affected()
-                        $('#example').load(location.href + " #example");
+                        dataTablesInstances['invoice'].ajax.reload(); // Reload datatable
 
                     } else {
                         mysql_error(res)

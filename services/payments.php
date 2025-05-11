@@ -1,7 +1,98 @@
 <?php
 
 require_once '../config/db.php';
+require_once 'functions/functions.php';
+require_once '../config/parameters.php';
 session_start();
+
+if ($_POST['action'] == "index_pagos_proveedores") {
+  $db = Database::connect();
+  handleDataTableRequest($db, [
+      'columns' => [
+          'pr.nombre_proveedor',
+          'pr.apellidos',
+          'p.factura_proveedor_id',
+          'p.pago_factura_id',
+          'p.recibido',
+          'p.observacion',
+          'p.fecha'
+      ],
+      'searchable' => [
+          'pr.nombre_proveedor',
+          'pr.apellidos',
+          'p.recibido',
+          'p.observacion',
+          'p.fecha'
+      ],
+      'base_table' => 'pagos_proveedores p 
+          LEFT JOIN proveedores pr ON pr.proveedor_id = p.proveedor_id',
+      'table_with_joins' => 'pagos_proveedores p 
+          LEFT JOIN proveedores pr ON pr.proveedor_id = p.proveedor_id',
+      'select' => 'SELECT pr.nombre_proveedor, pr.apellidos, p.factura_proveedor_id, 
+                   p.pago_factura_id as pago_id, p.recibido, p.observacion, p.fecha',
+      'table_rows' => function ($row) {
+          return [
+            'pago_id'     => $row['pago_id'],
+            'factura'     => 'FP-00' . $row['factura_proveedor_id'],
+            'proveedor'   => ucwords($row['nombre_proveedor'] . ' ' . $row['apellidos']),
+            'recibido'    => '<span class="text-success">' . number_format($row['recibido'], 2) . '</span>',
+            'observacion' => $row['observacion'],
+            'fecha'       => $row['fecha'],
+            'acciones'    => '<span style="font-size: 16px;" onclick="deletePaymentProvider(\'' . $row['pago_id'] . '\')" class="action-delete">
+                                <i class="fas fa-times"></i>
+                              </span>'
+          ]; 
+      }
+  ]);
+}
+
+
+if ($_POST['action'] == 'index_pagos_facturas_ventas') {
+
+  $db = Database::connect();
+
+  handleDataTableRequest($db,[
+      'columns' => [
+          'p.pago_id','c.nombre', 'c.apellidos', 'p.observacion',
+          'fr.facturaRP_id', 'f.factura_venta_id','p.recibido', 'p.fecha'
+      ],
+      'searchable' => [
+          'c.nombre', 'c.apellidos', 'p.observacion','p.pago_id',
+          'fr.facturaRP_id', 'f.factura_venta_id'
+      ],
+      'base_table' => "pagos",
+      'table_with_joins' => "pagos p
+          LEFT JOIN pagos_a_facturas_ventas pf ON pf.pago_id = p.pago_id
+          LEFT JOIN facturas_ventas f ON pf.factura_venta_id = f.factura_venta_id
+          LEFT JOIN pagos_a_facturasRP pr ON pr.pago_id = p.pago_id
+          LEFT JOIN facturasRP fr ON pr.facturaRP_id = fr.facturaRP_id
+          LEFT JOIN clientes c ON p.cliente_id = c.cliente_id
+      ",
+      'select' => "SELECT c.nombre, c.apellidos, p.observacion,
+                fr.facturaRP_id, f.factura_venta_id,
+                p.pago_id, p.recibido, p.fecha
+      ",
+      'table_rows' => function ($row) {
+            return [
+              'pago_id' => '00' . $row['pago_id'],
+              'factura_id' => ($row['factura_venta_id'] > 0)
+                  ? 'FT-00' . $row['factura_venta_id']
+                  : (($row['facturaRP_id'] > 0)
+                      ? 'RP-00' . $row['facturaRP_id']
+                      : '<span class="text-danger">Factura eliminada</span>'),
+              'nombre' => ucwords($row['nombre']. ' ' .$row['apellidos']),
+              'recibido' => '<span class="text-success">' . number_format($row['recibido'], 2) . '</span>',
+              'observacion' => $row['observacion'],
+              'fecha' => $row['fecha'],
+              'acciones' => ($row['factura_venta_id'] > 0)
+                  ? '<span onclick="deletePayment(\'' . $row['pago_id'] . '\',1,0)" class="action-delete"><i class="fas fa-times"></i></span>'
+                  : '<span onclick="deletePayment(\'' . $row['pago_id'] . '\',0,1)" class="action-delete"><i class="fas fa-times"></i></span>'
+          ];
+      }
+  ]);
+
+}
+
 
 
 // Cargar datos de factura

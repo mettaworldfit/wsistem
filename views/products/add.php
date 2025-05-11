@@ -220,7 +220,7 @@
 
                 <div class="add_variant">
                     <i class="fas fa-plus-circle"></i>
-                    <a href="#">Agregar variante</a>
+                    <a href="#" onClick="addVariantLocalStorage();">Agregar variante</a>
                 </div>
 
                 <br><br><br>
@@ -384,7 +384,7 @@
                     <div class="form-group">
                         <div class="row-price">
                             <span>DOP</span>
-                            <input type="text" class="invisible-input col-sm-12 text-left" id="precioTotal" disabled>
+                            <input type="text" class="invisible-input col-sm-12 text-left" id="totalPrice" disabled>
                         </div>
                         <input type="hidden" name="" value="" id="FinalPrice_out">
                     </div>

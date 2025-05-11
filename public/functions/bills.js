@@ -802,7 +802,7 @@ function deleteSpending(id) {
                 success: function(res) {
 
                     if (res == "ready") {
-                        $(".table").load(location.href + " .table");
+                        bills.ajax.reload() // Recargar datatable
                     } else {
                         mysql_error(res)
                     }
@@ -1186,7 +1186,7 @@ function deleteOrderC(id) {
                 },
                 success: function(res) {
                     if (res == "ready") {
-                        $(".table").load(location.href + " .table");
+                        ordersC.ajax.reload() // Recargar datatable
                     } else {
                         mysql_error(res);
                     }
@@ -1361,7 +1361,7 @@ function deleteInvoiceFP(id, order_id) {
                 },
                 success: function(res) {
                     if (res == "ready") {
-                        $(".table").load(location.href + " .table");
+                        invoicesp.ajax.reload(); // Recargar datatable
                     } else {
                         mysql_error(res);
                     }

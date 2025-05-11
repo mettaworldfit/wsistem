@@ -391,9 +391,9 @@ class Help
 
    // Mostrar las variantes del producto en detalle_temporal
 
-   public static function showVariant_temp($id)
+   public static function loadVariantTemp($id)
    {
-      $query = "SELECT d.descripcion,c.color,v.imei,v.serial,v.variante_id as var_id FROM detalle_temporal d
+      $query = "SELECT d.descripcion,c.color,v.imei,v.serial,v.variante_id FROM detalle_temporal d
       LEFT JOIN detalle_variantes_temporal dv ON dv.detalle_temporal_id = d.detalle_temporal_id
       LEFT JOIN variantes v ON dv.variante_id = v.variante_id
       LEFT JOIN variantes_con_colores vc ON vc.variante_id = v.variante_id
@@ -407,7 +407,7 @@ class Help
       // Cuerpo 
       while ($element = $datos->fetch_object()) {
 
-         $html .= '<p class="list_db">' . ucwords($element->descripcion) . ' ' . ucwords($element->color) .
+         $html .= '<p class="list_db">' . ucwords($element->descripcion ?? '') . ' ' . ucwords($element->color ?? '') .
             ' <br> ' . $element->imei . ' ' . $element->serial . '</p>';
       }
 
@@ -593,25 +593,6 @@ class Help
     *  Piezas
     *  -------------------------------------*/
 
-   // Función para verificar los parent rows de una pieza
-
-   public static function verify_parent_piece($id)
-   {
-
-      $db = Database::connect();
-
-      $query = "SELECT (count(dp.detalle_venta_id) + count(dop.detalle_ordenRP_id) + count(dcp.detalle_compra_id) 
-      + count(dt.detalle_temporal_id)) as parent_row FROM piezas p 
-            left join detalle_ventas_con_piezas_ dp on dp.pieza_id = p.pieza_id 
-            left join detalle_compra_con_piezas dcp on dcp.pieza_id = p.pieza_id 
-            left join detalle_temporal dt on dt.pieza_id = p.pieza_id
-            left join detalle_ordenRP_con_piezas dop on dop.pieza_id = p.pieza_id
-            WHERE p.pieza_id = '$id'";
-
-      $db = Database::connect();
-      return $db->query($query);
-   }
-
    public static function showPieces()
    {
       $query = "SELECT *FROM piezas WHERE estado_id != 2";
@@ -656,6 +637,17 @@ class Help
    /**
     *  Facturas de ventas
     *  -------------------------------------*/
+
+    public static function loadDetailTemp()
+   { 
+      $db = Database::connect();
+      $userID = $_SESSION['identity']->usuario_id;
+
+      $query = "SELECT * FROM detalle_temporal WHERE usuario_id = '$userID' ORDER BY hora";
+    
+      return $db->query($query);
+
+   }
 
    // Función para mostrar los datos de una factura
 
@@ -1173,12 +1165,13 @@ class Help
 
    // Función para mostrar la cantidad de productos y servicios fuera de stock
 
-   public static function MinStockProduct()
+   public static function minStockProductAlert()
    {
 
       $db = Database::connect();
 
-      $query = "SELECT count(producto_id) as stock from productos where cantidad <= cantidad_min";
+      $query = "SELECT count(producto_id) as stock,estado_id from productos 
+      where cantidad <= cantidad_min AND estado_id = 1";
 
       $result = $db->query($query);
       $data = $result->fetch_object();

@@ -32,14 +32,13 @@
             <th></th>
         </thead>
 
-        <?php while ($element = $detalles->fetch_object()): ?>
+        <?php while ($element = $details->fetch_object()): ?>
 
             <tbody id="rows">
                 <tr>
 
-
                     <td>
-                        <?php $variants = Help::showVariant_temp($element->detalle_temporal_id);
+                        <?php $variants = Help::loadVariantTemp($element->detalle_temporal_id);
                         echo $variants;
                         ?>
                     </td>

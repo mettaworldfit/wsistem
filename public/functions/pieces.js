@@ -227,8 +227,6 @@ $(document).ready(function() {
 
     });
 
-
-
     function AddPiece() {
 
         $.ajax({
@@ -368,32 +366,22 @@ $(document).ready(function() {
 
     }
 
-
-
-
-
-
-
 }); // Ready
 
 
 // Desactivar pieza
 
-function disablePiece(piece_id) {
+function disablePiece(pieceId) {
     alertify.confirm(
-        "<i class='text-warning fas fa-exclamation-circle'></i> Desactivar pieza",
-        "¿Desea desactivar esta pieza? ",
+        "<i class='text-warning fas fa-exclamation-circle'></i> Desactivar pieza","¿Desea desactivar esta pieza? ",
         function() {
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/pieces.php",
+            sendAjaxRequest({
+                url: "services/pieces.php",
                 data: {
-                    piece_id: piece_id,
+                    piece_id: pieceId,
                     action: "desactivar_pieza",
                 },
-                success: function(res) {
-                    $("#example").load(" #example");
-                },
+                successCallback: () =>  dataTablesInstances['pieces'].ajax.reload()
             });
         },
         function() {}
@@ -402,22 +390,18 @@ function disablePiece(piece_id) {
 
 // Activar pieza
 
-function enablePiece(piece_id) {
-    alertify.confirm(
-        "Activar pieza",
-        "¿Desea activar esta pieza? ",
+function enablePiece(pieceId) {
+    alertify.confirm("Activar pieza","¿Desea activar esta pieza? ",
         function() {
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/pieces.php",
+            sendAjaxRequest({
+                url: "services/pieces.php",
                 data: {
-                    piece_id: piece_id,
+                    piece_id: pieceId,
                     action: "activar_pieza",
                 },
-                success: function(res) {
-                    $("#example").load(" #example");
-                },
+                successCallback: () =>  dataTablesInstances['pieces'].ajax.reload()
             });
+           
         },
         function() {}
     );
@@ -427,32 +411,25 @@ function enablePiece(piece_id) {
 
 // Eliminar pieza
 
-function deletePiece(id) {
+function deletePiece(pieceId) {
 
     alertify.confirm("Eliminar pieza", "¿Estas seguro que deseas borrar esta pieza? ",
         function() {
 
-            $.ajax({
-                url: SITE_URL + "services/pieces.php",
-                method: "post",
+            sendAjaxRequest({
+                url: "services/pieces.php",
                 data: {
                     action: "eliminarPieza",
-                    pieza_id: id,
+                    pieza_id: pieceId,
                 },
-                success: function(res) {
-
-                    if (res == "ready") {
-
-                        $("#example").load(" #example");
-
+                successCallback: (res) => {
+                    if (res === "ready") {
+                        dataTablesInstances['pieces'].ajax.reload()
                     } else {
                         alertify.alert("<div class='error-info'><i class='text-danger fas fa-exclamation-circle'></i>" + " " + res + "</div>").set('basic', true);
                     }
-
                 }
-
             });
-
         },
         function() {}
     );

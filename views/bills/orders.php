@@ -15,7 +15,7 @@
 </div>
 
 <div class="generalContainer">
-    <table id="example" class="table-custom table">
+    <table id="ordersc" class="table-custom table">
         <thead>
             <tr>
                 <th>N°</th>
@@ -27,40 +27,6 @@
                 <th>Acciones</th>
             </tr>
         </thead>
-
-        <tbody>
-            <?php while ($element = $orders->fetch_object()): ?>
-                <tr>
-                    <td>OC-00<?= $element->orden_id ?></td>
-                    <td><?= ucwords($element->nombre_proveedor) ?></td>
-                    <td class="hide-cell"><?= Help::LIST_ORDERS($element->orden_id) ?></td>
-                    <td><?= $element->creacion ?></td>
-                    <td class="hide-cell"><?= $element->expiracion ?></td>
-                    <td class="hide-cell">
-                        <input type="text" name="" class="form-custom <?php if ($element->nombre_estado == "Pendiente") { ?> Pendiente <?php } else { ?> Listo <?php } ?>"
-                            value="<?= $element->nombre_estado ?>" id="status_rp" disabled>
-                    </td>
-
-                    <td>
-
-                        <a class="action-edit <?php if ($element->nombre_estado == 'Facturado') { ?> action-disable <?php } ?> "
-                            href="<?php if ($element->nombre_estado != 'Facturado') {
-                                echo base_url . 'expenses/edit_order&id=' . $element->orden_id;
-                            } else {
-                                echo '#';
-                            } ?> ">
-
-                            <i class="fas fa-pencil-alt"></i>
-                        </a>
-
-                        <span style="font-size: 16px;" <?php if ($element->nombre_estado != 'Facturado') { ?>
-                                onclick="deleteOrderC('<?= $element->orden_id ?>')" <?php } ?>
-                            class="action-delete <?php if ($element->nombre_estado == 'Facturado') { ?>action-disable<?php } ?> "><i
-                                class="fas fa-times"></i></span>
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-        </tbody>
 
     </table>
 
