@@ -1,8 +1,6 @@
 navigator.serviceWorker && navigator.serviceWorker.register("../sw.js"); // Activacion del service worker
 const PRINTER_SERVER = "http://localhost:81/tickets/"; // URL local de la impresora
-const pathParts = window.location.pathname.split('/');
-const baseDir = pathParts[1]; 
-const SITE_URL = `${window.location.protocol}//${window.location.host}/${baseDir}/`;
+const SITE_URL = window.location.protocol + '//' + window.location.host + '/'; // Raiz del sistema
 
 let pageURL = $(location).attr("pathname");
 const format = new Intl.NumberFormat('en'); // Formato 0,000
