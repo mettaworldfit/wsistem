@@ -5,521 +5,297 @@ require_once '../config/parameters.php';
 require_once 'functions/functions.php';
 session_start();
 
-if ($_POST['action'] == "index_casi_agotados") {
+$db = Database::connect();
+$action = $_POST['action'] ?? '';
+
+/**
+ * Obtiene los datos de un producto y su cantidad de variantes activas.
+ *
+ * @param string $field      Campo por el cual se hará la búsqueda (por ejemplo, 'cod_producto' o 'producto_id').
+ * @param string|int $value  Valor del campo a buscar.
+ * @param bool $useLike      Si es true, usará LIKE para coincidencias parciales. Si es false, usará comparación exacta (=).
+ *
+ * @return array             Retorna un array con dos elementos:
+ *                           [0] => datos del producto (nombre, cantidad, precio, etc.),
+ *                           [1] => número total de variantes activas (estado_id = 13).
+ */
+function fetchProductData($field, $value, $useLike = false)
+{
 
   $db = Database::connect();
 
-  handleDataTableRequest($db, [
-    'columns' => [
-      'p.nombre_producto',
-      'p.cod_producto',
-      'c.nombre_categoria',
-      'a.nombre_almacen',
-      'p.cantidad',
-      'p.cantidad_min',
-      'p.precio_costo',
-      'p.precio_unitario',
-      'e.nombre_estado'
+  // Escapar el valor para evitar inyección SQL
+  $escaped_value = $db->real_escape_string($value);
 
-    ],
-    'searchable' => [
-      'p.cod_producto',
-      'p.nombre_producto',
-      'c.nombre_categoria',
-      'a.nombre_almacen'
-    ],
-    'base_table' => 'productos p',
-    'table_with_joins' => 'productos p 
+  // Determinar el operador de búsqueda
+  $operator = $useLike ? "LIKE '%$escaped_value%'" : "= '$escaped_value'";
+
+  // Consulta principal para obtener los datos del producto
+  $query = "SELECT p.nombre_producto, p.cantidad, p.precio_unitario, p.cod_producto, 
+                   pl.valor AS valor_lista, o.valor AS oferta, 
+                   p.producto_id AS IDproducto, i.valor AS impuesto, 
+                   p.estado_id, pos.referencia 
+            FROM productos p 
+            LEFT JOIN almacenes a ON p.almacen_id = a.almacen_id
+            LEFT JOIN productos_con_impuestos pim ON p.producto_id = pim.producto_id
+            LEFT JOIN impuestos i ON pim.impuesto_id = i.impuesto_id
+            LEFT JOIN productos_con_ofertas po ON p.producto_id = po.producto_id
+            LEFT JOIN ofertas o ON po.oferta_id = o.oferta_id
+            LEFT JOIN productos_con_posiciones pp ON p.producto_id = pp.producto_id
+            LEFT JOIN posiciones pos ON pp.posicion_id = pos.posicion_id
+            LEFT JOIN productos_con_lista_de_precios pl ON p.producto_id = pl.producto_id
+            LEFT JOIN lista_de_precios l ON pl.lista_id = l.lista_id
+            WHERE p.$field $operator
+            LIMIT 1";
+
+  // Consulta para contar variantes activas del producto
+  $query2 = "SELECT COUNT(v.variante_id) AS variante_total 
+             FROM variantes v 
+             INNER JOIN productos p ON p.producto_id = v.producto_id 
+             WHERE p.$field $operator AND v.estado_id = 13";
+
+  // Ejecutar las consultas
+  $result1 = $db->query($query)->fetch_assoc();
+  $result2 = $db->query($query2)->fetch_assoc();
+
+  // Devolver los resultados
+  return [$result1, $result2];
+}
+
+
+switch ($action) {
+  // Caso: Productos casi agotados
+  case 'index_casi_agotados':
+    handleDataTableRequest($db, [
+      'columns' => [
+        'p.nombre_producto',
+        'p.cod_producto',
+        'c.nombre_categoria',
+        'a.nombre_almacen',
+        'p.cantidad',
+        'p.cantidad_min',
+        'p.precio_costo',
+        'p.precio_unitario',
+        'e.nombre_estado'
+      ],
+      'searchable' => ['p.cod_producto', 'p.nombre_producto', 'c.nombre_categoria', 'a.nombre_almacen'],
+      'base_table' => 'productos p',
+      'table_with_joins' => 'productos p
         INNER JOIN estados_generales e ON p.estado_id = e.estado_id
         INNER JOIN almacenes a ON p.almacen_id = a.almacen_id
         LEFT JOIN productos_con_categorias pc ON p.producto_id = pc.producto_id
         LEFT JOIN categorias c ON pc.categoria_id = c.categoria_id',
-    'base_condition' => 'p.cantidad <= p.cantidad_min AND e.estado_id = 1',
-    'select' => 'SELECT p.cod_producto, p.nombre_producto,c.nombre_categoria,
-                a.nombre_almacen,p.cantidad_min,p.cantidad,p.precio_costo,
-                p.precio_unitario,e.nombre_estado,e.estado_id,p.producto_id',
-    'table_rows' => function ($row) {
-      return [
-        'cod_producto' => $row['cod_producto'],
-        'nombre' => ucwords($row['nombre_producto']),
-        'categoria' => ucwords($row['nombre_categoria'] ?? ''),
-        'almacen' => ucwords($row['nombre_almacen'] ?? ''),
+      'base_condition' => 'p.cantidad <= p.cantidad_min AND e.estado_id = 1',
+      'select' => 'SELECT p.cod_producto, p.nombre_producto, c.nombre_categoria, a.nombre_almacen,
+                         p.cantidad_min, p.cantidad, p.precio_costo, p.precio_unitario,
+                         e.nombre_estado, e.estado_id, p.producto_id',
+      'table_rows' => function ($row) {
+        return [
+          'cod_producto' => $row['cod_producto'],
+          'nombre' => ucwords($row['nombre_producto']),
+          'categoria' => ucwords($row['nombre_categoria'] ?? ''),
+          'almacen' => ucwords($row['nombre_almacen'] ?? ''),
 
-        'cantidad' => $row['cantidad'] < 1
-          ? '<span class="text-danger">' . $row['cantidad'] . '</span>'
-          : ($row['cantidad'] <= $row['cantidad_min']
-            ? '<span class="text-warning">' . $row['cantidad'] . '</span>'
-            : '<span class="text-success">' . $row['cantidad'] . '</span>'),
+          'cantidad' => $row['cantidad'] < 1
+            ? '<span class="text-danger">' . $row['cantidad'] . '</span>'
+            : ($row['cantidad'] <= $row['cantidad_min']
+              ? '<span class="text-warning">' . $row['cantidad'] . '</span>'
+              : '<span class="text-success">' . $row['cantidad'] . '</span>'),
 
-        'precio_costo' => number_format($row['precio_costo'], 2),
-        'precio_unitario' => number_format($row['precio_unitario'], 2),
+          'precio_costo' => number_format($row['precio_costo'], 2),
+          'precio_unitario' => number_format($row['precio_unitario'], 2),
 
-        'acciones' =>
-        // Botón editar
-        '<a class="action-edit ' . ($row['nombre_estado'] != 'Activo' ? 'action-disable' : '') . '" title="Editar" href="' .
-          ($row['nombre_estado'] == 'Activo' ? base_url . 'products/edit&id=' . $row['producto_id'] : '#') . '">' .
-          '<i class="fas fa-pencil-alt"></i></a> ' .
+          'acciones' =>
+          // Botón editar
+          '<a class="action-edit ' . ($row['nombre_estado'] != 'Activo' ? 'action-disable' : '') . '" title="Editar" href="' .
+            ($row['nombre_estado'] == 'Activo' ? base_url . 'products/edit&id=' . $row['producto_id'] : '#') . '">' .
+            '<i class="fas fa-pencil-alt"></i></a> ' .
 
-          // Botón activar/desactivar
-          '<span class="' . ($row['nombre_estado'] == 'Activo' ? 'action-active' : 'action-delete') . '" ' .
-          (
-            ($_SESSION['identity']->nombre_rol == 'administrador')
-            ? (
-              $row['nombre_estado'] == 'Activo'
-              ? 'onclick="disableProduct(\'' . $row['producto_id'] . '\')"'
-              : 'onclick="enableProduct(\'' . $row['producto_id'] . '\')"'
-            )
-            : ''
-          ) . ' title="' . ($row['nombre_estado'] == 'Activo' ? 'Desactivar ítem' : 'Activar') . '">' .
-          '<i class="fas fa-lightbulb"></i></span> ' .
+            // Botón activar/desactivar
+            '<span class="' . ($row['nombre_estado'] == 'Activo' ? 'action-active' : 'action-delete') . '" ' .
+            (
+              ($_SESSION['identity']->nombre_rol == 'administrador')
+              ? (
+                $row['nombre_estado'] == 'Activo'
+                ? 'onclick="disableProduct(\'' . $row['producto_id'] . '\')"'
+                : 'onclick="enableProduct(\'' . $row['producto_id'] . '\')"'
+              )
+              : ''
+            ) . ' title="' . ($row['nombre_estado'] == 'Activo' ? 'Desactivar ítem' : 'Activar') . '">' .
+            '<i class="fas fa-lightbulb"></i></span> ' .
 
-          // Botón eliminar
-          '<span class="' .
-          ($_SESSION['identity']->nombre_rol == 'administrador' ? 'action-delete' : 'action-delete action-disable') . '" ' .
-          ($_SESSION['identity']->nombre_rol == 'administrador' ? 'onclick="deleteProduct(\'' . $row['producto_id'] . '\')"' : '') .
-          ' title="Eliminar"><i class="fas fa-times"></i></span>'
-      ];
-    }
-  ]);
-}
+            // Botón eliminar
+            '<span class="' .
+            ($_SESSION['identity']->nombre_rol == 'administrador' ? 'action-delete' : 'action-delete action-disable') . '" ' .
+            ($_SESSION['identity']->nombre_rol == 'administrador' ? 'onclick="deleteProduct(\'' . $row['producto_id'] . '\')"' : '') .
+            ' title="Eliminar"><i class="fas fa-times"></i></span>'
+        ];
+      }
 
-// mostrar tabla de productos
+    ]);
+    break;
 
-if ($_POST['action'] == "index_productos") {
-
-  $db = Database::connect();
-
-  handleDataTableRequest($db, [
-    'columns' => [
-      'p.nombre_producto',
-      'p.cod_producto',
-      'c.nombre_categoria',
-      'a.nombre_almacen',
-      'p.cantidad_min',
-      'p.cantidad',
-      'p.precio_costo',
-      'p.precio_unitario',
-      'e.nombre_estado'
-    ],
-    'searchable' => [
-      'p.cod_producto',
-      'p.nombre_producto',
-      'c.nombre_categoria',
-      'a.nombre_almacen'
-    ],
-    'base_table' => 'productos',
-    'table_with_joins' => 'productos p 
+  // Caso: Listado de todos los productos
+  case 'index_productos':
+    handleDataTableRequest($db, [
+      'columns' => [
+        'p.nombre_producto',
+        'p.cod_producto',
+        'c.nombre_categoria',
+        'a.nombre_almacen',
+        'p.cantidad_min',
+        'p.cantidad',
+        'p.precio_costo',
+        'p.precio_unitario',
+        'e.nombre_estado'
+      ],
+      'searchable' => ['p.cod_producto', 'p.nombre_producto', 'c.nombre_categoria', 'a.nombre_almacen'],
+      'base_table' => 'productos',
+      'table_with_joins' => 'productos p
         INNER JOIN estados_generales e ON p.estado_id = e.estado_id
-        INNER JOIN almacenes a on p.almacen_id = a.almacen_id
+        INNER JOIN almacenes a ON p.almacen_id = a.almacen_id
         LEFT JOIN productos_con_categorias pc ON p.producto_id = pc.producto_id
         LEFT JOIN categorias c ON pc.categoria_id = c.categoria_id',
-    'select' => 'SELECT p.cod_producto,p.producto_id, p.nombre_producto, c.nombre_categoria,
-               a.nombre_almacen, p.cantidad_min, p.cantidad, p.precio_costo,
-               p.precio_unitario, e.nombre_estado, p.producto_id as idproducto',
-    'table_rows' => function ($row) {
-      $cantidad = '<span ';
-      if ($row['cantidad'] > $row['cantidad_min']) {
-        $cantidad .= 'class="text-success">';
-      } elseif ($row['cantidad'] < 1) {
-        $cantidad .= 'class="text-danger">';
-      } else {
-        $cantidad .= 'class="text-warning">';
+      'select' => 'SELECT p.cod_producto, p.producto_id, p.nombre_producto, c.nombre_categoria,
+                         a.nombre_almacen, p.cantidad_min, p.cantidad, p.precio_costo,
+                         p.precio_unitario, e.nombre_estado, p.producto_id as idproducto',
+      'table_rows' => function ($row) {
+        $cantidad = '<span ';
+        if ($row['cantidad'] > $row['cantidad_min']) {
+          $cantidad .= 'class="text-success">';
+        } elseif ($row['cantidad'] < 1) {
+          $cantidad .= 'class="text-danger">';
+        } else {
+          $cantidad .= 'class="text-warning">';
+        }
+        $cantidad .= $row['cantidad'] . '</span>';
+
+        return [
+          'codigo' => $row['cod_producto'],
+          'nombre' => $row['nombre_producto'],
+          'categoria' => $row['nombre_categoria'],
+          'almacen' => $row['nombre_almacen'],
+          'cantidad' => $cantidad,
+          'precio_costo' => number_format($row['precio_costo'], 2),
+          'precio_unitario' => number_format($row['precio_unitario'], 2),
+          'estado' => '<span class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</span>',
+
+          'acciones' => '
+      <a class="action-edit ' . ($row['nombre_estado'] != 'Activo' ? 'action-disable' : '') . '" 
+         title="Editar"
+         href="' . ($row['nombre_estado'] == 'Activo' ? base_url . 'products/edit&id=' . $row['idproducto'] : '#') . '"> 
+          <i class="fas fa-pencil-alt"></i>
+      </a>
+  
+      <span class="' . ($row['nombre_estado'] == 'Activo' ? 'action-active' : 'action-delete') . '" 
+            ' . (
+            $row['nombre_estado'] == 'Activo' && $_SESSION['identity']->nombre_rol == 'administrador'
+            ? 'onclick="disableProduct(\'' . $row['idproducto'] . '\')"'
+            : ($_SESSION['identity']->nombre_rol == 'administrador'
+              ? 'onclick="enableProduct(\'' . $row['idproducto'] . '\')"'
+              : '')
+          ) . '
+            ' . ($row['nombre_estado'] == 'Activo' ? 'title="Desactivar ítem"' : 'title="Activar"') . '>
+          <i class="fas fa-lightbulb"></i>
+      </span>
+  
+      <span ' .
+            ($_SESSION['identity']->nombre_rol == 'administrador'
+              ? 'class="action-delete" onclick="deleteProduct(\'' . $row['idproducto'] . '\')"'
+              : 'class="action-delete action-disable"'
+            ) . ' title="Eliminar">
+          <i class="fas fa-times"></i>
+      </span>'
+
+        ];
       }
-      $cantidad .= $row['cantidad'] . '</span>';
+    ]);
+    break;
 
-      return [
-        'codigo' => $row['cod_producto'],
-        'nombre' => $row['nombre_producto'],
-        'categoria' => $row['nombre_categoria'],
-        'almacen' => $row['nombre_almacen'],
-        'cantidad' => $cantidad,
-        'precio_costo' => number_format($row['precio_costo'], 2),
-        'precio_unitario' => number_format($row['precio_unitario'], 2),
-        'estado' => '<span class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</span>',
+  // Caso: Buscar producto por código
+  case 'buscar_codigo_producto':
+    echo json_encode(fetchProductData("cod_producto", $_POST['product_code'] ?? '', true), JSON_UNESCAPED_UNICODE);
+    break;
 
-        'acciones' => '
-    <a class="action-edit ' . ($row['nombre_estado'] != 'Activo' ? 'action-disable' : '') . '" 
-       title="Editar"
-       href="' . ($row['nombre_estado'] == 'Activo' ? base_url . 'products/edit&id=' . $row['idproducto'] : '#') . '"> 
-        <i class="fas fa-pencil-alt"></i>
-    </a>
+  // Caso: Buscar producto por ID
+  case 'buscar_producto':
+    echo json_encode(fetchProductData("producto_id", $_POST['product_id'] ?? '', false), JSON_UNESCAPED_UNICODE);
+    break;
 
-    <span class="' . ($row['nombre_estado'] == 'Activo' ? 'action-active' : 'action-delete') . '" 
-          ' . (
-          $row['nombre_estado'] == 'Activo' && $_SESSION['identity']->nombre_rol == 'administrador'
-          ? 'onclick="disableProduct(\'' . $row['idproducto'] . '\')"'
-          : ($_SESSION['identity']->nombre_rol == 'administrador'
-            ? 'onclick="enableProduct(\'' . $row['idproducto'] . '\')"'
-            : '')
-        ) . '
-          ' . ($row['nombre_estado'] == 'Activo' ? 'title="Desactivar ítem"' : 'title="Activar"') . '>
-        <i class="fas fa-lightbulb"></i>
-    </span>
+  // Caso: Buscar variantes de un producto
+  case 'buscar_variantes':
+    $product_id = (int)$_POST['product_id'];
+    $result = $db->query("SELECT v.imei, v.serial, v.caja, v.costo_unitario, c.color, p.nombre_producto, v.fecha, v.variante_id as id
+                          FROM variantes v
+                          INNER JOIN productos p ON p.producto_id = v.producto_id
+                          LEFT JOIN variantes_con_colores vc ON vc.variante_id = v.variante_id
+                          LEFT JOIN colores c ON c.color_id = vc.color_id
+                          WHERE v.producto_id = '$product_id' AND v.estado_id != 14");
 
-    <span ' .
-          ($_SESSION['identity']->nombre_rol == 'administrador'
-            ? 'class="action-delete" onclick="deleteProduct(\'' . $row['idproducto'] . '\')"'
-            : 'class="action-delete action-disable"'
-          ) . ' title="Eliminar">
-        <i class="fas fa-times"></i>
-    </span>'
-
-      ];
+    if ($result && $result->num_rows > 0) {
+      while ($element = $result->fetch_object()) {
+        echo '<option value="' . $element->id . '">' . ucwords($element->nombre_producto) .
+          ' | IMEI: ' . $element->imei . ' | Serial: ' . $element->serial .
+          ' | Color: ' . ucwords($element->color) . ' | En caja: ' . $element->caja . '</option>';
+      }
     }
-  ]);
-}
-
-
-/**
- * Buscar producto por código
- ----------------------------------------*/
-
-if ($_POST['action'] == "buscar_codigo_producto") {
-
-  $q = $_POST['product_code'];
-  $db = Database::connect();
-
-  $query = "SELECT p.nombre_producto, p.cantidad, p.precio_unitario, p.cod_producto, pl.valor as 'valor_lista', o.valor as 'oferta', 
-            p.producto_id as 'IDproducto', i.valor as 'impuesto', p.estado_id, pos.referencia FROM productos p 
-            LEFT JOIN almacenes a ON p.almacen_id = a.almacen_id
-            LEFT JOIN productos_con_impuestos pim ON p.producto_id = pim.producto_id
-            LEFT JOIN impuestos i ON pim.impuesto_id = i.impuesto_id
-            LEFT JOIN productos_con_ofertas po ON p.producto_id = po.producto_id
-            LEFT JOIN ofertas o ON po.oferta_id = o.oferta_id
-            LEFT JOIN productos_con_posiciones pp ON p.producto_id = pp.producto_id
-            LEFT JOIN posiciones pos ON pp.posicion_id = pos.posicion_id
-            LEFT JOIN productos_con_lista_de_precios pl ON p.producto_id = pl.producto_id
-            LEFT JOIN lista_de_precios l ON pl.lista_id = l.lista_id
-            WHERE p.cod_producto LIKE '%$q%'";
-
-  $query2 = "SELECT count(v.variante_id) as variante_total, p.cod_producto FROM variantes v
-             INNER JOIN productos p ON p.producto_id = v.producto_id
-             WHERE p.cod_producto = '$q' AND v.estado_id = 13";
-
-  $datos = $db->query($query);
-  $result = $datos->fetch_assoc();
-
-  $datos2 = $db->query($query2);
-  $result2 = $datos2->fetch_assoc();
-
-  $arr = array($result, $result2);
-
-  echo json_encode($arr, JSON_UNESCAPED_UNICODE);
-  exit;
-}
-
-// Buscar producto por nombre
-
-if ($_POST['action'] == "buscar_producto") {
-
-  $q = $_POST['product_id'];
-  $db = Database::connect();
-
-  $query = "SELECT p.nombre_producto, p.cantidad, p.precio_unitario, p.cod_producto, pl.valor as 'valor_lista', o.valor as 'oferta', 
-  p.producto_id as 'IDproducto', i.valor as 'impuesto', p.estado_id, pos.referencia FROM productos p 
-            LEFT JOIN almacenes a ON p.almacen_id = a.almacen_id
-            LEFT JOIN productos_con_impuestos pim ON p.producto_id = pim.producto_id
-            LEFT JOIN impuestos i ON pim.impuesto_id = i.impuesto_id
-            LEFT JOIN productos_con_ofertas po ON p.producto_id = po.producto_id
-            LEFT JOIN ofertas o ON po.oferta_id = o.oferta_id
-            LEFT JOIN productos_con_posiciones pp ON p.producto_id = pp.producto_id
-            LEFT JOIN posiciones pos ON pp.posicion_id = pos.posicion_id
-            LEFT JOIN productos_con_lista_de_precios pl ON p.producto_id = pl.producto_id
-            LEFT JOIN lista_de_precios l ON pl.lista_id = l.lista_id
-            WHERE p.producto_id = $q";
-
-  $query2 = "SELECT count(variante_id) as variante_total FROM variantes
-             WHERE producto_id = '$q' AND estado_id = 13";
-
-  $datos = $db->query($query);
-  $result = $datos->fetch_assoc();
-
-  $datos2 = $db->query($query2);
-  $result2 = $datos2->fetch_assoc();
-
-  $arr = array($result, $result2);
-
-  echo json_encode($arr, JSON_UNESCAPED_UNICODE);
-  exit;
-}
-
-// buscar variantes del producto
-
-if ($_POST['action'] == "buscar_variantes") {
-
-  $product_id = $_POST['product_id'];
-  $db = Database::connect();
-
-  $query = "SELECT v.imei,v.serial,v.caja,v.costo_unitario,c.color,p.nombre_producto,v.fecha,v.variante_id as id  FROM variantes v
-            INNER JOIN productos p ON p.producto_id = v.producto_id
-            LEFT JOIN variantes_con_colores vc ON vc.variante_id = v.variante_id
-            LEFT JOIN colores c ON c.color_id = vc.color_id
-            WHERE v.producto_id = '$product_id' AND v.estado_id != 14";
-
-  $datos = $db->query($query);
-  $html = '';
-
-  while ($element = $datos->fetch_object()) {
-
-
-    $html = '<option value="' . $element->id . '">' . ucwords($element->nombre_producto) . ' | IMEI: ' . $element->imei . ' | Serial: ' . $element->serial .
-      ' | Color: ' .  ucwords($element->color) . ' | En caja: ' . $element->caja . '</option>';
-
-
-    echo $html;
-  }
-}
-
-// Crear producto
-
-if ($_POST['action'] == "agregar_producto") {
-
-  $db = Database::connect();
-
-  $userID = $_SESSION['identity']->usuario_id;
-  $product_code = $_POST['product_code'];
-  $name = $_POST['name'];
-  $price_in = (!empty($_POST['price_in'])) ? $_POST['price_in'] : 0;
-  $price_out = $_POST['price_out'];
-  $quantity = $_POST['quantity'];
-  $min_quantity = (!empty($_POST['min_quantity'])) ? $_POST['min_quantity'] : 0;
-  $tax_id = ($_POST['tax'] != "Vacío") ? $_POST['tax'] : 0;
-  $provider_id = $_POST['provider'];
-  $brand_id = $_POST['brand'];
-  $offer_id = ($_POST['offer'] != "Vacío") ? $_POST['offer'] : 0;
-  $position_id = $_POST['position'];
-  $category_id = $_POST['category'];
-  $warehouse_id = $_POST['warehouse'];
-  $img = "";
-
-  $query = "CALL pr_agregarProducto($userID,$warehouse_id,'$product_code','$name','$price_in','$price_out',
-  '$quantity','$min_quantity','$category_id','$position_id','$tax_id','$offer_id','$brand_id','$provider_id','$img')";
-
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg > 0) {
-
-    echo $data->msg;
-  } else if (str_contains($data->msg, 'Duplicate')) {
-
-    echo "duplicate";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error 50: " . $db->error;
-  }
-}
-
-
-// Editar producto
-
-if ($_POST['action'] == "editar_producto") {
-
-  $db = Database::connect();
-
-  // $userID = $_SESSION['identity']->usuario_id;
-  $product_id = $_POST['product_id'];
-  $product_code = $_POST['product_code'];
-  $name = $_POST['name'];
-  $price_in = (!empty($_POST['price_in'])) ? $_POST['price_in'] : 0;
-  $price_out = $_POST['price_out'];
-  $quantity = $_POST['quantity'];
-  $min_quantity = (!empty($_POST['min_quantity'])) ? $_POST['min_quantity'] : 0;
-  $tax_id = ($_POST['tax'] != "Vacío") ? $_POST['tax'] : 0;
-  $provider_id = $_POST['provider'];
-  $brand_id = $_POST['brand'];
-  $offer_id = ($_POST['offer'] != "Vacío") ? $_POST['offer'] : 0;
-  $position_id = $_POST['position'];
-  $category_id = $_POST['category'];
-  $warehouse_id = $_POST['warehouse'];
-  $img = "-";
-
-
-  $query = "CALL pr_editarProducto($product_id,'$warehouse_id','$product_code','$name','$price_in','$price_out',
-  '$quantity','$min_quantity',$category_id,$position_id,$tax_id,$offer_id,$brand_id,$provider_id,'$img')";
-
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo $data->msg;
-  } else if (str_contains($data->msg, 'Duplicate')) {
-
-    echo "duplicate";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error 50: " . $db->error;
-  }
-}
-
-
-//  Eliminar producto
-
-if ($_POST['action'] == "eliminarProducto") {
-
-  $id = $_POST['product_id'];
-
-  $db = Database::connect();
-
-  $query = "CALL pr_eliminarProducto('$id')";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo $data->msg;
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error 50: " . $db->error;
-  }
-}
-
-/**
- * Verificar codigo del producto
- -----------------------------------------*/
-
-if ($_POST['action'] == "verificar-codigo") {
-
-  $code = $_POST['product_code'];
-
-  $db = Database::connect();
-
-  $query = "SELECT product_code FROM products WHERE product_code = '$code'";
-
-  if ($db->query($query) === TRUE) {
-
-    echo 'aprovado';
-  } else {
-
-    echo 'no disponible';
-
-    // echo "Error: " . $db->error;
-  }
-}
-
-
-/**
- * Desactivar producto
- ----------------------------------------------*/
-
-if ($_POST['action'] == "desactivar_producto") {
-  $db = Database::connect();
-
-  $id = $_POST['product_id'];
-
-  $query = "CALL pr_cambiarEstado($id,'desactivar')";
-
-  if ($db->query($query) === TRUE) {
-
-    echo "ready";
-  } else {
-
-    echo "Error : " . $db->error;
-  }
-
-
-  /**
-   * Activar producto
- ----------------------------------------------*/
-} else if ($_POST['action'] == "activar_producto") {
-
-  $db = Database::connect();
-
-  $id = $_POST['product_id'];
-
-  $query = "CALL pr_cambiarEstado($id,'activar')";
-
-  if ($db->query($query) === TRUE) {
-
-    echo "ready";
-  } else {
-
-    echo "Error : " . $db->error;
-  }
-}
-
-// Asignar variante a producto
-
-if ($_POST['action'] == "asignar_variante") {
-
-  $id = $_POST['id'];
-  $colour = (!empty($_POST['colour_id'])) ? $_POST['colour_id'] : 0;
-  $provider = (!empty($_POST['provider_id'])) ? $_POST['provider_id'] : 0;
-  $imei = $_POST['imei'];
-  $serial = $_POST['serial'];
-  $box = $_POST['box'];
-  $cost = $_POST['cost'];
-  $imagen = "-";
-
-  $db = Database::connect();
-
-  $query = "CALL pr_asignarVariante($id,$colour,$provider,'$imei','$serial','$cost','$box','$imagen')";
-
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo "ready";
-  } else if (str_contains($data->msg, 'Duplicate')) {
-
-    echo "duplicate";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error : " . $db->error;
-  }
-}
-
-// Agregar variantes a un producto
-
-if ($_POST['action'] == "agregar_variantes") {
-
-  $product_id = $_POST['product_id'];
-  $colour = (!empty($_POST['colour_id'])) ? $_POST['colour_id'] : 0;
-  $provider = (!empty($_POST['provider_id'])) ? $_POST['provider_id'] : 0;
-  $imei = $_POST['imei'];
-  $serial = $_POST['serial'];
-  $box = $_POST['box'];
-  $cost = $_POST['cost'];
-  $imagen = "-";
-
-  $db = Database::connect();
-  $query = "CALL pr_asignarVariante($product_id,$colour,$provider,'$imei','$serial','$cost','$box','$imagen')";
-
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg > 0) {
-
-    echo $data->msg;
-  } else if (str_contains($data->msg, 'Duplicate')) {
-
-    echo "duplicate";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error : " . $db->error;
-  }
-}
-
-// Eliminar variante
-
-if ($_POST['action'] == "eliminar_variante") {
-
-  $id = $_POST['id'];
-  $db = Database::connect();
-
-
-  $query = "CALL pr_eliminarVariante($id)";
-
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo "ready";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error 50: " . $db->error;
-  }
+    break;
+
+  // Caso: Agregar o editar un producto
+  case 'agregar_producto':
+  case 'editar_producto':
+    $params = [
+      $action === 'editar_producto' ? $_POST['product_id'] : $_SESSION['identity']->usuario_id,
+      $_POST['warehouse'],
+      $_POST['product_code'],
+      $_POST['name'],
+      $_POST['price_in'] ?? 0,
+      $_POST['price_out'] ?? 0,
+      $_POST['quantity'] ?? 0,
+      $_POST['min_quantity'] ?? 0,
+      $_POST['category'],
+      $_POST['position'],
+      ($_POST['tax'] != "Vacío") ? $_POST['tax'] : 0,
+      ($_POST['offer'] != "Vacío") ? $_POST['offer'] : 0,
+      $_POST['brand'],
+      $_POST['provider'],
+      ''
+    ];
+    $procedure = $action === 'editar_producto' ? 'pr_editarProducto' : 'pr_agregarProducto';
+    echo handleProcedureAction($db, $procedure, $params);
+    break;
+
+  // Caso: Eliminar producto
+  case 'eliminarProducto':
+    echo handleProcedureAction($db, 'pr_eliminarProducto', [$_POST['product_id']]);
+    break;
+
+  // Caso: Desactivar producto
+  case 'desactivar_producto':
+    echo handleProcedureAction($db, 'pr_cambiarEstado', [$_POST['product_id'], 'desactivar']);
+    break;
+
+  // Caso: Activar producto
+  case 'activar_producto':
+    echo handleProcedureAction($db, 'pr_cambiarEstado', [$_POST['product_id'], 'activar']);
+    break;
+
+  // Caso: Agregar variantes a un producto
+  case 'agregar_variantes':
+    echo handleProcedureAction($db, 'pr_asignarVariante', [
+      $_POST['product_id'],
+      $_POST['colour_id'] ?? 0,
+      $_POST['provider_id'] ?? 0,
+      $_POST['imei'],
+      $_POST['serial'],
+      $_POST['cost'],
+      $_POST['box'],
+      '-'
+    ]);
+    break;
+
+  // Caso: Eliminar una variante
+  case 'eliminar_variante':
+    echo handleProcedureAction($db, 'pr_eliminarVariante', [$_POST['id']]);
+    break;
 }

@@ -687,7 +687,7 @@ $(document).ready(function () {
         }
     });
 
-    // Agregar producto
+    // Crear producto
 
     $("#createProduct").on("click", (e) => {
         e.preventDefault();
@@ -739,6 +739,7 @@ $(document).ready(function () {
                 action: "agregar_producto"
             },
             successCallback: (res) => {
+                console.log(res)
                 if (res > 0) {
                     if (localStorage.getItem("lista_de_precios")) assignProductPrice(res);
                     if (localStorage.getItem("variantes")) assignProductVariant(res);
@@ -816,14 +817,14 @@ $(document).ready(function () {
                 sendAjaxRequest({
                     url: "services/products.php",
                     data: {
-                        action: "asignar_variante",
+                        action: "agregar_variantes",
                         colour_id: variant.colour_id,
                         provider_id: variant.provider_id,
                         imei: variant.imei,
                         serial: variant.serial,
                         box: variant.box,
                         cost: variant.cost,
-                        id: productId,
+                        product_id: productId,
                     },
                     successCallback: (res) => {
                         console.log(res)

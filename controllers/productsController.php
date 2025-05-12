@@ -27,7 +27,6 @@ class ProductsController
 
         $avg = $x->costo_promedio;
 
-
         require_once './views/products/edit.php';
 
         } else {
@@ -38,9 +37,7 @@ class ProductsController
 
     public function stock()
     {
-        $model = new Products();
-
-        $products = $model->showMinStock();
+    
         require_once './views/products/stock.php';
     }
 

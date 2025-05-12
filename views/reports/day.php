@@ -37,18 +37,16 @@
 </div>
 
 <?php
-$total_vendido = "0";
-$total_pendiente = "0";
-$total_recibido = "0";
+$total_vendido = 0.0;
+$total_pendiente = 0.0;
+$total_recibido = 0.0;
 
-while ($element = $invoices->fetch_object()):
-
-    $total_recibido += $element->recibido;
-    $total_vendido += $element->total;
-    $total_pendiente += $element->pendiente;
+while ($element = $invoices->fetch_object()) {
+    $total_recibido += floatval($element->recibido);
+    $total_vendido += floatval($element->total);
+    $total_pendiente += floatval($element->pendiente);
+}
 ?>
-
-<?php endwhile; ?>
 
 <div class="buttons clearfix">
     <div class="floatButtons">

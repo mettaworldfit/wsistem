@@ -14,8 +14,6 @@
     </div>
 </div>
 
-
-
 <div class="generalContainer">
     <table id="minStockProduct" class="table-custom table ">
         <thead>

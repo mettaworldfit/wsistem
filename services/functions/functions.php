@@ -140,32 +140,78 @@ function handleDeletionAction($db, int $id, string $procedureName): string
  */
 function handleProcedureAction(mysqli $db, string $procedure, array $params): string
 {
-    // Escapar y preparar cada parámetro antes de incluirlo en la consulta
+    // Escapa parámetros: numéricos tal cual, textos con comillas y escapados
     $escapedParams = array_map(function ($param) use ($db) {
-        // Si el parámetro es numérico, se deja tal cual; si es texto, se escapa y se encierra entre comillas simples
         return is_numeric($param) ? $param : "'" . $db->real_escape_string($param) . "'";
     }, $params);
 
-    // Armar la consulta con el llamado al procedimiento almacenado y los parámetros preparados
+    // Armar consulta CALL
     $query = "CALL $procedure(" . implode(',', $escapedParams) . ")";
 
-    // Ejecutar
+    // Ejecutar consulta
     $result = $db->query($query);
+
+    // Validar error de SQL
     if (!$result) {
-        // Si el mensaje contiene la palabra "SQL", se interpreta como un error de base de datos
-        return "Error SQL: " . $db->error;
+        return "Error" . $db->error;;
     }
 
-    // Si no coincide con ninguno de los anteriores, se devuelve el mensaje tal cual o uno por defecto
+    // Obtener resultado
     $data = $result->fetch_object();
+
+    // Validar respuesta
     if (!$data || !isset($data->msg)) {
         return "Error: Respuesta inesperada del procedimiento.";
     }
 
-    return match (true) {
-        $data->msg === "ready" => "ready",
-        str_contains($data->msg, 'Duplicate') => "duplicate",
-        str_contains($data->msg, 'SQL') => "Error en $procedure: " . $data->msg,
-        default => $data->msg
-    };
+    // Evaluar contenido de msg
+    if (is_numeric($data->msg) && $data->msg > 0) {
+        return $data->msg;
+    } elseif (str_contains($data->msg, 'Duplicate')) {
+        return "duplicate";
+    } elseif (str_contains($data->msg, 'SQL')) {
+        return "Error en $procedure: " . $data->msg;
+    }
+
+    return $data->msg;
 }
+
+/**
+ * Ejecuta una consulta SQL y devuelve el resultado en formato JSON.
+ *
+ * - Si hay un solo resultado: retorna un objeto JSON.
+ * - Si hay varios resultados: retorna un array de objetos JSON.
+ * - Si hay un error SQL: retorna un mensaje de error detallado.
+ *
+ * @param mysqli $db    Conexión activa a la base de datos.
+ * @param string $query Consulta SQL a ejecutar (NO preparada).
+ *
+ * @return void
+ */
+function jsonQueryResult(mysqli $db, string $query): void {
+    $result = $db->query($query);
+  
+    if (!$result) {
+      echo json_encode([
+        'error' => true,
+        'message' => 'Error en la consulta SQL',
+        'sql_error' => $db->error
+      ], JSON_UNESCAPED_UNICODE);
+      exit;
+    }
+  
+    if ($result->num_rows === 0) {
+      echo json_encode(null, JSON_UNESCAPED_UNICODE);
+    } elseif ($result->num_rows === 1) {
+      echo json_encode($result->fetch_assoc(), JSON_UNESCAPED_UNICODE);
+    } else {
+      $rows = [];
+      while ($row = $result->fetch_assoc()) {
+        $rows[] = $row;
+      }
+      echo json_encode($rows, JSON_UNESCAPED_UNICODE);
+    }
+  
+    exit;
+  }
+  

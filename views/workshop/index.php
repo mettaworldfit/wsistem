@@ -76,8 +76,8 @@
                                     <option value="" selected>Nínguno</option>
                                     <?php $customers = Help::showCustomers();
                                     while ($customer = $customers->fetch_object()): ?>
-                                        <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre) ?>
-                                            <?= ucwords($customer->apellidos) ?>
+                                        <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre ?? '') ?>
+                                            <?= ucwords($customer->apellidos ?? '') ?>
                                         </option>
                                     <?php endwhile; ?>
                                 </select>
@@ -98,8 +98,8 @@
                                     <option value="" selected>Nínguno</option>
                                     <?php $devices = Help::showDevices();
                                     while ($device = $devices->fetch_object()): ?>
-                                        <option value="<?= $device->equipo_id ?>"><?= ucwords($device->nombre_marca) ?>
-                                            <?= ucwords($device->nombre_modelo) ?>     <?= strtoupper($device->modelo) ?>
+                                        <option value="<?= $device->equipo_id ?>"><?= ucwords($device->nombre_marca ?? '') ?>
+                                            <?= ucwords($device->nombre_modelo ?? '') ?>     <?= strtoupper($device->modelo ?? '') ?>
                                         </option>
                                     <?php endwhile; ?>
                                 </select>

@@ -470,6 +470,14 @@ $(document).ready(function() {
             columns: [
                 'cod_producto', 'nombre', 'categoria', 'almacen', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
             ]
+        },
+        {
+            id: '#services',
+            url: 'services/services.php',
+            action: 'index_servicios',
+            columns: [
+                'servicio_id', 'nombre_servicio', 'precio', 'acciones'
+            ]
         }
         
     ];

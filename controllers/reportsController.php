@@ -1,5 +1,4 @@
 <?php
-require_once './models/invoices.php';
 
 class ReportsController 
 {
@@ -7,8 +6,7 @@ class ReportsController
     public function day()
     {
 
-        $method = new Invoices();
-        $invoices = $method->showInvoicesToDay();
+        $invoices = Help::calculateSalesToDay();
 
         require_once './views/reports/day.php';
     }

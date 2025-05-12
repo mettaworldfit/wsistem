@@ -50,7 +50,8 @@ if ($_POST['action'] == "index_facturas_ventas") {
           'f.recibido', 'f.pendiente', 'f.bono', 'e.nombre_estado'
       ],
       'searchable' => [
-          'c.nombre', 'c.apellidos', 'e.nombre_estado', 'f.factura_venta_id', 'f.fecha'
+          'c.nombre', 'c.apellidos', 'e.nombre_estado', 'f.factura_venta_id','f.total',
+          'f.recibido', 'f.pendiente','f.fecha'
       ],
       'base_table' => 'facturas_ventas f INNER JOIN clientes c ON f.cliente_id = c.cliente_id INNER JOIN estados_generales e ON f.estado_id = e.estado_id',
       'table_with_joins' => 'facturas_ventas f INNER JOIN clientes c ON f.cliente_id = c.cliente_id INNER JOIN estados_generales e ON f.estado_id = e.estado_id',
