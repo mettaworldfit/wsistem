@@ -1,7 +1,5 @@
 <?php
 
-require_once './models/users.php';
-
 class UsersController
 {
 
@@ -9,10 +7,7 @@ class UsersController
     {
         // Verificar rol de usuario
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
-
-            $method = new Users;
-            $users = $method->showUsers();
-
+            
             require_once './views/users/index.php';
         } else {
             // Permiso denegado

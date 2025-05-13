@@ -21,7 +21,7 @@ switch ($action) {
         'o.imei', 'o.serie', 'es.nombre_estado'
       ],
       'searchable' => [
-        'c.nombre', 'c.apellidos', 'o.orden_rp', 'o.imei', 'o.serie',
+        'c.nombre', 'c.apellidos', 'o.orden_rp_id', 'o.imei', 'o.serie',
         'o.fecha_entrada', 'o.fecha_salida', 'e.nombre_modelo',
         'm.nombre_marca', 'es.nombre_estado'
       ],

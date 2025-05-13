@@ -133,13 +133,12 @@ function AddUser() {
 
 // Actualizar usuario
 
-function UpdateUser(user_id) {
+function UpdateUser(userId) {
 
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/users.php",
+    sendAjaxRequest({
+        url: "services/users.php",
         data: {
-            id: user_id,
+            id: userId,
             username: $('#username').val(),
             name: $('#name').val(),
             lastname: $('#lastname').val(),
@@ -147,24 +146,12 @@ function UpdateUser(user_id) {
             password: $('#password').val(),
             action: "actualizar_usuario"
         },
-        beforeSend: function() {
-
-        },
-        success: function(res) {
-
+        successCallback: (res) => {
             if (res == "ready") {
-                mysql_row_update()
+               
+                mysql_row_affected()
 
-            } else if (res == "duplicate") {
-
-                mysql_error('El nombre de usuario ya está siendo utilizado');
-
-            } else if (res.includes("Error")) {
-                mysql_error(res)
             }
-
-
-
         }
     });
 }
@@ -172,31 +159,21 @@ function UpdateUser(user_id) {
 
 // Desactivar usuario
 
-function disableUser(user_id) {
+function disableUser(userId) {
     alertify.confirm("<i class='text-warning fas fa-exclamation-circle'></i> Desactivar usuario", "¿Desea desactivar este usuario? ",
         function() {
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/users.php",
+
+            sendAjaxRequest({
+                url: "services/users.php",
                 data: {
-                    user_id: user_id,
+                    user_id: userId,
                     action: "desactivar_usuario",
                 },
-                beforeSend: function() {
-
-                },
-                success: function(res) {
-
-                    if (res == "ready") {
-
-                        $("#example").load(" #example");
-
-                    } else {
-                        mysql_error(res)
+                successCallback: (res) => {
+                    if (res === "ready") {
+                        dataTablesInstances['users'].ajax.reload();
                     }
-
-
-                },
+                }
             });
         },
         function() {}
@@ -205,33 +182,22 @@ function disableUser(user_id) {
 
 // Activar usuario
 
-function enableUser(user_id) {
+function enableUser(userId) {
     alertify.confirm("Activar usuario", "¿Desea activar este usuario? ",
         function() {
 
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/users.php",
+            sendAjaxRequest({
+                url: "services/users.php",
                 data: {
-                    user_id: user_id,
+                    user_id: userId,
                     action: "activar_usuario",
                 },
-                beforeSend: function() {
-                    $(".loader").show();
-                },
-                success: function(res) {
+                successCallback: (res) => {
+                    if (res === "ready") {
 
-                    if (res == "ready") {
-
-                        $("#example").load(" #example");
-
-                    } else {
-                        mysql_error(res)
+                        dataTablesInstances['users'].ajax.reload();
                     }
-
-                    $(".loader").hide();
-
-                },
+                }
             });
         },
         function() {

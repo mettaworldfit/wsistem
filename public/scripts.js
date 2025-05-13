@@ -478,6 +478,14 @@ $(document).ready(function() {
             columns: [
                 'servicio_id', 'nombre_servicio', 'precio', 'acciones'
             ]
+        },
+        {
+            id: '#users',
+            url: 'services/users.php',
+            action: 'index_usuarios',
+            columns: [
+                'usuario_id', 'nombre', 'rol', 'estado', 'fecha', 'acciones'
+            ]
         }
         
     ];
