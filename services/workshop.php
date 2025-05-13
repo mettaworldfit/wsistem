@@ -89,9 +89,9 @@ switch ($action) {
       (int)$_SESSION['identity']->usuario_id,
       (int)$_POST['customer_id'],
       $_POST['device'],
-      $_POST['serie'],
+      $_POST['serie'] ?? '',
       $_POST['imei'] ?? 0,
-      $_POST['observation']
+      $_POST['observation'] ?? ''
     ]);
     break;
 
