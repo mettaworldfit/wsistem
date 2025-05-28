@@ -1,94 +1,19 @@
-$(document).ready(function() {
-
-        $('.load').hide();
-        $('.missing').hide();
-
-
-        // Iniciar sesión
-
-        $('#login').on('submit', (e) => {
-            e.preventDefault();
-
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/users.php",
-                data: {
-                    user: $('#userName').val().toLowerCase(),
-                    password: $('#userPassword').val(),
-                    action: 'login'
-                },
-                beforeSend: function() {
-                    $('#btn-txt').hide();
-                    $('.load').show();
-                },
-                success: function(res) {
-
-                    if (res == "approved") {
-                        location.href = SITE_URL + "home/index";
-                    } else {
-                        $('.i').css('color', 'red');
-                        $('.i').css('transition', '0.4s all ease');
-                        $('.load').hide();
-                        $('.missing').show();
-                        $('#btn-txt').show();
-                    }
-                }
-            });
-
-        })
-
-
-        // Cerrar sesión
-
-        $('#logout').on('click', (e) => {
-            e.preventDefault();
-
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/users.php",
-                data: {
-                    action: 'logout'
-                },
-                success: function(res) {
-
-                    if (res == "ready") {
-                        location.reload();
-                    }
-                }
-            });
-
-        })
-
-
-    }) // Ready
-
-
 function deleteUser(user_id) {
 
     alertify.confirm("Eliminar usuario", "¿Estas seguro que deseas borrar este usuario? ",
-        function() {
+        function () {
 
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/users.php",
+            sendAjaxRequest({
+                url: "services/users.php",
                 data: {
                     action: "eliminar_usuario",
                     user_id: user_id
                 },
-                success: function(res) {
-
-                    if (res == "ready") {
-
-                        $(".table").load(location.href + " .table");
-
-                    } else if (res.includes("Error")) {
-
-                        mysql_error(res)
-                    }
-                }
-            });
+                successCallback: () => dataTablesInstances['users'].ajax.reload(),
+                errorCallback: (res) => mysql_error(res)
+            })
         },
-        function() {
+        function () {
 
         });
 }
@@ -96,11 +21,10 @@ function deleteUser(user_id) {
 
 // Crear usuario
 
-function AddUser() {
+function addUser() {
 
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/users.php",
+    sendAjaxRequest({
+        url: "services/users.php",
         data: {
             username: $('#username').val(),
             name: $('#name').val(),
@@ -109,31 +33,19 @@ function AddUser() {
             password: $('#password').val(),
             action: "crear_usuario"
         },
-        success: function(res) {
+        successCallback: (res) => {
+            $('input[type="text"]').val('');
+            $('input[type="password"]').val('');
 
-            if (res == "ready") {
-
-                $('input[type="text"]').val('');
-                $('input[type="password"]').val('');
-
-                mysql_row_affected();
-
-            } else if (res == "duplicate") {
-
-                mysql_error('El nombre de usuario ya está siendo utilizado');
-
-            } else if (res.includes("Error")) {
-                mysql_error(res)
-            }
-
-
-        }
-    });
+            mysql_row_affected();
+        },
+        errorCallback: (res) => mysql_error(res)
+    })
 }
 
 // Actualizar usuario
 
-function UpdateUser(userId) {
+function updateUser(userId) {
 
     sendAjaxRequest({
         url: "services/users.php",
@@ -148,11 +60,10 @@ function UpdateUser(userId) {
         },
         successCallback: (res) => {
             if (res == "ready") {
-               
                 mysql_row_affected()
-
             }
-        }
+        },
+        errorCallback: (res) => mysql_error(res)
     });
 }
 
@@ -161,7 +72,7 @@ function UpdateUser(userId) {
 
 function disableUser(userId) {
     alertify.confirm("<i class='text-warning fas fa-exclamation-circle'></i> Desactivar usuario", "¿Desea desactivar este usuario? ",
-        function() {
+        function () {
 
             sendAjaxRequest({
                 url: "services/users.php",
@@ -176,7 +87,7 @@ function disableUser(userId) {
                 }
             });
         },
-        function() {}
+        function () { }
     );
 }
 
@@ -184,7 +95,7 @@ function disableUser(userId) {
 
 function enableUser(userId) {
     alertify.confirm("Activar usuario", "¿Desea activar este usuario? ",
-        function() {
+        function () {
 
             sendAjaxRequest({
                 url: "services/users.php",
@@ -200,7 +111,52 @@ function enableUser(userId) {
                 }
             });
         },
-        function() {
+        function () {
 
         });
 }
+
+$(document).ready(function () {
+
+    $('.load', '.missing').hide();
+
+    // Iniciar sesión
+
+    $('#login').on('submit', (e) => {
+        e.preventDefault();
+
+        sendAjaxRequest({
+            url: "services/users.php",
+            data: {
+                user: $('#userName').val().toLowerCase(),
+                password: $('#userPassword').val(),
+                action: 'login'
+            },
+            successCallback: (res) => {
+                if (res === "approved") {
+                    location.href = SITE_URL + "home/index";
+                } else {
+                    $('.i').css({ color: 'red', transition: '0.4s all ease' });
+                    $('.load').hide();
+                    $('.missing, #btn-txt').show();
+                }
+
+            }
+        })
+    })
+
+    // Cerrar sesión
+
+    $('#logout').on('click', (e) => {
+        e.preventDefault();
+
+        sendAjaxRequest({
+            url: "services/users.php",
+            data: {
+                action: 'logout'
+            },
+            successCallback: () => location.reload()
+        })
+    })
+
+})

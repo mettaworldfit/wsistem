@@ -1,14 +1,9 @@
 <?php
 
-require_once './models/positions.php';
-
 class PositionsController {
 
     public function index(){
 
-        $method = new Positions;
-        $positions = $method->showPositions();
-        
         require_once './views/positions/index.php';
     }
     

@@ -1,5 +1,4 @@
 <?php
-require_once './models/home.php';
 
 class HomeController 
 {
@@ -7,7 +6,6 @@ class HomeController
     public function index()
     {
  
-
         // Abreviar cifras
         function number_format_short($n, $precision = 1) {
             if ($n < 100000) {
@@ -40,14 +38,12 @@ class HomeController
             return $n_format . $suffix;
         }
 
-        $model = new Home();
-        $total_purchase = $model->Purchase_today();
-        $total_expenses = $model->Expenses_today();
-        $workshop = $model->Device_in_workshop();
-        $products = $model->All_products();
-        $pieces = $model->All_pieces();
-        $customers = $model->All_customers();
-        $providers = $model->All_providers();
+        $totalPurchase = Help::getPurchaseToday();
+        $totalExpenses = Help::getExpensesToday();
+        $products = Help::getTotalProducts();
+        $pieces = Help::getTotalPieces();
+        $customers = Help::getTotalCustomers();
+        $providers = Help::getTotalProviders();
 
         require_once './views/layout/home.php';
     }

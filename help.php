@@ -2,7 +2,110 @@
 
 
 class Help
-{
+{ 
+
+     public static function getTotalProducts()
+   {
+      $db = Database::connect();
+      $query = "SELECT count(producto_id) as total FROM productos";
+
+      return $db->query($query)->fetch_object()->total;
+   }
+
+    public static function getTotalPieces()
+   {
+      $db = Database::connect();
+      $query = "SELECT count(pieza_id) as total FROM piezas";
+
+      return $db->query($query)->fetch_object()->total;
+   }
+
+    public static function getTotalCustomers()
+   {
+      $db = Database::connect();
+     $query = "SELECT count(cliente_id) as total FROM clientes";
+
+      return $db->query($query)->fetch_object()->total;
+   }
+
+    public static function getTotalProviders()
+   {
+      $db = Database::connect();
+      $query = "SELECT count(proveedor_id) as total FROM proveedores";
+
+      return $db->query($query)->fetch_object()->total;
+   }
+
+    public static function getPurchaseToday()
+   {
+      $db = Database::connect();
+       $query = "SELECT sum(total) as total FROM (
+
+            SELECT sum(f.recibido) as 'total', f.fecha FROM facturas_ventas f
+            WHERE f.fecha = curdate()
+            GROUP BY f.fecha     
+            
+              UNION ALL
+              
+            SELECT sum(fr.recibido) as 'total', fr.fecha FROM facturasRP fr
+            WHERE fr.fecha = curdate()
+            GROUP BY fr.fecha            
+            
+            UNION ALL
+            
+            SELECT sum(p.recibido) as 'total', p.fecha from pagos p
+            WHERE p.fecha = curdate()
+            GROUP BY p.fecha 
+                                          
+        ) ventas_de_hoy";
+
+      return $db->query($query)->fetch_object()->total;
+   }
+
+   public static function getExpensesToday()
+   {
+      $db = Database::connect();
+      $query = "SELECT sum(total) as total FROM (
+
+            SELECT sum(g.pagado) as 'total', g.fecha FROM gastos g
+            WHERE g.fecha = curdate()
+            GROUP BY g.fecha     
+            
+              UNION ALL
+              
+            SELECT sum(f.pagado) as 'total', f.fecha FROM ordenes_compras o 
+            INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
+            WHERE o.estado_id = 12 AND f.fecha = curdate()
+            GROUP BY f.fecha    
+
+            UNION ALL
+            
+            SELECT sum(p.recibido) as 'total', p.fecha from pagos_proveedores p
+            WHERE p.fecha = curdate()
+            GROUP BY p.fecha          
+                                          
+        ) gastos_de_hoy";
+
+      return $db->query($query)->fetch_object()->total;
+   }
+
+     public static function getTotalInventoryValue()
+   {
+
+      $db = Database::connect();
+
+       $query = "SELECT sum(total) as total, sum(bruto) as bruto  FROM (
+
+            SELECT sum(p.cantidad * p.precio_costo) as 'total', sum(p.cantidad * p.precio_unitario) as 'bruto' FROM productos p
+              UNION ALL
+            SELECT sum(pz.cantidad * pz.precio_costo) as 'total', sum(pz.cantidad * pz.precio_unitario) as 'bruto' FROM piezas pz
+                                  
+          ) ValorInventario;";
+
+      return $db->query($query);
+   }
+
+    
 
    public static function ConfigPDF()
    {
@@ -87,34 +190,9 @@ class Help
       return $db->query($query);
    }
 
-   // Función para verificar los parent rows de una categoría
-
-   public static function verify_parent_category($id)
-   {
-      $query = "SELECT (count(p.categoria_id) + count(pz.categoria_id)) AS 'parent_row' FROM categorias c
-      LEFT JOIN productos_con_categorias p ON c.categoria_id = p.categoria_id
-       LEFT JOIN piezas_con_categorias pz ON c.categoria_id = pz.categoria_id
-       WHERE c.categoria_id = '$id'";
-
-      $db = Database::connect();
-      return $db->query($query);
-   }
-
-
    /**
     * Ofertas
      ---------------------------------------*/
-
-   public static function verify_parent_offer($id)
-   {
-      $query = "SELECT (count(po.oferta_id) + count(pzo.oferta_id)) AS 'parent_row' FROM ofertas o
-      LEFT JOIN productos_con_ofertas po ON po.oferta_id = o.oferta_id
-	  LEFT JOIN piezas_con_ofertas pzo ON pzo.oferta_id = o.oferta_id
-      WHERE o.oferta_id = '$id'";
-
-      $db = Database::connect();
-      return $db->query($query);
-   }
 
    // Función para mostrar oferta por id
 
@@ -160,16 +238,6 @@ class Help
       return $db->query($query);
    }
 
-   // Función para verificar los parent rows de un impuesto
-
-   public static function verify_parent_tax($id)
-   {
-      $query = "SELECT count(impuesto_id) AS 'parent_row' FROM productos_con_impuestos WHERE impuesto_id = '$id'";
-
-      $db = Database::connect();
-      return $db->query($query);
-   }
-
    /**
     * Posiciones
     --------------------------------------*/
@@ -210,19 +278,6 @@ class Help
    /**
     * Almacenes
     --------------------------------------*/
-
-   // Función para verificar los parent rows de un almacen
-
-   public static function verify_parent_warehouse($id)
-   {
-      $query = "SELECT (count(p.almacen_id) + count(pz.almacen_id)) AS 'parent_row' FROM almacenes a
-      LEFT JOIN productos p ON p.almacen_id = a.almacen_id
-      LEFT JOIN piezas pz ON pz.almacen_id = a.almacen_id
-     WHERE a.almacen_id = '$id'";
-
-      $db = Database::connect();
-      return $db->query($query);
-   }
 
    // Función para mostrar almacen por id
 
@@ -290,15 +345,12 @@ class Help
     *  Productos
     *  -------------------------------------*/
 
-   // Función para verificar los parent rows de un producto
-
-   public static function verify_parent_product($id)
+   public static function getProductAvgCost($id)
    {
-      $query = "SELECT (count(dp.detalle_venta_id) + count(dcp.detalle_compra_id) + count(dt.detalle_temporal_id)) as parent_row FROM productos p 
-      left join detalle_ventas_con_productos dp on dp.producto_id = p.producto_id 
-      left join detalle_compra_con_productos dcp on dcp.producto_id = p.producto_id 
-      left join detalle_temporal dt on dt.producto_id = p.producto_id
-      WHERE p.producto_id = '$id'";
+
+      $query = "SELECT sum(v.costo_unitario) as costo_promedio FROM variantes v
+                 INNER JOIN productos p ON p.producto_id = v.producto_id
+                 WHERE p.producto_id = '$id' AND v.estado_id = 13";
 
       $db = Database::connect();
       return $db->query($query);
@@ -416,7 +468,7 @@ class Help
 
    // Mostrar las variantes del producto facturado
 
-   public static function showVariant($id)
+   public static function getVariantId($id)
    {
       $query = "SELECT p.nombre_producto,c.color,v.imei,v.serial,v.variante_id as var_id FROM detalle_facturas_ventas d
       LEFT JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
@@ -434,8 +486,8 @@ class Help
       // Cuerpo 
       while ($element = $datos->fetch_object()) {
 
-         $html .= '<p class="list_db">' . ucwords($element->nombre_producto) . ' ' . ucwords($element->color) .
-            ' <br> ' . ucwords($element->imei) . ' ' . ucwords($element->serial) . '</p>';
+         $html .= '<p class="list_db">' . ucwords($element->nombre_producto ?? '') . ' ' . ucwords($element->color ?? "") .
+            ' <br> ' . $element->imei . ' ' . ucwords($element->serial ?? '') . '</p>';
       }
 
       return $html;
@@ -445,7 +497,7 @@ class Help
     * Cotizaciones
     --------------------------------------*/
 
-   public static function INVOICE_DESCRIPT_QUOTE($id)
+   public static function getQuotesNoteId($id)
    {
 
       $db = Database::connect();
@@ -459,7 +511,7 @@ class Help
       return $element->descripcion;
    }
 
-   public static function showQuotesDetail($id)
+   public static function loadQuotesDetail($id)
    {
 
       $query = "SELECT detalle_id, descripcion, cantidad, precio, impuesto, descuento 
@@ -488,20 +540,6 @@ class Help
    public static function showBrandId($id)
    {
       $query = "SELECT * FROM marcas where marca_id = '$id'";
-
-      $db = Database::connect();
-      return $db->query($query);
-   }
-
-   // Función para verificar los parents rows
-
-   public static function verify_parent_brand($id)
-   {
-      $query = "SELECT (count(p.marca_id) + count(pz.marca_id) + count(e.marca_id)) AS 'parent_row' FROM marcas m
-      LEFT JOIN productos_con_marcas p ON m.marca_id = p.marca_id
-      LEFT JOIN piezas_con_marcas pz ON pz.marca_id = m.marca_id
-      LEFT JOIN equipos e ON e.marca_id = m.marca_id
-      WHERE m.marca_id = '$id'";
 
       $db = Database::connect();
       return $db->query($query);
@@ -553,9 +591,10 @@ class Help
 
    // Función para mostrar lista de precios
 
-   public static function showPrice_lists()
+   public static function loadPriceLists()
    {
-      $query = "SELECT *FROM lista_de_precios ORDER BY nombre_lista";
+      $query = "SELECT lista_id,nombre_lista FROM lista_de_precios 
+      ORDER BY nombre_lista";
 
       $db = Database::connect();
       return $db->query($query);
@@ -563,7 +602,7 @@ class Help
 
    // Función para mostrar listas de precios de un producto
 
-   public static function showPricelist_with_productID($id)
+   public static function loadProductPriceListsId($id)
    {
       $query = "SELECT * FROM lista_de_precios l
                            INNER JOIN productos_con_lista_de_precios pl ON pl.lista_id = l.lista_id
@@ -572,22 +611,6 @@ class Help
       $db = Database::connect();
       return $db->query($query);
    }
-
-
-   // Función para verificar los parent rows de las listas de precios
-
-   public static function verify_parent_list($id)
-   {
-      $db = Database::connect();
-
-      $query = "SELECT (count(pl.lista_id) + count(pzl.lista_id)) as parent_row FROM lista_de_precios l
-      LEFT JOIN productos_con_lista_de_precios pl ON l.lista_id = pl.lista_id
-      LEFT JOIN piezas_con_lista_de_precios pzl ON l.lista_id = pzl.lista_id
-      WHERE l.lista_id = '$id'";
-
-      return $db->query($query);
-   }
-
 
    /**
     *  Piezas
@@ -623,7 +646,7 @@ class Help
 
    // Función para mostrar listas de precios de un producto
 
-   public static function showPricelist_with_pieceID($id)
+   public static function loadPiecePriceListsId($id)
    {
       $query = "SELECT * FROM lista_de_precios l
                            INNER JOIN piezas_con_lista_de_precios pl ON pl.lista_id = l.lista_id
@@ -677,16 +700,6 @@ class Help
     
            
        ) ventas_del_dia where fecha_factura = curdate() order by id ASC";
-
-return $db->query($query);
-   }
-
-   public static function loadDetailTemp()
-   {
-      $db = Database::connect();
-      $userID = $_SESSION['identity']->usuario_id;
-
-      $query = "SELECT * FROM detalle_temporal WHERE usuario_id = '$userID' ORDER BY hora";
 
       return $db->query($query);
    }
@@ -799,6 +812,40 @@ return $db->query($query);
       return $db->query($query);
    }
 
+   public static function getOrderNoteId($id)
+   {
+      $query = "SELECT observacion FROM ordenes_rp where orden_rp_id = '$id'";
+
+      $db = Database::connect();
+      return $db->query($query);
+   }
+
+   public static function getOrderInfoId($id)
+   {
+      $query = "SELECT e.nombre_modelo,e.modelo,o.serie,o.imei,o.fecha_entrada,
+        c.nombre,c.apellidos,c.telefono1,o.fecha_salida,o.observacion,concat(u.nombre,' ',u.apellidos) as usuario, m.nombre_marca FROM ordenes_rp o
+        INNER JOIN equipos e ON e.equipo_id = o.equipo_id
+        INNER JOIN marcas m  ON e.marca_id = m.marca_id
+        INNER JOIN clientes c ON c.cliente_id = o.cliente_id
+        INNER JOIN usuarios u ON u.usuario_id = o.usuario_id
+        where o.orden_rp_id = '$id'";
+
+      $db = Database::connect();
+      return $db->query($query);
+   }
+
+
+   public static function getConditionsId($id)
+   {
+      $query = "SELECT c.sintoma FROM ordenes_rp o
+        LEFT JOIN ordenes_rp_con_condiciones oc ON oc.orden_rp_id = o.orden_rp_id
+        INNER JOIN condiciones c ON c.condicion_id = oc.condicion_id
+         where o.orden_rp_id = '$id'";
+
+      $db = Database::connect();
+      return $db->query($query);
+   }
+
 
    public static function SHOW_CONDITONS_ORDER($id)
    {
@@ -869,9 +916,9 @@ return $db->query($query);
 
    // Función para mostrar el detalle de las ordenes
 
-   public static function showOrdenDetailID($id)
+   public static function loadOrdenDetailId($id)
    {
-      $query = "SELECT precio,descuento,descripcion,orden_rp_id, cantidad as cantidad_total, detalle_ordenRP_id as detalle_id FROM detalle_ordenRP
+      $query = "SELECT precio,descuento,descripcion,orden_rp_id, cantidad,detalle_ordenRP_id as detalle_id FROM detalle_ordenRP
          WHERE orden_rp_id = '$id'";
 
       $db = Database::connect();
@@ -880,14 +927,13 @@ return $db->query($query);
 
    // Verificar si la orden ya fue facturada
 
-   public static function IS_EXISTS_INVOICERP($id)
+   public static function isInvoiceRPExists($id)
    {
       $query = "SELECT count(orden_rp_id) as is_exists FROM facturasRP WHERE orden_rp_id = '$id'";
 
       $db = Database::connect();
       return $db->query($query);
    }
-
 
    public static function INFO_INVOICE_RP($id)
    {

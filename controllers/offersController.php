@@ -1,15 +1,10 @@
 <?php
 
-require_once './models/offers.php';
-
 class OffersController
 {
 
     public function index()
     {
-
-        $method = new Offers;
-        $offers = $method->showOffers();
 
         require_once './views/offers/index.php';
     }

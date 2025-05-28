@@ -1,338 +1,224 @@
-$(document).ready(function() {
+// Crear lista de precios
 
-    //  Defaults
-
-    var pageURL = $(location).attr("pathname");
-    const format = new Intl.NumberFormat('en'); // Formato 0,000
-
-
-    // ELiminar LocalStorage al recargar
-    localStorage.removeItem('lista_de_precios');
-
-    // Detalle lista de precio
-
-    let ArrayLists = [];
-
-    $('.add_price_list').on('click', (e) => {
-        e.preventDefault();
-
-        let data = {
-
-            list_id: $('#price_list').val(),
-            name: $('#select2-price_list-container').attr('title'),
-            list_value: $('#list_value').val()
-
-        }
-
-        // Buscar coincidencia si existe la lista en el localStorage
-        if (data.list_id > 0 && data.list_value > 0) return FindAMatch(ArrayLists);
-
-        function FindAMatch(arr) {
-
-            if (arr.length < 1) {
-
-                arr.push(data); // Insertar datos al arreglo
-                createDB(ArrayLists); // crear el localstorage de las listas 
-
-            } else {
-
-                let found = arr.find(element => element.name == data.name)
-
-                if (found == undefined) {
-
-                    arr.push(data);
-                    createDB(ArrayLists);
-                }
-
-            }
-        }
-
-    })
-
-    // Crear la base de datos en el localstorage
-    function createDB(Arr) {
-
-        localStorage.setItem('lista_de_precios', JSON.stringify(Arr));
-        showDB(); // Mostrar DB
-
-    }
-
-
-    let arrayLocalStorage;
-
-    function showDB() {
-
-        document.querySelector('#list').innerHTML = ""; // Vaciar detalle
-        $('#list_value').val('');
-
-        if (localStorage.getItem("lista_de_precios")) {
-            arrayLocalStorage = JSON.parse(localStorage.getItem("lista_de_precios"));
-        }
-
-        // Loop de las listas de precios en localStorage 
-        arrayLocalStorage.forEach((element, index) => {
-
-            var list_value = format.format(element.list_value);
-
-            document.querySelector('#list').innerHTML += `
-          <div class="form-group col-sm-6 list">
-              <input class="form-custom col-sm-12" type="text" name="" value="${element.name}" disabled>
-          </div>
-
-          <div class="form-group col-sm-6 list">
-              <input class="form-custom col-sm-10" type="text" name="" value="${list_value}" list_name="${element.name}" disabled>
-              <span class="action-delete"><i class="far fa-minus-square"></i></span>
-          </div>
-        `;
-
-        });
-
-    }
-
-
-    // Eliminar lista de precio del localStorage
-
-    if (pageURL.includes("products/add") || pageURL.includes("pieces/add")) {
-
-        var list = document.querySelector('#list')
-
-        if (list != null) {
-
-            list.addEventListener('click', (e) => {
-                e.preventDefault();
-
-                if (e.path) {
-
-                    deleteDB(e.path[2].childNodes[1].attributes[4].nodeValue)
-
-
-                } else if (e.path) {
-
-                    deleteDB(e.path[3].childNodes[1].attributes[4].nodeValue);
-
-                }
-
-                function deleteDB(name) {
-                    let indexArray;
-
-                    // Loop de los services en localStorage 
-                    arrayLocalStorage.forEach((element, index) => {
-
-                        if (element.name == name) {
-                            indexArray = index;
-
-                        }
-
-                    });
-
-                    ArrayLists.splice(indexArray, 1);
-                    createDB(ArrayLists)
-                }
-
-            })
-
-        }
-    }
-
-    // Editar listas de precios de un producto
-
-    $('.add_list_to_product').on('click', (e) => {
-        e.preventDefault();
-
-        var product_id = $('#product_id').val()
-        add_list_to_db(product_id, "editar_lista_de_precio_de_un_producto")
-    });
-
-    // Editar listas de precios de una pieza
-
-    $('.add_list_to_piece').on('click', (e) => {
-        e.preventDefault();
-
-        var piece_id = $('#piece_id').val()
-        add_list_to_db(piece_id, "editar_lista_de_precio_de_una_pieza")
-    });
-
-
-    function add_list_to_db(id, action) {
-
-        let data = {
-            list_value: $('#list_value').val(),
-            list_name: $('#select2-price_list-container').attr('title'),
-            list_id: $('#price_list').val(),
-        }
-
-        localStorage.setItem('lista_de_precios', JSON.stringify(data))
-
-
-        // El valor de la lista tiene que ser mayor que 0
-        if (data.list_value > 0) {
-
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/price_lists.php",
-                data: {
-                    action: action,
-                    id: id,
-                    list_id: data.list_id,
-                    list_value: data.list_value
-
-                },
-                success: function(res) {
-
-                    if (res > 0) {
-
-                        document.querySelector('#list').innerHTML += `
-                        
-            <div class="form-group col-sm-6 list">
-                <input class="form-custom col-sm-12" type="text" name="" value="${data.list_name}" identity="${data.list_id}" disabled>
-            </div>
-
-            <div class="form-group col-sm-6 list">
-                <input class="form-custom col-sm-10" type="text" name="" value="${format.format(data.list_value)}" identity="${data.list_id}" disabled>
-                <span class="action-delete" onclick="deleteList('${res}','${data.list_id}')" identity="${data.list_id}"><i class="far fa-minus-square"></i></span>
-            </div>         
-          `;
-
-                    } else if (res.includes("Error")) {
-                        mysql_error(res)
-                    }
-                }
-            });
-
-        }
-    }
-
-
-}); // Ready
-
-
-
-// Agregar lista de precios
-
-function AddList() {
-
+function addList() {
     var list_name = $('#list_name').val();
     var list_comment = $('#list_comment').val();
 
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/price_lists.php",
+    sendAjaxRequest({
+        url: "services/price_lists.php",
         data: {
             list_name: list_name,
             list_comment: list_comment,
             action: 'agregar_lista'
         },
-        success: function(res) {
-
-            if (res == "ready") {
-
-                $('input[type="text"]').val('');
-
-                mysql_row_affected();
-
-            } else if (res == "duplicate") {
-
-                mysql_error('El nombre de esta lista ya está siendo utilizado');
-
-            } else if (res.includes("Error")) {
-                mysql_error(res)
-            }
-
-        }
-    });
+        successCallback: (res) => {
+            $('input[type="text"]').val('');
+            mysql_row_affected();
+        }, 
+        errorCallback: (res) => mysql_error(res)
+    })
 }
 
 // Actualizar lista de precios
 
-function UpdateList(list_id) {
-
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/price_lists.php",
+function updateList(listId) {
+    sendAjaxRequest({
+        url: "services/price_lists.php",
         data: {
-            list_id: list_id,
+            list_id: listId,
             list_name: $('#list_name').val(),
             list_comment: $('#list_comment').val(),
             action: 'actualizar-lista'
         },
-        success: function(res) {
-
-            if (res == "ready") {
-
-                mysql_row_update()
-
-            } else if (res == "duplicate") {
-
-                mysql_error('El nombre de esta lista ya está siendo utilizado');
-
-            } else if (res.includes("Error")) {
-                mysql_error(res)
-            }
-        }
+        successCallback: (res) => {
+            mysql_row_update()
+        },
+        errorCallback: (res) => mysql_error(res)
     });
-
 }
 
 // Eliminar lista de precios
 
-function deletePriceList(id) {
+function deletePriceList(listId) {
     alertify.confirm("Eliminar lista de precio", "¿Estas seguro que deseas borrar esta lista? ",
-        function() {
-
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/price_lists.php",
+        function () {
+            sendAjaxRequest({
+                url: "services/price_lists.php",
                 data: {
-                    id: id,
+                    id: listId,
                     action: 'eliminar_lista'
                 },
-                success: function(res) {
-
-                    if (res == "ready") {
-
-                        $(".table").load(location.href + " .table");
-
-                    } else {
-                        mysql_error(res)
-                    }
-                }
-            });
+                successCallback: () => dataTablesInstances['pricelists'].ajax.reload(),
+                errorCallback: (res) => mysql_error(res)
+            })
         },
-        function() {
+        function () {
 
         });
 }
 
+// Editar listas de precios de un producto
+
+function addPriceListsDb(listId, outputSelector = "#priceList", storageKey = "lista_de_precios") {
+
+    function getAction(url) {
+        if (url.includes("products/edit")) return "editar_lista_de_precio_de_un_producto";
+        if (url.includes("pieces/edit")) return "editar_lista_de_precio_de_una_pieza";
+        return null;
+    }
+
+    const action = getAction(pageURL);
+
+    const data = {
+        list_value: $('#list_value').val(),
+        list_name: $('#select2-price_list-container').attr('title'),
+        list_id: $('#price_list').val(),
+    }
+
+    // Guardar lista en localStorage
+    localStorage.setItem(storageKey, JSON.stringify(data));
+
+    // Solo ejecutar si el valor de la lista es mayor que 0
+    if (data.list_value <= 0) return;
+
+    sendAjaxRequest({
+        url: "services/price_lists.php",
+        data: {
+            action: action,
+            id: listId,
+            list_id: data.list_id,
+            list_value: data.list_value
+        },
+        successCallback: (res) => {
+            document.querySelector(outputSelector).innerHTML += `
+                 
+        <div class="form-group col-sm-6 list">
+            <input class="form-custom col-sm-12" type="text" name="" value="${data.list_name}" identity="${data.list_id}" disabled>
+        </div>
+
+        <div class="form-group col-sm-6 list">
+            <input class="form-custom col-sm-10" type="text" name="" value="${format.format(data.list_value)}" identity="${data.list_id}" disabled>
+            <span class="action-delete" onclick="deleteItemPriceList('${res}')" ><i class="far fa-minus-square"></i></span>
+        </div>`;
+        },
+        errorCallback: (res) => mysql_error(res)
+    });
+}
+
+// Detalle lista de precio
+
+let ArrayLists = [];
+
+function addPriceListLocalStorage() {
+    let data = {
+        list_id: $('#price_list').val(),
+        name: $('#select2-price_list-container').attr('title'),
+        list_value: $('#list_value').val()
+    }
+
+    // Buscar coincidencia si existe la variante en el localStorage
+    if (data.list_id > 0 && data.list_value > 0) {
+        return findMatch(ArrayLists, data);
+    }
+
+    function findMatch(arr, data) {
+        // Si el arreglo está vacío o no contiene un elemento con el mismo nombre, se agrega
+        if (arr.length === 0 || !arr.some(element => element.name === data.name)) {
+            arr.push(data);           // Agregar el nuevo objeto
+            createPriceListsDb(arr);     // Actualizar el almacenamiento local
+        }
+    }
+
+}
+
+
+// Crear la base de datos en el localstorage
+function createPriceListsDb(arr, storageKey = "lista_de_precios") {
+
+    if (!Array.isArray(arr)) {
+        console.error("El argumento debe ser un arreglo.");
+        return;
+    }
+
+    try {
+        localStorage.setItem(storageKey, JSON.stringify(arr));
+        renderPriceListsDb(); // Mostrar DB
+        console.log(`Base de datos creada en localStorage con la clave "${storageKey}"`);
+    } catch (error) {
+        console.error("Error al guardar en localStorage:", error);
+    }
+}
+
+
+let arrayLocalStorage;
+
+function renderPriceListsDb(storageKey = "lista_de_precios", outputSelector = "#priceList") {
+
+    // Limpiar la tabla y los inputs
+    document.querySelector(outputSelector).innerHTML = ""; // Vaciar detalle
+    $('#list_value').val('');
+
+    const data = localStorage.getItem(storageKey);
+    if (!data) return;
+
+    const table = JSON.parse(data);
+
+    // Loop de las listas de precios en localStorage 
+    table.forEach((element, index) => {
+
+        var listValue = format.format(element.list_value);
+
+        document.querySelector(outputSelector).innerHTML += `
+        <div class="form-group col-sm-6 list">
+            <input class="form-custom col-sm-12" type="text" name="" value="${element.name}" disabled>
+        </div>
+
+        <div class="form-group col-sm-6 list">
+            <input class="form-custom col-sm-10" type="text" name="" value="${listValue}" list_name="${element.name}" disabled>
+            <span class="action-delete" onclick="deletePriceListsLocalStorage(${index});"><i class="far fa-minus-square"></i></span>
+        </div>
+      `;
+
+    });
+}
+
+// Eliminar lista de precio del localStorage
+
+function deletePriceListsLocalStorage(index) {
+    ArrayLists.splice(index, 1);
+    createPriceListsDb(ArrayLists)
+}
 
 // Eliminar lista de precio de un producto / pieza
 
-function deleteList(id, list_id) {
+function deleteItemPriceList(listId) {
 
-    let type;
-
-    if (pageURL.includes("products/edit")) {
-        type = "producto";
-    } else if (pageURL.includes("pieces/edit")) {
-        type = "pieza";
-
+    function getEditType(url) {
+        if (url.includes("products/edit")) return "producto";
+        if (url.includes("pieces/edit")) return "pieza";
+        return null;
     }
-
-    console.log(type)
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/price_lists.php",
+    
+    const type = getEditType(pageURL);
+    
+    sendAjaxRequest({
+        url: "services/price_lists.php",
         data: {
             action: "desasignar_lista_de_precio",
-            id: id,
+            id: listId,
             type: type,
         },
-        success: function(res) {
-            if (res == "ready") {
-                $("input[identity=" + list_id + "]").hide();
-                $("span[identity=" + list_id + "]").hide();
-            } else {
-                mysql_error(res);
-            }
+        successCallback: (res) => {
+         
+            $('#priceList').load(location.href + " #priceList")
         },
+        errorCallback: (res) => mysql_error(res)
     });
 }
+
+$(document).ready(function () {
+
+    // ELiminar LocalStorage al recargar
+    localStorage.removeItem('lista_de_precios');
+
+}); // Ready

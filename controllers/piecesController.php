@@ -12,6 +12,9 @@ class PiecesController {
     }
 
     public function edit() {
+        $id = $_GET['id'];
+
+        $piece = Help::showPiecesID($_GET['id']);
 
         require_once './views/pieces/edit.php';
     }

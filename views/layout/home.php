@@ -2,10 +2,7 @@
   <h1><i class="far fa-chart-bar"></i> Panel de control</h1>
 </div> <br>
 
-
-
 <div class="grid-container">
-
 
   <a href="<?= base_url ?>reports/day" class="card-grid">
     <div>
@@ -13,8 +10,8 @@
       <p><?= date("d/m/Y"); ?></p>
     </div>
 
-    <span title="<?= number_format(floatval($total_purchase), 2) ?>">
-      $<?= number_format_short(floatval($total_purchase)) ?>
+    <span title="<?= number_format(floatval($totalPurchase), 2) ?>">
+      $<?= number_format_short(floatval($totalPurchase)) ?>
     </span>
   </a>
 
@@ -23,8 +20,8 @@
       <p>Gastos</p>
       <p><?= date("d/m/Y"); ?></p>
     </div>
-    <span title="<?= number_format(floatval($total_expenses), 2) ?>">
-      $<?= number_format_short(floatval($total_expenses)) ?>
+    <span title="<?= number_format(floatval($totalExpenses), 2) ?>">
+      $<?= number_format_short(floatval($totalExpenses)) ?>
     </span>
   </a>
 

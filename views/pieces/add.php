@@ -181,14 +181,14 @@
 
                 <br><br>
                 <!-- Listas -->
-                <div id="list">
+                <div id="priceList">
 
                 </div>
 
                 <?php if ($_SESSION['identity']->nombre_rol == 'administrador'): ?>
                     <div class="add_price_list">
                         <i class="fas fa-plus-circle"></i>
-                        <a href="#">Agregar lista de precio</a>
+                        <a href="#" onclick="addPriceListLocalStorage();">Agregar lista de precio</a>
                     </div>
                 <?php endif; ?>
 

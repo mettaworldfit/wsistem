@@ -417,7 +417,6 @@ function deleteVariantDb(variant_id, cost) {
     });
 }
 
-
 $(document).ready(function () {
 
     const format = new Intl.NumberFormat('en'); // Formato 0,000
@@ -475,7 +474,7 @@ $(document).ready(function () {
     // funcion para aplicar opciones del detalle
     function applyProductOptions(data) {
         if (!Array.isArray(data) || data.length < 2) return;
-
+        
         const product = data[0];
         const variantsInfo = data[1];
 
@@ -504,7 +503,7 @@ $(document).ready(function () {
         } else {
             $("#discount").val("").prop("disabled", false);
         }
-
+  
         // Cargar lista de precios si existe un valor
         if (parseFloat(product.valor_lista) > 0) {
             loadProductPrice(product.IDproducto);
@@ -549,7 +548,7 @@ $(document).ready(function () {
                 var data = JSON.parse(res);
 
                 applyProductOptions(data); // Aplicar opciones
-                toggleAddItemButtons(); // Calcular precios
+                validateProductQuantity(); // Calcular precios
             }
         });
     }
@@ -577,7 +576,7 @@ $(document).ready(function () {
                 $('#select2-product-container').empty()
                 $('#select2-product-container').append(data[0].nombre_producto)
 
-                toggleAddItemButtons(); // Calcular precios   
+                validateProductQuantity(); // Calcular precios   
             }
         })
     }
@@ -592,7 +591,7 @@ $(document).ready(function () {
                 action: "buscar_variantes",
             },
             successCallback: (res) => {
-
+                
                 $("#variant_id").attr("disabled", false)
                 document.querySelector("#variant_id").innerHTML = ""; // Vaciar lista de variantes
                 document.querySelector("#variant_id").innerHTML =
@@ -602,12 +601,7 @@ $(document).ready(function () {
         });
     }
 
-
-
-    /**
-     * TODO: Buscar lista de precios
-     * ! Calcula el precio de los productos
-     */
+    // Cargar las listas de precios del producto
 
     function loadProductPrice(productId) {
         sendAjaxRequest({
@@ -617,32 +611,39 @@ $(document).ready(function () {
                 action: "buscar_lista_de_producto",
             },
             successCallback: (res) => {
+                let data = JSON.parse(res);
+
                 document.querySelector("#list_id").innerHTML = ""; // Vaciar lista de precios
                 document.querySelector("#list_id").innerHTML =
-                    '<option value="0" selected>General</option>' + res;
-            }
+                    '<option value="0" selected>General</option>' + data.options;
+            },
+            errorCallback: (res) => mysql_error(res)
         })
     }
 
     // Cambiar precio del producto
 
     $("#list_id").change(function () {
+        const productId = $("#product_id").val()
+
         if ($(this).val() > 0) {
-            $.ajax({
-                url: SITE_URL + "services/price_lists.php",
-                method: "post",
+
+            sendAjaxRequest({
+                url: "services/price_lists.php",
                 data: {
                     list_id: $(this).val(),
-                    product_id: $("#product_id").val(),
+                    product_id: productId,
                     action: "elegir_precio",
                 },
-                success: function (res) {
+                successCallback: (res) => {
                     var data = JSON.parse(res);
-                    $("#price_out").val(format.format(data.valor));
-                },
-            });
+                    $("#price_out").val(format.format(data[0].valor));
+                }
+            })
+
         } else {
-            fetchProduct($("#product_id").val()); // Precio normal
+            // Volver a cargar el producto
+            fetchProduct(productId); 
         }
     });
 
@@ -652,11 +653,11 @@ $(document).ready(function () {
     $("#quantity").keyup(function (e) {
         e.preventDefault();
 
-        toggleAddItemButtons();
+        validateProductQuantity();
     });
 
     // Validar cantidad y stock 
-    function toggleAddItemButtons() {
+    function validateProductQuantity() {
         const stock = parseFloat($("#stock").val()) || 0;
         const quantity = parseFloat($("#quantity").val()) || 0;
 

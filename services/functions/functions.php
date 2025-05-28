@@ -11,6 +11,7 @@
  * - 'base_table' (string): Nombre de la tabla principal para contar todos los registros sin filtros.
  * - 'table_with_joins' (string): Tabla principal junto con cualquier JOIN necesario para la consulta con filtros.
  * - 'select' (string): Sentencia SELECT (sin el FROM), es decir, qué columnas seleccionar.
+ * - 'base_condition' (string): Clausula WHERE de la consulta si existe.
  * - 'table_rows' (callable): Función de callback que recibe una fila de la base de datos y devuelve un arreglo con el formato requerido por DataTables.
  *
  * @return void Imprime un JSON con los datos esperados por DataTables:
@@ -20,25 +21,26 @@
  *              - data: arreglo de datos formateado.
  */
 
- function handleDataTableRequest(mysqli $db, array $params)
+function handleDataTableRequest(mysqli $db, array $params)
 {
     $draw = intval($_POST['draw'] ?? 0);
     $start = intval($_POST['start'] ?? 0);
-    $length = intval($_POST['length'] ?? 10);
+    $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
+    if ($length <= 0) {
+        $length = 10; // Evitar -1 o valores inválidos
+    }
+
     $searchValue = $_POST['search']['value'] ?? '';
     $columns = $params['columns'];
 
-    // Orden
     $orderColumnIndex = $_POST['order'][0]['column'] ?? 0;
     $orderColumn = $columns[$orderColumnIndex] ?? $columns[0];
     $orderDir = ($_POST['order'][0]['dir'] ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
 
-    // Condiciones base
     $baseCondition = $params['base_condition'] ?? '1=1';
-
-    // WHERE de búsqueda
     $where = "$baseCondition";
-    if (!empty($searchValue)) {
+
+    if (!empty($searchValue) && !empty($params['searchable'])) {
         $searchEscaped = $db->real_escape_string($searchValue);
         $searchConditions = array_map(function ($col) use ($searchEscaped) {
             return "$col LIKE '%$searchEscaped%'";
@@ -47,20 +49,19 @@
         $where .= " AND (" . implode(' OR ', $searchConditions) . ")";
     }
 
-    // Total sin filtros
     $totalResult = $db->query("SELECT COUNT(*) AS total FROM {$params['base_table']}");
     $totalRecords = $totalResult->fetch_assoc()['total'] ?? 0;
 
-    // Total con filtros
     $filteredQuery = "SELECT COUNT(*) AS total FROM {$params['table_with_joins']} WHERE $where";
     $filteredResult = $db->query($filteredQuery);
     $filteredRecords = $filteredResult->fetch_assoc()['total'] ?? 0;
 
-    // Consulta principal
-    $query = "{$params['select']} FROM {$params['table_with_joins']} WHERE $where ORDER BY $orderColumn $orderDir LIMIT $start, $length";
-    $result = $db->query($query);
+    $query = "{$params['select']} FROM {$params['table_with_joins']} WHERE $where ORDER BY $orderColumn $orderDir";
+    if ($length > 0) {
+        $query .= " LIMIT $start, $length";
+    }
 
-    // Formatear resultado
+    $result = $db->query($query);
     $data = [];
     while ($row = $result->fetch_assoc()) {
         $data[] = call_user_func($params['table_rows'], $row);
@@ -73,6 +74,7 @@
         "data" => $data
     ]);
 }
+
 
 
 /**
@@ -124,9 +126,21 @@ function handleDeletionAction($db, int $id, string $procedureName): string
     $query = "CALL $procedureName($id)";
 
     // Ejecutar la consulta
-    return ($db->query($query) === TRUE)
-        ? "ready" // Si fue exitosa, retornar "ready"
-        : "Error en $procedureName: " . $db->error; // Si hubo error, retornar mensaje detallado
+    $result = $db->query($query);
+
+     // Obtener resultado
+     $data = $result->fetch_object();
+
+    if ($data->msg == "ready") {
+        return "ready";
+    } else {
+        // Si el error parece ser relacionado con SQL
+        if (str_contains($db->error, 'SQL')) {
+            return "Error: " . $db->error;
+        } else {
+            return "Error en $procedureName: " . $db->error;
+        }
+    }
 }
 
 
@@ -188,30 +202,30 @@ function handleProcedureAction(mysqli $db, string $procedure, array $params): st
  *
  * @return void
  */
-function jsonQueryResult(mysqli $db, string $query): void {
+function jsonQueryResult(mysqli $db, string $query): void
+{
     $result = $db->query($query);
-  
+
     if (!$result) {
-      echo json_encode([
-        'error' => true,
-        'message' => 'Error en la consulta SQL',
-        'sql_error' => $db->error
-      ], JSON_UNESCAPED_UNICODE);
-      exit;
+        echo json_encode([
+            'error' => true,
+            'message' => 'Error en la consulta SQL',
+            'sql_error' => $db->error
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
     }
-  
+
     if ($result->num_rows === 0) {
-      echo json_encode(null, JSON_UNESCAPED_UNICODE);
+        echo json_encode(null, JSON_UNESCAPED_UNICODE);
     } elseif ($result->num_rows === 1) {
-      echo json_encode($result->fetch_assoc(), JSON_UNESCAPED_UNICODE);
+        echo json_encode([$result->fetch_assoc()],JSON_UNESCAPED_UNICODE);
     } else {
-      $rows = [];
-      while ($row = $result->fetch_assoc()) {
-        $rows[] = $row;
-      }
-      echo json_encode($rows, JSON_UNESCAPED_UNICODE);
+        $rows = '';
+        while ($row = $result->fetch_assoc()) {
+            $rows .= $row;
+        }
+        echo json_encode([$rows], JSON_UNESCAPED_UNICODE);
     }
-  
+
     exit;
-  }
-  
+}

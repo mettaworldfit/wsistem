@@ -64,6 +64,59 @@ function fetchProductData($field, $value, $useLike = false)
 
 
 switch ($action) {
+  // Caso: montrar el valor del inventario
+  case 'index_valor_inventario':
+    handleDataTableRequest($db, [
+      'columns' => [
+        'nombre_almacen',
+        'codigo',
+        'nombre',
+        'cantidad',
+        'precio_costo',
+        'nombre_estado',
+        'cantidad_min'
+      ],
+      'searchable' => [
+        'nombre_almacen',
+        'codigo',
+        'nombre'
+      ],
+      'base_table' => '(SELECT 1) AS dummy', // Solo para el total sin filtro
+      'table_with_joins' => "(
+        SELECT nombre_almacen, cod_producto as codigo, nombre_producto as nombre, cantidad, precio_costo, nombre_estado, cantidad_min
+        FROM productos p 
+        INNER JOIN almacenes a ON a.almacen_id = p.almacen_id
+        INNER JOIN estados_generales e ON e.estado_id = p.estado_id
+        
+        UNION ALL
+        
+        SELECT nombre_almacen, cod_pieza as codigo, nombre_pieza as nombre, cantidad, precio_costo, nombre_estado, cantidad_min
+        FROM piezas pz 
+        INNER JOIN almacenes a ON a.almacen_id = pz.almacen_id
+        INNER JOIN estados_generales e ON e.estado_id = pz.estado_id
+    ) inventario",
+      'select' => "SELECT nombre_almacen, codigo, nombre, cantidad, precio_costo, nombre_estado, cantidad_min",
+      'table_rows' => function ($row) {
+        // Determinar clase de color según la cantidad
+        $claseCantidad = 'text-warning';
+        if ($row['cantidad'] > $row['cantidad_min']) {
+          $claseCantidad = 'text-success';
+        } elseif ($row['cantidad'] < 1) {
+          $claseCantidad = 'text-danger';
+        }
+
+        return [
+          'codigo'         => $row['codigo'],
+          'nombre'         => ucwords($row['nombre']),
+          'cantidad'       => '<span class="' . $claseCantidad . '">' . $row['cantidad'] . '</span>',
+          'estado'         => '<span class="hide-cell">' . $row['nombre_estado'] . '</span>',
+          'precio_costo'   => number_format($row['precio_costo'], 2),
+          'total_costo'    => number_format($row['cantidad'] * $row['precio_costo'], 2),
+        ];
+      }
+    ]);
+
+    break;
   // Caso: Productos casi agotados
   case 'index_casi_agotados':
     handleDataTableRequest($db, [
@@ -236,7 +289,7 @@ switch ($action) {
       while ($element = $result->fetch_object()) {
         echo '<option value="' . $element->id . '">' . ucwords($element->nombre_producto) .
           ' | IMEI: ' . $element->imei . ' | Serial: ' . $element->serial .
-          ' | Color: ' . ucwords($element->color) . ' | En caja: ' . $element->caja . '</option>';
+          ' | Color: ' . ucwords($element->color ?? "") . ' | En caja: ' . $element->caja . '</option>';
       }
     }
     break;

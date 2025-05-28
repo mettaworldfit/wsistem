@@ -19,7 +19,7 @@
 
 <div class="generalContainer padding-10 box-shadow-low">
 
-    <table id="Detalle" class="table-custom table">
+    <table id="editInvoice" class="table-custom table">
         <thead>
             <th class="text-left pl-3">Descripción</th>
             <th>Cant</th>
@@ -29,39 +29,6 @@
             <th>Importe</th>
             <th></th>
         </thead>
-
-        <?php while ($element = $detalle_factura->fetch_object()): ?>
-
-            <tbody id="rows">
-                <tr>
-                    <td class="text-left pl-3">
-                        <?php
-                        if ($element->nombre_producto) {
-                            $variants = Help::showVariant($element->id);
-                            echo $variants;
-                        } else if ($element->nombre_pieza) {
-                            echo ucwords($element->nombre_pieza);
-
-                        } else if ($element->nombre_servicio) {
-                            echo ucwords($element->nombre_servicio);
-                        }
-                        ?>
-                    </td>
-                    <td><?= $element->cantidad_total ?></td>
-                    <td><?= number_format($element->precio, 2) ?></td>
-                    <td class="hide-cell"><?= number_format($element->cantidad_total * $element->impuesto, 2) ?> - (<?= $element->valor ?>%)
-                    </td>
-                    <td><?= number_format($element->descuento, 2) ?></td>
-                    <td><?= number_format(($element->cantidad_total * $element->precio) + ($element->cantidad_total * $element->impuesto) - $element->descuento, 2) ?></td>
-                    <td>
-                        <a class="text-danger pointer" style="font-size: 16px;"
-                            onclick="DELETE_DETAIL_INVOICE('<?= $element->id ?>')"><i class="fas fa-times"></i></a>
-                    </td>
-                </tr>
-            </tbody>
-
-        <?php endwhile; ?>
-
     </table>
     <br>
 
@@ -141,7 +108,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); ADD_DETAIL_INVOICE();">
+                <form action="" onsubmit="event.preventDefault(); addDetailItem();">
 
                     <div class="col-sm-12 row">
 

@@ -6,36 +6,148 @@ require_once 'functions/functions.php';
 require_once '../help.php';
 session_start();
 
+if ($_POST['action'] == "cargar_detalle_facturas") {
+  $db = Database::connect();
+  $user_id = $_SESSION['identity']->usuario_id;
+  $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+
+
+  handleDataTableRequest($db, [
+    'columns' => [
+      'nombre_producto',
+      'precio',
+      'nombre_pieza',
+      'nombre_servicio',
+      'cantidad_total',
+      'id',
+      'descuento',
+      'impuesto',
+      'valor'
+    ],
+    'base_table' => 'detalle_facturas_ventas df',
+    'table_with_joins' => 'detalle_facturas_ventas df
+               LEFT JOIN detalle_ventas_con_productos dvp ON df.detalle_venta_id = dvp.detalle_venta_id
+               LEFT JOIN productos p ON p.producto_id = dvp.producto_id
+               LEFT JOIN productos_con_impuestos pim ON p.producto_id = pim.producto_id
+               LEFT JOIN impuestos i ON pim.impuesto_id = i.impuesto_id
+               LEFT JOIN detalle_ventas_con_piezas_ dvpz ON df.detalle_venta_id = dvpz.detalle_venta_id
+               LEFT JOIN piezas pz ON pz.pieza_id = dvpz.pieza_id
+               LEFT JOIN detalle_ventas_con_servicios dvs ON df.detalle_venta_id = dvs.detalle_venta_id
+               LEFT JOIN servicios s ON s.servicio_id = dvs.servicio_id',
+    'select' => 'SELECT p.nombre_producto, df.precio, pz.nombre_pieza, s.nombre_servicio, df.cantidad as cantidad_total, 
+      df.detalle_venta_id as "id", df.descuento, df.impuesto, i.valor',
+    'base_condition' => 'df.factura_venta_id = ' . $id,
+    'table_rows' => function ($row) {
+      return [
+        'descripcion' => $row['nombre_producto']
+          ? Help::getVariantId($row['id'])
+          : (
+            !empty($row['nombre_pieza'])
+            ? ucwords($row['nombre_pieza'])
+            : (!empty($row['nombre_servicio']) ? ucwords($row['nombre_servicio']) : '')
+          ),
+        'cantidad' => $row['cantidad_total'],
+        'precio' => number_format($row['precio'], 2),
+        'impuesto' => number_format($row['cantidad_total'] * $row['impuesto'], 2) . ' - (' . $row['valor'] . '%)',
+        'descuento' => number_format($row['descuento'], 2),
+        'total' => number_format(
+          ($row['cantidad_total'] * $row['precio']) +
+            ($row['cantidad_total'] * $row['impuesto']) -
+            $row['descuento'],
+          2
+        ),
+        'acciones' => '<a class="text-danger pointer" style="font-size: 16px;" onclick="deleteInvoiceDetail(\'' . $row['id'] . '\')"><i class="fas fa-times"></i></a>'
+      ];
+    }
+  ]);
+}
+
+// cargar datos del detalle temporal
+
+if ($_POST['action'] == "cargar_detalle_temporal") {
+  $db = Database::connect();
+  $user_id = $_SESSION['identity']->usuario_id;
+  handleDataTableRequest($db, [
+    'columns' => [
+      'detalle_temporal_id',
+      'usuario_id',
+      'producto_id',
+      'pieza_id',
+      'servicio_id',
+      'descripcion',
+      'cantidad',
+      'precio',
+      'impuesto',
+      'descuento',
+      'fecha',
+      'hora'
+    ],
+    'base_table' => 'detalle_temporal',
+    'table_with_joins' => 'detalle_temporal',
+    'select' => 'SELECT detalle_temporal_id,usuario_id,producto_id,pieza_id,servicio_id,descripcion,
+      cantidad,precio,impuesto,descuento,fecha,hora',
+    'base_condition' => 'usuario_id = ' . $user_id,
+    'table_rows' => function ($row) {
+      return [
+        'descripcion' => Help::loadVariantTemp($row['detalle_temporal_id']),
+        'cantidad' => $row['cantidad'],
+        'precio' => number_format($row['precio'], 2),
+        'impuesto' => number_format($row['cantidad'] * $row['impuesto'], 2),
+        'descuento' => number_format($row['descuento'], 2),
+        'total' => number_format(
+          ($row['cantidad'] * $row['precio']) +
+            ($row['cantidad'] * $row['impuesto']) -
+            $row['descuento'],
+          2
+        ),
+        'acciones' => '
+        <a class="text-danger pointer" style="font-size: 16px;"
+           onclick="deleteInvoiceDetail(\'' . $row['detalle_temporal_id'] . '\')">
+            <i class="fas fa-times"></i>
+        </a>'
+      ];
+    }
+  ]);
+}
+
 // Mostrar index de todas las cotizaciones
 
 if ($_POST['action'] == "index_cotizaciones") {
   $db = Database::connect();
 
   handleDataTableRequest($db, [
-      'columns' => [
-          'c.cotizacion_id', 'cl.nombre', 'cl.apellidos', 'c.total', 'c.fecha'
-      ],
-      'searchable' => [
-          'cl.nombre', 'cl.apellidos', 'c.cotizacion_id', 'c.total', 'c.fecha'
-      ],
-      'base_table' => 'cotizaciones',
-      'table_with_joins' => 'cotizaciones c INNER JOIN clientes cl ON cl.cliente_id = c.cliente_id',
-      'select' => 'SELECT c.cotizacion_id, cl.nombre, cl.apellidos, c.total, c.fecha',
-      'table_rows' => function ($row) {
-          return [
-              'id' => 'CT-00' . $row['cotizacion_id'],
-              'nombre' => ucwords($row['nombre'] . ' ' . $row['apellidos']),
-              'fecha' => $row['fecha'],
-              'total' => '<span class="text-primary">' . number_format($row['total'], 2) . '</span>',
-              'acciones' => '
+    'columns' => [
+      'c.cotizacion_id',
+      'cl.nombre',
+      'cl.apellidos',
+      'c.total',
+      'c.fecha'
+    ],
+    'searchable' => [
+      'cl.nombre',
+      'cl.apellidos',
+      'c.cotizacion_id',
+      'c.total',
+      'c.fecha'
+    ],
+    'base_table' => 'cotizaciones',
+    'table_with_joins' => 'cotizaciones c INNER JOIN clientes cl ON cl.cliente_id = c.cliente_id',
+    'select' => 'SELECT c.cotizacion_id, cl.nombre, cl.apellidos, c.total, c.fecha',
+    'table_rows' => function ($row) {
+      return [
+        'id' => 'CT-00' . $row['cotizacion_id'],
+        'nombre' => ucwords($row['nombre'] . ' ' . $row['apellidos']),
+        'fecha' => $row['fecha'],
+        'total' => '<span class="text-primary">' . number_format($row['total'], 2) . '</span>',
+        'acciones' => '
                   <a class="action-edit" href="' . base_url . 'invoices/edit_quote&id=' . $row['cotizacion_id'] . '" title="editar">
                       <i class="fas fa-pencil-alt"></i>
                   </a>
                   <span onclick="deleteQuote(\'' . $row['cotizacion_id'] . '\')" class="action-delete">
                       <i class="fas fa-times"></i>
                   </span>'
-          ];
-      }
+      ];
+    }
   ]);
 }
 
@@ -45,40 +157,53 @@ if ($_POST['action'] == "index_facturas_ventas") {
   $db = Database::connect();
 
   handleDataTableRequest($db, [
-      'columns' => [
-          'f.factura_venta_id', 'c.nombre', 'c.apellidos', 'f.fecha', 'f.total',
-          'f.recibido', 'f.pendiente', 'f.bono', 'e.nombre_estado'
-      ],
-      'searchable' => [
-          'c.nombre', 'c.apellidos', 'e.nombre_estado', 'f.factura_venta_id','f.total',
-          'f.recibido', 'f.pendiente','f.fecha'
-      ],
-      'base_table' => 'facturas_ventas f INNER JOIN clientes c ON f.cliente_id = c.cliente_id INNER JOIN estados_generales e ON f.estado_id = e.estado_id',
-      'table_with_joins' => 'facturas_ventas f INNER JOIN clientes c ON f.cliente_id = c.cliente_id INNER JOIN estados_generales e ON f.estado_id = e.estado_id',
-      'select' => 'SELECT f.factura_venta_id, c.nombre, c.apellidos, f.total, f.recibido, f.pendiente, f.bono, e.nombre_estado, f.fecha as fecha_factura',
-      'table_rows' => function ($row) {
-          $acciones = '<a ';
-          if ($_SESSION['identity']->nombre_rol == 'administrador') {
-              $acciones .= 'class="action-edit" href="' . base_url . 'invoices/edit&id=' . $row['factura_venta_id'] . '"';
-          } else {
-              $acciones .= 'class="action-edit action-disable" href="#"';
-          }
-          $acciones .= ' title="editar"><i class="fas fa-pencil-alt"></i></a>';
-
-          $acciones .= '<span onclick="deleteInvoice(\'' . $row['factura_venta_id'] . '\')" class="action-delete"><i class="fas fa-times"></i></span>';
-
-          return [
-              'factura_venta_id' => 'FT-00' . $row['factura_venta_id'],
-              'nombre' => ucwords($row['nombre'] . ' ' . $row['apellidos']),
-              'fecha_factura' => $row['fecha_factura'],
-              'total' => '<span class="text-primary hide-cell">' . number_format($row['total'], 2) . '</span>',
-              'recibido' => '<span class="text-success hide-cell">' . number_format($row['recibido'], 2) . '</span>',
-              'pendiente' => '<span class="text-danger hide-cell">' . number_format($row['pendiente'], 2) . '</span>',
-              'bono' => '<span class="text-warning hide-cell">' . number_format($row['bono'], 2) . '</span>',
-              'nombre_estado' => '<p class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</p>',
-              'acciones' => $acciones
-          ];
+    'columns' => [
+      'f.factura_venta_id',
+      'c.nombre',
+      'c.apellidos',
+      'f.fecha',
+      'f.total',
+      'f.recibido',
+      'f.pendiente',
+      'f.bono',
+      'e.nombre_estado'
+    ],
+    'searchable' => [
+      'c.nombre',
+      'c.apellidos',
+      'e.nombre_estado',
+      'f.factura_venta_id',
+      'f.total',
+      'f.recibido',
+      'f.pendiente',
+      'f.fecha'
+    ],
+    'base_table' => 'facturas_ventas f INNER JOIN clientes c ON f.cliente_id = c.cliente_id INNER JOIN estados_generales e ON f.estado_id = e.estado_id',
+    'table_with_joins' => 'facturas_ventas f INNER JOIN clientes c ON f.cliente_id = c.cliente_id INNER JOIN estados_generales e ON f.estado_id = e.estado_id',
+    'select' => 'SELECT f.factura_venta_id, c.nombre, c.apellidos, f.total, f.recibido, f.pendiente, f.bono, e.nombre_estado, f.fecha as fecha_factura',
+    'table_rows' => function ($row) {
+      $acciones = '<a ';
+      if ($_SESSION['identity']->nombre_rol == 'administrador') {
+        $acciones .= 'class="action-edit" href="' . base_url . 'invoices/edit&id=' . $row['factura_venta_id'] . '"';
+      } else {
+        $acciones .= 'class="action-edit action-disable" href="#"';
       }
+      $acciones .= ' title="editar"><i class="fas fa-pencil-alt"></i></a>';
+
+      $acciones .= '<span onclick="deleteInvoice(\'' . $row['factura_venta_id'] . '\')" class="action-delete"><i class="fas fa-times"></i></span>';
+
+      return [
+        'factura_venta_id' => 'FT-00' . $row['factura_venta_id'],
+        'nombre' => ucwords($row['nombre'] . ' ' . $row['apellidos']),
+        'fecha_factura' => $row['fecha_factura'],
+        'total' => '<span class="text-primary hide-cell">' . number_format($row['total'], 2) . '</span>',
+        'recibido' => '<span class="text-success hide-cell">' . number_format($row['recibido'], 2) . '</span>',
+        'pendiente' => '<span class="text-danger hide-cell">' . number_format($row['pendiente'], 2) . '</span>',
+        'bono' => '<span class="text-warning hide-cell">' . number_format($row['bono'], 2) . '</span>',
+        'nombre_estado' => '<p class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</p>',
+        'acciones' => $acciones
+      ];
+    }
   ]);
 }
 
@@ -581,7 +706,7 @@ if ($_POST['action'] == 'eliminar_cotizacion') {
   $id = $_POST['id'];
   $db = Database::connect();
 
-  echo handleDeletionAction($db,$id,"ct_eliminarCotizacion");
+  echo handleDeletionAction($db, $id, "ct_eliminarCotizacion");
 }
 
 // Eliminar detalle cotizacion
@@ -591,7 +716,7 @@ if ($_POST['action'] == 'eliminar_detalle_cotizacion') {
   $id = $_POST['id'];
   $db = Database::connect();
 
- echo handleDeletionAction($db,$id,"ct_eliminarDetalle");
+  echo handleDeletionAction($db, $id, "ct_eliminarDetalle");
 }
 
 // Obtener total de la factura de cotizacion

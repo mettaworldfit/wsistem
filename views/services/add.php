@@ -10,7 +10,7 @@
 
 
 <div class="generalContainer-medium">
-    <form action="" onsubmit="event.preventDefault(); AddService();">
+    <form action="" onsubmit="event.preventDefault(); addService();">
         <div class="container row">
 
             <div class="form-group col-md-8">

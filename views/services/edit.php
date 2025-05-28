@@ -13,7 +13,7 @@ while ($element = $services->fetch_object()): ?>
 
 
     <div class="generalContainer-medium">
-        <form action="" onsubmit="event.preventDefault(); UpdateService(<?= $element->servicio_id ?>);">
+        <form action="" onsubmit="event.preventDefault(); updateService(<?= $element->servicio_id ?>);">
             <div class="container row">
 
                 <div class="form-group col-md-8">

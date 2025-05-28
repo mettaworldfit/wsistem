@@ -21,7 +21,7 @@
 
 <div class="generalContainer padding-10 box-shadow-low">
 
-    <table id="Detalle" class="table-custom table">
+    <table id="detailTemp" class="table-custom table">
         <thead>
             <th>Descripción</th>
             <th>Cant</th>
@@ -30,35 +30,7 @@
             <th>Descuento</th>
             <th>Importe</th>
             <th></th>
-        </thead>
-
-        <?php while ($element = $details->fetch_object()): ?>
-
-            <tbody id="rows">
-                <tr>
-
-                    <td>
-                        <?php $variants = Help::loadVariantTemp($element->detalle_temporal_id);
-                        echo $variants;
-                        ?>
-                    </td>
-
-                    <td><?= $element->cantidad ?></td>
-                    <td><?= number_format($element->precio, 2) ?></td>
-                    <td class="hide-cell"><?= number_format($element->cantidad * $element->impuesto, 2) ?> </td>
-                    <td><?= number_format($element->descuento, 2) ?></td>
-                    <td><?= number_format(($element->cantidad * $element->precio) + ($element->cantidad * $element->impuesto) - $element->descuento, 2) ?>
-                    </td>
-                    <td>
-                        <a class="text-danger pointer" style="font-size: 16px;"
-                            onclick="DELETE_DETAIL_INVOICE('<?= $element->detalle_temporal_id ?>')"><i
-                                class="fas fa-times"></i></a>
-                    </td>
-                </tr>
-            </tbody>
-
-        <?php endwhile; ?>
-
+        </thead>        
     </table>
     <br>
 
@@ -132,7 +104,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); ADD_DETAIL_INVOICE();">
+                <form action="" onsubmit="event.preventDefault(); addDetailItem();">
 
                     <div class="col-sm-12 row">
 

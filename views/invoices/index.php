@@ -16,7 +16,7 @@
 
 
 <div class="generalContainer">
-    <table id="invoice" class="table-custom table">
+    <table id="invoices" class="table-custom table">
         <thead>
             <tr>
                 <th>N°</th>

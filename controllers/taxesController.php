@@ -1,7 +1,5 @@
 <?php
 
-require_once './models/taxes.php';
-
 class TaxesController
 {
 
@@ -10,9 +8,6 @@ class TaxesController
     {
         // Verificar rol de usuario
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
-
-            $method = new Taxes();
-            $taxes = $method->showTaxes();
 
             require_once './views/taxes/index.php';
         } else {

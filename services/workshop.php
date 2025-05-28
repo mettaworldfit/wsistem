@@ -11,19 +11,35 @@ $db = Database::connect();
 $action = $_POST['action'] ?? '';
 
 switch ($action) {
-
+  
   // Cargar listado de órdenes de reparación con detalles relacionados
   case 'index_taller':
     handleDataTableRequest($db, [
       'columns' => [
-        'o.orden_rp_id', 'f.facturaRP_id', 'c.nombre', 'c.apellidos', 'o.fecha_entrada',
-        'o.fecha_salida', 'e.nombre_modelo', 'm.nombre_marca', 'e.modelo',
-        'o.imei', 'o.serie', 'es.nombre_estado'
+        'o.orden_rp_id',
+        'f.facturaRP_id',
+        'c.nombre',
+        'c.apellidos',
+        'o.fecha_entrada',
+        'o.fecha_salida',
+        'e.nombre_modelo',
+        'm.nombre_marca',
+        'e.modelo',
+        'o.imei',
+        'o.serie',
+        'es.nombre_estado'
       ],
       'searchable' => [
-        'c.nombre', 'c.apellidos', 'o.orden_rp_id', 'o.imei', 'o.serie',
-        'o.fecha_entrada', 'o.fecha_salida', 'e.nombre_modelo',
-        'm.nombre_marca', 'es.nombre_estado'
+        'c.nombre',
+        'c.apellidos',
+        'o.orden_rp_id',
+        'o.imei',
+        'o.serie',
+        'o.fecha_entrada',
+        'o.fecha_salida',
+        'e.nombre_modelo',
+        'm.nombre_marca',
+        'es.nombre_estado'
       ],
       'base_table' => 'ordenes_rp',
       'table_with_joins' => "ordenes_rp o
@@ -60,7 +76,7 @@ switch ($action) {
           'fecha_salida' => '<span class="text-danger hide-cell">' . $row['fecha_salida'] . '</span>',
           'condicion' => Help::SHOW_CONDITONS_ORDER($row['id']),
 
-          'estado' => '<select class="form-custom ' . $row['nombre_estado'] . '" id="status_rp" onchange="elegirEstado(this);">'
+          'estado' => '<select class="form-custom ' . $row['nombre_estado'] . '" id="status_rp" onchange="updateOrderStatus(this);">'
             . '<option workshop_id="' . $row['id'] . '" value="' . $row['estado_id'] . '" selected>' . $row['nombre_estado'] . '</option>' .
             '<option class="Pendiente" workshop_id="' . $row['id'] . '" value="6">Pendiente</option>' .
             '<option class="En Proceso" workshop_id="' . $row['id'] . '" value="8">En Proceso</option>' .
@@ -71,13 +87,45 @@ switch ($action) {
 
           'acciones' => '<a href="' . base_url . 'invoices/addrepair&id=' . $row['id'] . '" class="action-edit" title="Agregar factura">'
             . '<i class="fas fa-shopping-cart"></i></a>' .
-            '<span class="action-delete" onclick="deleteOrden(\'' . $row['id'] . '\')" title="Eliminar">'
+            '<span class="action-delete" onclick="deleteRepairOrder(\'' . $row['id'] . '\')" title="Eliminar">'
             . '<i class="fas fa-times"></i></span>'
         ];
       }
     ]);
     break;
 
+  // Cargar todas las marcas
+  case 'index_marcas':
+    handleDataTableRequest($db, [
+      'columns' => [
+        'nombre_marca',
+        'fecha',
+        'marca_id'
+      ],
+      'searchable' => [
+        'nombre_marca',
+        'fecha',
+      ],
+      'base_table' => 'marcas',
+      'table_with_joins' => 'marcas',
+      'select' => 'SELECT nombre_marca,fecha,marca_id',
+      'table_rows' => function ($row) {
+        return [
+          'nombre_marca' => ucwords($row['nombre_marca']),
+          'fecha'        => $row['fecha'],
+          'acciones'     => '
+              <a class="action-edit" href="' . base_url . 'brands/edit&id=' . $row['marca_id'] . '" title="Editar">
+                  <i class="fas fa-pencil-alt"></i>
+              </a>
+              <span class="action-delete" onclick="deleteBrand(\'' . $row['marca_id'] . '\')" title="Eliminar">
+                  <i class="fas fa-times"></i>
+              </span>
+          '
+        ];
+      }
+    ]);
+
+    break;
   // Buscar datos del equipo por ID
   case 'buscar_equipo':
     jsonQueryResult($db, "SELECT d.modelo, m.nombre_marca FROM equipos d INNER JOIN marcas m ON d.marca_id = m.marca_id WHERE equipo_id = " . (int)$_POST['device_id']);

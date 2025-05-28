@@ -13,7 +13,7 @@ while ($element = $brand->fetch_object()): ?>
 
 
     <div class="generalContainer-medium">
-        <form action="" onsubmit="event.preventDefault(); UpdateBrand('<?= $_GET['id']; ?>');">
+        <form action="" onsubmit="event.preventDefault(); updateBrand('<?= $_GET['id']; ?>');">
             <div class="container row">
 
                 <div class="form-group col-md-8">

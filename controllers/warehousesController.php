@@ -1,7 +1,5 @@
 <?php
 
-require_once './models/warehouses.php';
-
 class WarehousesController
 {
 
@@ -9,9 +7,6 @@ class WarehousesController
     {
         // Verificar rol de usuario
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
-
-            $method = new Warehouses;
-            $warehouses = $method->showWarehouses();
 
             require_once './views/warehouses/index.php';
         } else {

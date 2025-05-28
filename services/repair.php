@@ -6,6 +6,72 @@ require_once 'functions/functions.php';
 require_once '../help.php';
 session_start();
 
+if ($_POST['action'] == "cargar_facturarp") {
+    $db = Database::connect();
+
+    $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+
+    handleDataTableRequest($db, [
+        'columns' => [
+            'precio',
+            'descuento',
+            'descripcion',
+            'orden_rp_id',
+            'cantidad',
+            'detalle_id'
+        ],
+        'base_table' => 'detalle_ordenRP',
+        'table_with_joins' => 'detalle_ordenRP',
+        'select' => 'SELECT precio,descuento,descripcion,orden_rp_id, cantidad,detalle_ordenRP_id as detalle_id',
+        'base_condition' => 'orden_rp_id =' . $id,
+        'table_rows' => function ($row) {
+            return [
+                'descripcion' => $row['descripcion'],
+                'cantidad'    => number_format($row['cantidad'], 2),
+                'precio'      => number_format($row['precio'], 2),
+                'descuento'   => number_format($row['descuento'], 2),
+                'total'       => number_format(($row['cantidad'] * $row['precio'] - $row['descuento']), 2),
+                'acciones'    => '<a class="text-danger" style="font-size: 16px;" onclick="deleteDetail(\'' . $row['detalle_id'] . '\')"><i class="fas fa-times"></i></a>'
+            ];
+        }
+    ]);
+}
+
+if ($_POST['action'] == "cargar_ordenrp") {
+    $db = Database::connect();
+
+    $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+
+    handleDataTableRequest($db, [
+        'columns' => [
+            'precio',
+            'descuento',
+            'descripcion',
+            'orden_rp_id',
+            'cantidad',
+            'detalle_id'
+        ],
+        'base_table' => 'detalle_ordenRP',
+        'table_with_joins' => 'detalle_ordenRP',
+        'select' => 'SELECT precio,descuento,descripcion,orden_rp_id, cantidad,detalle_ordenRP_id as detalle_id',
+        'base_condition' => 'orden_rp_id =' . $id,
+        'table_rows' => function ($row) use ($id) {
+
+            $is_exists = Help::isInvoiceRPExists($id)->fetch_object()->is_exists;
+            return [
+                'descripcion' => $row['descripcion'],
+                'cantidad' => number_format($row['cantidad'], 2),
+                'precio' => number_format($row['precio'], 2),
+                'descuento' => number_format($row['descuento'], 2),
+                'total' => number_format(($row['cantidad'] * $row['precio'] - $row['descuento']), 2),
+                'acciones' => ($is_exists == 0)
+                    ? '<a class="text-danger" style="font-size: 16px;" onclick="deleteDetail(\'' . $row['detalle_id'] . '\')"><i class="fas fa-times"></i></a>'
+                    : ''
+            ];
+        }
+    ]);
+}
+
 // Mostrar index de las facturas de reparaciones
 
 if ($_POST['action'] == "index_facturas_reparacion") {
@@ -15,56 +81,69 @@ if ($_POST['action'] == "index_facturas_reparacion") {
 
     handleDataTableRequest($db, [
         'columns' => [
-                'f.facturaRP_id','f.total','f.pendiente','f.recibido','f.fecha',
-                's.nombre_estado','o.orden_rp_id','c.nombre','c.apellidos'
-            ],
-            'searchable' => [
-                'f.facturaRP_id','c.nombre','f.total','f.pendiente','f.recibido',
-                'f.fecha','c.apellidos','s.nombre_estado','o.orden_rp_id'
-            ],
-            'base_table' => 'facturasRP',
-            'table_with_joins' => "facturasRP f
+            'f.facturaRP_id',
+            'f.total',
+            'f.pendiente',
+            'f.recibido',
+            'f.fecha',
+            's.nombre_estado',
+            'o.orden_rp_id',
+            'c.nombre',
+            'c.apellidos'
+        ],
+        'searchable' => [
+            'f.facturaRP_id',
+            'c.nombre',
+            'f.total',
+            'f.pendiente',
+            'f.recibido',
+            'f.fecha',
+            'c.apellidos',
+            's.nombre_estado',
+            'o.orden_rp_id'
+        ],
+        'base_table' => 'facturasRP',
+        'table_with_joins' => "facturasRP f
                 INNER JOIN clientes c ON f.cliente_id = c.cliente_id
                 INNER JOIN ordenes_rp o ON o.orden_rp_id = f.orden_rp_id
                 INNER JOIN estados_generales s ON f.estado_id = s.estado_id
             ",
-            'select' => "
+        'select' => "
                 SELECT f.facturaRP_id, f.total, f.pendiente, f.recibido, f.fecha, 
                     s.nombre_estado, o.orden_rp_id, c.nombre, c.apellidos
             ",
-            'table_rows' => function ($row) {
-                $facturaId = $row['facturaRP_id'];
-                $ordenId = $row['orden_rp_id'];
-                $estado = $row['nombre_estado'];
+        'table_rows' => function ($row) {
+            $facturaId = $row['facturaRP_id'];
+            $ordenId = $row['orden_rp_id'];
+            $estado = $row['nombre_estado'];
 
-                $nombre = ucwords($row['nombre'] ?? '');
-                $apellidos = ucwords($row['apellidos'] ?? '');
+            $nombre = ucwords($row['nombre'] ?? '');
+            $apellidos = ucwords($row['apellidos'] ?? '');
 
-                $acciones = '';
-                $esAdmin = isset($_SESSION['identity']) && $_SESSION['identity']->nombre_rol === 'administrador';
-                $editable = $estado !== 'Anulada' && $esAdmin;
+            $acciones = '';
+            $esAdmin = isset($_SESSION['identity']) && $_SESSION['identity']->nombre_rol === 'administrador';
+            $editable = $estado !== 'Anulada' && $esAdmin;
 
-                if ($editable) {
-                    $acciones .= '<a class="action-edit" href="' . base_url . 'invoices/repair_edit&o=' . $ordenId . '&f=' . $facturaId . '" title="Editar"><i class="fas fa-pencil-alt"></i></a>';
-                } else {
-                    $acciones .= '<a class="action-edit action-disable" href="#" title="Editar"><i class="fas fa-pencil-alt"></i></a>';
-                }
-
-                $acciones .= ' <span onclick="deleteInvoiceRP(\'' . $facturaId . '\')" class="action-delete"><i class="fas fa-times"></i></span>';
-
-                return [
-                    'id' => 'RP-00' . $facturaId,
-                    'nombre' => $nombre . ' ' . $apellidos,
-                    'fecha' => $row['fecha'],
-                    'total' => '<span class="text-primary hide-cell">' . number_format($row['total'], 2) . '</span>',
-                    'recibido' => '<span class="text-success hide-cell">' . number_format($row['recibido'], 2) . '</span>',
-                    'pendiente' => '<span class="text-danger hide-cell">' . number_format($row['pendiente'], 2) . '</span>',
-                    'estado' => '<p class="' . $estado . '">' . $estado . '</p>',
-                    'acciones' => $acciones
-                ];
+            if ($editable) {
+                $acciones .= '<a class="action-edit" href="' . base_url . 'invoices/repair_edit&o=' . $ordenId . '&f=' . $facturaId . '" title="Editar"><i class="fas fa-pencil-alt"></i></a>';
+            } else {
+                $acciones .= '<a class="action-edit action-disable" href="#" title="Editar"><i class="fas fa-pencil-alt"></i></a>';
             }
-    ]);
 
+            $acciones .= ' <span onclick="deleteInvoiceRP(\'' . $facturaId . '\')" class="action-delete"><i class="fas fa-times"></i></span>';
+
+            return [
+                'id' => 'RP-00' . $facturaId,
+                'nombre' => $nombre . ' ' . $apellidos,
+                'fecha' => $row['fecha'],
+                'total' => '<span class="text-primary hide-cell">' . number_format($row['total'], 2) . '</span>',
+                'recibido' => '<span class="text-success hide-cell">' . number_format($row['recibido'], 2) . '</span>',
+                'pendiente' => '<span class="text-danger hide-cell">' . number_format($row['pendiente'], 2) . '</span>',
+                'estado' => '<p class="' . $estado . '">' . $estado . '</p>',
+                'acciones' => $acciones
+            ];
+        }
+    ]);
 }
 
 // Obtener precios del detalle

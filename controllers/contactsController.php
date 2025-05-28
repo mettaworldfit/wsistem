@@ -1,7 +1,5 @@
 <?php
 
-require_once './models/contacts.php';
-
 class ContactsController
 {
 
@@ -12,9 +10,7 @@ class ContactsController
 
     public function customers()
     {
-        $method = new Contacts();
-        $customers = $method->showCustomers();
-
+       
         require_once './views/contacts/customers.php';
     }
 
@@ -25,9 +21,7 @@ class ContactsController
 
     public function providers()
     {
-        $method = new Contacts();
-        $providers = $method->showProviders();
-
+     
         require_once './views/contacts/providers.php';
     }
 

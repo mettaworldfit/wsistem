@@ -16,12 +16,10 @@
     </div>
 </div>
 
-
-
 <div class="generalContainer padding-10 box-shadow-low">
 
     <input type="hidden" name="" value="<?= $_GET['id'] ?>" id="orden_id">
-    <table id="Detalle" class="table-custom table">
+    <table id="addrepair" class="table-custom table">
         <thead>
             <th>Descripción</th>
             <th>Cant</th>
@@ -30,33 +28,6 @@
             <th>Importe</th>
             <th></th>
         </thead>
-
-        <?php $orden = Help::showOrdenDetailID($_GET['id']);
-        while ($element = $orden->fetch_object()): ?>
-
-            <tbody id="rows_rp">
-                <tr>
-                    <td><?= $element->descripcion ?></td>
-                    <td><?= number_format($element->cantidad_total, 2) ?></td>
-                    <td><?= number_format($element->precio, 2) ?></td>
-                    <td><?= number_format($element->descuento, 2) ?></td>
-                    <td><?= number_format(($element->cantidad_total * $element->precio - $element->descuento), 2) ?></td>
-
-                    <td>
-
-
-                        <?php if ($is_exists == 0): ?>
-                            <a class="text-danger" style="font-size: 16px;"
-                                onclick="deleteDetail('<?= $element->detalle_id ?>')"><i class="fas fa-times"></i></a>
-                        <?php endif; ?>
-
-                    </td>
-
-
-                </tr>
-            </tbody>
-
-        <?php endwhile; ?>
 
     </table>
     <br>
@@ -67,7 +38,7 @@
     <div class="row col-sm-12">
         <div class="form-group col-sm-8">
             <textarea class="form-custom" name="" value="" id="observation" cols="30" rows="6" maxlength="150"
-                placeholder="Observaciones"><?= $orden_data->observacion; ?></textarea>
+                placeholder="Observaciones"><?= $note; ?></textarea>
         </div>
 
         <!-- Precio total -->
@@ -115,14 +86,14 @@
                 <p>Imprimir ticket</p>
             </button>
 
-            <button class="btn-custom btn-red" type="button" id="generateOrderPDF">
+            <button class="btn-custom btn-red" type="button" id="exportOrderToPDF">
                 <i class="fas fa-file-pdf"></i>
-                <p>Imprimir PDF</p>
+                <p>Exportar PDF</p>
             </button>
 
-            <input type="hidden" name="" value='<?= $detail ?>' id="detail_order">
-            <input type="hidden" name="" value='<?= $device ?>' id="device_info">
-            <input type="hidden" name="" value='<?= $condition ?>' id="conditions">
+            <input type="hidden" name="" value='<?= $orderDetail ?>' id="detail_order">
+            <input type="hidden" name="" value='<?= $deviceInfo ?>' id="device_info">
+            <input type="hidden" name="" value='<?= $conditions ?>' id="conditions">
         </div>
     <?php endif; ?>
 
@@ -141,7 +112,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); add_detail_rp();">
+                <form action="" onsubmit="event.preventDefault(); addDetailOrdenRepair();">
 
 
                     <div class="col-sm-12 row">

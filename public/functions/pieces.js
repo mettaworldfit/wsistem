@@ -17,206 +17,170 @@ function reset_input() {
 
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
 
+    // Inputs por defecto
     $("#piece_quantity").val("1");
 
-    // Buscar pieza por nombre
+    // Rellenar el formulario con los datos de la pieza seleccionada
+    function populatePieceFormFields(data) {
+        if (!Array.isArray(data)) return;
 
-    $('#piece').change(function() {
+        const piece = data[0];
 
-        var piece_id = $(this).val();
-        SearchPiece(piece_id);
+        $("#add_item_free").show();
 
+        $('#piece_id').val(piece.IDpieza);
+        $('#stock').val(piece.cantidad);
+        $('#locate').val(piece.referencia);
+        $('#quantity').val(1).removeAttr('disabled');
+        $('#price_out').val(format.format(piece.precio_unitario));
+        $('#discount').removeAttr('disabled');
+
+        // Aplicar oferta si existe
+        if (piece.oferta > 0) {
+            const oferta = piece.precio_unitario * piece.oferta / 100;
+            $('#discount').val(oferta).attr('disabled', true);
+        } else {
+            $('#discount').val('');
+        }
+
+        // Cargar lista de precios si tiene
+        if (piece.valor_lista > 0) {
+            loadPiecePrice(piece.IDpieza);
+        }
+    }
+
+
+    // Buscar pieza por nombre    
+    $("#piece").change(function () {
+        const pieceId = $(this).val();
+        if (pieceId) {
+            fetchPiece(pieceId);
+        }
     });
 
-    function SearchPiece(piece_id) {
+    function fetchPiece(piece_id) {
 
-        $.ajax({
-            url: SITE_URL + "services/pieces.php",
-            method: "post",
+        sendAjaxRequest({
+            url: "services/pieces.php",
             data: {
                 piece_id: piece_id,
                 action: "buscar_pieza"
             },
-            success: function(res) {
+            successCallback: (res) => {
 
                 var data = JSON.parse(res);
-
-                // Cargar lista de precios de la pieza
-
-                if (data.valor_lista > 0) {
-                    piece_price(data.IDpieza)
-                }
-
-                $("#add_item_free").show()
-
-                $('#piece_id').val(data.IDpieza)
                 $('#piece_code').val(data.cod_pieza)
-                $('#stock').val(data.cantidad)
-                $("#locate").val(data.referencia);
-                $('#quantity').val(1);
-                $('#price_out').val(format.format(data.precio_unitario))
-                $('#quantity').removeAttr('disabled');
-                $('#discount').removeAttr('disabled');
 
-                // Incluir oferta
-                if (data.oferta > 0) {
-                    var oferta = data.precio_unitario * data.oferta / 100;
-                    $('#discount').val(oferta);
+                populatePieceFormFields(data)
+                validatePieceQuantity() // Calcular precios
 
-                    $('#discount').attr("disabled", true);
-                } else {
-                    $('#discount').val('');
-                }
-
-                clcTotalPrice_rp() // Calcular precios
-
-            }
+            },
+            errorCallback: (res) => mysql_error(res)
         });
     }
 
 
     // Buscar piezas por barcode
-
-    $('#piece_code').keyup(function() {
-        var piece_code = $(this).val();
-
-        if (piece_code != '') {
-            SearchPieceCode(piece_code);
-        } else {
-            SearchPieceCode();
-        }
+    $("#piece_code").on("keyup", function () {
+        const pieceCode = $(this).val().trim();
+        fetchPieceCode(pieceCode || null);
     });
 
-    function SearchPieceCode(piece_code) {
+    function fetchPieceCode(piece_code) {
 
-        $.ajax({
-            url: SITE_URL + "services/pieces.php",
-            method: "post",
+        sendAjaxRequest({
+            url: "services/pieces.php",
             data: {
                 piece_code: piece_code,
                 action: "buscar_codigo_pieza"
             },
-            success: function(res) {
-
+            successCallback: (res) => {
                 var data = JSON.parse(res);
 
-                $("#add_item_free").show()
-
-                // SearchPiece(data.IDpieza)
                 $('#select2-piece-container').attr('title', data.nombre_pieza);
                 $('#select2-piece-container').empty(); // Vaciar description
                 $('#select2-piece-container').append(data.nombre_pieza); // agregar a description
 
-
-                $('#piece_id').val(data.IDproducto)
-                $('#stock').val(data.cantidad)
-                $("#locate").val(data.referencia);
-                $('#quantity').val(1);
-                $('#price_out').val(format.format(data.precio_unitario))
-                $('#quantity').removeAttr('disabled');
-                $('#discount').removeAttr('disabled');
-
-                // Incluir oferta
-                if (data.oferta > 0) {
-                    var oferta = data.precio_unitario * data.oferta / 100;
-                    $('#discount').val(oferta);
-
-                    $('#discount').attr("disabled", true);
-                } else {
-                    $('#discount').val('');
-                }
-
-                piece_price(data.IDproducto) // Cargar lista de precios del producto
-                clcTotalPrice_rp() // Calcular precios
-
-            }
+                populatePieceFormFields(data)
+                validatePieceQuantity() // Calcular precios
+            },
+            errorCallback: (res) => mysql_error(res)
         });
     }
 
 
-    // Buscar lista de precios 
+    // Cargar las listas de precios de la pieza
 
-    function piece_price(piece_id) {
-        $.ajax({
-            url: SITE_URL + "ajax/price_lists.php",
-            method: "post",
+    function loadPiecePrice(pieceId) {
+        sendAjaxRequest({
+            url: "services/price_lists.php",
             data: {
-                piece_id: piece_id,
+                piece_id: pieceId,
                 action: 'buscar_lista_de_pieza'
             },
-            success: function(res) {
+            successCallback: (res) => {
+                let data = JSON.parse(res);
 
                 document.querySelector('#piece_list_id').innerHTML = ""; // Vaciar lista de precios
-                document.querySelector('#piece_list_id').innerHTML = '<option value="0" selected>General</option>' + res;
+                document.querySelector('#piece_list_id').innerHTML = '<option value="0" selected>General</option>' + data.options;
 
             }
-        });
+        })
     }
 
-    // Cambiar precio 
+    // Cambiar precio del pieza
 
-    $('#piece_list_id').change(function() {
+    $('#piece_list_id').change(function () {
+        const pieceId = $('#piece_id').val();
         if ($(this).val() > 0) {
-            $.ajax({
-                url: SITE_URL + "ajax/price_lists.php",
-                method: "post",
+
+            sendAjaxRequest({
+                url: "services/price_lists.php",
                 data: {
                     list_id: $(this).val(),
-                    piece_id: $('#piece_id').val(),
+                    piece_id: pieceId,
                     action: 'elegir_precio_pieza'
                 },
-                success: function(res) {
-
+                successCallback: (res) => {
                     var data = JSON.parse(res);
-                    $('#price_out').val(format.format(data.valor))
+                    $('#price_out').val(format.format(data[0].valor))
                 }
             });
 
         } else {
-            SearchPiece($('#piece_id').val()); // Precio normal
+            fetchPiece(pieceId); // Precio normal
         }
     });
 
 
 
     // Validar la cantidad del piezas antes de agregar
-
-    $('#quantity').keyup(function(e) {
+    $('#quantity').keyup(function (e) {
         e.preventDefault();
 
-        clcTotalPrice_rp();
-
+        validatePieceQuantity();
     })
 
-    function clcTotalPrice_rp() {
 
-        var stock = parseFloat($('#stock').val());
-        var quantity = parseFloat($('#quantity').val());
+    // Validar cantidad y stock de las piezas
+    function validatePieceQuantity() {
 
-        // Si la cantidad es mayor al stock, se ocultará el botón de agregar
-        if (quantity <= stock) {
+        const stock = parseFloat($('#stock').val());
+        const quantity = parseFloat($('#quantity').val());
 
-            // Ocultar la cantidad si es menor que 1
+        const buttons = $('#rp_add_item, #add_item');
+        const isValidQuantity = !isNaN(quantity) && quantity >= 0.1;
 
-            if ($('#quantity').val() < 0.1 || isNaN($('#quantity').val())) {
-                $('#rp_add_item').hide(); // Botón de ventana detalle de ordenes de reparaciones
-                $('#add_item').hide(); // Botón de ventana facturas de ventas
-
-
-            } else {
-                $('#rp_add_item').show(); // Botón de ventana detalle de ordenes de reparaciones
-                $('#add_item').show(); // Botón de ventana facturas de ventas
-
-            }
-
+        // Mostrar botones solo si la cantidad es válida y menor o igual al stock
+        if (quantity <= stock && isValidQuantity) {
+            buttons.show();
         } else {
-            $('#rp_add_item').hide(); // Botón de ventana detalle de ordenes de reparaciones
-            $('#add_item').hide(); // Botón de ventana facturas de ventas
-
+            buttons.hide();
         }
     }
+
 
     // Agregar pieza
 
@@ -248,7 +212,7 @@ $(document).ready(function() {
                 warehouse: $("#warehouse").val(),
                 action: "agregar_pieza",
             },
-            success: function(res) {
+            success: function (res) {
 
                 if (res > 0) {
 
@@ -287,7 +251,7 @@ $(document).ready(function() {
 
                 $.ajax({
                     type: "post",
-                    url: SITE_URL + "ajax/price_lists.php",
+                    url: SITE_URL + "services/price_lists.php",
                     data: {
                         action: "asignar_lista_de_precios",
                         type: "pieza",
@@ -296,7 +260,7 @@ $(document).ready(function() {
                         id: piece_id
 
                     },
-                    success: function(res) {
+                    success: function (res) {
 
                         if (res == "ready") {
 
@@ -350,7 +314,7 @@ $(document).ready(function() {
                 warehouse: $("#warehouse").val()
 
             },
-            success: function(res) {
+            success: function (res) {
 
 
                 if (res > 0) {
@@ -373,37 +337,37 @@ $(document).ready(function() {
 
 function disablePiece(pieceId) {
     alertify.confirm(
-        "<i class='text-warning fas fa-exclamation-circle'></i> Desactivar pieza","¿Desea desactivar esta pieza? ",
-        function() {
+        "<i class='text-warning fas fa-exclamation-circle'></i> Desactivar pieza", "¿Desea desactivar esta pieza? ",
+        function () {
             sendAjaxRequest({
                 url: "services/pieces.php",
                 data: {
                     piece_id: pieceId,
                     action: "desactivar_pieza",
                 },
-                successCallback: () =>  dataTablesInstances['pieces'].ajax.reload()
+                successCallback: () => dataTablesInstances['pieces'].ajax.reload()
             });
         },
-        function() {}
+        function () { }
     );
 }
 
 // Activar pieza
 
 function enablePiece(pieceId) {
-    alertify.confirm("Activar pieza","¿Desea activar esta pieza? ",
-        function() {
+    alertify.confirm("Activar pieza", "¿Desea activar esta pieza? ",
+        function () {
             sendAjaxRequest({
                 url: "services/pieces.php",
                 data: {
                     piece_id: pieceId,
                     action: "activar_pieza",
                 },
-                successCallback: () =>  dataTablesInstances['pieces'].ajax.reload()
+                successCallback: () => dataTablesInstances['pieces'].ajax.reload()
             });
-           
+
         },
-        function() {}
+        function () { }
     );
 }
 
@@ -414,7 +378,7 @@ function enablePiece(pieceId) {
 function deletePiece(pieceId) {
 
     alertify.confirm("Eliminar pieza", "¿Estas seguro que deseas borrar esta pieza? ",
-        function() {
+        function () {
 
             sendAjaxRequest({
                 url: "services/pieces.php",
@@ -431,6 +395,6 @@ function deletePiece(pieceId) {
                 }
             });
         },
-        function() {}
+        function () { }
     );
 }

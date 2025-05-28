@@ -1,8 +1,5 @@
 <?php
-
-require_once './models/workshop.php';
 require_once './help.php';
-
 
 class InvoicesController
 {
@@ -10,7 +7,6 @@ class InvoicesController
     public function addpurchase()
     {
 
-        $details = Help::loadDetailTemp();
         require_once './views/invoices/addpurchase.php';
     }
 
@@ -40,25 +36,21 @@ class InvoicesController
 
     public function addrepair()
     {
+        $id = $_GET['id'];
 
-        $method = new Workshop();
-        $info_device = $method->getOrderInfo($_GET['id']);
-        $conditions = $method->getConditions($_GET['id']);
-        $obv = $method->getOrderObservation($_GET['id']);
+        // Obtener datos relacionados a la orden
 
-        $data = Help::IS_EXISTS_INVOICERP($_GET['id']);
-        $verify = $data->fetch_object();
-        $is_exists = $verify->is_exists;
+        $orden = Help::loadOrdenDetailId($id);
+        $note = Help::getOrderNoteId($id)->fetch_object()->observacion;
 
+        // Verificar si la orden esta facturada
+        $is_exists = Help::isInvoiceRPExists($id)->fetch_object()->is_exists;
 
         // Devolver los datos en formato JSON para imprimir
 
-        $order_detail = Help::showOrdenDetailID($_GET['id']);
-        $detail = json_encode($order_detail->fetch_all(), JSON_UNESCAPED_UNICODE);
-        $device = json_encode($info_device->fetch_all(), JSON_UNESCAPED_UNICODE);
-        $condition = json_encode($conditions->fetch_all(), JSON_UNESCAPED_UNICODE);
-
-        $orden_data = $obv->fetch_object(); // datos de la orden
+        $orderDetail = json_encode($orden->fetch_all(), JSON_UNESCAPED_UNICODE);
+        $deviceInfo = json_encode(Help::getOrderInfoId($id)->fetch_all(), JSON_UNESCAPED_UNICODE);
+        $conditions = json_encode(Help::getConditionsId($id)->fetch_all(), JSON_UNESCAPED_UNICODE);
 
         require_once './views/invoices/addrepair.php';
     }
@@ -73,20 +65,18 @@ class InvoicesController
         // Verificar rol de usuario
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
 
-            $method = new Workshop();
-            $info_device = $method->getOrderInfo($_GET['o']);
-            $conditions = $method->getConditions($_GET['o']);
-            $obv = $method->getOrderObservation($_GET['o']);
+            $id = $_GET['o'];
 
+            // Obtener datos relacionados a la orden
+
+            $orden = Help::loadOrdenDetailId($id);
+            $note = Help::getOrderNoteId($id)->fetch_object()->observacion;
 
             // Devolver los datos en formato JSON para imprimir
 
-            $order_detail = Help::showOrdenDetailID($_GET['o']);
-            $detail = json_encode($order_detail->fetch_all(), JSON_UNESCAPED_UNICODE);
-            $device = json_encode($info_device->fetch_all(), JSON_UNESCAPED_UNICODE);
-            $condition = json_encode($conditions->fetch_all(), JSON_UNESCAPED_UNICODE);
-
-            $orden_data = $obv->fetch_object(); // datos de la orden
+            $orderDetail = json_encode($orden->fetch_all(), JSON_UNESCAPED_UNICODE);
+            $deviceInfo = json_encode(Help::getOrderInfoId($id)->fetch_all(), JSON_UNESCAPED_UNICODE);
+            $conditions = json_encode(Help::getConditionsId($id)->fetch_all(), JSON_UNESCAPED_UNICODE);
 
             require_once './views/invoices/edit_repair.php';
         } else {
@@ -109,9 +99,10 @@ class InvoicesController
 
     public function edit_quote()
     {
+        // Obtener datos relacionados a la cotizacion
 
-        $quotes = Help::showQuotesDetail($_GET['id']);
-        $descripcion = Help::INVOICE_DESCRIPT_QUOTE($_GET['id']);
+        $quotes = Help::loadQuotesDetail($_GET['id']);
+        $note = Help::getQuotesNoteId($_GET['id']);
 
         require_once './views/invoices/edit_quote.php';
     }

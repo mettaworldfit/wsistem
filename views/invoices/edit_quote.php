@@ -49,7 +49,7 @@
     <div class="row col-sm-12">
         <div class="form-group col-sm-8">
             <textarea class="form-custom" name="" value="" id="observation" cols="30" rows="6" maxlength="150"
-                placeholder="Observaciones"><?= $descripcion ?></textarea>
+                placeholder="Observaciones"><?= $note ?></textarea>
         </div>
 
         <!-- Precio total -->

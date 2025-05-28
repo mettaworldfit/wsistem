@@ -10,7 +10,7 @@
 
 
 <div class="generalContainer-medium">
-    <form action="" onsubmit="event.preventDefault(); AddBrand();">
+    <form action="" onsubmit="event.preventDefault(); addBrand();">
         <div class="container row">
 
             <div class="form-group col-md-8">

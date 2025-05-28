@@ -19,7 +19,7 @@
 
     <input type="hidden" name="" value="<?= $_GET['o'] ?>" id="orden_id">
     <input type="hidden" name="" value="<?= $_GET['f'] ?>" id="invoice_id">
-    <table id="Detalle" class="table-custom table">
+    <table id="editrepair" class="table-custom table">
         <thead>
             <th>Descripción</th>
             <th>Cant</th>
@@ -28,29 +28,6 @@
             <th>Importe</th>
             <th></th>
         </thead>
-
-        <?php $orden = Help::showOrdenDetailID($_GET['o']);
-        while ($element = $orden->fetch_object()): ?>
-
-            <tbody id="rows_rp">
-                <tr>
-                    <td><?= $element->descripcion ?></td>
-                    <td><?= number_format($element->cantidad_total, 2) ?></td>
-                    <td><?= number_format($element->precio, 2) ?></td>
-                    <td><?= number_format($element->descuento, 2) ?></td>
-                    <td><?= number_format(($element->cantidad_total * $element->precio - $element->descuento), 2) ?></td>
-
-                    <td>
-                        <a class="text-danger" style="font-size: 16px;"
-                            onclick="deleteDetail('<?= $element->detalle_id ?>')"><i class="fas fa-times"></i></a>
-                    </td>
-
-
-                </tr>
-            </tbody>
-
-        <?php endwhile; ?>
-
     </table>
     <br>
 
@@ -60,7 +37,7 @@
     <div class="row col-sm-12">
         <div class="form-group col-sm-8">
             <textarea class="form-custom" name="" value="" id="observation" cols="30" rows="6" maxlength="150"
-                placeholder="Observaciones"><?= $descripcion ?></textarea>
+                placeholder="Observaciones"><?= $note ?></textarea>
         </div>
 
         <!-- Precio total -->
@@ -121,9 +98,9 @@
             <p>Imprimir PDF</p>
         </button>
 
-        <input type="hidden" name="" value='<?= $detail ?>' id="detail_order">
-        <input type="hidden" name="" value='<?= $device ?>' id="device_info">
-        <input type="hidden" name="" value='<?= $condition ?>' id="conditions">
+        <input type="hidden" name="" value='<?= $orderDetail ?>' id="detail_order">
+        <input type="hidden" name="" value='<?= $deviceInfo ?>' id="device_info">
+        <input type="hidden" name="" value='<?= $conditions ?>' id="conditions">
     </div>
 
 </div> <!-- generalConntainer -->
@@ -141,7 +118,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); add_detail_rp();">
+                <form action="" onsubmit="event.preventDefault(); addDetailOrdenRepair();">
 
                     <div class="col-sm-12 row">
 
@@ -307,7 +284,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); Update_info();">
+                <form action="" onsubmit="event.preventDefault(); updateInvoiceInfo();">
 
                     <!-- Head -->
                     <?php $data = Help::INFO_INVOICE_RP($_GET['o']);

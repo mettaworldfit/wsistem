@@ -11,7 +11,7 @@
 
 
 <div class="generalContainer-medium">
-    <form action="" onsubmit="event.preventDefault(); AddList();">
+    <form action="" onsubmit="event.preventDefault(); addList();">
         <div class="container row">
 
             <div class="form-group col-md-8">

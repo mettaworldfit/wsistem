@@ -1,256 +1,131 @@
 <?php
 
 require_once '../config/db.php';
+require_once '../config/parameters.php';
+require_once 'functions/functions.php';
 session_start();
 
-
-if ($_POST['action'] == "buscar_lista_de_producto") {
-
-  $product_id = $_POST['product_id'];
-  $db = Database::connect();
-
-  $query = "SELECT *FROM lista_de_precios l 
-              INNER JOIN productos_con_lista_de_precios p ON p.lista_id = l.lista_id
-              WHERE p.producto_id = '$product_id'";
-
-  $datos = $db->query($query);
-  $html = '';
-
-  while ($element = $datos->fetch_object()) {
-    $html = '<option value="' . $element->lista_id . '">' . $element->nombre_lista . '</option>';
-    echo $html;
-  }
-}
-
-// Elegir lista de precio de producto
-
-if ($_POST['action'] == "elegir_precio") {
-
-  $list_id = $_POST['list_id'];
-  $product_id = $_POST['product_id'];
-  $db = Database::connect();
-
-  $query = "SELECT *FROM lista_de_precios l 
-              INNER JOIN productos_con_lista_de_precios p ON p.lista_id = l.lista_id
-              WHERE l.lista_id = '$list_id' AND p.producto_id = '$product_id'";
-
-  $datos = $db->query($query);
-  $result = $datos->fetch_assoc();
-
-  echo json_encode($result, JSON_UNESCAPED_UNICODE);
-  exit;
-}
-
-
-// Asignar lista de precio a producto/piezas
-
-if ($_POST['action'] == "asignar_lista_de_precios") {
-
-  $id = $_POST['id'];
-  $type = $_POST['type'];
-  $list_id = $_POST['list_id'];
-  $list_value = $_POST['list_value'];
-
-  $db = Database::connect();
-
-  $query = "CALL lp_asignarListaDePrecio($id,$list_id,'$list_value','$type')";
-
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo "ready";
-  } else if (str_contains($data->msg, 'Duplicate')) {
-
-    echo "duplicate";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error 50: " . $db->error;
-  }
-}
-
-// Eliminar producto/pieza con lista de precio
-
-if ($_POST['action'] == "desasignar_lista_de_precio") {
-
-
-  $id = $_POST['id'];
-  $type = $_POST['type'];
-  $db = Database::connect();
-
-
-  $query = "CALL lp_desasignarListaDePrecio($id,'$type')";
-
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo "ready";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error 50: " . $db->error;
-  }
-}
-
-// Agregar lista de precio a un producto
-
-if ($_POST['action'] == "editar_lista_de_precio_de_un_producto") {
-
-  $product_id = $_POST['id'];
-  $list_id = $_POST['list_id'];
-  $list_value = $_POST['list_value'];
-
-  $db = Database::connect();
-
-  $query = "CALL lp_editarListaDePrecioAproducto($product_id,$list_id,'$list_value')";
-
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg > 0) {
-
-    echo $data->msg;
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error 50: " . $db->error;
-  }
-}
-
-// Agregar lista de precio a una pieza
-
-if ($_POST['action'] == "editar_lista_de_precio_de_una_pieza") {
-
-  $piece_id = $_POST['id'];
-  $list_id = $_POST['list_id'];
-  $list_value = $_POST['list_value'];
-
-  $db = Database::connect();
-
-  $query = "CALL lp_editarListaDePrecioApieza($piece_id,$list_id,'$list_value')";
-
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg > 0) {
-
-    echo $data->msg;
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error 50: " . $db->error;
-  }
-}
-
-// buscar lista de precio de producto
-
-if ($_POST['action'] == "buscar_lista_de_pieza") {
-
-  $piece_id = $_POST['piece_id'];
-  $db = Database::connect();
-
-  $query = "SELECT *FROM lista_de_precios l 
-              INNER JOIN piezas_con_lista_de_precios p ON p.lista_id = l.lista_id
-              WHERE p.pieza_id = '$piece_id'";
-
-  $datos = $db->query($query);
-  $html = '';
-
-  while ($element = $datos->fetch_object()) {
-    $html = '<option value="' . $element->lista_id . '">' . $element->nombre_lista . '</option>';
-    echo $html;
-  }
-}
-
-// Elegir lista de precio de pieza
-
-if ($_POST['action'] == "elegir_precio_pieza") {
-
-  $list_id = $_POST['list_id'];
-  $piece_id = $_POST['piece_id'];
-  $db = Database::connect();
-
-  $query = "SELECT *FROM lista_de_precios l 
-              INNER JOIN piezas_con_lista_de_precios p ON p.lista_id = l.lista_id
-              WHERE l.lista_id = '$list_id' AND p.pieza_id = '$piece_id'";
-
-  $datos = $db->query($query);
-  $result = $datos->fetch_assoc();
-
-  echo json_encode($result, JSON_UNESCAPED_UNICODE);
-  exit;
-}
-
-// Agregar lista de precios
-
-if ($_POST['action'] == 'agregar_lista') {
-
-  $name = $_POST['list_name'];
-  $comment = $_POST['list_comment'];
-  $user_id = $_SESSION['identity']->usuario_id;
-
-  $db = Database::connect();
-
-  $query = "CALL lp_crearListaDePrecio($user_id,'$name','$comment')";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo "ready";
-  } else if (str_contains($data->msg, 'Duplicate')) {
-
-    echo "duplicate";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error :" . $data->msg;
-  }
-}
-
-// Actualizar lista de precios
-
-if ($_POST['action'] == 'actualizar-lista') {
-
-  $name = $_POST['list_name'];
-  $comment = $_POST['list_comment'];
-  $list_id = $_POST['list_id'];
-
-  $db = Database::connect();
-
-  $query = "CALL lp_actualizarListaDePrecio($list_id,'$name','$comment')";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo "ready";
-  } else if (str_contains($data->msg, 'Duplicate')) {
-
-    echo "duplicate";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error 54:" . $data->msg;
-  }
-}
-
-
-//  Eliminar lista de precio
-
-if ($_POST['action'] == "eliminar_lista") {
-
-  $id = $_POST['id'];
-
-  $db = Database::connect();
-
-  $query = "CALL lp_eliminarLista($id)";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo "ready";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error 55:" . $data->msg;
-  }
+// Conexión a base de datos
+$db = Database::connect();
+
+$action = $_POST['action'] ?? '';
+
+switch ($action) {
+
+  // Listado de listas de precios (usado por DataTables)
+  case 'index_lista_precios':
+    handleDataTableRequest($db, [
+      'columns' => ['nombre_lista', 'descripcion', 'lista_id'],
+      'searchable' => ['lista_id', 'nombre_lista', 'descripcion'],
+      'base_table' => 'lista_de_precios',
+      'table_with_joins' => 'lista_de_precios',
+      'select' => 'SELECT lista_id,nombre_lista,descripcion',
+      'table_rows' => function ($row) {
+        return [
+          'id' => $row['lista_id'],
+          'nombre_lista' => $row['nombre_lista'],
+          'descripcion' => $row['descripcion'],
+          'acciones' => '
+            <a href="' . base_url . 'price_lists/edit&id=' . $row['lista_id'] . '">
+              <span class="action-edit"><i class="fas fa-pencil-alt"></i></span>
+            </a>
+            <span class="action-delete" onclick="deletePriceList(\'' . $row['lista_id'] . '\')" title="Eliminar">
+              <i class="fas fa-times"></i>
+            </span>'
+        ];
+      }
+    ]);
+    break;
+
+  // Buscar listas de precios asociadas a un producto o pieza
+  case 'buscar_lista_de_producto':
+  case 'buscar_lista_de_pieza':
+    $id = $action === 'buscar_lista_de_producto' ? $_POST['product_id'] : $_POST['piece_id'];
+    $table = $action === 'buscar_lista_de_producto' ? 'productos_con_lista_de_precios' : 'piezas_con_lista_de_precios';
+    $field = $action === 'buscar_lista_de_producto' ? 'producto_id' : 'pieza_id';
+
+    $query = "SELECT * FROM lista_de_precios l 
+              INNER JOIN $table p ON p.lista_id = l.lista_id 
+              WHERE p.$field = '$id'";
+    $result = $db->query($query);
+    $options = '';
+    while ($row = $result->fetch_object()) {
+      $options .= "<option value='{$row->lista_id}'>{$row->nombre_lista}</option>";
+    }
+
+    echo json_encode(['status' => 'ready', 'options' => $options], JSON_UNESCAPED_UNICODE);
+    break;
+
+  // Obtener detalle de valor de una lista de precio asociada a un producto o pieza
+  case 'elegir_precio':
+  case 'elegir_precio_pieza':
+    $list_id = $_POST['list_id'];
+    $id = $action === 'elegir_precio' ? $_POST['product_id'] : $_POST['piece_id'];
+    $table = $action === 'elegir_precio' ? 'productos_con_lista_de_precios' : 'piezas_con_lista_de_precios';
+    $field = $action === 'elegir_precio' ? 'producto_id' : 'pieza_id';
+
+    $query = "SELECT * FROM lista_de_precios l 
+              INNER JOIN $table p ON p.lista_id = l.lista_id 
+              WHERE l.lista_id = '$list_id' AND p.$field = '$id'";
+    jsonQueryResult($db, $query);
+    break;
+
+  // Asignar lista de precio a producto o pieza
+  case 'asignar_lista_de_precios':
+    echo handleProcedureAction($db, 'lp_asignarListaDePrecio', [
+      (int)$_POST['id'],
+      (int)$_POST['list_id'],
+      $_POST['list_value'],
+      $_POST['type'] // producto o pieza
+    ]);
+    break;
+
+  // Quitar lista de precio de producto o pieza
+  case 'desasignar_lista_de_precio':
+    echo handleProcedureAction($db, 'lp_desasignarListaDePrecio', [
+      (int)$_POST['id'],
+      $_POST['type']
+    ]);
+    break;
+
+  // Editar valor de lista de precio en un producto
+  case 'editar_lista_de_precio_de_un_producto':
+    echo handleProcedureAction($db, 'lp_editarListaDePrecioAproducto', [
+      (int)$_POST['id'],
+      (int)$_POST['list_id'],
+      $_POST['list_value']
+    ]);
+    break;
+
+  // Editar valor de lista de precio en una pieza
+  case 'editar_lista_de_precio_de_una_pieza':
+    echo handleProcedureAction($db, 'lp_editarListaDePrecioApieza', [
+      (int)$_POST['id'],
+      (int)$_POST['list_id'],
+      $_POST['list_value']
+    ]);
+    break;
+
+  // Crear una nueva lista de precios
+  case 'agregar_lista':
+    echo handleProcedureAction($db, 'lp_crearListaDePrecio', [
+      $_SESSION['identity']->usuario_id,
+      $_POST['list_name'],
+      $_POST['list_comment']
+    ]);
+    break;
+
+  // Actualizar información de una lista de precios existente
+  case 'actualizar-lista':
+    echo handleProcedureAction($db, 'lp_actualizarListaDePrecio', [
+      $_POST['list_id'],
+      $_POST['list_name'],
+      $_POST['list_comment']
+    ]);
+    break;
+
+  // Eliminar lista de precios
+  case 'eliminar_lista':
+    echo handleDeletionAction($db, $_POST['id'], 'lp_eliminarLista');
+    break;
 }

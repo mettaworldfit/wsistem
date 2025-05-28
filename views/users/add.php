@@ -7,7 +7,7 @@
 </div>
 
 <div class="generalContainer-medium">
-    <form class="user-content" action="" onsubmit="event.preventDefault(); AddUser();">
+    <form class="user-content" action="" onsubmit="event.preventDefault(); addUser();">
         <div class="container">
 
             <div class="row mb-3">

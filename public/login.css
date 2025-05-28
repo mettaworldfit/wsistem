@@ -140,7 +140,8 @@ img.login-logo {
     color: #fff
 }
 
-span.missing {
+span.missing,
+span.expired {
     color: red;
     font-family: "Quicksand-Regular", sans-serif;
     font-size: 13px
@@ -151,6 +152,8 @@ span.missing-key {
     text-decoration: underline;
     font-size: 15px
 }
+
+
 
 input[type="text"],
 input[type="password"],

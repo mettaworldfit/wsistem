@@ -63,7 +63,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); add_ordenRP();">
+                <form action="" onsubmit="event.preventDefault(); addOrdenRepair();">
 
                     <div class="row">
                         <div class="form-group col-sm-8">
@@ -321,7 +321,7 @@
             </div>
             <div class="modal-body">
 
-                <form action="" onsubmit="event.preventDefault(); AddDevice();">
+                <form action="" onsubmit="event.preventDefault(); addDevice();">
 
                     <div class="form-group col-sm-12">
                         <p class="title-info">
@@ -393,7 +393,7 @@
             </div>
             <div class="modal-body">
 
-                <form action="" onsubmit="event.preventDefault(); AddCondition();">
+                <form action="" onsubmit="event.preventDefault(); addRepairCondition();">
 
                     <div class="form-group col-sm-12">
                         <p class="title-info">

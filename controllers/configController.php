@@ -1,7 +1,5 @@
 <?php
 
-require_once './models/configs.php';
-
 class ConfigController
 {
 
@@ -57,9 +55,6 @@ class ConfigController
     {
         // Verificar rol de usuario
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
-
-            $method = new Configs();
-            $bonds = $method->showCustomer_bonds();
 
             require_once './views/config/bonds.php';
         } else {

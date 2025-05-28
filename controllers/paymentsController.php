@@ -1,7 +1,5 @@
 <?php
 
-require_once './models/payments.php';
-
 class PaymentsController
 {
 

@@ -1,6 +1,6 @@
 <?php
 
-require_once './models/products.php';
+require_once './help.php';
 
 class ProductsController
 {
@@ -21,11 +21,10 @@ class ProductsController
     {
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
 
-        $model = new Products();
-        $datos = $model->averageCost($_GET['id']);
-        $x = $datos->fetch_object();
+        $id = $_GET['id'];
 
-        $avg = $x->costo_promedio;
+        $avg = Help::getProductAvgCost($id)->fetch_object()->costo_promedio;
+        $product = Help::showProductID($id);
 
         require_once './views/products/edit.php';
 
@@ -39,9 +38,5 @@ class ProductsController
     {
     
         require_once './views/products/stock.php';
-    }
-
-  
-
-    
+    }    
 }

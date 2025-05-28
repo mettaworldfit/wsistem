@@ -1,5 +1,4 @@
-<?php $product = Help::showProductID($_GET['id']);
-while ($element = $product->fetch_object()): ?>
+<?php while ($element = $product->fetch_object()): ?>
 
     <input type="hidden" name="" value="<?= $element->IDproducto ?>" id="product_id">
     <input type="hidden" name="" value="<?= $avg ?>" id="average_cost">
@@ -384,7 +383,7 @@ while ($element = $product->fetch_object()): ?>
                             echo 'disabled';
                         } ?>>
                             <option value="0" selected>Vacío</option>
-                            <?php $lists = Help::showPrice_lists();
+                            <?php $lists = Help::loadPriceLists();
                             while ($list = $lists->fetch_object()): ?>
                                 <option value="<?= $list->lista_id ?>"><?= $list->nombre_lista ?></option>
                             <?php endwhile; ?>
@@ -400,9 +399,9 @@ while ($element = $product->fetch_object()): ?>
                     <br><br>
                     <!-- Listas -->
 
-                    <div id="list">
+                    <div id="priceList">
 
-                        <?php $lists_product = Help::showPricelist_with_productID($element->IDproducto);
+                        <?php $lists_product = Help::loadProductPriceListsId($element->IDproducto);
                         while ($list_product = $lists_product->fetch_object()): ?>
                             <div class="form-group col-sm-6 list">
                                 <input class="form-custom col-sm-12" type="text" name=""
@@ -416,7 +415,7 @@ while ($element = $product->fetch_object()): ?>
                                     disabled>
                                 <?php if ($_SESSION['identity']->nombre_rol == 'administrador'): ?>
                                     <span class="action-delete"
-                                        onclick="deleteList('<?= $list_product->producto_lista_id ?>','<?= $list_product->lista_id ?>')"
+                                        onclick="deleteItemPriceList('<?= $list_product->producto_lista_id ?>');"
                                         identity="<?= $list_product->lista_id ?>"><i class="far fa-minus-square"></i></span>
                                 <?php endif; ?>
                             </div>
@@ -427,7 +426,7 @@ while ($element = $product->fetch_object()): ?>
                     <?php if ($_SESSION['identity']->nombre_rol == 'administrador'): ?>
                         <div class="add_list_to_product">
                             <i class="fas fa-plus-circle"></i>
-                            <a href="#">Agregar lista de precio</a>
+                            <a href="#" onclick="addPriceListsDb('<?= $id ?>');">Agregar lista de precio</a>
                         </div>
                     <?php endif; ?>
 

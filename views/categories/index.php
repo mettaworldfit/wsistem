@@ -18,7 +18,7 @@
 
 
 <div class="generalContainer">
-<table id="example" class="table-custom table">
+<table id="categories" class="table-custom table">
         <thead>
             <tr>
                 <th>N°</th>
@@ -28,42 +28,8 @@
                 <th></th>
             </tr>
         </thead>
-
-
-
-        <tbody>
-            <?php while ($element = $categories->fetch_object()) : ?>
-                <?php $parents = Help::verify_parent_category($element->categoria_id);
-                while ($parent = $parents->fetch_object()) { ?>
-
-                    <tr>
-                        <td><?= $element->categoria_id ?></td>
-                        <td><?= ucwords($element->nombre_categoria) ?></td>
-                        <td><?= $element->descripcion ?></td>
-                        <td><?= $element->fecha ?></td>
-                        <td>
-
-                            <a <?php if ($_SESSION['identity']->nombre_rol == 'administrador') { ?>  class="action-edit" href="<?= base_url . 'categories/edit&id=' . $element->categoria_id ?>" 
-                                <?php } else { ?> class="action-edit action-disable" href="#" <?php } ?> title="Editar" >
-                                <i class="fas fa-pencil-alt"></i>
-                            </a>
-
-                            <span <?php if ($parent->parent_row == 0 && $_SESSION['identity']->nombre_rol == 'administrador') { ?> class="action-delete" onclick="deleteCategory('<?= $element->categoria_id ?>')" 
-                                <?php } else { ?> class="action-delete action-disable" <?php } ?> title="Eliminar">
-                                <i class="fas fa-times"></i>
-                            </span>
-                        </td>
-                    </tr>
-            <?php  }
-            endwhile; ?>
-        </tbody>
-
     </table>
-
 </div>
-
-
-
 
 <!-- Modal -->
 <div class="modal fade" id="categoriesModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

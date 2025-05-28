@@ -1,9 +1,67 @@
-$(document).ready(function() {
+// Agregar servicio
 
+function addService() {
+    sendAjaxRequest({
+        url: "services/services.php",
+        data: {
+            name: $('#service_name').val(),
+            price: $('#service_price').val(),
+            action: 'agregar_servicio'
+        },
+        successCallback: () => {
+            mysql_row_affected()
+            $('input[type="text"]').val('');
+            $('input[type="number"]').val('');
+            $(".table").load(location.href + " .table");
+        },
+        errorCallback: (res) => mysql_error(res)
+    });
+}
+
+// Actualizar servicio
+
+function updateService(serviceId) {
+    sendAjaxRequest({
+        url: "services/services.php",
+        data: {
+            service_id: serviceId,
+            name: $('#service_name').val(),
+            price: $('#service_price').val(),
+            action: 'actualizar_servicio'
+        },
+        successCallback: () => {
+            $(".table").load(location.href + " .table");
+            mysql_row_update();
+        },
+        errorCallback: (res) => mysql_error(res)
+    })
+}
+
+// Eliminar servicio
+
+function deleteService(serviceId) {
+    alertify.confirm("Eliminar servicio", "¿Estas seguro que deseas borrar este servicio? ",
+        function () {
+            sendAjaxRequest({
+                url: "services/services.php",
+                data: {
+                    service_id: serviceId,
+                    action: 'eliminar_servicio'
+                },
+                successCallback: () => dataTablesInstances['services'].ajax.reload(),
+                errorCallback: (res) => mysql_error(res)
+            });
+        },
+        function () {
+
+        });
+}
+
+$(document).ready(function () {
 
     // Aplicar descuento
 
-    $('#discount_service').keyup(function(e) {
+    $('#discount_service').keyup(function (e) {
         e.preventDefault();
 
         var price_service = parseInt($('#price_out').val().replace(/,/g, ""));
@@ -22,150 +80,38 @@ $(document).ready(function() {
         }
     })
 
-
     // Buscar servicio por nombre
 
-    $("#service").change(function() {
+    $("#service").change(function () {
         var service_id = $(this).val();
-        SearchService(service_id);
+        fetchService(service_id);
     });
 
-
-    function SearchService(service_id) {
-
-        $.ajax({
-            url: SITE_URL + "services/services.php",
-            method: "post",
+    function fetchService(serviceId) {
+        sendAjaxRequest({
+            url: "services/services.php",
             data: {
-                service_id: service_id,
+                service_id: serviceId,
                 action: "buscar_servicios"
             },
-            success: function(res) {
-                var data = JSON.parse(res);
-
-                $("#price_out").val('')
-                $("#price_out").attr("disabled", true);
-
-                if (data.precio > 0) {
-
-                    $("#price_out").val(format.format(data.precio));
-
+            successCallback: (res) => {
+                const data = JSON.parse(res);
+                const $priceOut = $("#price_out");
+                
+                // Reiniciar y deshabilitar el campo por defecto
+                $priceOut.val('').prop("disabled", true);
+                
+                // Si el precio es válido y mayor que cero, se formatea y se asigna
+                if (Number(data.precio) > 0) {
+                    $priceOut.val(format.format(data.precio));
                 } else {
-
-                    $("#price_out").attr("disabled", false);
+                    // Si el precio es 0 o no existe, se habilita el campo para edición manual
+                    $priceOut.prop("disabled", false);
                 }
-
+                
             }
-
-        })
-
+        });
     }
 
+
 }); // Ready
-
-
-/**
-* Agregar servicio
-------------------------------------------*/
-
-function AddService() {
-
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/services.php",
-        data: {
-            name: $('#service_name').val(),
-            price: $('#service_price').val(),
-            action: 'agregar_servicio'
-        },
-        success: function(res) {
-
-            if (res == "ready") {
-
-                mysql_row_affected()
-                $('input[type="text"]').val('');
-                $('input[type="number"]').val('');
-                $(".table").load(location.href + " .table");
-
-            } else if (res == "duplicate") {
-
-                mysql_error('El nombre de este servicio ya está siendo utilizado');
-
-            } else if (res.includes("Error")) {
-                mysql_error(res)
-            }
-
-        }
-    });
-
-}
-
-/**
- * Actualizar servicio
------------------------------------ */
-
-function UpdateService(service_id) {
-
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/services.php",
-        data: {
-            service_id: service_id,
-            name: $('#service_name').val(),
-            price: $('#service_price').val(),
-            action: 'actualizar_servicio'
-        },
-        success: function(res) {
-
-            if (res == "ready") {
-
-                $(".table").load(location.href + " .table");
-                mysql_row_update()
-
-            } else if (res == "duplicate") {
-
-                mysql_error('El nombre de este servicio ya está siendo utilizado');
-
-            } else if (res.includes("Error")) {
-                mysql_error(res)
-            }
-
-        }
-    });
-
-}
-
-/**
- * Eliminar servicio
- ----------------------------------*/
-
-function deleteService(id) {
-
-    alertify.confirm("Eliminar servicio", "¿Estas seguro que deseas borrar este servicio? ",
-        function() {
-
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/services.php",
-                data: {
-                    service_id: id,
-                    action: 'eliminar_servicio'
-                },
-                success: function(res) {
-
-                    if (res == "ready") {
-
-                        $(".table").load(location.href + " .table");
-
-                    } else {
-                        mysql_error(res)
-                    }
-
-
-                }
-            });
-        },
-        function() {
-
-        });
-}

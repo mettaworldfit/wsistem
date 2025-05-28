@@ -10,7 +10,7 @@ while ($element = $user->fetch_object()): ?>
     </div>
 
     <div class="generalContainer-medium">
-        <form class="user-content" action="" onsubmit="event.preventDefault(); UpdateUser('<?= $element->usuario_id ?>');">
+        <form class="user-content" action="" onsubmit="event.preventDefault(); updateUser('<?= $element->usuario_id ?>');">
             <div class="container">
 
                 <div class="row mb-3">

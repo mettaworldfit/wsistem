@@ -9,7 +9,7 @@
 </div>
 
 <div class="generalContainer">
-    <table id="example" class="table-custom table">
+    <table id="inventory" class="table-custom table">
         <thead>
             <tr>
                 <th>Código</th>
@@ -20,28 +20,7 @@
                 <th>Total</th>
             </tr>
         </thead>
-
-        <tbody>
-            <?php while ($element = $inventory->fetch_object()) : ?>
-                <tr>
-                    <td><?= $element->codigo ?></td>
-                    <td><?= ucwords($element->nombre) ?></td>
-                    
-                    <?php if($element->cantidad > $element->cantidad_min){?>
-                        <td class="text-success"><?= $element->cantidad ?></td>
-                    <?php } else if($element->cantidad < 1) { ?>
-                    <td class="text-danger"><?= $element->cantidad ?> </td>
-                    <?php } else if($element->cantidad <= $element->cantidad_min) { ?>
-                        <td class="text-warning"><?= $element->cantidad ?> </td>
-                    <?php }; ?>
-                    <td class="hide-cell"><?= $element->nombre_estado ?></td>
-                    <td><?= number_format($element->precio_costo, 2) ?></td>
-                    <td><?= number_format($element->cantidad * $element->precio_costo, 2) ?> </td>
-                </tr>
-            <?php endwhile; ?>
-        </tbody>
     </table>
-
 </div>
 
 <div class="buttons clearfix">

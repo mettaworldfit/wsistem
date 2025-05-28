@@ -171,26 +171,13 @@ if ($_POST['action'] == "actualizar_usuario") {
 
 if ($_POST['action'] == "eliminar_usuario") {
 
-  $id = $_POST['user_id'];
-
   $db = Database::connect();
 
-  $query = "CALL us_eliminarUsuario($id)";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo $data->msg;
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error: " . $db->error;
-  }
+  echo handleDeletionAction($db,(int)$_POST['user_id'],'us_eliminarUsuario');
 }
 
-/**
- * Desactivar usuario
- ----------------------------------------------*/
+// Desactivar usuario
+
 
 if ($_POST['action'] == "desactivar_usuario") {
   $db = Database::connect();
