@@ -219,7 +219,7 @@ $(document).ready(function () {
                 device_id: $('#device').val(),
                 action: 'buscar_equipo'
             },
-            successCallback: () => {
+            successCallback: (res) => {
                 var data = JSON.parse(res);
 
                 $('#brand').val(data.nombre_marca)
