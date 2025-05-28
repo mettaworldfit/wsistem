@@ -513,7 +513,7 @@ $(document).ready(function () {
         const hasVariants = parseInt(variantsInfo.variante_total) > 0;
         const isQuotePage = pageURL.includes("invoices/quote");
 
-        if (hasVariants && !isQuotePage) {
+        if (hasVariants && !isQuotePage && !pageURL.includes('invoices/quote')) {
             $("#total_variant").val(variantsInfo.variante_total);
             loadProductVariants(product.IDproducto);
         } else {
