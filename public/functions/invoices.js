@@ -9,10 +9,9 @@ function cashback(data) {
 function calculateTotalInvoice(bonus = 0) {
     // Determinar acción según la URL
     let action, id;
-
+console.log('here')
     if (pageURL.includes("invoices/addpurchase")) {
         action = 'precios_detalle_temp';
-        id = $("#invoice_id").val();
     } else if (pageURL.includes("invoices/edit_quote")) {
         action = 'total_cotizacion';
         id = $("#quote_id").val();
@@ -21,11 +20,14 @@ function calculateTotalInvoice(bonus = 0) {
         id = $("#invoice_id").val();
     }
 
+    console.log(action,id)
+
     // Cargar totales según acción
-    if (action && id) loadInvoiceTotals(action, id);
+    loadInvoiceTotals(action, id);
 
     // Función para cargar totales de la factura
     function loadInvoiceTotals(action, id) {
+        console.log('dentro de loadInvoiceTotals')
         $.post(SITE_URL + "services/invoices.php", { action, id }, function (res) {
             const data = JSON.parse(res);
             const discount = format.format(data.descuentos);
