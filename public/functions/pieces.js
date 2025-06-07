@@ -25,7 +25,7 @@ $(document).ready(function () {
     // Rellenar el formulario con los datos de la pieza seleccionada
     function populatePieceFormFields(data) {
      
-        //if (!Array.isArray(data)) return;
+        if (!Array.isArray(data)) return;
 
         const piece = data[0];
 
@@ -71,7 +71,7 @@ $(document).ready(function () {
             successCallback: (res) => {
 
                 var data = JSON.parse(res);
-                $('#piece_code').val(data.cod_pieza)
+                $('#piece_code').val(data[0].cod_pieza)
 
                 populatePieceFormFields(data)
                 validatePieceQuantity() // Calcular precios
