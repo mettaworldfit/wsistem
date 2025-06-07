@@ -69,12 +69,12 @@ $(document).ready(function () {
                 action: "buscar_pieza"
             },
             successCallback: (res) => {
-console.log('resultado',res)
-                //var data = JSON.parse(res);
-                // $('#piece_code').val(data.cod_pieza)
 
-                // populatePieceFormFields(data)
-                // validatePieceQuantity() // Calcular precios
+                var data = JSON.parse(res);
+                $('#piece_code').val(data.cod_pieza)
+
+                populatePieceFormFields(data)
+                validatePieceQuantity() // Calcular precios
 
             },
             errorCallback: (res) => mysql_error(res)
