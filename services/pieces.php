@@ -81,8 +81,7 @@ function fetchPieceData($field, $value, $useLike = false)
     }
 
     $data = $result->fetch_assoc();
-    echo json_encode($data ?: null, JSON_UNESCAPED_UNICODE);
-    exit;
+    return $data ?: null;
 }
 
 /**
@@ -171,7 +170,7 @@ function fetchPieceData($field, $value, $useLike = false)
      * Buscar pieza por ID exacto
      */
     case "buscar_pieza":
-      fetchPieceData('pieza_id', $_POST['piece_id']);
+      echo fetchPieceData('pieza_id', $_POST['piece_id']);
       break;
 
     /**
