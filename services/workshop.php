@@ -138,7 +138,7 @@ switch ($action) {
       (int)$_POST['customer_id'],
       $_POST['device'],
       $_POST['serie'] ?? '',
-      $_POST['imei'] ?? 0,
+      $_POST['imei'] ?? '',
       $_POST['observation'] ?? ''
     ]);
   

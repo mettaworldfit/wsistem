@@ -41,7 +41,7 @@ function fetchPieceData($field, $value, $useLike = false)
             WHERE p.$field $operator
             LIMIT 1";
 
- echo jsonQueryResult($db, $query);
+ return jsonQueryResult($db, $query);
 }
 
 /**
@@ -123,14 +123,14 @@ function fetchPieceData($field, $value, $useLike = false)
      * Buscar pieza por código (uso de LIKE)
      */
     case "buscar_codigo_pieza":
-      fetchPieceData('cod_pieza', $_POST['piece_code'], true);
+     echo fetchPieceData('cod_pieza', $_POST['piece_code'], true);
       break;
 
     /**
      * Buscar pieza por ID exacto
      */
     case "buscar_pieza":
-      fetchPieceData('pieza_id', $_POST['piece_id']);
+      echo fetchPieceData('pieza_id', $_POST['piece_id']);
       break;
 
     /**
