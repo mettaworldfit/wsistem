@@ -48,12 +48,12 @@ class Database
                 'company' => 'Chino comunicaciones', // Chino comunicaciones
             ],
 
-            'user' => [
+            'erivibe' => [
                 'host' => 'localhost',
-                'dbname' => 'el_furgonazo',
+                'dbname' => 'erivibeprotein',
                 'user' => 'Wilmin',
                 'pass' => 'Mett@1106',
-                'company' => 'El furgonazo', // El furgonazo
+                'company' => 'Erivibeprotein', // Erivibeprotein
             ],
 
             // Agrega más clientes según sea necesario
