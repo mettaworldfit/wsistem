@@ -95,7 +95,7 @@ $(document).ready(function () {
                 action: "buscar_servicios"
             },
             successCallback: (res) => {
-                const data = JSON.parse(res);
+                const data = JSON.parse(res)[0];
                 const $priceOut = $("#price_out");
                 
                 // Reiniciar y deshabilitar el campo por defecto
