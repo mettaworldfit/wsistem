@@ -265,6 +265,53 @@ switch ($action) {
     ]);
     break;
 
+  // Cargar variantes en la seccion de editar productos
+  case 'cargar_variantes':
+
+    $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+    handleDataTableRequest($db, [
+      'columns' => [
+        'nombre_proveedor',
+        'sabor',
+        'serial',
+        'color',
+        'costo_unitario',
+        'caja',
+        'entrada'
+      ],
+      'searchable' => [],
+      'base_table' => 'variantes v',
+      'table_with_joins' => 'variantes v
+               INNER JOIN productos p ON p.producto_id = v.producto_id
+               LEFT JOIN variantes_con_colores vc ON vc.variante_id = v.variante_id
+               LEFT JOIN colores c ON c.color_id = vc.color_id
+               LEFT JOIN variantes_con_proveedores vp ON vp.variante_id = v.variante_id
+               LEFT JOIN proveedores pv ON pv.proveedor_id = vp.proveedor_id',
+      'select' => 'SELECT v.sabor,v.serial,v.caja,v.costo_unitario,c.color,pv.nombre_proveedor,
+      v.variante_id as var_id, v.fecha as entrada',
+      'base_condition' => 'p.producto_id = ' . $id . ' AND v.estado_id = 13',
+      'table_rows' => function ($row) {
+        // Si el usuario es administrador, añade la celda con la acción
+        if ($_SESSION['identity']->nombre_rol == 'administrador') {
+          $button = '<td><span class="action-delete" onclick="deleteVariantDb(\'' . $row['var_id'] . '\', \'' . $row['costo_unitario'] . '\')"><i class="far fa-minus-square"></i></span></td>';
+        }
+
+        return [
+          'proveedor' => '<td>' . ucwords($row['nombre_proveedor'] ?? '') . '</td>',
+          'sabor'            => '<td>' . $row['sabor'] . '</td>',
+          'serial'           => '<td class="deviceField">' . $row['serial'] . '</td>',
+          'color'            => '<td class="deviceField">' . ucwords($row['color'] ?? '') . '</td>',
+          'costo'   => '<td>' . number_format($row['costo_unitario']) . '</td>',
+          'caja'             => '<td class="deviceField">' . $row['caja'] . '</td>',
+          'entrada'          => '<td>' . $row['entrada'] . '</td>',
+          'acciones'         => $button
+        ];
+        
+      }
+    ]);
+
+    break;
+
   // Caso: Buscar producto por código
   case 'buscar_codigo_producto':
     echo json_encode(fetchProductData("cod_producto", $_POST['product_code'] ?? '', true), JSON_UNESCAPED_UNICODE);
@@ -278,7 +325,7 @@ switch ($action) {
   // Caso: Buscar variantes de un producto
   case 'buscar_variantes':
     $product_id = (int)$_POST['product_id'];
-    $result = $db->query("SELECT v.imei, v.serial, v.caja, v.costo_unitario, c.color, p.nombre_producto, v.fecha, v.variante_id as id
+    $result = $db->query("SELECT v.serial, v.sabor, v.caja, v.costo_unitario, c.color, p.nombre_producto, v.fecha, v.variante_id as id
                           FROM variantes v
                           INNER JOIN productos p ON p.producto_id = v.producto_id
                           LEFT JOIN variantes_con_colores vc ON vc.variante_id = v.variante_id
@@ -287,9 +334,22 @@ switch ($action) {
 
     if ($result && $result->num_rows > 0) {
       while ($element = $result->fetch_object()) {
-        echo '<option value="' . $element->id . '">' . ucwords($element->nombre_producto) .
-          ' | IMEI: ' . $element->imei . ' | Serial: ' . $element->serial .
-          ' | Color: ' . ucwords($element->color ?? "") . ' | En caja: ' . $element->caja . '</option>';
+
+        $text = ucwords($element->nombre_producto);
+
+        if (!empty($element->serial)) {
+          $text .= ' | SN: ' . $element->serial;
+          if (!empty($element->color)) {
+            $text .= ' | Color: ' . ucwords($element->color);
+          }
+          if (!empty($element->caja)) {
+            $text .= ' | En caja: ' . $element->caja;
+          }
+        } elseif (!empty($element->sabor)) {
+          $text .= ' | Sabor: ' . $element->sabor;
+        }
+
+        echo '<option value="' . $element->id . '">' . $text . '</option>';
       }
     }
     break;
@@ -339,11 +399,11 @@ switch ($action) {
       $_POST['product_id'],
       $_POST['colour_id'] ?? 0,
       $_POST['provider_id'] ?? 0,
-      $_POST['imei'],
+      $_POST['type'],
+      $_POST['flavor'],
       $_POST['serial'],
       $_POST['cost'],
-      $_POST['box'],
-      '-'
+      $_POST['box']
     ]);
     break;
 

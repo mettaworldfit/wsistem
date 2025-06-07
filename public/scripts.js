@@ -13,9 +13,9 @@ const dataTablesInstances = {};
  * @param {string} name - Nombre del parámetro.
  * @returns {string|null} Valor decodificado del parámetro o null si no existe.
  */
-$.urlParam = function(name) {
-  const results = new RegExp(`[?&]${name}=([^&#]*)`).exec(window.location.href);
-  return results ? decodeURIComponent(results[1]) : null;
+$.urlParam = function (name) {
+    const results = new RegExp(`[?&]${name}=([^&#]*)`).exec(window.location.href);
+    return results ? decodeURIComponent(results[1]) : null;
 };
 
 /**
@@ -37,9 +37,10 @@ function initCustomDataTable({
     ajaxAction,
     columns,
     loadTime = 300,
+    hideZeroRecordsMessage = false,
     ...options
 }) {
-    if (!selector || !ajaxUrl ||!ajaxAction || !Array.isArray(columns)) {
+    if (!selector || !ajaxUrl || !ajaxAction || !Array.isArray(columns)) {
         console.error('initCustomDataTable: parámetros inválidos');
         return null;
     }
@@ -51,7 +52,7 @@ function initCustomDataTable({
         processing: false,
         language: {
             lengthMenu: "_MENU_",
-            zeroRecords: "Aún no tienes datos para mostrar",
+            zeroRecords: hideZeroRecordsMessage ? "" : "Aún no tienes datos para mostrar",
             info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
             infoEmpty: "Página no disponible",
             infoFiltered: "(Filtrado de _MAX_ registros)",
@@ -65,7 +66,7 @@ function initCustomDataTable({
             }
         },
         ajax: (data, callback) => {
-            // Mostrar spinner
+            // Mostrar spinner personalizado
             $tbody().html(`
                 <tr>
                     <td colspan="100%">
@@ -91,7 +92,15 @@ function initCustomDataTable({
                         const json = typeof response === 'string'
                             ? JSON.parse(response)
                             : response;
+
                         callback(json);
+
+                         //  Elimina el tr vacío si no hay datos
+                        if (hideZeroRecordsMessage && json.data.length === 0) {
+                            setTimeout(() => {
+                                $tbody().empty(); // Elimina todo el contenido del tbody
+                            }, 50); // pequeño delay para esperar que DataTables termine el render
+                        }
                     },
                     error: (xhr, status, error) => {
                         console.error("Error en AJAX:", status, error);
@@ -119,6 +128,7 @@ function initCustomDataTable({
         ...options
     });
 }
+
 
 
 /**
@@ -170,7 +180,7 @@ function sendAjaxRequest({ url, data, successCallback, errorCallback }) {
 
             console.log("Datos devueltos por el servidor:", data)
 
-            if (Array.isArray(data) || data.success || res === "ready"  || res > 0 || (!data.success && res != "duplicate" && !res.includes("Error"))) {
+            if (Array.isArray(data) || data.success || res === "ready" || res > 0 || (!data.success && res != "duplicate" && !res.includes("Error"))) {
                 // Ejecuta la función successCallback si fue pasada y está definida
                 successCallback?.(res); // Devuelve la response
                 console.log("Respuesta validada existosamente:", res)
@@ -433,6 +443,18 @@ $(document).ready(function () {
     table_default.column("0:visible").order("asc").draw();
 
 
+    // obtener las columnas de las variantes
+    function getVariantTableColumns() {
+    const tipo = $('input[name="tipovariante"]:checked').val();
+
+    const deviceColumns = ['proveedor', 'serial', 'color', 'costo', 'caja', 'entrada', 'acciones'];
+    const productColumns = ['proveedor', 'sabor', 'costo', 'entrada', 'acciones'];
+
+    return tipo === 'dispositivo' ? deviceColumns : productColumns;
+}
+
+
+
     // Configuración de DataTable Server-Side para las tablas
     const tableConfigs = [{
         id: '#invoices',
@@ -654,7 +676,7 @@ $(document).ready(function () {
         ordering: false,
         info: false
     },
-     {
+    {
         id: '#editInvoice',
         url: 'services/invoices.php',
         action: 'cargar_detalle_facturas',
@@ -674,7 +696,7 @@ $(document).ready(function () {
         ordering: false,
         info: false
     },
-     {
+    {
         id: '#editrepair',
         url: 'services/repair.php',
         action: 'cargar_facturarp',
@@ -682,6 +704,17 @@ $(document).ready(function () {
         paging: false,
         searching: false,
         ordering: false,
+        info: false
+    },
+    {
+        id: '#variantList',
+        url: 'services/products.php',
+        action: 'cargar_variantes',
+        columns: getVariantTableColumns(),
+        paging: false,
+        searching: false,
+        ordering: false,
+        hideZeroRecordsMessage: true,
         info: false
     }
 
@@ -708,7 +741,7 @@ $(document).ready(function () {
         });
     });
 
- 
+
 
 }); // Ready
 

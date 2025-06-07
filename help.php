@@ -2,9 +2,9 @@
 
 
 class Help
-{ 
+{
 
-     public static function getTotalProducts()
+   public static function getTotalProducts()
    {
       $db = Database::connect();
       $query = "SELECT count(producto_id) as total FROM productos";
@@ -12,7 +12,7 @@ class Help
       return $db->query($query)->fetch_object()->total;
    }
 
-    public static function getTotalPieces()
+   public static function getTotalPieces()
    {
       $db = Database::connect();
       $query = "SELECT count(pieza_id) as total FROM piezas";
@@ -20,15 +20,15 @@ class Help
       return $db->query($query)->fetch_object()->total;
    }
 
-    public static function getTotalCustomers()
+   public static function getTotalCustomers()
    {
       $db = Database::connect();
-     $query = "SELECT count(cliente_id) as total FROM clientes";
+      $query = "SELECT count(cliente_id) as total FROM clientes";
 
       return $db->query($query)->fetch_object()->total;
    }
 
-    public static function getTotalProviders()
+   public static function getTotalProviders()
    {
       $db = Database::connect();
       $query = "SELECT count(proveedor_id) as total FROM proveedores";
@@ -36,10 +36,10 @@ class Help
       return $db->query($query)->fetch_object()->total;
    }
 
-    public static function getPurchaseToday()
+   public static function getPurchaseToday()
    {
       $db = Database::connect();
-       $query = "SELECT sum(total) as total FROM (
+      $query = "SELECT sum(total) as total FROM (
 
             SELECT sum(f.recibido) as 'total', f.fecha FROM facturas_ventas f
             WHERE f.fecha = curdate()
@@ -89,12 +89,12 @@ class Help
       return $db->query($query)->fetch_object()->total;
    }
 
-     public static function getTotalInventoryValue()
+   public static function getTotalInventoryValue()
    {
 
       $db = Database::connect();
 
-       $query = "SELECT sum(total) as total, sum(bruto) as bruto  FROM (
+      $query = "SELECT sum(total) as total, sum(bruto) as bruto  FROM (
 
             SELECT sum(p.cantidad * p.precio_costo) as 'total', sum(p.cantidad * p.precio_unitario) as 'bruto' FROM productos p
               UNION ALL
@@ -105,7 +105,7 @@ class Help
       return $db->query($query);
    }
 
-    
+
 
    public static function ConfigPDF()
    {
@@ -397,7 +397,7 @@ class Help
 
    // Función para contar el total de variantes
 
-   public static function Count_Variant_pID($id)
+   public static function countVariantsByProductId($id)
    {
       $query = "SELECT count(variante_id) AS variante_total FROM variantes 
                 WHERE producto_id = '$id' AND estado_id = 13";
@@ -408,28 +408,38 @@ class Help
       return $datos->fetch_object();
    }
 
-   // Función para mostrar las variantes de un producto
-
-   public static function showVariant_with_productID($id)
+   public static function getTypeVariantsByProductId($id)
    {
-      $query = "SELECT v.imei,v.serial,v.caja,v.costo_unitario,c.color,pv.nombre_proveedor,
-      v.variante_id as var_id, v.fecha as entrada FROM variantes v
-               INNER JOIN productos p ON p.producto_id = v.producto_id
-               LEFT JOIN variantes_con_colores vc ON vc.variante_id = v.variante_id
-               LEFT JOIN colores c ON c.color_id = vc.color_id
-               LEFT JOIN variantes_con_proveedores vp ON vp.variante_id = v.variante_id
-               LEFT JOIN proveedores pv ON pv.proveedor_id = vp.proveedor_id
-               WHERE p.producto_id = '$id' AND v.estado_id = 13";
+      $query = "SELECT count(variante_id) as total, tipo FROM variantes WHERE producto_id = '$id' and tipo = 'producto'";
 
       $db = Database::connect();
-      return $db->query($query);
+      $datos = $db->query($query);
+
+      return $datos->fetch_object();
    }
+
+   // Función para mostrar las variantes de un producto
+
+   // public static function loadVariantsByProductId($id)
+   // {
+   //    $query = "SELECT v.sabor,v.serial,v.caja,v.costo_unitario,c.color,pv.nombre_proveedor,
+   //    v.variante_id as var_id, v.fecha as entrada FROM variantes v
+   //             INNER JOIN productos p ON p.producto_id = v.producto_id
+   //             LEFT JOIN variantes_con_colores vc ON vc.variante_id = v.variante_id
+   //             LEFT JOIN colores c ON c.color_id = vc.color_id
+   //             LEFT JOIN variantes_con_proveedores vp ON vp.variante_id = v.variante_id
+   //             LEFT JOIN proveedores pv ON pv.proveedor_id = vp.proveedor_id
+   //             WHERE p.producto_id = '$id' AND v.estado_id = 13";
+
+   //    $db = Database::connect();
+   //    return $db->query($query);
+   // }
 
    // Función para mostrar las variantes vendidas de un producto
 
    public static function showVariant_history($id)
    {
-      $query = "SELECT  v.variante_id,v.imei,v.serial,c.color,v.caja,pv.nombre_proveedor,
+      $query = "SELECT  v.variante_id,v.sabor,v.serial,c.color,v.caja,pv.nombre_proveedor,
        v.costo_unitario, v.fecha as entrada FROM variantes v
                LEFT JOIN variantes_con_colores vc ON vc.variante_id = v.variante_id
                LEFT JOIN colores c ON c.color_id = vc.color_id
@@ -445,7 +455,7 @@ class Help
 
    public static function loadVariantTemp($id)
    {
-      $query = "SELECT d.descripcion,c.color,v.imei,v.serial,v.variante_id FROM detalle_temporal d
+      $query = "SELECT d.descripcion,c.color,v.sabor,v.serial,v.variante_id FROM detalle_temporal d
       LEFT JOIN detalle_variantes_temporal dv ON dv.detalle_temporal_id = d.detalle_temporal_id
       LEFT JOIN variantes v ON dv.variante_id = v.variante_id
       LEFT JOIN variantes_con_colores vc ON vc.variante_id = v.variante_id
@@ -459,8 +469,25 @@ class Help
       // Cuerpo 
       while ($element = $datos->fetch_object()) {
 
-         $html .= '<p class="list_db">' . ucwords($element->descripcion ?? '') . ' ' . ucwords($element->color ?? '') .
-            ' <br> ' . $element->imei . ' ' . $element->serial . '</p>';
+         $html .= '<p class="list_db">';
+
+         if (!empty($element->descripcion)) {
+            $html .= ucwords($element->descripcion) . ' ';
+         }
+
+         if (!empty($element->color)) {
+            $html .= ucwords($element->color) . ' ';
+         }
+
+         if (!empty($element->sabor)) {
+            $html .= '<br>' . $element->sabor . ' ';
+         }
+
+         if (!empty($element->serial)) {
+            $html .= $element->serial;
+         }
+
+         $html .= '</p>';
       }
 
       return $html;

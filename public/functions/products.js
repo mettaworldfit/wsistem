@@ -14,7 +14,8 @@ function editProduct() {
     }
 
     // Validar que la cantidad de variantes coincida con la cantidad ingresada
-    if (tipo === "variante" && $('#variant_list tr').length != quantity) {
+    if (tipo === "variante" && $('#variantList tbody tr').length != quantity) {
+        console.log($('#variantList tbody tr').length, quantity)
         return alertify.error("Debes completar las variantes de este producto");
     }
 
@@ -40,7 +41,7 @@ function editProduct() {
         },
         successCallback: () => {
             // Si la respuesta es exitosa, actualizar parte del HTML y mostrar mensaje
-            $('.radio-list').load(location.href + " .radio-list");
+            $('.radio-head').load(window.location.href + ' .radio-head > *');
             mysql_row_update(); // Función personalizada que indica éxito
         },
         errorCallback: (res) => {
@@ -84,7 +85,7 @@ function calculateAverageProductCost() {
 
     $('#average_cost').val(updatedTotalCost); // Actualizar total de costos
 
-    const variantCount = $('#variant_list tr').length || 1; // Evitar división por 0
+    const variantCount = $('#variantList tbody tr').length || 1; // Evitar división por 0
     const averageCost = updatedTotalCost / variantCount;
 
     $('#inputPrice_in').val(averageCost.toFixed(2)); // Establecer costo promedio con 2 decimales
@@ -146,7 +147,7 @@ function deleteProduct(id) {
                     product_id: id
                 },
                 successCallback: () => {
-                    dataTablesInstances['products'].ajax.reload(); // Actualizar datatable
+                    dataTablesInstances['products'].ajax.reload(null, false); // Actualizar datatable
                 },
                 errorCallback: (res) => {
                     alertify.alert(
@@ -166,9 +167,10 @@ function addVariantDb() {
 
     // Recolectar datos del formulario
     const data = {
-        imei: $('#imei').val(),
+        flavor: $('#flavor').val(),
         serial: $('#serial').val(),
         cost: $('#cost').val(),
+        type: $('input[name="tipovariante"]:checked').val(),
         box: $('#box').val(),
         colour_id: $('#colour').val(),
         colour: $('#select2-colour-container').attr('title'),
@@ -177,26 +179,65 @@ function addVariantDb() {
         product_id: $('#product_id').val()
     };
 
-    // Validación inicial: debe tener IMEI, Serial o un Color válido
-    const hasValidIdentifier = (!isNaN(data.imei) && data.imei) ||
-        (!isNaN(data.serial) && data.serial) ||
-        data.colour_id > 0;
+    const tipo = $('input[name="tipovariante"]:checked').val();
 
-    if (!hasValidIdentifier) {
-        alertify.error("Debes incluir un Serial, Imei o Color para agregar una variante");
-        return;
+    function validateVariantFields(tipo, data) {
+        let isValid = true;
+
+        // Validar serial si es dispositivo
+        if (tipo === 'dispositivo') {
+            const serial = data.serial.trim();
+            const isValidSerial = /^[A-Za-z0-9]+$/.test(serial);
+
+            $("#serial").css("border", isValidSerial ? "1px solid #ced4da" : "1px solid red");
+            $(".label-serial").css("color", isValidSerial ? "black" : "red");
+
+            if (!isValidSerial) {
+                alertify.set("notifier", "position", "top-right");
+                alertify.error("Debes incluir un serial válido para una variante de tipo dispositivo. Solo se permiten letras y números, sin espacios ni símbolos.");
+                isValid = false;
+            }
+        }
+
+        // Validar sabor si es producto
+        if (tipo === 'producto') {
+            const flavor = data.flavor.trim();
+            const isValidFlavor = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/.test(flavor) && flavor !== "";
+
+            $("#flavor").css("border", isValidFlavor ? "1px solid #ced4da" : "1px solid red");
+            $(".label-flavor").css("color", isValidFlavor ? "black" : "red");
+
+            if (!isValidFlavor) {
+                alertify.set("notifier", "position", "top-right");
+                alertify.error("El campo sabor es obligatorio y solo puede contener letras");
+                isValid = false;
+            }
+        }
+
+        // Validar costo (para cualquier tipo)
+        const cost = data.cost.toString().trim();
+        const isValidCost = /^[0-9]+(\.[0-9]+)?$/.test(cost);
+
+        $("#cost").css("border", isValidCost ? "1px solid #ced4da" : "1px solid red");
+        $(".label-cost").css("color", isValidCost ? "black" : "red");
+
+        if (!isValidCost) {
+            alertify.set("notifier", "position", "top-right");
+            alertify.error("El campo costo es obligatorio y debe ser un número válido (entero o decimal).");
+            isValid = false;
+        }
+
+        return isValid;
     }
 
-    // Validar que el costo esté presente
-    if (!data.cost) {
-        $('#cost').css("border", "1px solid red");
-        $('.label-cost').css("color", "red");
-        return;
-    }
+    const isValid = validateVariantFields(tipo, data);
+    if (!isValid) return;
 
     // Validar que no se haya excedido la cantidad de variantes
-    const currentVariants = $('#variant_list tr').length;
+
+    const currentVariants = $('#variantList tbody tr').length;
     const totalQuantity = $("#input_quantity").val();
+
     if (currentVariants >= totalQuantity) return;
 
     // Guardar variante en localStorage (opcional según uso posterior)
@@ -209,8 +250,9 @@ function addVariantDb() {
         data: {
             action: "agregar_variantes",
             product_id: data.product_id,
-            imei: data.imei,
             serial: data.serial,
+            flavor: data.flavor,
+            type: data.type,
             box: data.box,
             cost: data.cost,
             colour_id: data.colour_id,
@@ -219,34 +261,28 @@ function addVariantDb() {
         successCallback: (res) => {
 
             if (res > 0) {
-                // Agregar nueva fila a la tabla de variantes
-                $('#variant_list').append(`
-                        <tr>
-                            <td>${data.provider}</td>
-                            <td>${data.imei}</td>
-                            <td>${data.serial}</td>
-                            <td>${data.colour}</td>
-                            <td>${format.format(data.cost)}</td>
-                            <td>${data.box}</td>
-                            <td></td>
-                            <td><span class="action-delete" onclick="deleteVariant('${res}','${data.cost}')"><i class="far fa-minus-square"></i></span></td>
-                        </tr>
-                    `);
 
-                calculateAverageProductCost(); // Recalcular el costo promedio
-                editProduct(); // Editar producto tras agregar variante
+                dataTablesInstances['variantList'].ajax.reload()
+
+                setTimeout(function () {
+                     calculateAverageProductCost(); // Recalcular el costo promedio
+                    editProduct(); // Editar producto tras agregar variante
+                       toggleVariantFieldsListener(); // Actualizar tipo de variante
+                }, 500);
+
+             
 
             } else if (res === "duplicate") {
                 // Mostrar errores por duplicación
-                $("#imei, #serial").css("border", "1px solid red");
-                $(".label-imei, .label-serial").css("color", "red");
-                alertify.error("El imei o serial ya están siendo ocupados");
+                $("#serial").css("border", "1px solid red");
+                $(".label-serial").css("color", "red");
+                alertify.error("El serial ya están siendo ocupado");
             } else if (res.includes("Error")) {
                 mysql_error(res); // Otros errores del servidor
             }
         },
-        errorCallback: (err) => {
-            mysql_error("Error de red o del servidor: " + err); // Fallback para errores AJAX
+        errorCallback: (res) => {
+            mysql_error("Error de red o del servidor: " + res); // Fallback para errores AJAX
         }
     });
 
@@ -259,58 +295,113 @@ localStorage.removeItem('variantes');
 // Funcion para agregar variantes al local storage
 function addVariantLocalStorage() {
 
-    function validateIMEI(imei) {
-        const isValid = !isNaN(imei) && imei.trim() !== "";
+    function validateSerial(serial) {
+        const isValid = /^[A-Za-z0-9]+$/.test(serial.trim());
 
-        $("#imei").css("border", isValid ? "1px solid #ced4da" : "1px solid red");
-        $(".label-imei").css("color", isValid ? "black" : "red");
+        $("#serial").css("border", isValid ? "1px solid #ced4da" : "1px solid red");
+        $(".label-serial").css("color", isValid ? "black" : "red");
 
         if (!isValid) {
             alertify.set("notifier", "position", "top-right");
-            alertify.error("Este campo solo permite números");
+            alertify.error("El campo serial solo permite letras y números, sin espacios ni símbolos");
         }
 
         return isValid;
     }
 
+    function validateFlavor(flavor) {
+        const hasOnlyLetters = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(flavor.trim());
+
+        $("#flavor").css("border", hasOnlyLetters ? "1px solid #ced4da" : "1px solid red");
+        $(".label-sabor").css("color", hasOnlyLetters ? "black" : "red");
+
+        if (!hasOnlyLetters) {
+            alertify.set("notifier", "position", "top-right");
+            alertify.error("El campo sabor solo permite letras y espacios");
+        }
+
+        return hasOnlyLetters;
+    }
+
+
+    function validateCost(cost) {
+        const isValid = !isNaN(cost) && cost.trim() !== "";
+
+        $("#cost").css("border", isValid ? "1px solid #ced4da" : "1px solid red");
+        $(".label-costo").css("color", isValid ? "black" : "red");
+
+        if (!isValid) {
+            alertify.set("notifier", "position", "top-right");
+            alertify.error("El campo costo solo permite números");
+        }
+
+        return isValid;
+    }
+
+
     function getFormData() {
-        return {
-            imei: $('#imei').val().trim(),
+        const tipo = $('input[name="tipovariante"]:checked').val();
+
+        const data = {
+            flavor: $('#flavor').val() || "",
             serial: $('#serial').val().trim(),
             cost: $('#cost').val().trim(),
             box: $('#box').val().trim(),
             colour_id: $('#colour').val(),
             colour: $('#select2-colour-container').attr('title'),
             provider_id: $('#provider').val(),
-            provider: $('#select2-provider-container').attr('title')
+            provider: $('#select2-provider-container').attr('title'),
+            type: tipo
         };
+
+        return data;
     }
 
     function handleVariantData() {
-        const imei = $('#imei').val();
-        if (validateIMEI(imei)) {
+        const tipo = $('input[name="tipovariante"]:checked').val();
+        const serial = $('#serial').val();
+        const flavor = $('#flavor').val();
+        const cost = $('#cost').val();
+
+        let isValid = true;
+
+        if (tipo === "product") {
+            isValid = validateFlavor(flavor);
+        } else if (tipo === "device") {
+            isValid = validateSerial(serial);
+        }
+
+        // Si costo tiene algo, validarlo
+        if (cost.trim() !== "") {
+            isValid = isValid && validateCost(cost);
+        }
+
+        if (isValid) {
             $(".label-colour").css("color", "black");
             const data = getFormData();
-            // Aquí puedes usar `data` para enviar o procesar
             return data;
         }
+
         return null;
     }
 
+
     const data = handleVariantData();
+
     if (data) {
-        // Continúa con el flujo si el IMEI es válido
 
         // Buscar coincidencia si existe la variante en el localStorage
-        if (data.colour_id || data.imei || data.serial) {
+        if (data.serial) {
             return findMatch(ArrayVariant, data);
+        } else {
+            ArrayVariant.push(data) // Insertar datos al arreglo
+            createVariantDb(ArrayVariant);
         }
 
         function findMatch(arr, data) {
-            const hasImei = arr.some(item => item.imei === data.imei && data.imei !== "");
             const hasSerial = arr.some(item => item.serial === data.serial && data.serial !== "");
 
-            if (!hasImei && !hasSerial) {
+            if (!hasSerial) {
                 const max = parseInt($("#product_quantity").val());
                 if (arr.length < max) {
                     arr.push(data); // Insertar datos al arreglo
@@ -319,10 +410,10 @@ function addVariantLocalStorage() {
                     alertify.error("Has alcanzado la cantidad máxima permitida.");
                 }
             } else {
-                $("#imei, #serial").css("border", "1px solid red");
-                $(".label-imei, .label-serial").css("color", "red");
+                $("#serial").css("border", "1px solid red");
+                $(".label-serial").css("color", "red");
                 alertify.set("notifier", "position", "top-right");
-                alertify.error("El IMEI o serial ya han sido agregados");
+                alertify.error("El serial ya han sido agregados");
             }
         }
     }
@@ -350,7 +441,7 @@ function renderVariantDb(storageKey = "variantes", outputSelector = "#variant_li
 
     // Limpiar la tabla y los inputs
     document.querySelector(outputSelector).innerHTML = ""; // Vaciar variantes
-    $("#imei, #serial, #cost").val("");
+    $("#serial").val("");
 
     const data = localStorage.getItem(storageKey);
     if (!data) return;
@@ -358,25 +449,31 @@ function renderVariantDb(storageKey = "variantes", outputSelector = "#variant_li
     const table = JSON.parse(data);
     let totalCost = 0;
 
+    $('.table_variant').show(); // Mostrar tabla si esta oculta
+
     // Loop de las variantes del producto en localStorage 
     table.forEach((element, index) => {
 
         // Calcular costo promedio del producto
         totalCost += parseFloat(element.cost) || 0;
 
-        $('.table_variant').show(); // Mostrar tabla si esta oculta
-
-        document.querySelector(outputSelector).innerHTML += `
-            <tr>
-                <td>${element.provider}</td>
-                <td>${element.imei}</td>
+        let rowHTML = `
+        <tr>
+            <td>${element.provider}</td>
+            ${element.type === 'dispositivo' ? `
                 <td>${element.serial}</td>
                 <td>${element.colour}</td>
                 <td>${element.cost}</td>
                 <td>${element.box}</td>
-                <td> <span class="action-delete" onClick="deleteVariantLocalStorage(${index});"><i class="far fa-minus-square"></i></span></td>
-            </tr>
+            ` : `
+                <td>${element.flavor}</td>
+                <td>${element.cost}</td>
+            `}
+            <td><span class="action-delete" onClick="deleteVariantLocalStorage(${index});"><i class="far fa-minus-square"></i></span></td>
+        </tr>
         `;
+
+        document.querySelector(outputSelector).innerHTML += rowHTML;
 
     });
 
@@ -403,21 +500,60 @@ function deleteVariantDb(variant_id, cost) {
         successCallback: () => {
 
             // Recargar la tabla de variantes y recalcular el costo promedio
-            $('#Detalle').load(location.href + " #Detalle", () => {
+            var newPreviousCost = parseInt($('#average_cost').val()) - parseInt(cost);
+            $('#average_cost').val(newPreviousCost)
+            $('#cost').val('')
+            calculateAverageProductCost();
 
-                var newPreviousCost = parseInt($('#average_cost').val()) - parseInt(cost);
-                $('#average_cost').val(newPreviousCost)
-                $('#cost').val('')
-                calculateAverageProductCost();
-            });
+            dataTablesInstances['variantList'].ajax.reload()
 
-            $('.radio-list').load(location.href + " .radio-list");
+            // Actualizar tipo de producto
+            $('.radio-head').load(window.location.href + ' .radio-head > *');
+
         },
         errorCallback: mysql_error
     });
 }
 
+// Actualizar el tipo de variante
+
+function toggleVariantFieldsListener() {
+
+    // Reset inicial
+    $('.productField').hide();
+    localStorage.removeItem('variantes');
+
+    // Función que muestra/oculta según el tipo seleccionado
+    function updateVariantView(tipo) {
+        localStorage.removeItem('variantes');
+
+        if (tipo === 'dispositivo') {
+            $('.productField').fadeOut(200);
+            $('.deviceField').fadeIn(500);
+        } else {
+            $('.deviceField').fadeOut(200);
+            $('.productField').fadeIn(500);
+        }
+    }
+
+    // Ejecutar al cargar
+    const initialTipo = $('input[name="tipovariante"]:checked').val();
+    updateVariantView(initialTipo);
+
+    // Listener para cambios
+    $('input[name="tipovariante"]').on('change', function () {
+      
+        const tipo = $(this).val();
+         $('#cost').val('0');
+          $('#flavor, #serial').val('');
+        updateVariantView(tipo);
+    });
+}
+
 $(document).ready(function () {
+
+    // Inicializar el tipo de variante
+    toggleVariantFieldsListener();
 
     const format = new Intl.NumberFormat('en'); // Formato 0,000
 
@@ -444,6 +580,7 @@ $(document).ready(function () {
             $(".variant").fadeIn(400);
             $(".active").fadeOut(200);
             $('#product_history').show();
+
         } else {
             $(".variant").fadeOut(400);
             $(".active").fadeIn(200);
@@ -474,7 +611,7 @@ $(document).ready(function () {
     // funcion para aplicar opciones del detalle
     function applyProductOptions(data) {
         if (!Array.isArray(data) || data.length < 2) return;
-        
+
         const product = data[0];
         const variantsInfo = data[1];
 
@@ -503,7 +640,7 @@ $(document).ready(function () {
         } else {
             $("#discount").val("").prop("disabled", false);
         }
-  
+
         // Cargar lista de precios si existe un valor
         if (parseFloat(product.valor_lista) > 0) {
             loadProductPrice(product.IDproducto);
@@ -591,7 +728,7 @@ $(document).ready(function () {
                 action: "buscar_variantes",
             },
             successCallback: (res) => {
-                
+
                 $("#variant_id").attr("disabled", false)
                 document.querySelector("#variant_id").innerHTML = ""; // Vaciar lista de variantes
                 document.querySelector("#variant_id").innerHTML =
@@ -643,7 +780,7 @@ $(document).ready(function () {
 
         } else {
             // Volver a cargar el producto
-            fetchProduct(productId); 
+            fetchProduct(productId);
         }
     });
 
@@ -821,7 +958,8 @@ $(document).ready(function () {
                         action: "agregar_variantes",
                         colour_id: variant.colour_id,
                         provider_id: variant.provider_id,
-                        imei: variant.imei,
+                        type: variant.type,
+                        flavor: variant.flavor,
                         serial: variant.serial,
                         box: variant.box,
                         cost: variant.cost,

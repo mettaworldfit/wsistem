@@ -141,6 +141,7 @@ switch ($action) {
       $_POST['imei'] ?? 0,
       $_POST['observation'] ?? ''
     ]);
+  
     break;
 
   // Asignar una condición a una orden existente

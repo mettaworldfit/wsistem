@@ -166,7 +166,7 @@
                         echo 'disabled';
                     } ?>>
                         <option value="0" selected>Vacío</option>
-                        <?php $lists = Help::showPrice_lists();
+                        <?php $lists = Help::loadPriceLists();
                         while ($list = $lists->fetch_object()): ?>
                             <option value="<?= $list->lista_id ?>"><?= $list->nombre_lista ?></option>
                         <?php endwhile; ?>

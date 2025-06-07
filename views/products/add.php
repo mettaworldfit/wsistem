@@ -43,7 +43,7 @@
 
                 <div class="form-group col-sm-12">
                     <p class="title-info">
-                        Indica si manejas productos con variantes como color, imei u otra.
+                        Indica si manejas productos con variantes como serial u otras diferencias.
                     </p>
                 </div>
 
@@ -152,6 +152,18 @@
             <!-- Variantes -->
             <div class="row col-content">
 
+              <div class="radio-list">
+                    <div class="radio-item ml-3">
+                        <input type="radio" name="tipovariante" value="dispositivo" id="radioDevice" checked>
+                        <label for="radioDevice">Dispositivo</label>
+                    </div>
+
+                    <div class="radio-item ml-2">
+                        <input type="radio" name="tipovariante" value="producto" id="radioProduct">
+                        <label for="radioProduct">Producto</label>
+                    </div>
+                </div>
+
                 <div class="form-group col-sm-12">
                     <p class="title-info">
                         Asigna variantes al producto para identificarlo por sus diferencias.
@@ -169,23 +181,17 @@
                             <?php $providers = Help::showProviders();
                             while ($provider = $providers->fetch_object()): ?>
                                 <option value="<?= $provider->proveedor_id ?>"><?= ucwords($provider->nombre_proveedor) ?>
-                                    <?= ucwords($provider->apellidos) ?>
+                                    <?= ucwords($provider->apellidos ?? '') ?>
                                 </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
                 </div>
 
-                <div class="row col-sm-12">
+                <div class="row col-sm-12 deviceField">
                     <div class="form-group col-sm-4">
-                        <label class="form-check-label label-imei" for="">Imei</label>
-                        <input class="form-custom col-sm-12" type="text" name="imei" maxlength="15" id="imei"
-                            placeholder="">
-                    </div>
-
-                    <div class="form-group col-sm-4">
-                        <label class="form-check-label label-imei" for="">Serial</label>
-                        <input class="form-custom col-sm-12" type="text" name="serial" maxlength="17" id="serial"
+                        <label class="form-check-label label-serial" for="">SN:</label>
+                        <input class="form-custom col-sm-12" type="text" name="serial" maxlength="20" id="serial"
                             placeholder="">
                     </div>
                 </div>
@@ -193,11 +199,17 @@
 
                 <div class="row col-sm-12">
                     <div class="form-group col-sm-4">
-                        <label class="form-check-label label-imei" for="">Costo unitario</label>
+                        <label class="form-check-label label-costo" for="">Costo unitario</label>
                         <input class="form-custom col-sm-12" type="text" name="costo" id="cost" placeholder="">
                     </div>
 
-                    <div class="form-group col-sm-4">
+                   <div class="form-group col-sm-6 productField">
+                        <label class="form-check-label label-sabor" for="">Sabor</label>
+                        <input class="form-custom col-sm-12" type="text" name="sabor" maxlength="45" id="flavor"
+                            placeholder="">
+                    </div>
+
+                    <div class="form-group col-sm-4 deviceField">
                         <label class="form-check-label label-colour" for="">Color</label>
                         <select class="form-custom search col-sm-12" name="colour" id="colour">
                             <option value="0" selected>Vacío</option>
@@ -208,8 +220,8 @@
                         </select>
                     </div>
 
-                    <div class="form-group col-sm-4">
-                        <label class="form-check-label label-colour" for="">Producto en caja</label>
+                    <div class="form-group col-sm-4 deviceField">
+                        <label class="form-check-label label-colour" for="">Nuevo en caja</label>
                         <select class="form-custom search col-sm-12" name="caja" id="box">
                             <option value="No" selected>No</option>
                             <option value="Si">Si</option>
@@ -229,11 +241,11 @@
                     <table id="Detalle" class="table-view table-view-success table_variant">
                         <thead>
                             <th>Proveedor</th>
-                            <th>Imei</th>
-                            <th>Serial</th>
-                            <th>Color</th>
-                            <th>Costo unitario</th>
-                            <th>Caja</th>
+                            <th class="deviceField">SN:</th>
+                            <th class="productField">Sabor</th>
+                            <th class="deviceField">Color</th>
+                            <th >Costo unitario</th>
+                            <th class="deviceField">Caja</th>
                             <th></th>
                         </thead>
 
@@ -307,7 +319,7 @@
                         echo 'disabled';
                     } ?>>
                         <option value="0" selected>Vacío</option>
-                        <?php $lists = Help::showPrice_lists();
+                        <?php $lists = Help::loadPriceLists();
                         while ($list = $lists->fetch_object()): ?>
                             <option value="<?= $list->lista_id ?>"><?= $list->nombre_lista ?></option>
                         <?php endwhile; ?>

@@ -26,31 +26,30 @@
                     <h3>información general</h3>
                 </div>
 
-
                 <!-- Información general -->
 
                 <div class="row col-content col-sm-12">
 
-                    <?php $vverify = Help::Count_Variant_pID($_GET['id']); ?>
+                    <?php $hasVariant = Help::countVariantsByProductId($_GET['id']); ?>
 
-                    <div class="radio-list">
-                        <input type="hidden" name="" value="<?= $vverify->variante_total ?>" id="TotalVariant">
-                        <div <?php if ($vverify->variante_total == 0) { ?> class="radio-item ml-3" <?php } else { ?>
-                                style="display:none" <?php } ?>>
-                            <input type="radio" name="tipoproducto" value="novariante" id="radio1" <?php if ($vverify->variante_total == 0) { ?> checked <?php } ?>>
+                    <div class="radio-list radio-head">
+                        <input type="hidden" name="" value="<?= $hasVariant->variante_total ?>" id="TotalVariant">
+                        <div <?php if ($hasVariant->variante_total == 0) { ?> class="radio-item ml-3" <?php } else { ?>
+                            style="display:none" <?php } ?>>
+                            <input type="radio" name="tipoproducto" value="novariante" id="radio1" <?php if ($hasVariant->variante_total == 0) { ?> checked <?php } ?>>
                             <label for="radio1">Normal</label>
                         </div>
 
-                        <div <?php if ($vverify->variante_total > 0) { ?> class="radio-item ml-3" <?php } else { ?>
-                                style="display:none" <?php } ?>>
-                            <input type="radio" name="tipoproducto" value="variante" id="radio2" <?php if ($vverify->variante_total > 0) { ?> checked <?php } ?>>
+                        <div <?php if ($hasVariant->variante_total > 0) { ?> class="radio-item ml-3" <?php } else { ?>
+                            style="display:none" <?php } ?>>
+                            <input type="radio" name="tipoproducto" value="variante" id="radio2" <?php if ($hasVariant->variante_total > 0) { ?> checked <?php } ?>>
                             <label for="radio2">Variante</label>
                         </div>
                     </div>
 
                     <div class="form-group col-sm-12">
                         <p class="title-info">
-                            Indica si manejas productos con variantes como color, imei u otra.
+                            Indica si manejas productos con variantes como serial u otras diferencias.
                         </p>
                     </div>
 
@@ -189,6 +188,20 @@
                 <!-- Variantes -->
                 <div class="row col-content">
 
+                  <?php $getType = Help::getTypeVariantsByProductId($_GET['id']); ?>
+
+                    <div class="radio-list">
+                        <div class="radio-item ml-3">
+                            <input type="radio" name="tipovariante" value="dispositivo" id="radioDevice" <?php if ($getType->total == 0) { ?> checked <?php } ?>>
+                            <label for="radioDevice">Dispositivo</label>
+                        </div>
+
+                        <div class="radio-item ml-2">
+                            <input type="radio" name="tipovariante" value="producto" id="radioProduct" <?php if ($getType->total > 0) { ?> checked <?php } ?>>
+                            <label for="radioProduct">Producto</label>
+                        </div>
+                    </div>
+
                     <div class="form-group col-sm-12">
                         <p class="title-info">
                             Asigna variantes al producto para identificarlo por sus diferencias.
@@ -206,8 +219,7 @@
                                 <select class="form-custom  search col-sm-12" name="provider" id="provider">
                                     <?php if ($element->proveedor_id > 0) { ?>
                                         <option value="0">Vacío</option>
-                                        <option value="<?= $element->proveedor_id ?>" selected>
-                                            <?= ucwords($element->nombre_proveedor) ?></option>
+                                        <option value="<?= $element->proveedor_id ?>" selected><?= ucwords($element->nombre_proveedor) ?> <?= ucwords($element->apellidos ?? '') ?></option>
                                     <?php } else { ?>
                                         <option value="0" selected>Vacío</option>
                                     <?php } ?>
@@ -215,22 +227,16 @@
                                     <?php $providers = Help::showProviders();
                                     while ($provider = $providers->fetch_object()): ?>
                                         <option value="<?= $provider->proveedor_id ?>"><?= ucwords($provider->nombre_proveedor) ?>
-                                            <?= ucwords($provider->apellidos) ?></option>
+                                            <?= ucwords($provider->apellidos || "") ?></option>
                                     <?php endwhile; ?>
                                 </select>
                             </div>
                         </div>
 
                         <div class="row col-sm-12">
-                            <div class="form-group col-sm-6">
-                                <label class="form-check-label label-imei" for="">Imei</label>
-                                <input class="form-custom col-sm-12" type="text" name="name" maxlength="15" id="imei"
-                                    placeholder="">
-                            </div>
-
-                            <div class="form-group col-sm-6">
-                                <label class="form-check-label label-serial" for="">Serial</label>
-                                <input class="form-custom col-sm-12" type="text" name="name" maxlength="17" id="serial"
+                            <div class="form-group col-sm-6 deviceField">
+                                <label class="form-check-label label-serial" for="">SN:</label>
+                                <input class="form-custom col-sm-12" type="text" name="serial" maxlength="20" id="serial"
                                     placeholder="">
                             </div>
                         </div>
@@ -240,10 +246,15 @@
                             <div class="form-group col-sm-3">
                                 <label class="form-check-label label-cost" for="">Costo unitario</label>
                                 <input class="form-custom col-sm-12" type="text" name="costo" id="cost" placeholder="">
-
                             </div>
 
-                            <div class="form-group col-sm-4">
+                            <div class="form-group col-sm-6 productField">
+                                <label class="form-check-label label-sabor" for="">Sabor</label>
+                                <input class="form-custom col-sm-12" type="text" name="sabor" maxlength="45" id="flavor"
+                                    placeholder="">
+                            </div>
+
+                            <div class="form-group col-sm-4 deviceField">
                                 <label class="form-check-label label-colour" for="">Color</label>
                                 <select class="form-custom search col-sm-12" name="colour" id="colour">
                                     <option value="0" selected>Vacío</option>
@@ -254,8 +265,8 @@
                                 </select>
                             </div>
 
-                            <div class="form-group col-sm-4">
-                                <label class="form-check-label label-box" for="">Producto en caja</label>
+                            <div class="form-group col-sm-4 deviceField">
+                                <label class="form-check-label label-box" for="">Nuevo en caja</label>
                                 <select class="form-custom search col-sm-12" name="caja" id="box">
                                     <option value="No" selected>No</option>
                                     <option value="Si">Si</option>
@@ -276,51 +287,19 @@
                     <br><br><br>
                     <!-- Variantes -->
                     <div class="col-sm-12 scroll-table">
-                        <table id="Detalle" class="table-view table-view-success">
+                        <table id="variantList" class="table-view table-view-success">
                             <thead>
                                 <th>Proveedor</th>
-                                <th>Imei</th>
-                                <th>Serial</th>
-                                <th>Color</th>
+                                <th class="deviceField">SN:</th>
+                                <th class="productField">Sabor</th>
+                                <th class="deviceField">Color</th>
                                 <th>Costo unitario</th>
-                                <th>Caja</th>
+                                <th class="deviceField">Caja</th>
                                 <th>Entrada</th>
-                                <th></th>
+                                <th>Accciones</th>
                             </thead>
-
-
-                            <tbody id="variant_list">
-
-                                <?php $variants = Help::showVariant_with_productID($element->IDproducto);
-                                while ($variant = $variants->fetch_object()): ?>
-                                    <tr>
-                                        <td><?= ucwords($variant->nombre_proveedor ?? '') ?></td>
-                                        <td><?= $variant->imei ?></td>
-                                        <td><?= $variant->serial ?></td>
-                                        <td><?= ucwords($variant->color ?? '') ?></td>
-                                        <td><?= number_format($variant->costo_unitario) ?></td>
-                                        <td><?= $variant->caja ?></td>
-                                        <td><?= $variant->entrada ?></td>
-                                        <?php if ($_SESSION['identity']->nombre_rol == 'administrador') { ?>
-                                            <td> <span class="action-delete"
-                                                    onclick="deleteVariantDb('<?= $variant->var_id ?>','<?= $variant->costo_unitario ?>')"><i
-                                                        class="far fa-minus-square"></i></span></td>
-                                        <?php } else { ?>
-                                            <td></td>
-                                        <?php } ?>
-
-                                    </tr>
-                                <?php endwhile; ?>
-
-                            </tbody>
-
-
-
                         </table>
                     </div>
-
-
-
                 </div>
             </div><!-- col-data-2 -->
 
@@ -380,8 +359,8 @@
 
                     <div class="form-group col-sm-6">
                         <select class="form-custom search col-sm-12" name="price_list" id="price_list" <?php if ($_SESSION['identity']->nombre_rol != 'administrador') {
-                            echo 'disabled';
-                        } ?>>
+                                                                                                            echo 'disabled';
+                                                                                                        } ?>>
                             <option value="0" selected>Vacío</option>
                             <?php $lists = Help::loadPriceLists();
                             while ($list = $lists->fetch_object()): ?>
@@ -392,8 +371,8 @@
 
                     <div class="form-group col-sm-6">
                         <input class="form-custom col-sm-12" type="number" name="" id="list_value" <?php if ($_SESSION['identity']->nombre_rol != 'administrador') {
-                            echo 'disabled';
-                        } ?>>
+                                                                                                        echo 'disabled';
+                                                                                                    } ?>>
                     </div>
 
                     <br><br>
@@ -445,8 +424,8 @@
                         <label class="form-check-label" for="">Costo Promedio</label>
                         <input type="number" name="price_in" class="form-custom col-sm-12"
                             value="<?= $element->precio_costo ?>" id="inputPrice_in" placeholder="0.00" <?php if ($_SESSION['identity']->nombre_rol != 'administrador') {
-                                  echo 'disabled';
-                              } ?>>
+                                                                                                            echo 'disabled';
+                                                                                                        } ?>>
                     </div>
 
                     <div class="form-group col-sm-12">
@@ -476,8 +455,8 @@
                     <div class="form-group col-sm-6 mb-3">
                         <label class="form-check-label" for="">Oferta</label>
                         <select class="form-custom search col-sm-12" name="offer" id="offer" <?php if ($_SESSION['identity']->nombre_rol != 'administrador') {
-                            echo 'disabled';
-                        } ?>>
+                                                                                                    echo 'disabled';
+                                                                                                } ?>>
                             <?php if ($element->oferta_id > 0) { ?>
                                 <option value="0">Vacío</option>
                                 <option value="<?= $element->oferta_id ?>" selected><?= ucwords($element->nombre_oferta) ?>

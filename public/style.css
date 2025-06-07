@@ -1593,6 +1593,12 @@ table#Detalle {
     width: 100%
 }
 
+table#variantList {
+    width: 100% !important;
+    text-align: center;
+}
+
+
 .table-custom {
     background: #fff;
     border-radius: 4px;
