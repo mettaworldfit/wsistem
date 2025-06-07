@@ -26,7 +26,7 @@ $(document).ready(function () {
     function populatePieceFormFields(data) {
         if (!Array.isArray(data)) return;
 
-        const piece = data[0];
+        const piece = data;
 
         $("#add_item_free").show();
 
