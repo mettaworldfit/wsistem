@@ -24,7 +24,8 @@ $(document).ready(function () {
 
     // Rellenar el formulario con los datos de la pieza seleccionada
     function populatePieceFormFields(data) {
-        if (!Array.isArray(data)) return;
+     
+        //if (!Array.isArray(data)) return;
 
         const piece = data;
 
@@ -54,14 +55,13 @@ $(document).ready(function () {
 
     // Buscar pieza por nombre    
     $("#piece").change(function () {
-        const pieceId = $('#piece_id').val();
+        const pieceId = $(this).val()
         if (pieceId) {
             fetchPiece(pieceId);
         }
     });
 
     function fetchPiece(piece_id) {
-
         sendAjaxRequest({
             url: "services/pieces.php",
             data: {

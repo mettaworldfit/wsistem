@@ -16,6 +16,33 @@ $action = $_POST['action'] ?? '';
  * @param string $value Valor del campo a buscar
  * @param bool $useLike Si es true, usará LIKE '%valor%', si es false usará comparación exacta
  */
+// function fetchPieceData($field, $value, $useLike = false)
+// {
+//   $db = Database::connect();
+
+//   // Escapar el valor para evitar inyección SQL
+//   $escaped_value = $db->real_escape_string($value);
+
+//   // Determinar el operador de búsqueda
+//   $operator = $useLike ? "LIKE '%$escaped_value%'" : "= '$escaped_value'";
+
+//   // Consulta principal para obtener los datos de la pieza
+//   $query = "SELECT p.nombre_pieza, p.cantidad, p.precio_unitario, p.cod_pieza, 
+//                    pl.valor AS valor_lista, o.valor AS oferta, 
+//                    p.pieza_id AS IDpieza, p.estado_id, pos.referencia, 
+//                    COUNT(l.lista_id) AS lista_total
+//             FROM piezas p 
+//             LEFT JOIN piezas_con_ofertas po ON p.pieza_id = po.pieza_id
+//             LEFT JOIN ofertas o ON po.oferta_id = o.oferta_id
+//             LEFT JOIN piezas_con_posiciones pp ON p.pieza_id = pp.pieza_id
+//             LEFT JOIN posiciones pos ON pp.posicion_id = pos.posicion_id
+//             LEFT JOIN piezas_con_lista_de_precios pl ON p.pieza_id = pl.pieza_id
+//             LEFT JOIN lista_de_precios l ON pl.lista_id = l.lista_id
+//             WHERE p.$field $operator
+//             LIMIT 1";
+
+//  jsonQueryResult($db, $query);
+// }
 function fetchPieceData($field, $value, $useLike = false)
 {
     $db = Database::connect();
@@ -57,7 +84,6 @@ function fetchPieceData($field, $value, $useLike = false)
     echo json_encode($data ?: null, JSON_UNESCAPED_UNICODE);
     exit;
 }
-
 
 /**
  * Controlador de acciones relacionadas con piezas
