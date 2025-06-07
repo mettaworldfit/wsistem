@@ -43,9 +43,8 @@ $action = $_POST['action'] ?? '';
 
 //  jsonQueryResult($db, $query);
 // }
-function fetchPieceData($field, $value, $useLike = false)
+function fetchPieceData(mysqli $db, $field, $value, $useLike = false)
 {
-    $db = Database::connect();
 
     // Escapar el valor para evitar inyección SQL
     $escaped_value = $db->real_escape_string($value);
@@ -80,8 +79,7 @@ function fetchPieceData($field, $value, $useLike = false)
         exit;
     }
 
-    $data = $result->fetch_assoc();
-    return $data ?: null;
+   return jsonQueryResult($db, $query);
 }
 
 /**
@@ -163,14 +161,14 @@ function fetchPieceData($field, $value, $useLike = false)
      * Buscar pieza por código (uso de LIKE)
      */
     case "buscar_codigo_pieza":
-     fetchPieceData('cod_pieza', $_POST['piece_code'], true);
+     fetchPieceData($db,'cod_pieza', $_POST['piece_code'], true);
       break;
 
     /**
      * Buscar pieza por ID exacto
      */
     case "buscar_pieza":
-      echo fetchPieceData('pieza_id', $_POST['piece_id']);
+      fetchPieceData($db,'pieza_id', $_POST['piece_id']);
       break;
 
     /**

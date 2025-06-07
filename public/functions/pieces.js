@@ -27,7 +27,7 @@ $(document).ready(function () {
      
         //if (!Array.isArray(data)) return;
 
-        const piece = data;
+        const piece = data[0];
 
         $("#add_item_free").show();
 
@@ -69,12 +69,12 @@ $(document).ready(function () {
                 action: "buscar_pieza"
             },
             successCallback: (res) => {
+console.log('resultado',res)
+                //var data = JSON.parse(res);
+                // $('#piece_code').val(data.cod_pieza)
 
-                var data = JSON.parse(res);
-                $('#piece_code').val(data.cod_pieza)
-
-                populatePieceFormFields(data)
-                validatePieceQuantity() // Calcular precios
+                // populatePieceFormFields(data)
+                // validatePieceQuantity() // Calcular precios
 
             },
             errorCallback: (res) => mysql_error(res)
