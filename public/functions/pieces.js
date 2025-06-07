@@ -70,7 +70,7 @@ $(document).ready(function () {
             },
             successCallback: (res) => {
 
-                var data = JSON.parse(res);
+                var data = JSON.parse(res)[0];
                 $('#piece_code').val(data.cod_pieza)
 
                 populatePieceFormFields(data)
@@ -97,7 +97,7 @@ $(document).ready(function () {
                 action: "buscar_codigo_pieza"
             },
             successCallback: (res) => {
-                var data = JSON.parse(res);
+                var data = JSON.parse(res)[0];
 
                 $('#select2-piece-container').attr('title', data.nombre_pieza);
                 $('#select2-piece-container').empty(); // Vaciar description
