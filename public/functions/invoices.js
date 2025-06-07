@@ -9,7 +9,7 @@ function cashback(data) {
 function calculateTotalInvoice(bonus = 0) {
     // Determinar acción según la URL
     let action, id;
-console.log('here')
+
     if (pageURL.includes("invoices/addpurchase")) {
         action = 'precios_detalle_temp';
     } else if (pageURL.includes("invoices/edit_quote")) {
@@ -20,48 +20,52 @@ console.log('here')
         id = $("#invoice_id").val();
     }
 
-    console.log(action,id)
-
     // Cargar totales según acción
     loadInvoiceTotals(action, id);
 
     // Función para cargar totales de la factura
     function loadInvoiceTotals(action, id) {
-        console.log('dentro de loadInvoiceTotals')
-        $.post(SITE_URL + "services/invoices.php", { action, id }, function (res) {
-            const data = JSON.parse(res);
-            const discount = format.format(data.descuentos);
-            const taxes = format.format(data.taxes);
-            const subtotal = format.format(data.precios);
 
-            const totalValue = parseFloat(data.precios) + parseFloat(data.taxes) - parseFloat(data.descuentos);
-            const total = isNaN(totalValue) ? '0.00' : format.format(totalValue);
-            const totalRaw = total.replace(/,/g, "");
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: { action, id },
+            successCallback: (res) => {
+                const data = JSON.parse(res)[0];
+                const discount = format.format(data.descuentos);
+                const taxes = format.format(data.taxes);
+                const subtotal = format.format(data.precios);
 
-            // Asignar valores al formulario principal
-            $('#total_price').val(totalRaw);
-            $('#in-subtotal').val(subtotal);
-            $('#in-taxes').val(taxes);
-            $('#in-discount').val(discount);
-            $('#in-total').val(total);
+                const totalValue = parseFloat(data.precios) + parseFloat(data.taxes) - parseFloat(data.descuentos);
+                const total = isNaN(totalValue) ? '0.00' : format.format(totalValue);
+                const totalRaw = total.replace(/,/g, "");
 
-            // Inicializar valores comunes
-            $('#cash-received').val('0.00');
-            $('#credit-received').val('0.00');
+                // Asignar valores al formulario principal
+                $('#total_price').val(totalRaw);
+                $('#in-subtotal').val(subtotal);
+                $('#in-taxes').val(taxes);
+                $('#in-discount').val(discount);
+                $('#in-total').val(total);
 
-            // Modal Factura Editar
-            if (pageURL.includes("invoices/edit")) {
-                setCashModal(data.total, data.pendiente, data.recibido);
-            } else {
-                setCashModalWithBonus(totalRaw);
+                // Inicializar valores comunes
+                $('#cash-received').val('0.00');
+                $('#credit-received').val('0.00');
+
+                // Modal Factura Editar
+                if (pageURL.includes("invoices/edit")) {
+                    setCashModal(data.total, data.pendiente, data.recibido);
+                } else {
+                    setCashModalWithBonus(totalRaw);
+                }
+
+                // Modal Factura a crédito
+                setCreditModal(totalRaw);
+
+                // Botones y validaciones
+                toggleElementsByTotal(totalValue);
             }
+        })
 
-            // Modal Factura a crédito
-            setCreditModal(totalRaw);
 
-            // Botones y validaciones
-            toggleElementsByTotal(totalValue);
-        });
     }
 
     // Establecer valores en el modal de factura al contado (edit)
@@ -1362,7 +1366,7 @@ function deleteQuote(id) {
                     action: "eliminar_cotizacion",
                     id: id
                 },
-                successCallback: () =>  dataTablesInstances['invoices'].ajax.reload(),
+                successCallback: () => dataTablesInstances['invoices'].ajax.reload(),
                 errorCallback: (res) => mysql_error(error)
             });
         },
@@ -1409,7 +1413,7 @@ function updateQuote(id) {
         successCallback: () => mysql_row_affected(),
         errorCallback: (res) => mysql_error(res)
     });
-} 
+}
 
 
 // Generar Email de la cotizacion

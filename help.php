@@ -497,7 +497,7 @@ class Help
 
    public static function getVariantId($id)
    {
-      $query = "SELECT p.nombre_producto,c.color,v.imei,v.serial,v.variante_id as var_id FROM detalle_facturas_ventas d
+      $query = "SELECT p.nombre_producto,c.color,v.sabor,v.serial,v.variante_id as var_id FROM detalle_facturas_ventas d
       LEFT JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
       LEFT JOIN productos p ON p.producto_id = dp.producto_id
       LEFT JOIN variantes_facturadas vf ON vf.detalle_venta_id = d.detalle_venta_id
@@ -514,7 +514,7 @@ class Help
       while ($element = $datos->fetch_object()) {
 
          $html .= '<p class="list_db">' . ucwords($element->nombre_producto ?? '') . ' ' . ucwords($element->color ?? "") .
-            ' <br> ' . $element->imei . ' ' . ucwords($element->serial ?? '') . '</p>';
+            ' <br> ' . $element->sabor . ' ' . ucwords($element->serial ?? '') . '</p>';
       }
 
       return $html;

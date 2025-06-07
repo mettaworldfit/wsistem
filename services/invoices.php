@@ -343,10 +343,7 @@ if ($_POST['action'] == "precios_detalle_temp") {
   $query = "SELECT sum(cantidad * impuesto) as taxes, sum(descuento) as descuentos, sum(cantidad * precio) as precios 
   FROM detalle_temporal WHERE usuario_id = '$user_id'";
 
-  $datos = $db->query($query);
-  $result = $datos->fetch_assoc();
-
-  echo json_encode($result, JSON_UNESCAPED_UNICODE);
+  jsonQueryResult($db,$query);
 }
 
 // Obtener precios del detalle de factura
@@ -361,10 +358,7 @@ if ($_POST['action'] == "precios_detalle_venta") {
   f.total, f.pendiente, f.recibido
   FROM detalle_facturas_ventas d INNER JOIN facturas_ventas f on f.factura_venta_id = d.factura_venta_id WHERE d.factura_venta_id = '$invoice_id'";
 
-  $datos = $db->query($query);
-  $result = $datos->fetch_assoc();
-
-  echo json_encode($result, JSON_UNESCAPED_UNICODE);
+  jsonQueryResult($db,$query);
 }
 
 // Eliminar producto del detalle temporar
@@ -732,8 +726,5 @@ if ($_POST['action'] == "total_cotizacion") {
   INNER JOIN cotizaciones c ON c.cotizacion_id = d.cotizacion_id
    WHERE c.cotizacion_id = '$id'";
 
-  $datos = $db->query($query);
-  $result = $datos->fetch_assoc();
-
-  echo json_encode($result, JSON_UNESCAPED_UNICODE);
+  jsonQueryResult($db,$query);
 }
