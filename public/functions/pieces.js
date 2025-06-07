@@ -54,7 +54,7 @@ $(document).ready(function () {
 
     // Buscar pieza por nombre    
     $("#piece").change(function () {
-        const pieceId = $(this).val();
+        const pieceId = $('#piece_id').val();
         if (pieceId) {
             fetchPiece(pieceId);
         }
@@ -69,7 +69,7 @@ $(document).ready(function () {
                 action: "buscar_pieza"
             },
             successCallback: (res) => {
-console.log('enviando')
+
                 var data = JSON.parse(res);
                 $('#piece_code').val(data.cod_pieza)
 
