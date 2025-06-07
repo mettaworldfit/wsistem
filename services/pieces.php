@@ -41,7 +41,7 @@ function fetchPieceData($field, $value, $useLike = false)
             WHERE p.$field $operator
             LIMIT 1";
 
-  jsonQueryResult($db, $query);
+ echo jsonQueryResult($db, $query);
 }
 
 /**

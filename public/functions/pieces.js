@@ -69,7 +69,7 @@ $(document).ready(function () {
                 action: "buscar_pieza"
             },
             successCallback: (res) => {
-
+console.log(res)
                 var data = JSON.parse(res)[0];
                 $('#piece_code').val(data.cod_pieza)
 

@@ -31,6 +31,7 @@ $.urlParam = function (name) {
  *
  * @returns {DataTable|null} Instancia de DataTable o null si hay parámetros inválidos.
  */
+
 function initCustomDataTable({
     selector,
     ajaxUrl,
