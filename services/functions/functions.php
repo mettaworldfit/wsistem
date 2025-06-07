@@ -210,21 +210,29 @@ function jsonQueryResult(mysqli $db, string $query): void
         echo json_encode([
             'error' => true,
             'message' => 'Error en la consulta SQL',
-            'sql_error' => $db->error
+            'sql_error' => $db->error,
+            'sql' => $query // útil para depurar
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
 
+    // Si no hay resultados
     if ($result->num_rows === 0) {
         echo json_encode(null, JSON_UNESCAPED_UNICODE);
-    } elseif ($result->num_rows === 1) {
-        echo json_encode([$result->fetch_assoc()],JSON_UNESCAPED_UNICODE);
-    } else {
-        $rows = '';
+    }
+
+    // Si hay un solo resultado
+    elseif ($result->num_rows === 1) {
+        echo json_encode([$result->fetch_assoc()], JSON_UNESCAPED_UNICODE);
+    }
+
+    // Si hay múltiples resultados
+    else {
+        $rows = [];
         while ($row = $result->fetch_assoc()) {
-            $rows .= $row;
+            $rows[] = $row; // Agrega correctamente cada fila como array
         }
-        echo json_encode([$rows], JSON_UNESCAPED_UNICODE);
+        echo json_encode($rows, JSON_UNESCAPED_UNICODE);
     }
 
     exit;
