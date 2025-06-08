@@ -65,6 +65,6 @@ switch ($action) {
 
   // Eliminar servicio
   case 'eliminar_servicio':
-    echo handleDeletionAction($db, (int)$_POST['service_id'], 'sv_eliminarServicio');
+    echo handleProcedureAction($db,'sv_eliminarServicio',[(int)$_POST['service_id']]);
     break;
 }

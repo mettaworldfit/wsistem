@@ -98,8 +98,8 @@ switch ($action) {
             LEFT JOIN piezas_con_lista_de_precios pl ON p.pieza_id = pl.pieza_id
             LEFT JOIN lista_de_precios l ON pl.lista_id = l.lista_id
             WHERE p.cod_pieza LIKE '%$q%'";
-            
-    jsonQueryResult($db,$query);
+
+    jsonQueryResult($db, $query);
 
     break;
 
@@ -127,19 +127,19 @@ switch ($action) {
      */
   case "agregar_pieza":
     $params = [
-      $_SESSION['identity']->usuario_id,
-      $_POST['warehouse'],
+      (int)$_SESSION['identity']->usuario_id,
+      (int) $_POST['warehouse'],
       $_POST['piece_code'],
       $_POST['name'],
-      $_POST['price_in'] ?? 0,
-      $_POST['price_out'],
-      $_POST['quantity'],
-      $_POST['min_quantity'] ?? 0,
-      $_POST['category'],
-      $_POST['position'],
-      $_POST['offer'] ?? 0,
-      $_POST['brand'],
-      $_POST['provider'],
+      (int)  $_POST['price_in'] ?? 0,
+      (int) $_POST['price_out'],
+      (int) $_POST['quantity'],
+      (int)$_POST['min_quantity'] ?? 0,
+      (int)$_POST['category'],
+      (int)$_POST['position'],
+      (int) $_POST['offer'] ?? 0,
+      (int)  $_POST['brand'],
+      (int)  $_POST['provider'],
       "-"
     ];
     echo handleProcedureAction($db, 'pz_agregarPieza', $params);
@@ -150,19 +150,19 @@ switch ($action) {
      */
   case "editar_pieza":
     $params = [
-      $_POST['piece_id'],
-      $_POST['warehouse'],
+      (int) $_POST['piece_id'],
+      (int) $_POST['warehouse'],
       $_POST['piece_code'],
       $_POST['name'],
-      $_POST['price_in'] ?? 0,
-      $_POST['price_out'],
-      $_POST['quantity'],
-      $_POST['min_quantity'] ?? 0,
-      $_POST['category'],
-      $_POST['position'],
-      $_POST['offer'] ?? 0,
-      $_POST['brand'],
-      $_POST['provider'],
+      (int)  $_POST['price_in'] ?? 0,
+      (int) $_POST['price_out'],
+      (int) $_POST['quantity'],
+      (int)$_POST['min_quantity'] ?? 0,
+      (int)$_POST['category'],
+      (int)$_POST['position'],
+      (int) $_POST['offer'] ?? 0,
+      (int)  $_POST['brand'],
+      (int)  $_POST['provider'],
       "-"
     ];
     echo handleProcedureAction($db, 'pz_editarPieza', $params);
@@ -194,7 +194,7 @@ switch ($action) {
      * Eliminar pieza
      */
   case "eliminarPieza":
-    echo handleDeletionAction($db, $_POST['pieza_id'], 'pz_eliminarPieza');
+    echo handleDeletionAction($db,(int)$_POST['pieza_id'], 'pz_eliminarPieza');
     break;
 
   default:

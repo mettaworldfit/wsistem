@@ -104,7 +104,7 @@ function disableProduct(product_id) {
                     product_id: product_id,
                     action: "desactivar_producto",
                 },
-                successCallback: () => dataTablesInstances['products'].ajax.reload() // Actualizar datatable
+                successCallback: () => dataTablesInstances['products'].ajax.reload(null, false) // Actualizar datatable
             })
         },
         function () { }
@@ -124,7 +124,7 @@ function enableProduct(product_id) {
                     product_id: product_id,
                     action: "activar_producto",
                 },
-                successCallback: () => dataTablesInstances['products'].ajax.reload(), // Actualizar datatable
+                successCallback: () => dataTablesInstances['products'].ajax.reload(null, false), // Actualizar datatable
                 errorCallback: (err) => mysql_error(err)
             })
 

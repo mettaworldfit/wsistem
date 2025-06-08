@@ -81,7 +81,7 @@ function deleteCustomer(id) {
                     customer_id: id,
                     action: 'eliminar_cliente'
                 },
-                successCallback: () => dataTablesInstances['customers'].ajax.reload()
+                successCallback: () => dataTablesInstances['customers'].ajax.reload(null, false)
             });
         },
         function() {});
@@ -113,7 +113,7 @@ function deleteProveedor(id) {
                     proveedor_id: id,
                     action: 'eliminar_proveedor'
                 },
-                successCallback: () => dataTablesInstances['providers'].ajax.reload()
+                successCallback: () => dataTablesInstances['providers'].ajax.reload(null, false)
             });
         },
         function() {});

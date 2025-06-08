@@ -45,13 +45,6 @@
       </button>
       <br>
       <span class="missing">No se ha podido iniciar sesión <i class="fas fa-key"></i></span>
-      <?php
-      $expiredTxt = "";
-      if (isset($_GET['timeout'])) {
-        $expiredTxt .= "Tu sesión ha expirado por inactividad. Por favor, inicia sesión nuevamente.";
-      }
-      ?>
-      <span class='expired'><?= $expiredTxt;?></span>
     </form>
 
     <br>

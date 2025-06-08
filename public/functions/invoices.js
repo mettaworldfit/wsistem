@@ -1,6 +1,6 @@
 function cashback(data) {
     alertify.alert(`<div class='row-affected d-flex flex-column'>
-    <h2>Devolver</h2> <br>` + "<h1 class='text-danger'> $" + data + `</h1></div>`).set('basic', true);
+    <h2>Devuelta</h2> <br>` + "<h1 class='text-danger'> $" + data + `</h1></div>`).set('basic', true);
 }
 
 
@@ -1030,7 +1030,7 @@ function deleteInvoice(id) {
                     if (res == "ready") {
 
                         (pageURL.includes("invoices/index")) ?
-                            dataTablesInstances['invoices'].ajax.reload() : dataTablesInstances['sales'].ajax.reload();
+                            dataTablesInstances['invoices'].ajax.reload(null, false) : dataTablesInstances['sales'].ajax.reload(null, false);
 
                     } else {
                         mysql_error(res)
@@ -1366,7 +1366,7 @@ function deleteQuote(id) {
                     action: "eliminar_cotizacion",
                     id: id
                 },
-                successCallback: () => dataTablesInstances['invoices'].ajax.reload(),
+                successCallback: () => dataTablesInstances['invoices'].ajax.reload(null, false),
                 errorCallback: (res) => mysql_error(error)
             });
         },

@@ -118,7 +118,7 @@ switch ($action) {
   // Actualizar información de una lista de precios existente
   case 'actualizar-lista':
     echo handleProcedureAction($db, 'lp_actualizarListaDePrecio', [
-      $_POST['list_id'],
+      (int)$_POST['list_id'],
       $_POST['list_name'],
       $_POST['list_comment']
     ]);
@@ -126,6 +126,6 @@ switch ($action) {
 
   // Eliminar lista de precios
   case 'eliminar_lista':
-    echo handleDeletionAction($db, $_POST['id'], 'lp_eliminarLista');
+    echo handleDeletionAction($db, (int)$_POST['id'], 'lp_eliminarLista');
     break;
 }

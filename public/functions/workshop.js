@@ -14,7 +14,7 @@ function addOrdenRepair() {
 
             $('input[type="text"]').val('');
             $('input[type="number"]').val('');
-            dataTablesInstances['workshop'].ajax.reload();
+            dataTablesInstances['workshop'].ajax.reload(null, false);
 
             window.location.href = SITE_URL + 'invoices/addrepair&id=' + res
         },
@@ -58,7 +58,7 @@ function updateOrderStatus(selectElement) { // recibimos por parametro el elemen
             workshop_id: workshop_id,
             action: 'actualizar_estado_orden'
         },
-        successCallback: () => dataTablesInstances['workshop'].ajax.reload(),
+        successCallback: () => dataTablesInstances['workshop'].ajax.reload(null, false),
         errorCallback: (res) => mysql_error(res)
     })
 }
@@ -76,7 +76,7 @@ function deleteRepairOrder(id) {
                     id: id,
                     action: 'eliminar_orden'
                 },
-                successCallback: () => dataTablesInstances['workshop'].ajax.reload(),
+                successCallback: () => dataTablesInstances['workshop'].ajax.reload(null, false),
                 errorCallback: (res) => mysql_error("Ha ocurrido un error inesperado")
 
             });
@@ -163,7 +163,7 @@ function deleteBrand(id) {
                     id: id,
                     action: 'eliminar_marca'
                 },
-                successCallback: () => dataTablesInstances['brands'].ajax.reload(),
+                successCallback: () => dataTablesInstances['brands'].ajax.reload(null, false),
                 errorCallback: (res) => mysql_error(res)
             });
         },
