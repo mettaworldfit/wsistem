@@ -117,31 +117,31 @@ function formatTel(string $numero = ''): string
  */
 function handleDeletionAction(mysqli $db, int $id, string $procedureName): string
 {
-    // Validar que se haya proporcionado un nombre de procedimiento
     if (empty($procedureName)) {
         return "Nombre del procedimiento requerido.";
     }
 
-    // Construir la consulta SQL con el llamado al procedimiento
     $query = "CALL $procedureName($id)";
-
-    // Ejecutar la consulta
     $result = $db->query($query);
 
-    // Obtener resultado
+    if (!$result) {
+        return "Error al ejecutar el procedimiento: " . $db->error;
+    }
+
     $data = $result->fetch_object();
 
-    if ($data->msg == "ready") {
+    // Validar que $data es un objeto y que contiene 'msg'
+    if (!$data || !isset($data->msg)) {
+        return "Error: Respuesta inesperada del procedimiento $procedureName.";
+    }
+
+    if ($data->msg === "ready") {
         return "ready";
     } else {
-        // Si el error parece ser relacionado con SQL
-        if (str_contains($db->error, 'SQL')) {
-            return "Error: " . $db->error;
-        } else {
-            return "Error en $procedureName: " . $db->error;
-        }
+        return "Error en $procedureName: " . $data->msg;
     }
 }
+
 
 
 /**
