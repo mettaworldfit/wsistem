@@ -265,12 +265,12 @@ function addVariantDb() {
                 dataTablesInstances['variantList'].ajax.reload()
 
                 setTimeout(function () {
-                     calculateAverageProductCost(); // Recalcular el costo promedio
+                    calculateAverageProductCost(); // Recalcular el costo promedio
                     editProduct(); // Editar producto tras agregar variante
-                       toggleVariantFieldsListener(); // Actualizar tipo de variante
+                    toggleVariantFieldsListener(); // Actualizar tipo de variante
                 }, 500);
 
-             
+
 
             } else if (res === "duplicate") {
                 // Mostrar errores por duplicación
@@ -394,8 +394,13 @@ function addVariantLocalStorage() {
         if (data.serial) {
             return findMatch(ArrayVariant, data);
         } else {
-            ArrayVariant.push(data) // Insertar datos al arreglo
-            createVariantDb(ArrayVariant);
+
+            const max = parseInt($("#product_quantity").val());
+            if (ArrayVariant.length < max) {
+                ArrayVariant.push(data) // Insertar datos al arreglo
+                createVariantDb(ArrayVariant); // Pasa el arreglo actualizado
+            }
+
         }
 
         function findMatch(arr, data) {
@@ -542,10 +547,10 @@ function toggleVariantFieldsListener() {
 
     // Listener para cambios
     $('input[name="tipovariante"]').on('change', function () {
-      
+
         const tipo = $(this).val();
-         $('#cost').val('0');
-          $('#flavor, #serial').val('');
+        $('#cost').val('0');
+        $('#flavor, #serial').val('');
         updateVariantView(tipo);
     });
 }

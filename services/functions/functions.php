@@ -115,7 +115,7 @@ function formatTel(string $numero = ''): string
  * @param string $procedureName Nombre del procedimiento almacenado que realizará la eliminación.
  * @return string Resultado de la operación: "ready" si fue exitosa o un mensaje de error.
  */
-function handleDeletionAction($db, int $id, string $procedureName): string
+function handleDeletionAction(mysqli $db, int $id, string $procedureName): string
 {
     // Validar que se haya proporcionado un nombre de procedimiento
     if (empty($procedureName)) {
@@ -152,43 +152,71 @@ function handleDeletionAction($db, int $id, string $procedureName): string
  * @param array $params Lista de parámetros en orden para el procedimiento.
  * @return string Resultado de la operación: "ready", "duplicate", error SQL, o mensaje personalizado.
  */
+// function handleProcedureAction(mysqli $db, string $procedure, array $params): string
+// {
+//     // Escapa parámetros: numéricos tal cual, textos con comillas y escapados
+//     $escapedParams = array_map(function ($param) use ($db) {
+//         return is_numeric($param) ? $param : "'" . $db->real_escape_string($param) . "'";
+//     }, $params);
+
+//     // Armar consulta CALL
+//     $query = "CALL $procedure(" . implode(',', $escapedParams) . ")";
+
+//     // Ejecutar consulta
+//     $result = $db->query($query);
+
+//     // Validar error de SQL
+//     if (!$result) {
+//         return "Error" . $db->error;;
+//     }
+
+//     // Obtener resultado
+//     $data = $result->fetch_object();
+
+//     // Validar respuesta
+//     if (!$data || !isset($data->msg)) {
+//         return "Error: Respuesta inesperada del procedimiento.";
+//     }
+
+//     // Evaluar contenido de msg
+//     if (is_numeric($data->msg) && $data->msg > 0) {
+//         return $data->msg;
+//     } elseif (str_contains($data->msg, 'Duplicate')) {
+//         return "duplicate";
+//     } elseif (str_contains($data->msg, 'SQL')) {
+//         return "Error en $procedure: " . $data->msg;
+//     }
+
+//     return $data->msg;
+// }
+
 function handleProcedureAction(mysqli $db, string $procedure, array $params): string
 {
-    // Escapa parámetros: numéricos tal cual, textos con comillas y escapados
     $escapedParams = array_map(function ($param) use ($db) {
         return is_numeric($param) ? $param : "'" . $db->real_escape_string($param) . "'";
     }, $params);
 
-    // Armar consulta CALL
     $query = "CALL $procedure(" . implode(',', $escapedParams) . ")";
 
-    // Ejecutar consulta
-    $result = $db->query($query);
-
-    // Validar error de SQL
-    if (!$result) {
-        return "Error" . $db->error;;
+    if (!$db->multi_query($query)) {
+        return "Error en $procedure: " . $db->error;
     }
 
-    // Obtener resultado
-    $data = $result->fetch_object();
+    // Recorremos los result sets
+    do {
+        if ($result = $db->store_result()) {
+            $row = $result->fetch_assoc();
+            $result->free();
 
-    // Validar respuesta
-    if (!$data || !isset($data->msg)) {
-        return "Error: Respuesta inesperada del procedimiento.";
-    }
+            if (isset($row['msg'])) {
+                return $row['msg'];
+            }
+        }
+    } while ($db->more_results() && $db->next_result());
 
-    // Evaluar contenido de msg
-    if (is_numeric($data->msg) && $data->msg > 0) {
-        return $data->msg;
-    } elseif (str_contains($data->msg, 'Duplicate')) {
-        return "duplicate";
-    } elseif (str_contains($data->msg, 'SQL')) {
-        return "Error en $procedure: " . $data->msg;
-    }
-
-    return $data->msg;
+    return "Error: No se recibió respuesta del procedimiento.";
 }
+
 
 /**
  * Ejecuta una consulta SQL y devuelve el resultado en formato JSON.
