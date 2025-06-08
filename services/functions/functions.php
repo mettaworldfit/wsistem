@@ -128,8 +128,8 @@ function handleDeletionAction(mysqli $db, int $id, string $procedureName): strin
     // Ejecutar la consulta
     $result = $db->query($query);
 
-     // Obtener resultado
-     $data = $result->fetch_object();
+    // Obtener resultado
+    $data = $result->fetch_object();
 
     if ($data->msg == "ready") {
         return "ready";
@@ -152,49 +152,18 @@ function handleDeletionAction(mysqli $db, int $id, string $procedureName): strin
  * @param array $params Lista de parámetros en orden para el procedimiento.
  * @return string Resultado de la operación: "ready", "duplicate", error SQL, o mensaje personalizado.
  */
-// function handleProcedureAction(mysqli $db, string $procedure, array $params): string
-// {
-//     // Escapa parámetros: numéricos tal cual, textos con comillas y escapados
-//     $escapedParams = array_map(function ($param) use ($db) {
-//         return is_numeric($param) ? $param : "'" . $db->real_escape_string($param) . "'";
-//     }, $params);
-
-//     // Armar consulta CALL
-//     $query = "CALL $procedure(" . implode(',', $escapedParams) . ")";
-
-//     // Ejecutar consulta
-//     $result = $db->query($query);
-
-//     // Validar error de SQL
-//     if (!$result) {
-//         return "Error" . $db->error;;
-//     }
-
-//     // Obtener resultado
-//     $data = $result->fetch_object();
-
-//     // Validar respuesta
-//     if (!$data || !isset($data->msg)) {
-//         return "Error: Respuesta inesperada del procedimiento.";
-//     }
-
-//     // Evaluar contenido de msg
-//     if (is_numeric($data->msg) && $data->msg > 0) {
-//         return $data->msg;
-//     } elseif (str_contains($data->msg, 'Duplicate')) {
-//         return "duplicate";
-//     } elseif (str_contains($data->msg, 'SQL')) {
-//         return "Error en $procedure: " . $data->msg;
-//     }
-
-//     return $data->msg;
-// }
-
 function handleProcedureAction(mysqli $db, string $procedure, array $params): string
 {
     $escapedParams = array_map(function ($param) use ($db) {
-        return is_numeric($param) ? $param : "'" . $db->real_escape_string($param) . "'";
+        if (is_numeric($param)) {
+            return $param;
+        } elseif (!empty($param)) {
+            return "'" . $db->real_escape_string($param) . "'";
+        } else {
+            return "NULL"; // evita pasar ''
+        }
     }, $params);
+
 
     $query = "CALL $procedure(" . implode(',', $escapedParams) . ")";
 
