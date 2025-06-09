@@ -177,6 +177,14 @@ while ($result = $datos->fetch_object()) {
     }
 }
 
+// Después del último dato, agregamos una fila con la suma total
+$sheet->setCellValue('B' . $i, 'Total general:');
+$sheet->setCellValue('C' . $i, '=SUM(C2:C' . ($i - 1) . ')');
+
+// Opcional: Formatear la celda del total en negrita
+$sheet->getStyle('B' . $i . ':C' . $i)->getFont()->setBold(true);
+
+
 
 
 /* Here there will be some code where you create $spreadsheet */
