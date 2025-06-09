@@ -454,8 +454,6 @@ $(document).ready(function () {
     return tipo === 'dispositivo' ? deviceColumns : productColumns;
 }
 
-
-
     // Configuración de DataTable Server-Side para las tablas
     const tableConfigs = [{
         id: '#invoices',

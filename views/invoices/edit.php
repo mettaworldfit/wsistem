@@ -440,10 +440,10 @@
                                         <i class="fas fa-portrait"></i>
                                     </div>
                                     <select class="form-custom-icon search" name="" id="customer" requireds>
-                                        <option value="<?= $info->cliente_id ?>" selected><?= ucwords($info->nombre_cliente)." ".ucwords($info->apellidos_cliente)?></option>
+                                        <option value="<?= $info->cliente_id ?>" selected><?= ucwords($info->nombre_cliente)." ".ucwords($info->apellidos_cliente ?? "")?></option>
                                         <?php $customers = Help::showCustomers();
                                         while ($customer = $customers->fetch_object()): ?>
-                                            <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre)." ".ucwords($customer->apellidos)?></option>
+                                            <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre)." ".ucwords($customer->apellidos ?? "")?></option>
                                         <?php endwhile; ?>
                                     </select>
                                 </div>

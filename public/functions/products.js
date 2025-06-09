@@ -262,15 +262,37 @@ function addVariantDb() {
 
             if (res > 0) {
 
-                dataTablesInstances['variantList'].ajax.reload()
+                const today = new Date();
+
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0'); // Mes: 01–12
+                const day = String(today.getDate()).padStart(2, '0');        // Día: 01–31
+
+                const formattedDate = `${year}-${month}-${day}`;
+                document.querySelector('#variantList').innerHTML += `
+                <tr>
+                    <td>${data.provider}</td>
+                    ${data.type === 'dispositivo' ? `
+                    <td>${data.serial}</td>
+                    <td>${data.colour}</td>
+                    <td>${format.format(data.cost)}</td>
+                    <td>${data.box}</td>
+                    <td>${formattedDate}</td>
+                    `: `
+                    <td>${data.flavor}</td>
+                    <td>${format.format(data.cost)}</td>
+                    <td>${formattedDate}</td>
+                    `}
+                    <td> 
+                      <span class="action-delete" onclick="deleteVariantDb('${res}')"><i class="far fa-minus-square"></i></span>
+                    </td>
+                </tr>`;
 
                 setTimeout(function () {
                     calculateAverageProductCost(); // Recalcular el costo promedio
                     editProduct(); // Editar producto tras agregar variante
                     toggleVariantFieldsListener(); // Actualizar tipo de variante
                 }, 500);
-
-
 
             } else if (res === "duplicate") {
                 // Mostrar errores por duplicación
@@ -310,19 +332,19 @@ function addVariantLocalStorage() {
     }
 
     function validateFlavor(flavor) {
-        const hasOnlyLetters = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(flavor.trim());
+        const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+        const isValid = regex.test(flavor.trim());
 
-        $("#flavor").css("border", hasOnlyLetters ? "1px solid #ced4da" : "1px solid red");
-        $(".label-sabor").css("color", hasOnlyLetters ? "black" : "red");
+        $("#flavor").css("border", isValid ? "1px solid #ced4da" : "1px solid red");
+        $(".label-sabor").css("color", isValid ? "black" : "red");
 
-        if (!hasOnlyLetters) {
+        if (!isValid) {
             alertify.set("notifier", "position", "top-right");
-            alertify.error("El campo sabor solo permite letras y espacios");
+            alertify.error("El campo sabor solo permite letras y espacios. No se permiten números ni caracteres especiales.");
         }
 
-        return hasOnlyLetters;
+        return isValid;
     }
-
 
     function validateCost(cost) {
         const isValid = !isNaN(cost) && cost.trim() !== "";
@@ -337,7 +359,6 @@ function addVariantLocalStorage() {
 
         return isValid;
     }
-
 
     function getFormData() {
         const tipo = $('input[name="tipovariante"]:checked').val();
@@ -364,8 +385,10 @@ function addVariantLocalStorage() {
         const cost = $('#cost').val();
 
         let isValid = true;
+        console.log(tipo)
 
         if (tipo === "product") {
+
             isValid = validateFlavor(flavor);
         } else if (tipo === "device") {
             isValid = validateSerial(serial);

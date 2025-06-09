@@ -65,38 +65,42 @@ if ($_POST['action'] == "index_ventas_hoy") {
 
     // Datos paginados y filtrados
 
-    $query = "SELECT id, tipo, orden, nombre, apellidos, total, recibido, pendiente, estado, fecha_factura FROM (
+    $query = "SELECT id, tipo, orden, nombre, apellidos, total, recibido, pendiente, estado, fecha_factura, nombre_metodo FROM (
       SELECT c.nombre, c.apellidos, f.factura_venta_id AS id, 'n/d' AS orden, f.fecha AS fecha_factura,
-             f.total, f.recibido, f.pendiente, s.nombre_estado AS estado, 'FT' AS tipo
+             f.total, f.recibido, f.pendiente, s.nombre_estado AS estado, 'FT' AS tipo, m.nombre_metodo
       FROM facturas_ventas f
       INNER JOIN clientes c ON f.cliente_id = c.cliente_id
+      INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
       INNER JOIN estados_generales s ON f.estado_id = s.estado_id
     
       UNION ALL
     
       SELECT c.nombre, c.apellidos, f.facturarp_id AS id, f.orden_rp_id AS orden, f.fecha AS fecha_factura,
-             f.total, f.recibido, f.pendiente, s.nombre_estado AS estado, 'RP' AS tipo
+             f.total, f.recibido, f.pendiente, s.nombre_estado AS estado, 'RP' AS tipo, m.nombre_metodo
       FROM facturasRP f
       INNER JOIN clientes c ON f.cliente_id = c.cliente_id
+    INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
       INNER JOIN estados_generales s ON f.estado_id = s.estado_id
     
       UNION ALL
     
       SELECT c.nombre, c.apellidos, pg.pago_id AS id, f.factura_venta_id AS orden, pg.fecha AS fecha_factura,
-             pg.recibido AS total, pg.recibido AS recibido, '0' AS pendiente, s.nombre_estado AS estado, 'PF' AS tipo
+             pg.recibido AS total, pg.recibido AS recibido, '0' AS pendiente, s.nombre_estado AS estado, 'PF' AS tipo, m.nombre_metodo
       FROM pagos_a_facturas_ventas p
       INNER JOIN pagos pg ON pg.pago_id = p.pago_id
       INNER JOIN facturas_ventas f ON f.factura_venta_id = p.factura_venta_id
+      INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
       INNER JOIN clientes c ON f.cliente_id = c.cliente_id
       INNER JOIN estados_generales s ON f.estado_id = s.estado_id
     
       UNION ALL
     
       SELECT c.nombre, c.apellidos, pg.pago_id AS id, f.facturarp_id AS orden, pg.fecha AS fecha_factura,
-             pg.recibido AS total, pg.recibido AS recibido, '0' AS pendiente, s.nombre_estado AS estado, 'PR' AS tipo
+             pg.recibido AS total, pg.recibido AS recibido, '0' AS pendiente, s.nombre_estado AS estado, 'PR' AS tipo, m.nombre_metodo
       FROM pagos_a_facturasRP p
       INNER JOIN pagos pg ON pg.pago_id = p.pago_id
       INNER JOIN facturasRP f ON f.facturarp_id = p.facturarp_id
+      INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
       INNER JOIN clientes c ON f.cliente_id = c.cliente_id
       INNER JOIN estados_generales s ON f.estado_id = s.estado_id
     
@@ -141,7 +145,17 @@ if ($_POST['action'] == "index_ventas_hoy") {
         $acciones .= ' title="Eliminar"><i class="fas fa-times"></i></span>';
 
         $data[] = [
-            'id' => $row['tipo'] . '-00' . $row['id'],
+      
+            'id' => '
+        <span>
+            <a href="#">
+                ' . $row['tipo'] . '-00' . $row['id'] . '
+            </a>
+            <span id="toggle" class="toggle-right toggle-md">
+               ' . 'Método: '. $row['nombre_metodo'] . '
+            </span>
+        </span>
+    ',
             'nombre' => ucwords($row['nombre'] . ' ' . $row['apellidos']),
             'fecha' => $row['fecha_factura'],
             'total' => '<span class="text-primary">' . number_format($row['total'], 2) . '</span>',
@@ -228,19 +242,19 @@ if ($_POST['action'] == "servicios_vendidos") {
     exit;
 }
 
-if ($_POST['action'] == "imei_facturado") {
+if ($_POST['action'] == "serial_facturado") {
 
     $db = Database::connect();
 
     $q = $_POST['query'];
 
-    $query = "SELECT f.factura_venta_id, c.nombre ,c.apellidos,v.imei, 
+    $query = "SELECT f.factura_venta_id, c.nombre ,c.apellidos,v.serial, 
             v.costo_unitario, v.fecha as fecha_entrada, f.fecha from variantes v 
             inner join variantes_facturadas vf on v.variante_id = vf.variante_id
             inner join detalle_facturas_ventas d on d.detalle_venta_id = vf.detalle_venta_id
             inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
             inner join clientes c on c.cliente_id = f.cliente_id
-            where v.imei = '$q'";
+            where v.serial = '$q'";
 
     $result = $db->query($query);
 

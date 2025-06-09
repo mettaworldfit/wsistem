@@ -11,7 +11,7 @@ $(document).ready(function() {
             $("#dateq1").attr("required", true)
             $("#dateq2").attr("required", true)
 
-        } else if (this.value == "imei_facturado") {
+        } else if (this.value == "serial_facturado") {
 
             $("#query").attr("required", true)
             $("#col-dateq1").fadeOut(200)
@@ -34,11 +34,9 @@ function Query() {
         PZ(); // Piezas vendidas
     } else if ($('#action').val() == "servicios_vendidos") {
         SV(); // Servicios vendidos
-    } else if ($('#action').val() == "imei_facturado") {
-        IMF() // Imei facturados
+    } else if ($('#action').val() == "serial_facturado") {
+        IMF() // Serial facturados
     }
-
-
 
 }
 

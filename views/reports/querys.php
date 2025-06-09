@@ -23,7 +23,7 @@
                             <option value="productos_vendidos">Cantidad de productos vendidos</option>
                             <option value="piezas_vendidas">Cantidad de piezas vendidas</option>
                             <option value="servicios_vendidos">Cantidad de servicios vendidos</option>
-                            <option value="imei_facturado">Consultar imei vendido</option>
+                            <option value="imei_facturado">Consultar serial vendido</option>
 
                         </select>
                     </div>

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, user-scalable=no, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, user-scalable=si, shrink-to-fit=no">
   <meta name="title" content="Sistema de Control de Inventario">
   <meta name="description"
     content="Obtenga el control de su negocio desde cualquier lugar, vea estadísticas de ventas, stock, etc, “WS SYSTEM” es un Sistema de Ventas Web que te ayudará a obtener todos estos beneficios, desarrollado para tener el control total de un negocio en forma ordenada, sencilla y efectiva, posee los módulos necesarios con diferentes funciones que te permitirá administrar tu negocio." />
