@@ -26,7 +26,7 @@ $sheet->setCellValue('B1', 'Descripción');
 $sheet->setCellValue('C1', 'Total');
 $sheet->setCellValue('D1', 'N° Factura');
 $sheet->setCellValue('E1', 'Estado');
-$sheet->setCellValue('F1', 'Cantidad inventario');
+$sheet->setCellValue('F1', 'Inventario');
 $sheet->setCellValue('G1', 'Fecha');
 
 
@@ -154,7 +154,6 @@ $query = "SELECT * FROM (
 
 $datos = $db->query($query);
 
-
 // Loop
 
 $i = 2;
@@ -184,8 +183,8 @@ $sheet->setCellValue('C' . $i, '=SUM(C2:C' . ($i - 1) . ')');
 // Opcional: Formatear la celda del total en negrita
 $sheet->getStyle('B' . $i . ':C' . $i)->getFont()->setBold(true);
 
-
-
+// Aplicar formato $0,000 a la columna C
+$sheet->getStyle('C2:C' . $i)->getNumberFormat()->setFormatCode('"$"#,##0');
 
 /* Here there will be some code where you create $spreadsheet */
 // redirect output to client browser

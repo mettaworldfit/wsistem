@@ -479,6 +479,7 @@ function addDetailOrdenRepair() {
         successCallback: () => {
             calculateInvoiceTotalRp()
             reloadOrdenRepair()
+             setTimeout(() => location.reload(), 1000);
         },
         errorCallback: (res) => mysql_error(res)
     })

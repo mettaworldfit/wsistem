@@ -10,7 +10,6 @@ $user_id = $_SESSION['identity']->usuario_id ?? null;
 
 try {
   switch ($action) {
-
     // Mostrar index de todos lo proveedores
       case 'index_proveedores':
 

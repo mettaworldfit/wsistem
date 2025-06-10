@@ -27,11 +27,13 @@ $.urlParam = function (name) {
  * @param {string} config.ajaxAction - Acción que se enviará como parte de los datos del request POST.
  * @param {Array} config.columns - Definición de las columnas del DataTable (coincide con el formato requerido por DataTables).
  * @param {number} [config.loadTime=300] - Tiempo en milisegundos para mostrar el spinner antes de iniciar la petición AJAX.
+ * @param {boolean} [config.hideZeroRecordsMessage=false] - Ocultar mensaje "sin registros" cuando no hay datos.
+ * @param {Array<number>} [config.hiddenColumns=[]] - Índices de columnas a ocultar con clase CSS.
+ * @param {Object} [config.ajaxParams={}] - Parámetros extras que se agregarán a la petición AJAX.
  * @param {any} [config.options] - Otras opciones opcionales compatibles con DataTables.
  *
  * @returns {DataTable|null} Instancia de DataTable o null si hay parámetros inválidos.
  */
-
 function initCustomDataTable({
     selector,
     ajaxUrl,
@@ -39,6 +41,7 @@ function initCustomDataTable({
     columns,
     loadTime = 300,
     hideZeroRecordsMessage = false,
+    hiddenColumns = [], // índices a ocultar con clase
     ...options
 }) {
     if (!selector || !ajaxUrl || !ajaxAction || !Array.isArray(columns)) {
@@ -47,6 +50,14 @@ function initCustomDataTable({
     }
 
     const $tbody = () => $(`${selector} tbody`);
+    const $thead = () => $(`${selector} thead`);
+
+    // Aplicar clase 'hide-cell' a los <th> correspondientes
+    $(document).ready(() => {
+        hiddenColumns.forEach(index => {
+            $thead().find("th").eq(index).addClass("hide-cell");
+        });
+    });
 
     return $(selector).DataTable({
         serverSide: true,
@@ -67,7 +78,6 @@ function initCustomDataTable({
             }
         },
         ajax: (data, callback) => {
-            // Mostrar spinner personalizado
             $tbody().html(`
                 <tr>
                     <td colspan="100%">
@@ -96,11 +106,10 @@ function initCustomDataTable({
 
                         callback(json);
 
-                         //  Elimina el tr vacío si no hay datos
                         if (hideZeroRecordsMessage && json.data.length === 0) {
                             setTimeout(() => {
-                                $tbody().empty(); // Elimina todo el contenido del tbody
-                            }, 50); // pequeño delay para esperar que DataTables termine el render
+                                $tbody().empty();
+                            }, 50);
                         }
                     },
                     error: (xhr, status, error) => {
@@ -126,11 +135,14 @@ function initCustomDataTable({
             }, loadTime);
         },
         columns,
+        createdRow: function (row, data, dataIndex) {
+            hiddenColumns.forEach(index => {
+                $(row).find('td').eq(index).addClass('hide-cell');
+            });
+        },
         ...options
     });
 }
-
-
 
 /**
  * Maneja una respuesta JSON de forma segura
@@ -169,8 +181,9 @@ function handleJSONResponse(response) {
  * @param {Object} options.data - Objeto con los datos a enviar en la solicitud.
  * @param {Function} [options.successCallback] - Función a ejecutar si la respuesta es exitosa.
  * @param {Function} [options.errorCallback] - Función a ejecutar si hay un error en la respuesta.
+ * @param {boolean} [options.verbose=false] - Si es true, se activan los logs en consola.
  */
-function sendAjaxRequest({ url, data, successCallback, errorCallback }) {
+function sendAjaxRequest({ url, data, successCallback, errorCallback, verbose = false }) {
     $.ajax({
         type: "post",
         url: SITE_URL + url,
@@ -179,12 +192,17 @@ function sendAjaxRequest({ url, data, successCallback, errorCallback }) {
 
             let data = handleJSONResponse(res);
 
-            console.log("Datos devueltos por el servidor:", data)
+            if (verbose) {
+                console.log("Datos devueltos por el servidor:", data);
+            }
 
             if (Array.isArray(data) || data.success || res === "ready" || res > 0 || (!data.success && res != "duplicate" && !res.includes("Error"))) {
                 // Ejecuta la función successCallback si fue pasada y está definida
                 successCallback?.(res); // Devuelve la response
-                console.log("Respuesta validada existosamente:", res)
+
+                if (verbose) {
+                    console.log("Respuesta validada exitosamente:", res);
+                }
             } else if (res === "duplicate") {
                 mysql_error('Existen datos que ya están siendo utilizado');
             } else if (res.includes("Error")) {
@@ -245,9 +263,9 @@ $(document).ready(function () {
 
             // Variables privadas
             var links = this.el.find(".link");
+
             // Evento
-            links.on(
-                "click", {
+            links.on("click", {
                 el: this.el,
                 multiple: this.multiple,
             },
@@ -267,7 +285,9 @@ $(document).ready(function () {
             }
         };
 
-        var accordion = new Accordion($("#accordion"), false);
+        new Accordion($("#accordion"), false);
+        new Accordion($("#accordion-movil"), false);
+
     });
 
     // Mantener el menu de accordion abierto
@@ -368,15 +388,13 @@ $(document).ready(function () {
             return;
         }
 
-        $.ajax({
-            type: "post",
-            url: SITE_URL + "services/home.php",
+        sendAjaxRequest({
+            url: "services/home.php",
             data: {
                 action: 'buscador',
                 search: q
             },
-            success: function (res) {
-
+            successCallback: (res) => {
                 var data = JSON.parse(res)
 
                 result.innerHTML = '';
@@ -412,10 +430,9 @@ $(document).ready(function () {
 
                     li.appendChild(a);
                     result.appendChild(li);
-                });
+                })
             }
-        });
-
+        })
     });
 
     // Inicializar datos de tablas Datatable
@@ -446,13 +463,13 @@ $(document).ready(function () {
 
     // obtener las columnas de las variantes
     function getVariantTableColumns() {
-    const tipo = $('input[name="tipovariante"]:checked').val();
+        const tipo = $('input[name="tipovariante"]:checked').val();
 
-    const deviceColumns = ['proveedor', 'serial', 'color', 'costo', 'caja', 'entrada', 'acciones'];
-    const productColumns = ['proveedor', 'sabor', 'costo', 'entrada', 'acciones'];
+        const deviceColumns = ['proveedor', 'serial', 'color', 'costo', 'caja', 'entrada', 'acciones'];
+        const productColumns = ['proveedor', 'sabor', 'costo', 'entrada', 'acciones'];
 
-    return tipo === 'dispositivo' ? deviceColumns : productColumns;
-}
+        return tipo === 'dispositivo' ? deviceColumns : productColumns;
+    }
 
     // Configuración de DataTable Server-Side para las tablas
     const tableConfigs = [{
@@ -461,7 +478,8 @@ $(document).ready(function () {
         action: 'index_facturas_ventas',
         columns: [
             'factura_venta_id', 'nombre', 'fecha_factura', 'total', 'recibido', 'pendiente', 'bono', 'nombre_estado', 'acciones'
-        ]
+        ],
+          hiddenColumns: [3, 4, 5, 6]
     },
     {
         id: '#today',
@@ -669,7 +687,8 @@ $(document).ready(function () {
         id: '#detailTemp',
         url: 'services/invoices.php',
         action: 'cargar_detalle_temporal',
-        columns: ['descripcion', 'cantidad', 'precio', 'impuesto', 'descuento', 'total', 'acciones'],
+        columns: ['descripcion', 'cantidad', 'precio', 'impuesto', 'descuento', 'importe', 'acciones'],
+        hiddenColumns: [3],
         paging: false,
         searching: false,
         ordering: false,
@@ -721,7 +740,7 @@ $(document).ready(function () {
 
     // Inicialización automática
     tableConfigs.forEach(config => {
-        const { id, url, action, columns, ...rest } = config;
+        const { id, url, action, columns,hiddenColumns, ...rest } = config;
 
         const columnDefs = columns.map(col =>
             col === 'acciones'
@@ -736,12 +755,10 @@ $(document).ready(function () {
             ajaxUrl: url,
             ajaxAction: action,
             columns: columnDefs,
+            hiddenColumns: hiddenColumns,
             ...rest
         });
     });
 
 
-
 }); // Ready
-
-

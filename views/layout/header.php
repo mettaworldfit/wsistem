@@ -54,9 +54,9 @@
   <!-- Lazy loading -->
   <?php require_once "lazy_load.php"; ?>
 
- <!-- Font-Awesome -->
+  <!-- Font-Awesome -->
 
- <link rel="preload" href="<?= base_url ?>public/font-awesome/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="<?= base_url ?>public/font-awesome/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <script src="<?= base_url ?>public/font-awesome/all.min.js" type="text/javascript"></script>
 
   <!-- Material toast -->
@@ -220,12 +220,7 @@
                   <ul class="submenu">
                     <li class="page"><a href="<?= base_url ?>reports/day">Ventas del día</a></li>
                     <li class="page"><a href="<?= base_url ?>reports/querys">Consultas</a></li>
-
-                    <!-- <li class="page"><a href="<?= base_url ?>reports/month">Ventas del mes</a> </li>
-                <li class="page"><a href="<?= base_url ?>reports/date">Reporte de fecha</a> </li> -->
-                    <li class="page"><a href="<?= base_url ?>reports/spendings">Reporte de gastos</a></li>
                     <li class="page"><a href="<?= base_url ?>reports/pending">Cuentas por cobrar</a> </li>
-
                   </ul>
                 </li>
 

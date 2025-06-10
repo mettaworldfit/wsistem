@@ -13,9 +13,8 @@ $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
 /**
- * Stylos
- -----------------------------------------------------*/
-
+ * Estilos
+ */
 
  $sheet->setTitle("Productos");
 
@@ -24,7 +23,7 @@ $sheet = $spreadsheet->getActiveSheet();
  $sheet->setCellValue('C1', 'Total');
  $sheet->setCellValue('D1', 'N° Factura');
  $sheet->setCellValue('E1', 'Estado');
- $sheet->setCellValue('F1', 'Cantidad inventario');
+ $sheet->setCellValue('F1', 'Inventario');
  $sheet->setCellValue('G1', 'Fecha');
  
  
@@ -175,7 +174,15 @@ $sheet = $spreadsheet->getActiveSheet();
      }
  }
 
+ // Después del último dato, agregamos una fila con la suma total
+$sheet->setCellValue('B' . $i, 'Total general:');
+$sheet->setCellValue('C' . $i, '=SUM(C2:C' . ($i - 1) . ')');
 
+// Opcional: Formatear la celda del total en negrita
+$sheet->getStyle('B' . $i . ':C' . $i)->getFont()->setBold(true);
+
+// Aplicar formato $0,000 a la columna C
+$sheet->getStyle('C2:C' . $i)->getNumberFormat()->setFormatCode('"$"#,##0');
 
 /* Here there will be some code where you create $spreadsheet */
 // redirect output to client browser

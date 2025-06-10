@@ -92,9 +92,9 @@ if ($_POST['action'] == "cargar_detalle_temporal") {
         'descripcion' => Help::loadVariantTemp($row['detalle_temporal_id']),
         'cantidad' => $row['cantidad'],
         'precio' => number_format($row['precio'], 2),
-        'impuesto' => number_format($row['cantidad'] * $row['impuesto'], 2),
+        'impuesto' =>'<span class="hide-cell">' . number_format($row['cantidad'] * $row['impuesto'], 2) . '</span>',
         'descuento' => number_format($row['descuento'], 2),
-        'total' => number_format(
+        'importe' => number_format(
           ($row['cantidad'] * $row['precio']) +
             ($row['cantidad'] * $row['impuesto']) -
             $row['descuento'],

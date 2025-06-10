@@ -1054,9 +1054,9 @@ class Help
     * * Gastos
     *  --------------------------------------------*/
 
-   public static function SHOW_REASONS()
+   public static function loadReasons()
    {
-      $query = "SELECT * FROM motivos ORDER BY descripcion";
+      $query = "SELECT motivo_id,descripcion FROM motivos ORDER BY descripcion";
 
       $db = Database::connect();
       return $db->query($query);

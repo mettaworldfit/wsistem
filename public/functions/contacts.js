@@ -50,6 +50,7 @@ function AddContactModal() {
             $('input[type="text"], input[type="number"]').val('');
             mysql_row_affected();
             setTimeout(() => location.reload(), 900);
+         
         }
     });
 }

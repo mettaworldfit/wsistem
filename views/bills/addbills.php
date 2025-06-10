@@ -4,6 +4,12 @@
             <h1>Nuevo gasto</h1>
         </div>
 
+         <div class="float-right">
+            <a href="#" class="btn-custom btn-default" data-toggle="modal" data-target="#addReason">
+                <i class="fas fa-plus"></i>
+                <p>Agregar motivo</p>
+            </a>
+        </div>
     </div>
 </div>
 
@@ -24,13 +30,10 @@
         <tbody id="rows">
 
         </tbody>
-
-
     </table>
     <br>
 
     <!-- Información -->
-
 
     <div class="row col-sm-12">
         <div class="form-group col-sm-8">
@@ -103,7 +106,7 @@
                                 </div>
                                 <select class="form-custom-icon search" name="" id="reason" required>
                                     <option value="" disabled selected>Seleccionar motivo de gasto</option>
-                                    <?php $reasons = Help::SHOW_REASONS();
+                                    <?php $reasons = Help::loadReasons();
                                     while ($reason = $reasons->fetch_object()): ?>
                                         <option value="<?= $reason->motivo_id ?>"><?= $reason->descripcion ?></option>
                                     <?php endwhile; ?>
@@ -269,6 +272,60 @@
                     </div>
 
                 </form>
+            </div> <!-- Body -->
+        </div>
+    </div>
+</div>
+
+
+<!-- Agregar motivo de gasto -->
+
+<div class="modal fade" id="addReason" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Agregar nuevo motivo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <form action="" onsubmit="event.preventDefault(); addReason();">
+
+                    <div class="form-group col-sm-12">
+                        <p class="title-info">
+                            Crea un nuevo motivo de gasto
+                        </p>
+                    </div>
+
+                    <div class="row col-md-12">
+
+                        <div class="form-group col-sm-12">
+                            <label for="motivo" class="form-check-label label-nomb">Motivo<span
+                                    class="text-danger">*</span></label>
+                            <input class="form-custom" type="text" name="motivo" id="newReason" required>
+                        </div>
+
+
+                    </div> <!-- Row col-md-12 -->
+
+
+                    <div class="mt-4 modal-footer">
+                        <button type="button" class="btn-custom btn-red" data-dismiss="modal">
+                            <i class="fas fa-window-close"></i>
+                            <p>Salir</p>
+                        </button>
+
+                        <button type="submit" href="#" class="btn-custom btn-green">
+                            <i class="fas fa-plus"></i>
+                            <p>Registrar</p>
+                        </button>
+                    </div>
+
+                </form>
+
             </div> <!-- Body -->
         </div>
     </div>

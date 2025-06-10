@@ -144,7 +144,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group col-sm-4 product">
+                        <div class="form-group col-sm-3 product">
                             <label class="form-check-label" for="">Código</label>
                             <div class="input-div">
                                 <div class="i">
@@ -172,7 +172,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group col-sm-5 product">
+                        <div class="form-group col-sm-6 product">
                             <label class="form-check-label" for="">Productos</label>
                             <div class="input-div">
                                 <div class="i">

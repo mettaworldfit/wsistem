@@ -13,8 +13,6 @@
     </div>
 </div>
 
-
-
 <div class="generalContainer">
     <table id="invoices" class="table-custom table">
         <thead>

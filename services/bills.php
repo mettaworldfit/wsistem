@@ -608,3 +608,17 @@ if ($_POST['action'] == "actualizar_factura") {
     echo "Error : " . $data->msg;
   }
 }
+
+// Agregar nuevo motivo
+
+if ($_POST['action'] == "agregar_motivo") {
+$db = Database::connect();
+
+$params = [
+(int)$_SESSION['identity']->usuario_id,
+$_POST['description']
+];
+
+echo handleProcedureAction($db,'g_agregar_motivo',$params);
+  
+}

@@ -1432,3 +1432,21 @@ function cancel_detail() {
     clctotal(ArrayLists); // Calcular precios
     $("#rows").load(location.href + " #rows"); // actualizar detalle
 }
+
+// Crear motivo de gastos
+
+function addReason() {
+    sendAjaxRequest({
+        url: "services/bills.php",
+        data: {
+            description: $("#newReason").val(),
+            action: "agregar_motivo",
+        },
+        successCallback: () => {
+            mysql_row_affected()
+            setTimeout(() => location.reload(), 900);
+        },
+        errorCallback: (res) => mysql_error(res),
+        verbose: true
+    })
+}
