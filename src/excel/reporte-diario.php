@@ -130,7 +130,14 @@ while ($r = $res->fetch_object()) {
     $total = ($cantidad * $precio - $descuento) + $recibido;
 
     $sheet->fromArray([
-        $r->descripcion, $cantidad, $precio, $descuento, $recibido, $r->factura, $r->estado, $total
+        $r->descripcion,
+        $cantidad,
+        $precio,
+        $descuento,
+        $recibido,
+        $r->factura,
+        $r->estado,
+        $total
     ], null, "A$row");
     $row++;
 }
@@ -163,19 +170,32 @@ foreach ($gastoHeaders as $header) {
 $row++;
 
 // ===== Datos Gastos =====
-$queryGastos = "
-SELECT * FROM (
-    SELECT concat('G-00', g.orden_id) AS factura, m.descripcion AS descripcion, p.nombre_proveedor AS cliente_proveedor, dg.cantidad, dg.precio, '0' as descuento, g.fecha
+$queryGastos = "SELECT factura,descripcion,cliente_proveedor,cantidad,precio,descuento,fecha FROM (
+    SELECT 
+        CONCAT('G-00', g.orden_id) AS factura,
+        m.descripcion AS descripcion,
+        p.nombre_proveedor AS cliente_proveedor,
+        dg.cantidad,
+        dg.precio,
+        '0' AS descuento,
+        g.fecha
     FROM gastos g
     INNER JOIN ordenes_gastos og ON g.orden_id = og.orden_id
     INNER JOIN detalle_gasto dg ON og.orden_id = dg.orden_id
     INNER JOIN motivos m ON dg.motivo_id = m.motivo_id
     INNER JOIN proveedores p ON p.proveedor_id = g.proveedor_id
-    WHERE g.fecha = curdate()
+    WHERE g.fecha = CURDATE()
 
     UNION ALL
 
-    SELECT concat('OC-00', oc.orden_id), COALESCE(prod.nombre_producto, piez.nombre_pieza), prov.nombre_proveedor, dc.cantidad, dc.precio,dc.descuentos,oc.fecha
+    SELECT 
+        CONCAT('OC-00', oc.orden_id),
+        COALESCE(prod.nombre_producto, piez.nombre_pieza),
+        prov.nombre_proveedor,
+        dc.cantidad,
+        dc.precio,
+        dc.descuentos,
+        oc.fecha
     FROM detalle_compra dc
     INNER JOIN ordenes_compras oc ON dc.orden_id = oc.orden_id
     INNER JOIN proveedores prov ON oc.proveedor_id = prov.proveedor_id
@@ -183,8 +203,8 @@ SELECT * FROM (
     LEFT JOIN productos prod ON dcp.producto_id = prod.producto_id
     LEFT JOIN detalle_compra_con_piezas dcz ON dc.detalle_compra_id = dcz.detalle_compra_id
     LEFT JOIN piezas piez ON dcz.pieza_id = piez.pieza_id
-    WHERE oc.fecha = curdate() AND oc.estado_id = '12'
-) gastos;";
+    WHERE oc.fecha = CURDATE() AND oc.estado_id = '12'
+) AS gastos;";
 
 $res = $db->query($queryGastos);
 $startGastosRow = $row;
@@ -227,7 +247,7 @@ $sheet->getStyle("H$startGastosRow:H$endGastosRow")->getNumberFormat()->setForma
 
 // ===== Salida Excel =====
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment;filename="Reporte-'.date("Y-m-d").'.xlsx"');
+header('Content-Disposition: attachment;filename="Reporte-' . date("Y-m-d") . '.xlsx"');
 header('Cache-Control: max-age=0');
 $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
 $writer->save('php://output');

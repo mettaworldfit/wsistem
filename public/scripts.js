@@ -564,7 +564,7 @@ $(document).ready(function () {
         columns: [
             'id', 'proveedor', 'fecha', 'total', 'pagado', 'por_pagar', 'estado', 'acciones'
         ],
-        hiddenColumns: [0,4,6]
+        hiddenColumns: [0,]
     },
     {
         id: '#bills',
