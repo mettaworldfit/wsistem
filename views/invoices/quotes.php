@@ -22,7 +22,7 @@
                 <th>N°</th>
                 <th>Cliente</th>
                 <th>Fecha</th>
-                <th>Total</th>
+                <th class="hide-cell">Total</th>
                 <th>Acciones</th>
             </tr>
         </thead>

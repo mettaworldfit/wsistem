@@ -527,7 +527,8 @@ $(document).ready(function () {
         action: 'index_facturas_reparacion',
         columns: [
             'id', 'nombre', 'fecha', 'total', 'recibido', 'pendiente', 'estado', 'acciones'
-        ]
+        ],
+        hiddenColumns: [3,4,5]
     },
     {
         id: '#quotes',
@@ -535,7 +536,8 @@ $(document).ready(function () {
         action: 'index_cotizaciones',
         columns: [
             'id', 'nombre', 'fecha', 'total', 'acciones'
-        ]
+        ],
+        hiddenColumns: [3]
     },
     {
         id: '#payments',
@@ -543,7 +545,8 @@ $(document).ready(function () {
         action: 'index_pagos_facturas_ventas',
         columns: [
             'pago_id', 'factura_id', 'nombre', 'recibido', 'observacion', 'fecha', 'acciones'
-        ]
+        ],
+        hiddenColumns: [0,4,5]
     },
     {
         id: '#ordersc',
@@ -551,7 +554,8 @@ $(document).ready(function () {
         action: 'index_ordenes_compras',
         columns: [
             'orden_id', 'proveedor', 'articulos', 'fecha', 'expiracion', 'estado', 'acciones'
-        ]
+        ],
+        hiddenColumns: [2,4,5]
     },
     {
         id: '#invoicesp',
@@ -559,7 +563,8 @@ $(document).ready(function () {
         action: 'index_facturas_proveedores',
         columns: [
             'id', 'proveedor', 'fecha', 'total', 'pagado', 'por_pagar', 'estado', 'acciones'
-        ]
+        ],
+        hiddenColumns: [0,4,6]
     },
     {
         id: '#bills',
@@ -567,7 +572,8 @@ $(document).ready(function () {
         action: 'index_gastos',
         columns: [
             'id', 'proveedor', 'gastos', 'fecha', 'total', 'pagado', 'acciones'
-        ]
+        ],
+        hiddenColumns: [1,5]
     },
     {
         id: '#payments_providers',
@@ -699,6 +705,7 @@ $(document).ready(function () {
         url: 'services/invoices.php',
         action: 'cargar_detalle_facturas',
         columns: ['descripcion', 'cantidad', 'precio', 'impuesto', 'descuento', 'total', 'acciones'],
+        hiddenColumns: [3],
         paging: false,
         searching: false,
         ordering: false,

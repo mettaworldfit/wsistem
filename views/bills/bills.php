@@ -18,12 +18,12 @@
         <thead>
             <tr>
                 <th>N°</th>
-                <th>Proveedor</th>
+                <th class="hide-cell">Proveedor</th>
                 <th>Gastos</th>
                 <th>Fecha</th>
                 <th>Total</th>
                 <th class="hide-cell">Pagado</th>
-                <th class="hide-cell">Acciones</th>
+                <th>Acciones</th>
             </tr>
         </thead>
 

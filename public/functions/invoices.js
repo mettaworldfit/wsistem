@@ -797,19 +797,6 @@ $(document).ready(function () {
     })
 
 
-
-    /**
-     * ! Reporte de ventas filtrado por fecha 
-     */
-
-    $('#date_query').change((e) => {
-        e.preventDefault()
-
-        $(location).attr('href', SITE_URL + 'src/excel/detalle-ventas-dia.php?date=' + $('#date_query').val());
-
-    })
-
-
     // Auto cargar detalle cotizacion desde LocalStorage
 
     if (pageURL.includes("invoices/quote")) {
@@ -843,7 +830,7 @@ $(document).ready(function () {
                      <td>${element.description}</td>
                      <td>${element.quantity}</td>
                      <td>${price}</td>
-                     <td>${0} - ${0}%</td>
+                     <td class="hide-cell">${0} - ${0}%</td>
                      <td>${element.discount}</td>
                      <td>${format.format(total)}</td>
                      <td>
@@ -1176,7 +1163,7 @@ function ShowDB() {
              <td>${element.description}</td>
              <td>${element.quantity}</td>
              <td>${price}</td>
-             <td>${0} - ${0}%</td>
+             <td class="hide-cell">${0} - ${0}%</td>
              <td>${element.discount}</td>
              <td>${format.format(total)}</td>
              <td>

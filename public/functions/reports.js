@@ -21,6 +21,17 @@ $(document).ready(function() {
 
     });
 
+      /**
+     * ! Reporte de ventas filtrado por fecha 
+     */
+
+    $('#date_query').change((e) => {
+        e.preventDefault()
+
+        $(location).attr('href', SITE_URL + 'src/excel/reporte-fecha.php?date=' + $('#date_query').val());
+
+    })
+
 
 
 }); // Ready

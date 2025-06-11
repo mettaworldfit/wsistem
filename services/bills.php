@@ -11,66 +11,65 @@ if ($_POST['action'] == "index_gastos") {
   $db = Database::connect();
 
   handleDataTableRequest($db, [
-      'columns' => [
-          'g.gasto_id',
-          'p.nombre_proveedor',
-          'p.apellidos',
-          'g.total',
-          'g.pagado',
-          'g.orden_id',
-          'g.fecha'
-      ],
-      'searchable' => [
-          'p.nombre_proveedor',
-          'p.apellidos',
-          'g.total',
-          'g.pagado',
-          'g.fecha'
-      ],
-      'base_table' => 'gastos',
-      'table_with_joins' => 'gastos g 
+    'columns' => [
+      'g.gasto_id',
+      'p.nombre_proveedor',
+      'p.apellidos',
+      'g.total',
+      'g.pagado',
+      'g.orden_id',
+      'g.fecha'
+    ],
+    'searchable' => [
+      'p.nombre_proveedor',
+      'p.apellidos',
+      'g.total',
+      'g.pagado',
+      'g.fecha'
+    ],
+    'base_table' => 'gastos',
+    'table_with_joins' => 'gastos g 
           INNER JOIN proveedores p ON p.proveedor_id = g.proveedor_id 
           INNER JOIN usuarios u ON u.usuario_id = g.usuario_id',
-      'select' => 'SELECT g.gasto_id, p.nombre_proveedor, g.total, g.pagado, g.orden_id, g.fecha, p.apellidos',
-      'table_rows' => function ($element) {
-          return [
-              'id'    => 'G-00' . $element['gasto_id'],
-              'proveedor' => ucwords($element['nombre_proveedor']. ' ' . $element['apellidos']),
-              'gastos'    => Help::SHOW_SPENDINGS($element['orden_id']),
-              'fecha'     => $element['fecha'],
-              'total'     => '<span class="text-primary">' . number_format($element['total'], 2) . '</span>',
-              'pagado'    => '<span class="text-success">' . number_format($element['pagado'], 2) . '</span>',
-              'acciones'  => '<span class="action-delete" style="font-size:16px;" onclick="deleteSpending(\'' 
-                              . $element['orden_id'] . '\')"><i class="fas fa-times"></i></span>'
-          ];
-        }
+    'select' => 'SELECT g.gasto_id, p.nombre_proveedor, g.total, g.pagado, g.orden_id, g.fecha, p.apellidos',
+    'table_rows' => function ($element) {
+      return [
+        'id'    => 'G-00' . $element['gasto_id'],
+        'proveedor' => '<span class="hide-cell">' . ucwords($element['nombre_proveedor'] . ' ' . $element['apellidos']) . '</span>',
+        'gastos'    => Help::loadSpendingsById($element['orden_id']),
+        'fecha'     => $element['fecha'],
+        'total'     => '<span class="text-primary">' . number_format($element['total'], 2) . '</span>',
+        'pagado'    => '<span class="text-success hide-cell">' . number_format($element['pagado'], 2) . '</span>',
+        'acciones'  => '<span class="action-delete" style="font-size:16px;" onclick="deleteSpending(\''
+          . $element['orden_id'] . '\')"><i class="fas fa-times"></i></span>'
+      ];
+    }
 
   ]);
-
 }
 
 
-if ($_POST['action'] == "index_facturas_proveedores") { 
+if ($_POST['action'] == "index_facturas_proveedores") {
   $db = Database::connect();
 
-    handleDataTableRequest($db,[
-      'columns' => [
-        'f.factura_proveedor_id',
-        'f.fecha',
-        'f.total',
-        'f.pagado',
-        'f.por_pagar',
-        'p.nombre_proveedor',
-        'p.apellidos',
-        'e.nombre_estado',
-        'f.orden_id'
+  handleDataTableRequest($db, [
+    'columns' => [
+      'f.factura_proveedor_id',
+      'f.fecha',
+      'f.total',
+      'f.pagado',
+      'f.por_pagar',
+      'p.nombre_proveedor',
+      'p.apellidos',
+      'e.nombre_estado',
+      'f.orden_id'
     ],
     'searchable' => [
-        'f.factura_proveedor_id',
-        'p.nombre_proveedor',
-        'p.apellidos',
-        'f.fecha',
-        'e.nombre_estado'
+      'f.factura_proveedor_id',
+      'p.nombre_proveedor',
+      'p.apellidos',
+      'f.fecha',
+      'e.nombre_estado'
     ],
     'base_table' => 'facturas_proveedores',
     'table_with_joins' => 'facturas_proveedores f
@@ -78,71 +77,70 @@ if ($_POST['action'] == "index_facturas_proveedores") {
         INNER JOIN proveedores p ON p.proveedor_id = f.proveedor_id',
     'select' => 'SELECT f.factura_proveedor_id, f.fecha, f.total, f.pagado, f.por_pagar, p.apellidos, p.nombre_proveedor, e.nombre_estado, f.orden_id',
     'table_rows' => function ($row) {
-    return [
-        'id'     => 'FP-00' . $row['factura_proveedor_id'],
+      return [
+        'id'     =>  '<span class="hide-cell">'.'FP-00' . $row['factura_proveedor_id']. '</span>',
         'proveedor'  => ucwords($row['nombre_proveedor'] . ' ' . $row['apellidos']),
         'fecha'      => $row['fecha'],
         'total'      => '<span class="text-primary">' . number_format($row['total'], 2) . '</span>',
-        'pagado'     => '<span class="text-success">' . number_format($row['pagado'], 2) . '</span>',
+        'pagado'     => '<span class="hide-cell text-success">' . number_format($row['pagado'], 2) . '</span>',
         'por_pagar'  => '<span class="text-danger">' . number_format($row['por_pagar'], 2) . '</span>',
-        'estado'     => '<p class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</p>',
-        'acciones'   => '<span style="font-size: 16px;" onclick="deleteInvoiceFP(\'' 
-                        . $row['factura_proveedor_id'] . '\', \'' . $row['orden_id'] . '\')" class="action-delete">
+        'estado'     => '<p class="hide-cell ' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</p>',
+        'acciones'   => '<span style="font-size: 16px;" onclick="deleteInvoiceFP(\''
+          . $row['factura_proveedor_id'] . '\', \'' . $row['orden_id'] . '\')" class="action-delete">
                             <i class="fas fa-times"></i>
                         </span>'
-    ];
+      ];
+    }
+
+  ]);
 }
 
-   ]);
-}
-
-if ($_POST['action'] == "index_ordenes_compras") { 
+if ($_POST['action'] == "index_ordenes_compras") {
 
   $db = Database::connect();
 
-  handleDataTableRequest($db,[
+  handleDataTableRequest($db, [
     'columns' => [
-            'o.orden_id',
-            'p.nombre_proveedor',
-            'o.fecha',
-            'o.expiracion',
-            'e.nombre_estado'
-        ],
-        'searchable' => [
-            'p.nombre_proveedor',
-            'o.fecha',
-            'o.expiracion',
-            'e.nombre_estado'
-        ],
+      'o.orden_id',
+      'p.nombre_proveedor',
+      'o.fecha',
+      'o.expiracion',
+      'e.nombre_estado'
+    ],
+    'searchable' => [
+      'p.nombre_proveedor',
+      'o.fecha',
+      'o.expiracion',
+      'e.nombre_estado'
+    ],
     'base_table' => 'ordenes_compras',
     'table_with_joins' => 'ordenes_compras o 
         INNER JOIN estados_generales e ON e.estado_id = o.estado_id
         INNER JOIN proveedores p ON p.proveedor_id = o.proveedor_id',
     'select' => 'SELECT o.orden_id,p.nombre_proveedor,o.fecha,o.expiracion,e.nombre_estado',
     'table_rows' => function ($element) {
-    $orden_id = $element['orden_id'];
-    $estado = $element['nombre_estado'];
-    $disabled = $estado === 'Facturado' ? 'action-disable' : '';
-    $edit_href = $estado !== 'Facturado' ? base_url . 'expenses/edit_order&id=' . $orden_id : '#';
+      $orden_id = $element['orden_id'];
+      $estado = $element['nombre_estado'];
+      $disabled = $estado === 'Facturado' ? 'action-disable' : '';
+      $edit_href = $estado !== 'Facturado' ? base_url . 'expenses/edit_order&id=' . $orden_id : '#';
 
-    return [
+      return [
         'orden_id'     => 'OC-00' . $orden_id,
         'proveedor'  => ucwords($element['nombre_proveedor']),
-        'articulos'      => Help::LIST_ORDERS($orden_id),
-        'fecha'      => $element['fecha'],
-        'expiracion' => $element['expiracion'],
-        'estado'     => '<input type="text" class="form-custom ' . ($estado == 'Pendiente' ? 'Pendiente' : 'Listo') . '" value="' . $estado . '" disabled>',
+        'articulos'  => '<span class="hide-cell">' . Help::loadListOrdersById($orden_id) . '</span>',
+        'fecha'      => '<span class="text-success">' . $element['fecha'] . '</span>',
+        'expiracion' => '<span class="hide-cell text-danger">' . $element['expiracion'] . '</span>',
+        'estado'     => '<input type="text" class="hide-cell form-custom ' . ($estado == 'Pendiente' ? 'Pendiente' : 'Listo') . '" value="' . $estado . '" disabled>',
         'acciones'   => '<a class="action-edit ' . $disabled . '" href="' . $edit_href . '">
                             <i class="fas fa-pencil-alt"></i>
                          </a>
                          <span style="font-size:16px;" ' .
-                         ($estado != 'Facturado' ? 'onclick="deleteOrderC(\'' . $orden_id . '\')"' : '') .
-                         ' class="action-delete ' . $disabled . '"><i class="fas fa-times"></i></span>'
-    ];
-}
+          ($estado != 'Facturado' ? 'onclick="deleteOrderC(\'' . $orden_id . '\')"' : '') .
+          ' class="action-delete ' . $disabled . '"><i class="fas fa-times"></i></span>'
+      ];
+    }
 
- ]);
-
+  ]);
 }
 
 // Calcular detalle de orden de compra
@@ -158,8 +156,7 @@ if ($_POST['action'] == "total_orden_compra") {
   $result = $db->query($query);
   $data = $result->fetch_object();
 
-  echo json_encode($data,JSON_UNESCAPED_UNICODE);
- 
+  echo json_encode($data, JSON_UNESCAPED_UNICODE);
 }
 
 // Crear orden de compra
@@ -171,7 +168,7 @@ if ($_POST['action'] == "crear_orden_compra") {
   $user_id = $_SESSION['identity']->usuario_id;
   $status_id = 6;
   $date = $_POST['date'];
-  $expiration = (!empty($_POST['expiration'])) ? $_POST['expiration'] : date("Y-m-d",strtotime($fecha_actual."+ 1 month"));
+  $expiration = (!empty($_POST['expiration'])) ? $_POST['expiration'] : date("Y-m-d", strtotime($fecha_actual . "+ 1 month"));
   $provider = $_POST['provider'];
   $observation = $_POST['observation'];
 
@@ -214,7 +211,7 @@ if ($_POST['action'] == "agregar_detalle_orden_de_compra") {
   if ($data->msg == "ready") {
 
     echo $data->msg;
-   }else if (str_contains($data->msg, 'Duplicate')) {
+  } else if (str_contains($data->msg, 'Duplicate')) {
 
     echo "duplicate";
   } else if (str_contains($data->msg, 'SQL')) {
@@ -286,38 +283,31 @@ if ($_POST['action'] == "agregar_orden_a_factura") {
 
   // Cuerpo 
   while ($element = $datos->fetch_object()) {
-
     $total = $element->cant * $element->precio;
     $importe = $total + $element->impuestos - $element->descuentos;
 
-    $item = '';
+    $item = $element->nombre_producto ?: ($element->nombre_pieza ?: '');
 
-    if($element->nombre_producto) {
-      $item = $element->nombre_producto;
-    } else if ($element->nombre_pieza){
-      $item = $element->nombre_pieza;
-    }
-
-    $html = '
+    $html .= '
       <tr>
-      <td>' . $item . '</td>
-      <td>' . $element->cant . '</td>
-      <td>' . number_format($element->precio, 2) . '</td>
-      <td>' . number_format($element->impuestos, 2) . '</td>
-      <td>' . number_format($element->descuentos, 2) . '</td>
-      <td class="note-width">' . $element->observacion . '</td>
-      <td>' . number_format($importe, 2) . '</td>
-      <td>' . '<span style="font-size: 16px;" onclick="deleteDetailOrderC(' . $element->id . ')" class="action-delete"><i class="fas fa-times"></i></span>' . '</td>
+        <td>' . htmlspecialchars($item) . '</td>
+        <td>' . $element->cant . '</td>
+        <td>' . number_format($element->precio, 2) . '</td>
+        <td class="hide-cell">' . number_format($element->impuestos, 2) . '</td>
+        <td>' . number_format($element->descuentos, 2) . '</td>
+        <td class="note-width hide-cell">' . htmlspecialchars($element->observacion) . '</td>
+        <td>' . number_format($importe, 2) . '</td>
+        <td><span style="font-size: 16px;" onclick="deleteDetailOrderC(' . $element->id . ')" class="action-delete"><i class="fas fa-times"></i></span></td>
       </tr>
-      ';
-    echo $html;
+    ';
   }
 
+  echo $html;
 }
 
 // Calcular el total de la factura
 
-if ($_POST['action'] == "calc_factura") {
+if ($_POST['action'] == "calcular_factura") {
 
   $id = $_POST['id'];
   $db = Database::connect();
@@ -329,10 +319,7 @@ if ($_POST['action'] == "calc_factura") {
     INNER JOIN proveedores p ON p.proveedor_id = o.proveedor_id
     WHERE d.orden_id = '$id'";
 
-  $datos = $db->query($query);
-  $result = $datos->fetch_assoc();
-
-  echo json_encode($result, JSON_UNESCAPED_UNICODE);
+  jsonQueryResult($db,$query);
 }
 
 
@@ -392,17 +379,17 @@ if ($_POST['action'] == "factura_contado") {
   $date = $_POST['date'];
 
   $db = Database::connect();
-  
+
   $query = "CALL or_facturaCompra($provider_id,$orden_id,$method,'$total',$user_id,'$date','$observation')";
   $result = $db->query($query);
   $data = $result->fetch_object();
 
   if ($data->msg > 0) {
 
-      echo $data->msg;
+    echo $data->msg;
   } else if (str_contains($data->msg, 'SQL')) {
 
-      echo "Error : " . $data->msg;
+    echo "Error : " . $data->msg;
   }
 }
 
@@ -429,10 +416,10 @@ if ($_POST['action'] == "factura_credito") {
 
   if ($data->msg > 0) {
 
-      echo $data->msg;
+    echo $data->msg;
   } else if (str_contains($data->msg, 'SQL')) {
 
-      echo "Error : " . $data->msg;
+    echo "Error : " . $data->msg;
   }
 }
 
@@ -468,17 +455,17 @@ if ($_POST['action'] == "crear_orden_gasto") {
   $date = $_POST['date'];
 
   $db = Database::connect();
-  
+
   $query = "CALL or_ordenGasto($provider_id,$user_id,'$date')";
   $result = $db->query($query);
   $data = $result->fetch_object();
 
   if ($data->msg > 0) {
 
-      echo $data->msg;
+    echo $data->msg;
   } else if (str_contains($data->msg, 'SQL')) {
 
-      echo "Error : " . $data->msg;
+    echo "Error : " . $data->msg;
   }
 }
 
@@ -495,17 +482,17 @@ if ($_POST['action'] == "detalle_gasto") {
   $user_id = $_SESSION['identity']->usuario_id;
 
   $db = Database::connect();
-  
+
   $query = "CALL or_detalleGasto($reason_id,$order_id,$quantity,$value,'$taxes',$user_id,'$observation')";
   $result = $db->query($query);
   $data = $result->fetch_object();
 
   if ($data->msg == "ready") {
 
-      echo "ready";
+    echo "ready";
   } else if (str_contains($data->msg, 'SQL')) {
 
-      echo "Error : " . $data->msg;
+    echo "Error : " . $data->msg;
   }
 }
 
@@ -522,17 +509,17 @@ if ($_POST['action'] == "registrar_gasto") {
   $date = $_POST['date'];
 
   $db = Database::connect();
-  
+
   $query = "CALL or_registrarGasto($provider_id,$order_id,'$total',$user_id,'$observation','$date')";
   $result = $db->query($query);
   $data = $result->fetch_object();
 
   if ($data->msg == "ready") {
 
-      echo "ready";
+    echo "ready";
   } else if (str_contains($data->msg, 'SQL')) {
 
-      echo "Error : " . $data->msg;
+    echo "Error : " . $data->msg;
   }
 }
 
@@ -612,13 +599,12 @@ if ($_POST['action'] == "actualizar_factura") {
 // Agregar nuevo motivo
 
 if ($_POST['action'] == "agregar_motivo") {
-$db = Database::connect();
+  $db = Database::connect();
 
-$params = [
-(int)$_SESSION['identity']->usuario_id,
-$_POST['description']
-];
+  $params = [
+    (int)$_SESSION['identity']->usuario_id,
+    $_POST['description']
+  ];
 
-echo handleProcedureAction($db,'g_agregar_motivo',$params);
-  
+  echo handleProcedureAction($db, 'g_agregar_motivo', $params);
 }

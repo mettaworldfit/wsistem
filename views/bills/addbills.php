@@ -21,8 +21,8 @@
             <th>Descripción</th>
             <th>Cant</th>
             <th>Precio</th>
-            <th>Impuestos</th>
-            <th>Observación</th>
+            <th class="hide-cell">Impuestos</th>
+            <th class="hide-cell">Observación</th>
             <th>Importe</th>
             <th></th>
         </thead>
@@ -197,7 +197,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); SaveBills();">
+                <form action="" onsubmit="event.preventDefault(); saveBills();">
 
                     <!-- Head -->
 
@@ -230,7 +230,7 @@
                                     <option value="" selected disabled>Buscar proveedores</option>
                                     <?php $providers = Help::showProviders();
                                     while ($provider = $providers->fetch_object()): ?>
-                                        <option value="<?= $provider->proveedor_id ?>"><?= ucwords($provider->nombre_proveedor)." ".ucwords($provider->apellidos) ?></option>
+                                        <option value="<?= $provider->proveedor_id ?>"><?= ucwords($provider->nombre_proveedor)." ".ucwords($provider->apellidos ?? '') ?></option>
                                     <?php endwhile; ?>
                                 </select>
                             </div>

@@ -15,9 +15,9 @@
             <th>Descripción</th>
             <th>Cant</th>
             <th>Precio</th>
-            <th>Impuestos</th>
+            <th class="hide-cell">Impuestos</th>
             <th>Descuentos</th>
-            <th>Observación</th>
+            <th class="hide-cell">Observación</th>
             <th>Importe</th>
             <th></th>
         </thead>
@@ -109,10 +109,10 @@
                                 <i class="fas fa-list"></i>
                             </div>
                             <select class="form-custom-icon search" name="" id="order">
-                                <option value="" disabled selected>Buscar orden</option>
-                                <?php $orders = Help::SHOW_ORDERS();
+                                <option value="" disabled selected>Buscar orden de compra</option>
+                                <?php $orders = Help::loadOrders();
                                 while ($order = $orders->fetch_object()): ?>
-                                    <option value="<?= $order->orden_id ?>">OC-00<?= $order->orden_id ?></option>
+                                    <option value="<?= $order->orden_id ?>">OC-00<?= $order->orden_id." ".ucwords($order->nombre_proveedor)." ".ucwords($order->apellidos ?? "") ?> </option>
                                 <?php endwhile; ?>
                             </select>
                         </div>

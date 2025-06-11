@@ -982,9 +982,10 @@ class Help
 
    // Función para mostrar las ordenes de compras que no esten facturadas
 
-   public static function SHOW_ORDERS()
+   public static function loadOrders()
    {
-      $query = "SELECT * FROM ordenes_compras o 
+      $query = "SELECT o.orden_id,p.nombre_proveedor,p.apellidos FROM ordenes_compras o 
+            INNER JOIN proveedores p on o.proveedor_id = p.proveedor_id
             INNER JOIN estados_generales e ON e.estado_id = o.estado_id 
             WHERE nombre_estado = 'Pendiente' OR nombre_estado = 'Entregado'";
 
@@ -1022,7 +1023,7 @@ class Help
 
    // Función para mostrar los pedidos de las ordenes de compras
 
-   public static function LIST_ORDERS($id)
+   public static function loadListOrdersById($id)
    {
       $query = "SELECT p.nombre_producto, pz.nombre_pieza FROM ordenes_compras o 
                INNER JOIN detalle_compra d ON d.orden_id = o.orden_id
@@ -1065,9 +1066,9 @@ class Help
    /**
     * TODO: Función para mostrar los motivos de un gasto */
 
-   public static function SHOW_SPENDINGS($id)
+   public static function loadSpendingsById($id)
    {
-      $query = "SELECT m.descripcion as descripcion FROM ordenes_gastos o 
+      $query = "SELECT m.descripcion FROM ordenes_gastos o 
       INNER JOIN detalle_gasto d ON d.orden_id = o.orden_id
       INNER JOIN motivos m ON m.motivo_id = d.motivo_id
       WHERE o.orden_id = '$id'";

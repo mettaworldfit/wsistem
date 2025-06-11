@@ -1,58 +1,58 @@
-$(document).ready(function() {
+$(document).ready(function () {
 
-        // Defaults 
-        $("#credit-in-finish-or-receipt").hide()
-        $("#credit-in-finish-or").hide()
-        $("#cash-in-finish-or-receipt").hide()
-        $("#cash-in-finish-or").hide()
-        $('#cash-received').val('0.00')
-        $('#cash-topay').val('0.00')
-        $('#g_quantity').val('1')
-        $('#save_spend').hide();
+    // Defaults 
+    $("#credit-in-finish-or-receipt").hide()
+    $("#credit-in-finish-or").hide()
+    $("#cash-in-finish-or-receipt").hide()
+    $("#cash-in-finish-or").hide()
+    $('#cash-received').val('0.00')
+    $('#cash-topay').val('0.00')
+    $('#g_quantity').val('1')
+    $('#save_spend').hide();
 
 
-        // Auto cargar detalle del LocalStorage
+    // Auto cargar detalle del LocalStorage
 
-        if (pageURL.includes("bills/addbills")) {
+    if (pageURL.includes("bills/addbills")) {
 
-            $(function() {
+        $(function () {
 
-                // Verificar
-                if (localStorage.getItem("detalle_gasto")) {
-                    SpendingLocalStorage = JSON.parse(localStorage.getItem("detalle_gasto"));
+            // Verificar
+            if (localStorage.getItem("detalle_gasto")) {
+                SpendingLocalStorage = JSON.parse(localStorage.getItem("detalle_gasto"));
 
-                    // Loop del detalle en localStorage 
-                    SpendingLocalStorage.forEach((element, index) => {
+                // Loop del detalle en localStorage 
+                SpendingLocalStorage.forEach((element, index) => {
 
-                        let data = {
-                            reason_id: element.reason_id,
-                            name: element.name,
-                            quantity: element.quantity,
-                            taxes: element.taxes,
-                            tax_value: element.tax_value,
-                            value: element.value,
-                            observation: element.observation,
-                            total_price: element.total_price
-                        }
+                    let data = {
+                        reason_id: element.reason_id,
+                        name: element.name,
+                        quantity: element.quantity,
+                        taxes: element.taxes,
+                        tax_value: element.tax_value,
+                        value: element.value,
+                        observation: element.observation,
+                        total_price: element.total_price
+                    }
 
-                        ArrayBills.push(data); // Guardar de localStorage a ArrayBills
+                    ArrayBills.push(data); // Guardar de localStorage a ArrayBills
 
-                        CalcBills(ArrayBills);
+                    CalcBills(ArrayBills);
 
-                        let taxes;
-                        let tax_value;
-                        if (element.taxes > 0) {
-                            taxes = format.format(element.taxes)
-                            tax_value = element.tax_value;
-                        } else {
-                            taxes = 0;
-                            tax_value = 0;
-                        }
+                    let taxes;
+                    let tax_value;
+                    if (element.taxes > 0) {
+                        taxes = format.format(element.taxes)
+                        tax_value = element.tax_value;
+                    } else {
+                        taxes = 0;
+                        tax_value = 0;
+                    }
 
-                        var value = format.format(element.value);
+                    var value = format.format(element.value);
 
-                        // Insertar detalle
-                        document.querySelector('#rows').innerHTML += `
+                    // Insertar detalle
+                    document.querySelector('#rows').innerHTML += `
                      <tr>
                          <td>${element.name}</td>
                          <td>${element.quantity}</td>
@@ -66,420 +66,420 @@ $(document).ready(function() {
                      </tr>
                      `;
 
-                    });
-                }
-            })
-        }
+                });
+            }
+        })
+    }
 
-        // Borrar todos los gastos del localstorage 
+    // Borrar todos los gastos del localstorage 
 
-        $('#CancelBill').on('click', (e) => {
-            CancelBills()
+    $('#CancelBill').on('click', (e) => {
+        CancelBills()
+    });
+
+
+    /**
+     * Agregar orden 
+     * carga la orden de compra en la factura a proveedores
+     */
+
+    $("#order").change(() => { loadPurchaseOrderInInvoice(); });
+
+    /**
+     * Ajustes para agregar piezas y productos
+     * Esta función permite ocultar inputs mediante opción check
+     */
+
+    if (pageURL.includes("bills/add_order") || pageURL.includes("bills/edit_order") || pageURL.includes("bills/edit_invoice")) {
+        //   invoice_total_or() // Cargar total orden de compra
+
+        // Cambiar tipo de item a agregar
+
+        $(".or_piece").hide();
+        $("#piece").attr("required", false);
+
+        $("input:radio[name=tipo]").change(function () {
+
+            if ($(this).val() == "pieza") {
+
+                $(".or_piece").show();
+                $(".product").hide();
+
+                $("#product").attr("required", false);
+                $("#piece").attr("required", true);
+
+                $("#or_quantity").val("");
+                $("#or_price_out").val("");
+                $("#or_taxes").val("");
+                $("#or_discount").val("");
+                $("#observation_item").val("");
+
+            } else if ($(this).val() == "producto") {
+
+                $(".product").show();
+                $(".or_piece").hide();
+
+                $("#product").attr("required", true);
+                $("#piece").attr("required", false);
+
+                $("#or_quantity").val("");
+                $("#or_price_out").val("");
+                $("#or_taxes").val("");
+                $("#or_discount").val("");
+                $("#observation_item").val("");
+            }
         });
+    }
 
+    /**
+     * Auto cargar detalle del LocalStorage
+     */
 
-        /**
-         * Agregar orden 
-         * carga la orden de compra en la factura a proveedores
-         */
+    if (pageURL.includes("bills/add_order")) {
+        $(function () {
 
-        $("#order").change(() => { add_purchase_order(); });
+            // Verificar
+            if (localStorage.getItem("detalle_orden")) {
+                arrayLocalStorage = JSON.parse(localStorage.getItem("detalle_orden"));
 
-        /**
-         * Ajustes para agregar piezas y productos
-         * Esta función permite ocultar inputs mediante opción check
-         */
+                // Loop del detalle en localStorage
+                arrayLocalStorage.forEach((element, index) => {
+                    let data = {
+                        item_id: element.product_id,
+                        name: element.name,
+                        quantity: element.quantity,
+                        taxes: element.taxes,
+                        tax_value: element.tax_value,
+                        discount: element.discount,
+                        price_out: element.price_out,
+                        observation: element.observation,
+                        total_price: element.total_price,
+                    };
 
-        if (pageURL.includes("bills/add_order") || pageURL.includes("bills/edit_order") || pageURL.includes("bills/edit_invoice")) {
-            //   invoice_total_or() // Cargar total orden de compra
+                    ArrayLists.push(data); // Guardar de localStorage a ArrayLists
 
-            // Cambiar tipo de item a agregar
+                    clctotal(ArrayLists);
 
-            $(".or_piece").hide();
-            $("#piece").attr("required", false);
+                    let taxes;
+                    let tax_value;
+                    let discount;
+                    let price_out = format.format(element.price_out);
+                    if (element.taxes > 0) {
+                        taxes = format.format(element.taxes);
+                        tax_value = element.tax_value;
+                    } else {
+                        taxes = 0;
+                        tax_value = 0;
+                    }
+                    if (element.discount > 0) {
+                        discount = element.discount;
+                    } else {
+                        discount = 0;
+                    }
 
-            $("input:radio[name=tipo]").change(function() {
-
-                if ($(this).val() == "pieza") {
-
-                    $(".or_piece").show();
-                    $(".product").hide();
-
-                    $("#product").attr("required", false);
-                    $("#piece").attr("required", true);
-
-                    $("#or_quantity").val("");
-                    $("#or_price_out").val("");
-                    $("#or_taxes").val("");
-                    $("#or_discount").val("");
-                    $("#observation_item").val("");
-
-                } else if ($(this).val() == "producto") {
-
-                    $(".product").show();
-                    $(".or_piece").hide();
-
-                    $("#product").attr("required", true);
-                    $("#piece").attr("required", false);
-
-                    $("#or_quantity").val("");
-                    $("#or_price_out").val("");
-                    $("#or_taxes").val("");
-                    $("#or_discount").val("");
-                    $("#observation_item").val("");
-                }
-            });
-        }
-
-        /**
-         * Auto cargar detalle del LocalStorage
-         */
-
-        if (pageURL.includes("bills/add_order")) {
-            $(function() {
-
-                // Verificar
-                if (localStorage.getItem("detalle_orden")) {
-                    arrayLocalStorage = JSON.parse(localStorage.getItem("detalle_orden"));
-
-                    // Loop del detalle en localStorage
-                    arrayLocalStorage.forEach((element, index) => {
-                        let data = {
-                            item_id: element.product_id,
-                            name: element.name,
-                            quantity: element.quantity,
-                            taxes: element.taxes,
-                            tax_value: element.tax_value,
-                            discount: element.discount,
-                            price_out: element.price_out,
-                            observation: element.observation,
-                            total_price: element.total_price,
-                        };
-
-                        ArrayLists.push(data); // Guardar de localStorage a ArrayLists
-
-                        clctotal(ArrayLists);
-
-                        let taxes;
-                        let tax_value;
-                        let discount;
-                        let price_out = format.format(element.price_out);
-                        if (element.taxes > 0) {
-                            taxes = format.format(element.taxes);
-                            tax_value = element.tax_value;
-                        } else {
-                            taxes = 0;
-                            tax_value = 0;
-                        }
-                        if (element.discount > 0) {
-                            discount = element.discount;
-                        } else {
-                            discount = 0;
-                        }
-
-                        // Insertar detalle
-                        document.querySelector("#rows").innerHTML += `
+                    // Insertar detalle
+                    document.querySelector("#rows").innerHTML += `
                        <tr>
                            <td>${element.name}</td>
                            <td>${element.quantity}</td>
                            <td>${price_out}</td>
-                           <td>${taxes} - ${tax_value}%</td>
+                           <td class="hide-cell">${taxes} - ${tax_value}%</td>
                            <td>${discount}</td>
-                           <td>${element.observation}</td>
+                           <td class="hide-cell">${element.observation}</td>
                            <td>${format.format(element.total_price)}</td>
                            <td>
                            <span class="action-delete" onClick="DeleteLocalstorage(${index});"><i class="fas fa-times"></i></span>
                            </td>
                        </tr>
                        `;
-                    }); // Loop Array
+                }); // Loop Array
 
-                } // if condiction
-            }); // function auto execute
-        } // if condiction
+            } // if condiction
+        }); // function auto execute
+    } // if condiction
 
 
-        /**
-         * TODO: Borrar todo el detalle del localStorage
-         */
+    /**
+     * TODO: Borrar todo el detalle del localStorage
+     */
 
-        $("#cancel_detail").on("click", (e) => {
-            cancel_detail();
-        });
+    $("#cancel_detail").on("click", (e) => {
+        cancel_detail();
+    });
 
-        $("#cash-in-finish-or").on("click", (e) => {
-            e.preventDefault();
+    $("#cash-in-finish-or").on("click", (e) => {
+        e.preventDefault();
 
-            CASH_INV_PROVIDER()
-        });
+        CASH_INV_PROVIDER()
+    });
 
-        $("#cash-in-finish-or-receipt").on("click", (e) => {
-            e.preventDefault();
+    $("#cash-in-finish-or-receipt").on("click", (e) => {
+        e.preventDefault();
 
-            data = {
-                provider: $('#provider_cash').val(),
-                method: $('#select2-cash-in-method-container').attr('title'),
-                seller: $('#cash-in-seller').val(),
-                subtotal: $('#in-subtotal').val().replace(/,/g, ""),
-                discount: $('#in-discount').val().replace(/,/g, ""),
-                taxes: $('#in-taxes').val().replace(/,/g, ""),
-                total: $('#in-total').val().replace(/,/g, ""),
-                order_id: $("#order").val()
-
-            }
-
-            CASH_INV_PROVIDER(true, data)
-        });
-
-        /**
-         * TODO:  Crear factura proveedor al contado
-         */
-
-        function CASH_INV_PROVIDER(receipt = false, data = {}) {
-
-            var total = $("#cash-topay").val().replace(/,/g, "");
-
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/bills.php",
-                data: {
-                    action: "factura_contado",
-                    orden_id: $("#order").val(),
-                    provider_id: $("#provider_id").val(),
-                    payment_method: $("#cash-in-method").val(),
-                    observation: $("#observation").val(),
-                    total_invoice: total,
-                    date: $("#cash-in-date").val(),
-                },
-                success: function(res) {
-
-                    if (res > 0) {
-
-                        if (receipt == true) {
-                            printer(res, data, "cash");
-                        }
-
-                        document.querySelector("#rows").innerHTML = "";
-
-                        // Vaciar campos
-                        $("#in-subtotal").val("0");
-                        $("#in-discount").val("0");
-                        $("#in-taxes").val("0");
-                        $("#in-total").val("0");
-
-                        mysql_row_affected();
-
-                        $("#cash-received").val(format.format(total));
-                        $("#cash-pending").val("0.00");
-
-                    } else {
-                        mysql_error(res);
-                    }
-                },
-            });
+        data = {
+            provider: $('#provider_cash').val(),
+            method: $('#select2-cash-in-method-container').attr('title'),
+            seller: $('#cash-in-seller').val(),
+            subtotal: $('#in-subtotal').val().replace(/,/g, ""),
+            discount: $('#in-discount').val().replace(/,/g, ""),
+            taxes: $('#in-taxes').val().replace(/,/g, ""),
+            total: $('#in-total').val().replace(/,/g, ""),
+            order_id: $("#order").val()
 
         }
 
+        CASH_INV_PROVIDER(true, data)
+    });
 
-        // Introducir monto de la factura a credito
+    /**
+     * TODO:  Crear factura proveedor al contado
+     */
 
-        $("#credit-pay-or").on("keyup", (e) => {
-            e.preventDefault();
+    function CASH_INV_PROVIDER(receipt = false, data = {}) {
 
-            var pay = $("#credit-pay-or").val();
-            $("#credit-received").val(format.format(pay));
+        var total = $("#cash-topay").val().replace(/,/g, "");
 
-            // Mostrar botón de facturar
+        $.ajax({
+            type: "post",
+            url: SITE_URL + "services/bills.php",
+            data: {
+                action: "factura_contado",
+                orden_id: $("#order").val(),
+                provider_id: $("#provider_id").val(),
+                payment_method: $("#cash-in-method").val(),
+                observation: $("#observation").val(),
+                total_invoice: total,
+                date: $("#cash-in-date").val(),
+            },
+            success: function (res) {
 
-            var pay = parseInt($("#credit-pay-or").val());
-            var pending = parseInt($("#credit-pending").val().replace(/,/g, ""));
+                if (res > 0) {
 
-            if (pay <= pending) {
-                $("#credit-in-finish-or").show();
-                $("#credit-in-finish-or-receipt").show();
-            } else {
-                $("#credit-in-finish-or-receipt").hide();
-                $("#credit-in-finish-or").hide();
-            }
-        });
-
-
-        $("#credit-in-finish-or").on("click", (e) => {
-
-            CREDIT_INV_PROVIDER();
-        });
-
-        $("#credit-in-finish-or-receipt").on("click", (e) => {
-
-            data = {
-                provider: $('#provider_cash').val(),
-                method: $('#select2-cash-in-method-container').attr('title'),
-                seller: $('#cash-in-seller').val(),
-                subtotal: $('#in-subtotal').val().replace(/,/g, ""),
-                discount: $('#in-discount').val().replace(/,/g, ""),
-                taxes: $('#in-taxes').val().replace(/,/g, ""),
-                total: $('#in-total').val().replace(/,/g, ""),
-                order_id: $("#order").val()
-
-            }
-
-            CREDIT_INV_PROVIDER(true, data);
-        });
-
-
-        /**
-         * TODO: Crear factura proveedor a crédito
-         */
-
-
-        function CREDIT_INV_PROVIDER(receipt = false, data = {}) {
-
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/bills.php",
-                data: {
-                    action: "factura_credito",
-                    provider_id: $("#provider_id").val(),
-                    orden_id: $("#order").val(),
-                    payment_method: $("#credit-in-method").val(),
-                    observation: $("#observation").val(),
-                    total_invoice: $("#credit-topay").val().replace(/,/g, ""),
-                    pay: $("#credit-pay-or").val(),
-                    pending: $("#credit-pending").val().replace(/,/g, ""),
-                    date: $("#credit-in-date").val(),
-                },
-                success: function(res) {
-
-                    if (res > 0) {
-
-                        document.querySelector("#rows").innerHTML = "";
-
-                        if (receipt == true) {
-                            printer(res, data, "credit");
-                        }
-
-                        mysql_row_affected();
-
-                        // Vaciar campos
-                        $("#in-subtotal").val("0");
-                        $("#in-discount").val("0");
-                        $("#in-taxes").val("0");
-                        $("#in-total").val("0");
-                        $("#credit-pending").val(format.format(pending)); // Imprimir valor pendiente en el modal
-
-                        $("#credit-in-finish-or").hide();
-                        $("#credit-in-finish-or-receipt").hide();
-                    } else {
-
-                        mysql_error(res);
-
+                    if (receipt == true) {
+                        printer(res, data, "cash");
                     }
-                },
-            });
+
+                    document.querySelector("#rows").innerHTML = "";
+
+                    // Vaciar campos
+                    $("#in-subtotal").val("0");
+                    $("#in-discount").val("0");
+                    $("#in-taxes").val("0");
+                    $("#in-total").val("0");
+
+                    mysql_row_affected();
+
+                    $("#cash-received").val(format.format(total));
+                    $("#cash-pending").val("0.00");
+
+                } else {
+                    mysql_error(res);
+                }
+            },
+        });
+
+    }
+
+
+    // Introducir monto de la factura a credito
+
+    $("#credit-pay-or").on("keyup", (e) => {
+        e.preventDefault();
+
+        var pay = $("#credit-pay-or").val();
+        $("#credit-received").val(format.format(pay));
+
+        // Mostrar botón de facturar
+
+        var pay = parseInt($("#credit-pay-or").val());
+        var pending = parseInt($("#credit-pending").val().replace(/,/g, ""));
+
+        if (pay <= pending) {
+            $("#credit-in-finish-or").show();
+            $("#credit-in-finish-or-receipt").show();
+        } else {
+            $("#credit-in-finish-or-receipt").hide();
+            $("#credit-in-finish-or").hide();
+        }
+    });
+
+
+    $("#credit-in-finish-or").on("click", (e) => {
+
+        CREDIT_INV_PROVIDER();
+    });
+
+    $("#credit-in-finish-or-receipt").on("click", (e) => {
+
+        data = {
+            provider: $('#provider_cash').val(),
+            method: $('#select2-cash-in-method-container').attr('title'),
+            seller: $('#cash-in-seller').val(),
+            subtotal: $('#in-subtotal').val().replace(/,/g, ""),
+            discount: $('#in-discount').val().replace(/,/g, ""),
+            taxes: $('#in-taxes').val().replace(/,/g, ""),
+            total: $('#in-total').val().replace(/,/g, ""),
+            order_id: $("#order").val()
 
         }
 
+        CREDIT_INV_PROVIDER(true, data);
+    });
 
-        /**
-         * TODO: Imprimir factura
-         */
 
-        function printer(invoice_id, data, type) {
+    /**
+     * TODO: Crear factura proveedor a crédito
+     */
+
+
+    function CREDIT_INV_PROVIDER(receipt = false, data = {}) {
+
+        $.ajax({
+            type: "post",
+            url: SITE_URL + "services/bills.php",
+            data: {
+                action: "factura_credito",
+                provider_id: $("#provider_id").val(),
+                orden_id: $("#order").val(),
+                payment_method: $("#credit-in-method").val(),
+                observation: $("#observation").val(),
+                total_invoice: $("#credit-topay").val().replace(/,/g, ""),
+                pay: $("#credit-pay-or").val(),
+                pending: $("#credit-pending").val().replace(/,/g, ""),
+                date: $("#credit-in-date").val(),
+            },
+            success: function (res) {
+
+                if (res > 0) {
+
+                    document.querySelector("#rows").innerHTML = "";
+
+                    if (receipt == true) {
+                        printer(res, data, "credit");
+                    }
+
+                    mysql_row_affected();
+
+                    // Vaciar campos
+                    $("#in-subtotal").val("0");
+                    $("#in-discount").val("0");
+                    $("#in-taxes").val("0");
+                    $("#in-total").val("0");
+                    $("#credit-pending").val(format.format(pending)); // Imprimir valor pendiente en el modal
+
+                    $("#credit-in-finish-or").hide();
+                    $("#credit-in-finish-or-receipt").hide();
+                } else {
+
+                    mysql_error(res);
+
+                }
+            },
+        });
+
+    }
+
+
+    /**
+     * TODO: Imprimir factura
+     */
+
+    function printer(invoice_id, data, type) {
+
+        $.ajax({
+            type: "post",
+            url: SITE_URL + "services/bills.php",
+            data: {
+                action: 'obtener_detalle',
+                id: $("#order").val()
+            },
+            success: function (res) {
+                console.log(res)
+                print(invoice_id, res, data, type)
+
+            }
+        });
+
+        function print(invoice_id, detail, data, type) {
+            console.log('imprimiendo.....')
+
+            // Tipo de documento a imprimir
+
+            let file;
+            if (type == "cash") {
+                file = "factura_cash_proveedor.php"
+            } else if (type == "credit") {
+                file = "factura_credit_proveedor.php"
+            }
 
             $.ajax({
                 type: "post",
-                url: SITE_URL + "services/bills.php",
+                url: PRINTER_SERVER + file,
                 data: {
-                    action: 'obtener_detalle',
-                    id: $("#order").val()
+                    detail: detail,
+                    data: data,
+                    id: invoice_id
                 },
-                success: function(res) {
+                success: function (res) {
                     console.log(res)
-                    print(invoice_id, res, data, type)
 
                 }
             });
 
-            function print(invoice_id, detail, data, type) {
-                console.log('imprimiendo.....')
-
-                // Tipo de documento a imprimir
-
-                let file;
-                if (type == "cash") {
-                    file = "factura_cash_proveedor.php"
-                } else if (type == "credit") {
-                    file = "factura_credit_proveedor.php"
-                }
-
-                $.ajax({
-                    type: "post",
-                    url: PRINTER_SERVER + file,
-                    data: {
-                        detail: detail,
-                        data: data,
-                        id: invoice_id
-                    },
-                    success: function(res) {
-                        console.log(res)
-
-                    }
-                });
-
-            }
-
         }
 
+    }
 
-        /**
-         * TODO: Calcular detalle de orden de compra
-         */
 
-        function CLC_DETAIL() {
+    /**
+     * TODO: Calcular detalle de orden de compra
+     */
 
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/bills.php",
-                data: {
-                    action: "total_orden_compra",
-                    id: $("#order").val(),
-                },
-                success: function(res) {
-                    var data = JSON.parse(res);
+    function CLC_DETAIL() {
 
-                    var discount = format.format(data.descuentos);
-                    var taxes = format.format(data.impuestos);
-                    var subtotal = format.format(data.precio);
-                    var total = format.format(
-                        parseFloat(data.precio) +
-                        parseFloat(data.impuestos) -
-                        parseFloat(data.descuentos)
-                    );
+        $.ajax({
+            type: "post",
+            url: SITE_URL + "services/bills.php",
+            data: {
+                action: "total_orden_compra",
+                id: $("#order").val(),
+            },
+            success: function (res) {
+                var data = JSON.parse(res);
 
-                    $("#in-total").val(total);
-                    $("#in-subtotal").val(subtotal);
-                    $("#in-taxes").val(taxes);
-                    $("#in-discount").val(discount);
-                },
-            });
+                var discount = format.format(data.descuentos);
+                var taxes = format.format(data.impuestos);
+                var subtotal = format.format(data.precio);
+                var total = format.format(
+                    parseFloat(data.precio) +
+                    parseFloat(data.impuestos) -
+                    parseFloat(data.descuentos)
+                );
 
-        }
-
-        /**
-         * TODO: Función para calcular total en la ventana editar orden
-         */
-
-        $(function() {
-            if (pageURL.includes("bills/edit_order")) {
-                CLC_DETAIL();
-            }
+                $("#in-total").val(total);
+                $("#in-subtotal").val(subtotal);
+                $("#in-taxes").val(taxes);
+                $("#in-discount").val(discount);
+            },
         });
 
+    }
+
+    /**
+     * TODO: Función para calcular total en la ventana editar orden
+     */
+
+    $(function () {
+        if (pageURL.includes("bills/edit_order")) {
+            CLC_DETAIL();
+        }
+    });
 
 
 
 
-    }) // Ready
+
+}) // Ready
 
 
 
@@ -587,8 +587,8 @@ function showDB_spending() {
              <td>${element.name}</td>
              <td>${element.quantity}</td>
              <td>${value}</td>
-             <td>${taxes} - ${tax_value}%</td>
-             <td>${element.observation}</td>
+             <td class="hide-cell">${taxes} - ${tax_value}%</td>
+             <td class="hide-cell note-width">${element.observation}</td>
              <td>${format.format(element.total_price)}</td>
              <td>
                <span class="action-delete" onClick="DeleteLocalstorage(${index});"><i class="fas fa-times"></i></span>
@@ -650,27 +650,17 @@ function CancelBills() {
 
 // guardar orden de compra
 
-function SaveBills() {
-
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/bills.php",
+function saveBills() {
+    sendAjaxRequest({
+        url: "services/bills.php",
         data: {
             action: "crear_orden_gasto",
             provider_id: $('#provider').val(),
             date: $('#date').val()
         },
-        success: function(res) {
-
-            if (res > 0) {
-                AddOrderDetail(res) // Agregar detalle motivos de gastos
-            } else {
-                mysql_error(res)
-            }
-
-        }
-    });
-
+        successCallback: (res) => AddOrderDetail(res),
+        errorCallback: (res) => mysql_error(res)
+    })
 }
 
 // Crear detalle de orden de compra
@@ -694,7 +684,7 @@ function AddOrderDetail(order_id) {
                     value: element.value,
                     observation: element.observation,
                 },
-                success: function(res) {
+                success: function (res) {
 
                     if (res == "ready") {
 
@@ -709,7 +699,7 @@ function AddOrderDetail(order_id) {
         // función de imprimir
 
         alertify.confirm("Imprimir ticket", "¿Desea imprimir un ticket? ",
-            function() {
+            function () {
 
                 data = {
                     provider: $('#select2-provider-container').attr('title'),
@@ -729,7 +719,7 @@ function AddOrderDetail(order_id) {
                         data: data,
                         detail: localStorage.getItem("detalle_gasto")
                     },
-                    success: function(res) {
+                    success: function (res) {
                         console.log(res)
                         register_spending(order_id) // Registrar gastos
 
@@ -737,7 +727,7 @@ function AddOrderDetail(order_id) {
                 });
 
             },
-            function() {
+            function () {
                 register_spending(order_id) // Registrar gastos
             }).set({ labels: { ok: 'Imprimir', cancel: 'No imprimir' }, padding: true });
 
@@ -763,7 +753,7 @@ function register_spending(order_id) {
             total_invoice: $('#cash-topay').val().replace(/,/g, ""),
             date: $('#date').val()
         },
-        success: function(res) {
+        success: function (res) {
             if (res == "ready") {
 
                 document.querySelector('#rows').innerHTML = "";
@@ -790,7 +780,7 @@ function register_spending(order_id) {
 
 function deleteSpending(id) {
     alertify.confirm("Eliminar gasto", "¿Estas seguro que deseas eliminar este gasto? ",
-        function() {
+        function () {
 
             $.ajax({
                 type: "post",
@@ -799,7 +789,7 @@ function deleteSpending(id) {
                     action: "eliminar_gasto",
                     id: id
                 },
-                success: function(res) {
+                success: function (res) {
 
                     if (res == "ready") {
                         bills.ajax.reload() // Recargar datatable
@@ -810,7 +800,7 @@ function deleteSpending(id) {
                 }
             });
         },
-        function() {
+        function () {
 
         });
 }
@@ -830,7 +820,7 @@ function RECLC_DETAIL(order_id) {
             action: "total_orden_compra",
             id: order_id,
         },
-        success: function(res) {
+        success: function (res) {
             $("#in-total").val("");
             $("#in-subtotal").val("");
             $("#in-taxes").val("");
@@ -897,7 +887,7 @@ function ADD_ITEM_DETAIL_ORDER() {
             price: $("#or_price_out").val(),
             observation: $("#observation_item").val(),
         },
-        success: function(res) {
+        success: function (res) {
             if (res == "ready") {
                 $("#Detalle").load(location.href + " #Detalle");
                 RECLC_DETAIL(order_id); // Recalcular detalle
@@ -922,7 +912,7 @@ function DELETE_ITEM_ORDER_PRCHSE(detail_id, order_id) {
             action: "eliminar_item_de_la_orden",
             detail_id: detail_id,
         },
-        success: function(res) {
+        success: function (res) {
             if (res == "ready") {
                 $("#Detalle").load(location.href + " #Detalle");
                 RECLC_DETAIL(order_id);
@@ -1050,9 +1040,9 @@ function showDB() {
                <td>${element.name}</td>
                <td>${element.quantity}</td>
                <td>${price_out}</td>
-               <td>${taxes} - ${tax_value}%</td>
+               <td class="hide-cell">${taxes} - ${tax_value}%</td>
                <td>${discount}</td>
-               <td class="note-width">${element.observation}</td>
+               <td class="note-width hide-cell">${element.observation}</td>
                <td>${format.format(element.total_price)}</td>
                <td>
                  <span class="action-delete" onClick="DeleteLocalstorage(${index});"><i class="fas fa-times"></i></span>
@@ -1098,7 +1088,7 @@ function clctotal(arr) {
            <span>${tax}</span>
            <span>${total}</span>
            <input type="hidden" name="" value="${subtotal + taxes - discount
-      }" id="total_invoice">
+        }" id="total_invoice">
        `;
 }
 
@@ -1116,7 +1106,7 @@ function save_order() {
             date: $("#date").val(),
             expiration: $("#expiration").val(),
         },
-        success: function(res) {
+        success: function (res) {
             if (res > 0) {
                 add_detailOR(res);
                 mysql_row_affected();
@@ -1158,8 +1148,8 @@ function add_detailOR(order_id) {
                     price: element.price_out,
                     observation: element.observation,
                 },
-                success: function(res) {
-                    if (res == "ready") {} else {
+                success: function (res) {
+                    if (res == "ready") { } else {
                         mysql_error(res);
                     }
                 },
@@ -1176,7 +1166,7 @@ function deleteOrderC(id) {
     alertify.confirm(
         "Eliminar orden",
         "¿Estas seguro que deseas eliminar esta orden? ",
-        function() {
+        function () {
             $.ajax({
                 type: "post",
                 url: SITE_URL + "services/bills.php",
@@ -1184,7 +1174,7 @@ function deleteOrderC(id) {
                     id: id,
                     action: "eliminar_orden",
                 },
-                success: function(res) {
+                success: function (res) {
                     if (res == "ready") {
                         ordersC.ajax.reload() // Recargar datatable
                     } else {
@@ -1193,118 +1183,83 @@ function deleteOrderC(id) {
                 },
             });
         },
-        function() {}
+        function () { }
     );
 }
 
 // Agregar orden de compra a la factura de proveedores
 
-function add_purchase_order() {
+function loadPurchaseOrderInInvoice() {
 
-    var order_id = $("#order").val();
-    cal_invoice_provider(order_id);
+    const orderId = $("#order").val();
+    calculateProviderInvoice(orderId);
 
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/bills.php",
+    sendAjaxRequest({
+        url: "services/bills.php",
         data: {
-            id: order_id,
+            id: orderId,
             action: "agregar_orden_a_factura",
         },
-        success: function(res) {
-
+        successCallback: (res) => {
             if (res != "") {
-
                 document.querySelector("#rows").innerHTML = "";
                 document.querySelector("#rows").innerHTML += res;
 
-                $("#cash-in-finish-or-receipt").show()
-                $("#cash-in-finish-or").show()
+                $("#cash-in-finish-or-receipt, #cash-in-finish-or").show()
             }
-        },
-    });
-
+        }
+    })
 }
 
 /**
  * TODO: Calcular total de factura de proveedores
  */
 
-function cal_invoice_provider(order_id) {
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/bills.php",
+function calculateProviderInvoice(orderId) {
+
+    sendAjaxRequest({
+        url: "services/bills.php",
         data: {
-            id: order_id,
-            action: "calc_factura",
+            id: orderId,
+            action: "calcular_factura",
         },
-        success: function(res) {
-            var data = JSON.parse(res);
+        successCallback: (res) => {
+            const data = JSON.parse(res)[0];
 
-            var discount = format.format(data.descuentos);
-            var taxes = format.format(data.impuestos);
-            var subtotal = format.format(data.subtotal);
-            var total = format.format(
-                parseFloat(data.subtotal) +
-                parseFloat(data.impuestos) -
-                parseFloat(data.descuentos)
-            );
+            const discount = format.format(data.descuentos);
+            const taxes = format.format(data.impuestos);
+            const subtotal = format.format(data.subtotal);
 
+            const rawTotal = parseFloat(data.subtotal) + parseFloat(data.impuestos) - parseFloat(data.descuentos);
+            const total = isNaN(rawTotal) ? "0.00" : format.format(rawTotal);
+
+            // Campos principales
             $("#in-subtotal").val(subtotal);
             $("#in-taxes").val(taxes);
             $("#in-discount").val(discount);
+            $("#in-total").val(total);
 
-            $("#provider_cash").val(data.proveedor);
-            $("#provider_credit").val(data.proveedor);
-            $("#provider").val(data.proveedor);
+            $("#provider_cash, #provider_credit, #provider").val(data.proveedor);
             $("#provider_id").val(data.proveedor_id);
             $("#expiration_order").val(data.expiracion);
             $("#date_order").val(data.fecha);
 
-            if (total != "NaN") {
-                $("#in-total").val(total);
-            } else {
-                $("#in-total").val("0");
-            }
-
-            // Modal Factura al contado
+            // Modal contado
             $("#cash-received").val("0.00");
-            if (total != "NaN") {
-                $("#cash-topay").val(total);
-                $("#cash-pending").val(total);
-            } else {
-                $("#cash-topay").val("0.00");
-                $("#cash-pending").val("0.00");
-            }
+            $("#cash-topay").val(total);
+            $("#cash-pending").val(total);
 
-            // Modal Factura a crédito
-
+            // Modal crédito
             $("#credit-received").val("0.00");
-            if (total != "NaN") {
-                $("#credit-topay").val(total);
-                $("#credit-pending").val(total);
-            } else {
-                $("#credit-topay").val("0.00");
-                $("#credit-pending").val("0.00");
-            }
+            $("#credit-topay").val(total);
+            $("#credit-pending").val(total);
 
-            // Validar botón de procesar venta al contado
-
-            if (total != "NaN") {
-                $("#credit-in-finish_or").show();
-            } else {
-                $("#credit-in-finish_or").hide();
-            }
-
-            // Validar campo ingresar monto factura a crédito
-
-            if (total != "NaN") {
-                $(".pay").show();
-            } else {
-                $(".pay").hide();
-            }
-        },
-    });
+            // Botón procesar crédito y campo de pago
+            const shouldShow = rawTotal > 0;
+            $("#credit-in-finish_or").toggle(shouldShow);
+            $(".pay").toggle(shouldShow);
+        }
+    })
 }
 
 /**
@@ -1312,10 +1267,10 @@ function cal_invoice_provider(order_id) {
  * ! Esta función se carga al momento de editar una factura de proveedores
  */
 
-$(function() {
+$(function () {
     if (pageURL.includes("bills/edit_invoice")) {
         var order_id = $("#order").val();
-        cal_invoice_provider(order_id);
+        calculateProviderInvoice(order_id);
     }
 });
 
@@ -1331,11 +1286,11 @@ function deleteDetailOrderC(id) {
             id: id,
             action: "eliminar_detalle",
         },
-        success: function(res) {
+        success: function (res) {
 
             if (res == "ready") {
                 document.querySelector("#rows").innerHTML = "";
-                add_purchase_order();
+                loadPurchaseOrderInInvoice();
             } else {
                 mysql_error();
             }
@@ -1350,7 +1305,7 @@ function deleteInvoiceFP(id, order_id) {
     alertify.confirm(
         "Eliminar factura",
         "¿Estas seguro que deseas eliminar esta factura? ",
-        function() {
+        function () {
             $.ajax({
                 type: "post",
                 url: SITE_URL + "services/bills.php",
@@ -1359,7 +1314,7 @@ function deleteInvoiceFP(id, order_id) {
                     order_id: order_id,
                     action: "eliminar_factura_proveedor",
                 },
-                success: function(res) {
+                success: function (res) {
                     if (res == "ready") {
                         invoicesp.ajax.reload(); // Recargar datatable
                     } else {
@@ -1368,7 +1323,7 @@ function deleteInvoiceFP(id, order_id) {
                 },
             });
         },
-        function() {}
+        function () { }
     );
 
 }
@@ -1387,7 +1342,7 @@ function update_order(id) {
             observation: $("#observation").val(),
             action: "actualizar_orden",
         },
-        success: function(res) {
+        success: function (res) {
             if (res == "ready") {
                 mysql_row_update();
             } else {
@@ -1412,7 +1367,7 @@ function update_invoice(id) {
             observation: $("#observation").val(),
             action: "actualizar_factura",
         },
-        success: function(res) {
+        success: function (res) {
             if (res == "ready") {
                 mysql_row_update();
             } else {

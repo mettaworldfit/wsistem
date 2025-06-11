@@ -48,7 +48,7 @@ if ($_POST['action'] == "cargar_detalle_facturas") {
           ),
         'cantidad' => $row['cantidad_total'],
         'precio' => number_format($row['precio'], 2),
-        'impuesto' => number_format($row['cantidad_total'] * $row['impuesto'], 2) . ' - (' . $row['valor'] . '%)',
+        'impuesto' => '<span class="hide-cell">' . number_format($row['cantidad_total'] * $row['impuesto'], 2) . ' - (' . $row['valor'] . '%)' . '</span>',
         'descuento' => number_format($row['descuento'], 2),
         'total' => number_format(
           ($row['cantidad_total'] * $row['precio']) +
@@ -92,7 +92,7 @@ if ($_POST['action'] == "cargar_detalle_temporal") {
         'descripcion' => Help::loadVariantTemp($row['detalle_temporal_id']),
         'cantidad' => $row['cantidad'],
         'precio' => number_format($row['precio'], 2),
-        'impuesto' =>'<span class="hide-cell">' . number_format($row['cantidad'] * $row['impuesto'], 2) . '</span>',
+        'impuesto' => '<span class="hide-cell">' . number_format($row['cantidad'] * $row['impuesto'], 2) . '</span>',
         'descuento' => number_format($row['descuento'], 2),
         'importe' => number_format(
           ($row['cantidad'] * $row['precio']) +
@@ -138,7 +138,7 @@ if ($_POST['action'] == "index_cotizaciones") {
         'id' => 'CT-00' . $row['cotizacion_id'],
         'nombre' => ucwords($row['nombre'] . ' ' . $row['apellidos']),
         'fecha' => $row['fecha'],
-        'total' => '<span class="text-primary">' . number_format($row['total'], 2) . '</span>',
+        'total' => '<span class="text-primary hide-cell">' . number_format($row['total'], 2) . '</span>',
         'acciones' => '
                   <a class="action-edit" href="' . base_url . 'invoices/edit_quote&id=' . $row['cotizacion_id'] . '" title="editar">
                       <i class="fas fa-pencil-alt"></i>
