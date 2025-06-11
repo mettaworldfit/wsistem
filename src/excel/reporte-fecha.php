@@ -113,7 +113,7 @@ SELECT * FROM (
     SELECT 1 AS cantidad, concat('Pago de factura ','RP-00',f.facturaRP_id) AS descripcion, '-' as precio, p.recibido AS recibido,
            concat('P-00', p.pago_id) AS factura, '-' AS cliente_proveedor, '-' AS estado, 0 AS descuento, p.fecha
     FROM pagos p
-    INNER JOIN pagos_a_facturasrp pf ON pf.pago_id = p.pago_id
+    INNER JOIN pagos_a_facturasRP pf ON pf.pago_id = p.pago_id
     INNER JOIN facturasRP f ON f.facturaRP_id = pf.facturaRP_id
     WHERE p.fecha = '$fecha'
 ) ingresos ORDER BY fecha DESC;
