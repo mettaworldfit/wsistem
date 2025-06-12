@@ -89,9 +89,13 @@ if ($_POST['action'] == "index_ventas_hoy") {
       FROM pagos_a_facturas_ventas p
       INNER JOIN pagos pg ON pg.pago_id = p.pago_id
       INNER JOIN facturas_ventas f ON f.factura_venta_id = p.factura_venta_id
-      INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
+      INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = pg.metodo_pago_id
       INNER JOIN clientes c ON f.cliente_id = c.cliente_id
       INNER JOIN estados_generales s ON f.estado_id = s.estado_id
+     WHERE (
+      s.nombre_estado = 'por cobrar'
+      OR (s.nombre_estado <> 'por cobrar' AND f.fecha <> pg.fecha)
+     )
     
       UNION ALL
     
@@ -100,9 +104,13 @@ if ($_POST['action'] == "index_ventas_hoy") {
       FROM pagos_a_facturasRP p
       INNER JOIN pagos pg ON pg.pago_id = p.pago_id
       INNER JOIN facturasRP f ON f.facturarp_id = p.facturarp_id
-      INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
+      INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = pg.metodo_pago_id
       INNER JOIN clientes c ON f.cliente_id = c.cliente_id
       INNER JOIN estados_generales s ON f.estado_id = s.estado_id
+      WHERE (
+      s.nombre_estado = 'por cobrar'
+      OR (s.nombre_estado <> 'por cobrar' AND f.fecha <> pg.fecha)
+     )
     
     ) ventas_del_dia 
     WHERE fecha_factura = CURDATE() $searchQuery

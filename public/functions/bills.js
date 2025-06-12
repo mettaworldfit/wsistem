@@ -1306,22 +1306,16 @@ function deleteInvoiceFP(id, order_id) {
         "Eliminar factura",
         "¿Estas seguro que deseas eliminar esta factura? ",
         function () {
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/bills.php",
+            sendAjaxRequest({
+                url: "services/bills.php",
                 data: {
                     id: id,
                     order_id: order_id,
                     action: "eliminar_factura_proveedor",
                 },
-                success: function (res) {
-                    if (res == "ready") {
-                        invoicesp.ajax.reload(); // Recargar datatable
-                    } else {
-                        mysql_error(res);
-                    }
-                },
-            });
+                successCallback: () => dataTablesInstances['invoicesp'].ajax.reload(),
+                errorCallback: (res) => mysql_error(res)
+            })
         },
         function () { }
     );

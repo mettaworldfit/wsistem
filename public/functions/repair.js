@@ -522,7 +522,7 @@ function deleteInvoiceRP(id) {
                 successCallback: () => {
                     // Actualizar datatable
                     (pageURL.includes("invoices/index_repair")) ?
-                        dataTablesInstances['invoicesrp'].ajax.reload() : dataTablesInstances['sales'].ajax.reload()
+                        dataTablesInstances['invoicesrp'].ajax.reload() : dataTablesInstances['today'].ajax.reload()
 
                 },
                 errorCallback: (res) => mysql_error(res)

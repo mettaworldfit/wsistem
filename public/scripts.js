@@ -207,6 +207,8 @@ function sendAjaxRequest({ url, data, successCallback, errorCallback, verbose = 
                 mysql_error('Existen datos que ya están siendo utilizado');
             } else if (res.includes("Error")) {
                 errorCallback ? errorCallback(res) : mysql_error(res);
+            } else {
+                errorCallback ? errorCallback(res) : mysql_error(res);
             }
         }
     });
@@ -479,7 +481,7 @@ $(document).ready(function () {
         columns: [
             'factura_venta_id', 'nombre', 'fecha_factura', 'total', 'recibido', 'pendiente', 'bono', 'nombre_estado', 'acciones'
         ],
-          hiddenColumns: [3, 4, 5, 6]
+        hiddenColumns: [3, 4, 5, 6]
     },
     {
         id: '#today',
@@ -528,7 +530,7 @@ $(document).ready(function () {
         columns: [
             'id', 'nombre', 'fecha', 'total', 'recibido', 'pendiente', 'estado', 'acciones'
         ],
-        hiddenColumns: [3,4,5]
+        hiddenColumns: [3, 4, 5]
     },
     {
         id: '#quotes',
@@ -546,7 +548,7 @@ $(document).ready(function () {
         columns: [
             'pago_id', 'factura_id', 'nombre', 'recibido', 'observacion', 'fecha', 'acciones'
         ],
-        hiddenColumns: [0,4,5]
+        hiddenColumns: [0, 4, 5]
     },
     {
         id: '#ordersc',
@@ -555,7 +557,7 @@ $(document).ready(function () {
         columns: [
             'orden_id', 'proveedor', 'articulos', 'fecha', 'expiracion', 'estado', 'acciones'
         ],
-        hiddenColumns: [2,4,5]
+        hiddenColumns: [2, 4, 5]
     },
     {
         id: '#invoicesp',
@@ -573,7 +575,7 @@ $(document).ready(function () {
         columns: [
             'id', 'proveedor', 'gastos', 'fecha', 'total', 'pagado', 'acciones'
         ],
-        hiddenColumns: [1,5]
+        hiddenColumns: [1, 5]
     },
     {
         id: '#payments_providers',
@@ -747,7 +749,7 @@ $(document).ready(function () {
 
     // Inicialización automática
     tableConfigs.forEach(config => {
-        const { id, url, action, columns,hiddenColumns, ...rest } = config;
+        const { id, url, action, columns, hiddenColumns, ...rest } = config;
 
         const columnDefs = columns.map(col =>
             col === 'acciones'

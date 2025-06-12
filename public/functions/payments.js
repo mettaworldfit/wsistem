@@ -232,7 +232,7 @@ function deletePayment(id, factura_id, facturaRP_id) {
 
                         // Actualizar datatable
                         (pageURL.includes("payments/index")) ?
-                            dataTablesInstances['payments'].ajax.reload() : dataTablesInstances['sales'].ajax.reload()
+                            dataTablesInstances['payments'].ajax.reload() : dataTablesInstances['today'].ajax.reload()
 
 
                     } else {
@@ -266,7 +266,7 @@ function deletePaymentProvider(id) {
 
                         // Recarga datatable
                         (pageURL.includes("bills/payments")) ?
-                            dataTablesInstances['payments_providers'].ajax.reload() : dataTablesInstances['sales'].ajax.reload();
+                            dataTablesInstances['payments_providers'].ajax.reload() : dataTablesInstances['today'].ajax.reload();
 
 
                     } else {

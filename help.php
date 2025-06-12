@@ -39,25 +39,43 @@ class Help
    public static function getPurchaseToday()
    {
       $db = Database::connect();
-      $query = "SELECT sum(total) as total FROM (
+      $query = "SELECT SUM(total) AS total FROM (
 
-            SELECT sum(f.recibido) as 'total', f.fecha FROM facturas_ventas f
-            WHERE f.fecha = curdate()
-            GROUP BY f.fecha     
-            
-              UNION ALL
-              
-            SELECT sum(fr.recibido) as 'total', fr.fecha FROM facturasRP fr
-            WHERE fr.fecha = curdate()
-            GROUP BY fr.fecha            
-            
-            UNION ALL
-            
-            SELECT sum(p.recibido) as 'total', p.fecha from pagos p
-            WHERE p.fecha = curdate()
-            GROUP BY p.fecha 
-                                          
-        ) ventas_de_hoy";
+    SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
+    FROM facturas_ventas f
+    INNER JOIN estados_generales e ON e.estado_id = f.estado_id
+    LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
+    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+    WHERE f.fecha = CURDATE()
+    GROUP BY f.fecha
+
+    UNION ALL
+
+    SELECT (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, fr.fecha
+    FROM facturasRP fr
+    INNER JOIN estados_generales e ON e.estado_id = fr.estado_id
+    LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
+    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+    WHERE fr.fecha = CURDATE()
+    GROUP BY fr.fecha
+
+    UNION ALL
+
+    SELECT SUM(p.recibido) AS total, p.fecha
+    FROM pagos_a_facturasRP pf 
+    INNER JOIN pagos p ON pf.pago_id = p.pago_id
+    WHERE p.fecha = CURDATE()
+    GROUP BY p.fecha
+    
+    UNION ALL
+    
+	SELECT SUM(p.recibido) AS total, p.fecha
+    FROM pagos_a_facturas_ventas pf 
+    INNER JOIN pagos p ON pf.pago_id = p.pago_id
+    WHERE p.fecha = CURDATE()
+    GROUP BY p.fecha
+
+) ventas_de_hoy";
 
       return $db->query($query)->fetch_object()->total;
    }
@@ -691,42 +709,33 @@ class Help
    public static function calculateSalesToDay()
    {
       $db = Database::connect();
-      $query = "SELECT id,tipo,orden, nombre,apellidos,total,recibido,pendiente,estado,fecha_factura FROM (
+      $query = "SELECT total,recibido,pendiente,fecha_factura FROM (
 
-       SELECT c.nombre as nombre, c.apellidos as apellidos, f.factura_venta_id as id, concat('n/d') as orden ,f.fecha as fecha_factura, f.total 
-       as total, f.recibido as recibido, f.pendiente as pendiente, s.nombre_estado as estado, concat('FT') as tipo FROM facturas_ventas f 
-           INNER JOIN clientes c ON f.cliente_id = c.cliente_id
-           INNER JOIN estados_generales s ON f.estado_id = s.estado_id 
+       SELECT f.fecha as fecha_factura, f.total as total, f.recibido as recibido, f.pendiente as pendiente 
+       FROM facturas_ventas f 
           
-          UNION ALL
+	   UNION ALL
            
-       SELECT c.nombre as nombre, c.apellidos as apellidos,f.facturarp_id as id, f.orden_rp_id as orden, f.fecha as fecha_factura, f.total as total, 
-       f.recibido as recibido, f.pendiente as pendiente, s.nombre_estado as estado, concat('RP') as tipo FROM facturasRP f 
-           INNER JOIN clientes c ON f.cliente_id = c.cliente_id
-           INNER JOIN estados_generales s ON f.estado_id = s.estado_id 
+       SELECT f.fecha as fecha_factura, f.total as total,f.recibido as recibido, f.pendiente as pendiente
+       FROM facturasRP f 
            
-    UNION ALL 
+	   UNION ALL 
        
-       SELECT c.nombre as nombre, c.apellidos as apellidos, pg.pago_id as id, f.factura_venta_id as orden, pg.fecha as fecha_factura, pg.recibido as total, 
-       pg.recibido as recibido, '0' as pendiente, s.nombre_estado as estado, concat('PF') as tipo 
+       SELECT pg.fecha as fecha_factura, pg.recibido as total, pg.recibido as recibido, '0' as pendiente 
        FROM pagos_a_facturas_ventas p 
- INNER JOIN pagos pg ON pg.pago_id = p.pago_id
-   INNER JOIN facturas_ventas f on f.factura_venta_id = p.factura_venta_id
- INNER JOIN clientes c ON f.cliente_id = c.cliente_id
- INNER JOIN estados_generales s ON f.estado_id = s.estado_id 
-   
-    UNION ALL
+       INNER JOIN pagos pg ON pg.pago_id = p.pago_id
+	   INNER JOIN facturas_ventas f on f.factura_venta_id = p.factura_venta_id
+	   WHERE f.fecha <> pg.fecha  
+     
+        UNION ALL
     
-    SELECT c.nombre as nombre, c.apellidos as apellidos, pg.pago_id as id, f.facturarp_id as orden, pg.fecha as fecha_factura, pg.recibido as total, 
-       pg.recibido as recibido, '0' as pendiente, s.nombre_estado as estado, concat('PR') as tipo 
-       FROM pagos_a_facturasRP p 
-    INNER JOIN pagos pg ON pg.pago_id = p.pago_id
-    INNER JOIN facturasRP f on f.facturarp_id = p.facturarp_id
-    INNER JOIN clientes c ON f.cliente_id = c.cliente_id
-    INNER JOIN estados_generales s ON f.estado_id = s.estado_id
-    
+		SELECT pg.fecha as fecha_factura, pg.recibido as total,pg.recibido as recibido, '0' as pendiente 
+		FROM pagos_a_facturasRP p 
+		INNER JOIN pagos pg ON pg.pago_id = p.pago_id
+		INNER JOIN facturasRP f on f.facturarp_id = p.facturarp_id
+		WHERE f.fecha <> pg.fecha  
            
-       ) ventas_del_dia where fecha_factura = curdate() order by id ASC";
+	) ventas_del_dia where fecha_factura = curdate()";
 
       return $db->query($query);
    }

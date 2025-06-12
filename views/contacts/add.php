@@ -4,8 +4,6 @@
     </div>
 </div>
 
-
-
 <div class="area-data">
     <div class="col-data">
         <div class="col-legend">
@@ -14,12 +12,12 @@
 
         <div class="radio-list mt-2">
             <div class="radio-item ml-3">
-                <input type="radio" name="contact" value="cliente" id="radio1" checked>
+                <input type="radio" name="contact" value="cliente" <?php if($_GET['type'] == 1) { ?> checked <?php } ?> id="radio1">
                 <label for="radio1">Cliente</label>
             </div>
 
             <div class="radio-item ml-2">
-                <input type="radio" name="contact" value="proveedor" id="radio2">
+                <input type="radio" name="contact" value="proveedor" <?php if($_GET['type'] == 0) { ?> checked <?php } ?> id="radio2" >
                 <label for="radio2">Proveedor</label>
             </div>
         </div>

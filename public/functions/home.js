@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function () {
 
     // Abreviar cifras
 
@@ -26,7 +26,7 @@ $(document).ready(function() {
             data: {
                 action: "ventas_meses",
             },
-            success: function(res) {
+            success: function (res) {
                 if (res != "") {
                     $("#sales_of_the_months").show();
                     $("#chart1").css("display", "none"); // No hay datos para mostrar
@@ -67,22 +67,22 @@ $(document).ready(function() {
                     borderColor: ["#2cc098"],
                     borderWidth: 1,
                     tension: 0.1
-                }, ],
+                },],
             },
             options: {
                 locale: "en-IN",
                 scales: {
                     yAxes: [{
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return abbreviateNumber(value);
                             },
                         },
-                    }, ],
+                    },],
                 },
                 tooltips: {
                     callbacks: {
-                        label: function(tooltipItem, data) {
+                        label: function (tooltipItem, data) {
                             return tooltipItem.yLabel.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
                         }
                     },
@@ -103,7 +103,7 @@ $(document).ready(function() {
             data: {
                 action: "gastos_meses",
             },
-            success: function(res) {
+            success: function (res) {
                 if (res != "") {
                     $("#expenses_of_the_months").show();
                     $("#chart2").css("display", "none"); // No hay datos para mostrar
@@ -148,22 +148,22 @@ $(document).ready(function() {
                     ],
                     borderWidth: 1,
                     tension: 0.1
-                }, ],
+                },],
             },
             options: {
                 locale: "en-IN",
                 scales: {
                     yAxes: [{
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return abbreviateNumber(value);
                             },
                         },
-                    }, ],
+                    },],
                 },
                 tooltips: {
                     callbacks: {
-                        label: function(tooltipItem, data) {
+                        label: function (tooltipItem, data) {
                             return tooltipItem.yLabel.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
                         }
                     },
@@ -178,25 +178,26 @@ $(document).ready(function() {
     var month = document.querySelector("#month");
 
     if (month != null) {
-        $.ajax({
-            type: "post",
-            url: SITE_URL + "services/home.php",
+        sendAjaxRequest({
+            url: "services/home.php",
             data: {
                 action: "ventas_mes",
             },
-            success: function(res) {
-                if (res != "") {
+            successCallback: (res) => {
+                var data = JSON.parse(res);
+
+                if (Array.isArray(data)) {
+                   
                     $("#month").show();
                     $("#chart3").css("display", "none"); // No hay datos para mostrar
-                    var data = JSON.parse(res);
 
                     Month(data);
                 } else {
                     $("#month").hide();
                     $("#chart3").css("display", "flex"); // No hay datos para mostrar
                 }
-            },
-        });
+            }
+        })
     }
 
     function Month(data) {
@@ -205,14 +206,11 @@ $(document).ready(function() {
         let labels = [];
         let datos = [];
 
-        // Loop
-        for (let index = 0; index < data.length; index++) {
-            labels.push(
-                data[index][0].charAt(0).toUpperCase() +
-                data[index][0].slice(1).toLowerCase()
-            );
-            datos.push(data[index][1]);
-        }
+        data.forEach(item => {
+             labels.push(item.dia);
+            datos.push(item.total);
+            console.log(`Día: ${item.dia}, Total: ${item.total}`);
+        });
 
         var month = new Chart(ctx, {
             type: "line",
@@ -225,22 +223,22 @@ $(document).ready(function() {
                     tension: 0.1,
                     borderColor: ["#822cc0"],
                     borderWidth: 1,
-                }, ],
+                },],
             },
             options: {
                 locale: "en-IN",
                 scales: {
                     yAxes: [{
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return abbreviateNumber(value);
                             },
                         },
-                    }, ],
+                    },],
                 },
                 tooltips: {
                     callbacks: {
-                        label: function(tooltipItem, data) {
+                        label: function (tooltipItem, data) {
                             return tooltipItem.yLabel.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
                         }
                     },

@@ -1017,7 +1017,7 @@ function deleteInvoice(id) {
                     if (res == "ready") {
 
                         (pageURL.includes("invoices/index")) ?
-                            dataTablesInstances['invoices'].ajax.reload(null, false) : dataTablesInstances['sales'].ajax.reload(null, false);
+                            dataTablesInstances['invoices'].ajax.reload(null, false) : dataTablesInstances['today'].ajax.reload(null, false);
 
                     } else {
                         mysql_error(res)

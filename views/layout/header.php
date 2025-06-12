@@ -208,9 +208,9 @@
                       class="fas fa-chevron-down"></i></div>
                   <ul class="submenu">
                     <li class="page"><a href="<?= base_url ?>contacts/customers">Clientes</a> <a
-                        href="<?= base_url ?>contacts/add"><i class="fas fa-plus-circle"></i></a></li>
+                        href="<?= base_url ?>contacts/add&type=1"><i class="fas fa-plus-circle"></i></a></li>
                     <li class="page"><a href="<?= base_url ?>contacts/providers">Proveedores</a> <a
-                        href="<?= base_url ?>contacts/add"><i class="fas fa-plus-circle"></i></a></li>
+                        href="<?= base_url ?>contacts/add&type=0"><i class="fas fa-plus-circle"></i></a></li>
                   </ul>
                 </li>
 
@@ -374,9 +374,9 @@
               </div>
               <ul class="submenu">
                 <li class="page"><a href="<?= base_url ?>contacts/customers">Clientes</a> <a
-                    href="<?= base_url ?>contacts/add"><i class="fas fa-plus-circle"></i></a></li>
+                    href="<?= base_url ?>contacts/add&type=1"><i class="fas fa-plus-circle"></i></a></li>
                 <li class="page"><a href="<?= base_url ?>contacts/providers">Proveedores</a> <a
-                    href="<?= base_url ?>contacts/add"><i class="fas fa-plus-circle"></i></a></li>
+                    href="<?= base_url ?>contacts/add&type=0"><i class="fas fa-plus-circle"></i></a></li>
               </ul>
             </li>
 

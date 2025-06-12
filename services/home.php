@@ -1,6 +1,8 @@
 <?php
 
 require_once '../config/db.php';
+require_once '../config/parameters.php';
+require_once 'functions/functions.php';
 session_start();
 
 
@@ -73,17 +75,49 @@ if ($_POST['action'] == 'gastos_meses') {
 if ($_POST['action'] == 'ventas_mes') {
     $db = Database::connect();
 
-    $query = "SELECT DAY(fecha) AS dia, SUM(total) as total FROM facturas_ventas 
-            WHERE MONTH(fecha) = 3 AND YEAR(fecha) = 2025
-            GROUP BY dia ORDER BY dia";
+    $query = "SELECT DAY(fecha) AS dia, SUM(total) AS total
+    FROM (
+        -- Facturas ventas
+        SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
+        FROM facturas_ventas f
+        INNER JOIN estados_generales e ON e.estado_id = f.estado_id
+        LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
+        LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+        WHERE MONTH(f.fecha) = MONTH(CURDATE()) AND YEAR(f.fecha) = YEAR(CURDATE())
+        GROUP BY f.factura_venta_id
 
-    $datos = $db->query($query);
+        UNION ALL
 
-    if ($datos->num_rows > 0) {
+        -- Facturas RP
+        SELECT (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, fr.fecha
+        FROM facturasRP fr
+        INNER JOIN estados_generales e ON e.estado_id = fr.estado_id
+        LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
+        LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+        WHERE MONTH(fr.fecha) = MONTH(CURDATE()) AND YEAR(fr.fecha) = YEAR(CURDATE())
+        GROUP BY fr.facturaRP_id
 
-        $result = $datos->fetch_all();
-        echo json_encode($result, JSON_UNESCAPED_UNICODE);
-    }
+        UNION ALL
+
+        -- Pagos a facturas RP
+        SELECT SUM(p.recibido) AS total, p.fecha
+        FROM pagos_a_facturasRP pf 
+        INNER JOIN pagos p ON pf.pago_id = p.pago_id
+        WHERE MONTH(p.fecha) = MONTH(CURDATE()) AND YEAR(p.fecha) = YEAR(CURDATE())
+        GROUP BY p.pago_id
+
+        UNION ALL
+
+        -- Pagos a facturas ventas
+        SELECT SUM(p.recibido) AS total, p.fecha
+        FROM pagos_a_facturas_ventas pf 
+        INNER JOIN pagos p ON pf.pago_id = p.pago_id
+        WHERE MONTH(p.fecha) = MONTH(CURDATE()) AND YEAR(p.fecha) = YEAR(CURDATE())
+        GROUP BY p.pago_id
+
+    ) ventas_del_mes GROUP BY DAY(fecha) ORDER BY dia";
+
+    jsonQueryResult($db,$query);  
 }
 
 
@@ -176,5 +210,3 @@ if ($_POST['action'] == 'buscador') {
 
     echo json_encode($result);
 }
-
-

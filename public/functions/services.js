@@ -49,7 +49,8 @@ function deleteService(serviceId) {
                     action: 'eliminar_servicio'
                 },
                 successCallback: () => dataTablesInstances['services'].ajax.reload(),
-                errorCallback: (res) => mysql_error(res)
+                errorCallback: (res) => mysql_error(res),
+                verbose: true
             });
         },
         function () {

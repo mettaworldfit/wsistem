@@ -6,7 +6,7 @@
 
 
         <div class="float-right">
-            <a class="btn-custom btn-default" href="<?= base_url ?>contacts/add">
+            <a class="btn-custom btn-default" href="<?= base_url ?>contacts/add&type=1">
                 <i class="fas fa-plus"></i>
                 <p>Agregar contacto</p>
             </a>

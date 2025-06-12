@@ -33,7 +33,7 @@ while ($element = $customer->fetch_object()): ?>
 
                     <div class="form-group col-sm-5">
                         <label for="Apellidos" class="form-check-label">Apellidos</label>
-                        <input class="form-custom" type="text" name="" value="<?= ucwords($element->apellidos) ?>"
+                        <input class="form-custom" type="text" name="" value="<?= ucwords($element->apellidos ?? '') ?>"
                             id="lastname">
                     </div>
 
