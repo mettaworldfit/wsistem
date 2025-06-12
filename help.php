@@ -41,41 +41,41 @@ class Help
       $db = Database::connect();
       $query = "SELECT SUM(total) AS total FROM (
 
+    -- Subconsulta 1: Facturas ventas
     SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
     FROM facturas_ventas f
-    INNER JOIN estados_generales e ON e.estado_id = f.estado_id
     LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
     WHERE f.fecha = CURDATE()
-    GROUP BY f.fecha
+    GROUP BY f.factura_venta_id
 
     UNION ALL
 
+    -- Subconsulta 2: Facturas RP
     SELECT (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, fr.fecha
     FROM facturasRP fr
-    INNER JOIN estados_generales e ON e.estado_id = fr.estado_id
     LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
     WHERE fr.fecha = CURDATE()
-    GROUP BY fr.fecha
+    GROUP BY fr.facturaRP_id
 
     UNION ALL
 
-    SELECT SUM(p.recibido) AS total, p.fecha
+    -- Subconsulta 3: Pagos RP
+    SELECT p.recibido AS total, p.fecha
     FROM pagos_a_facturasRP pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
     WHERE p.fecha = CURDATE()
-    GROUP BY p.fecha
-    
+
     UNION ALL
-    
-	SELECT SUM(p.recibido) AS total, p.fecha
+
+    -- Subconsulta 4: Pagos ventas
+    SELECT p.recibido AS total, p.fecha
     FROM pagos_a_facturas_ventas pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
     WHERE p.fecha = CURDATE()
-    GROUP BY p.fecha
 
-) ventas_de_hoy";
+) ventas_de_hoy;";
 
       return $db->query($query)->fetch_object()->total;
    }

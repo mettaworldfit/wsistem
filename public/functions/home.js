@@ -196,7 +196,7 @@ $(document).ready(function () {
                     $("#month").hide();
                     $("#chart3").css("display", "flex"); // No hay datos para mostrar
                 }
-            }
+            },verbose: true
         })
     }
 
@@ -209,7 +209,6 @@ $(document).ready(function () {
         data.forEach(item => {
              labels.push(item.dia);
             datos.push(item.total);
-            console.log(`Día: ${item.dia}, Total: ${item.total}`);
         });
 
         var month = new Chart(ctx, {
