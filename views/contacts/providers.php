@@ -16,7 +16,6 @@
 
 
 <div class="generalContainer">
-<div id="loader"></div>
     <table id="providers" class="table-custom table">
         <thead>
             <tr>

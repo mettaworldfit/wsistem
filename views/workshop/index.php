@@ -4,7 +4,6 @@
             <h1>Ordenes de servicios</h1>
         </div>
 
-
         <div class="float-right">
 
             <a href="#" class="btn-custom btn-blue" data-toggle="modal" data-target="#create_device">

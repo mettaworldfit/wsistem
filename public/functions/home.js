@@ -15,237 +15,138 @@ $(document).ready(function () {
 
     const format = new Intl.NumberFormat("en-CA");
 
-    // Ventas de todos los meses
+ function formatMonthName(monthName) {
+    return monthName.charAt(0).toUpperCase() + monthName.slice(1).toLowerCase();
+}
 
-    var sales_of_the_months = document.querySelector("#sales_of_the_months");
+/**
+ * Renderiza un gráfico de línea utilizando Chart.js.
+ *
+ * @param {string} elementId - ID del elemento <canvas> donde se renderiza el gráfico.
+ * @param {string} label - Etiqueta del dataset (ej. "Ventas", "Gastos").
+ * @param {Array<Object>} data - Arreglo de objetos con los datos, cada objeto debe tener `mes` o `dia` y `total`.
+ * @param {string} color - Color base del gráfico en formato hexadecimal (ej. "#2cc098").
+ */
+function renderLineChart(elementId, label, data, color) {
+    // Obtener contexto del canvas
+    const ctx = document.getElementById(elementId).getContext("2d");
 
-    if (sales_of_the_months != null) {
-        $.ajax({
-            type: "post",
-            url: SITE_URL + "services/home.php",
-            data: {
-                action: "ventas_meses",
-            },
-            success: function (res) {
-                if (res != "") {
-                    $("#sales_of_the_months").show();
-                    $("#chart1").css("display", "none"); // No hay datos para mostrar
-                    var data = JSON.parse(res);
+    // Generar etiquetas: si el objeto tiene "mes" se usa ese, si no, "dia"
+    const labels = data.map(item =>
+        item.mes ? formatMonthName(item.mes) : item.dia
+    );
 
-                    Sales_of_the_months(data);
-                } else {
-                    $("#sales_of_the_months").hide();
-                    $("#chart1").css("display", "flex"); // No hay datos para mostrar
-                }
-            },
-        });
-    }
+    // Extraer los valores numéricos (totales)
+    const valores = data.map(item => item.total);
 
-    function Sales_of_the_months(data) {
-        var ctx = document.getElementById("sales_of_the_months").getContext("2d");
-
-        let labels = [];
-        let datos = [];
-
-        // Loop
-        for (let index = 0; index < data.length; index++) {
-            labels.push(
-                data[index][0].charAt(0).toUpperCase() +
-                data[index][0].slice(1).toLowerCase()
-            );
-            datos.push(data[index][1]);
-        }
-
-        var sales_of_the_months = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: "Ventas",
-                    data: datos,
-                    backgroundColor: ["#2cc09866"],
-                    borderColor: ["#2cc098"],
-                    borderWidth: 1,
-                    tension: 0.1
-                },],
-            },
-            options: {
-                locale: "en-IN",
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            callback: function (value) {
-                                return abbreviateNumber(value);
-                            },
-                        },
-                    },],
-                },
-                tooltips: {
-                    callbacks: {
-                        label: function (tooltipItem, data) {
-                            return tooltipItem.yLabel.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-                        }
+    // Crear el gráfico
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: label,
+                data: valores,
+                backgroundColor: [color + "66"], // Color con transparencia
+                borderColor: [color],            // Borde del gráfico
+                borderWidth: 1,
+                tension: 0.1                     // Suavizado de línea
+            }],
+        },
+        options: {
+            locale: "en-IN", // Localización para números
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        callback: value => abbreviateNumber(value), // Formatea los valores del eje Y
                     },
-                    backgroundColor: ["#353535"]
-                }
+                }],
             },
-        }); // Chart
-    } // Function
-
-    // Gastos de todos los meses
-
-    var expenses_of_the_months = document.querySelector("#expenses_of_the_months");
-
-    if (expenses_of_the_months != null) {
-        $.ajax({
-            type: "post",
-            url: SITE_URL + "services/home.php",
-            data: {
-                action: "gastos_meses",
-            },
-            success: function (res) {
-                if (res != "") {
-                    $("#expenses_of_the_months").show();
-                    $("#chart2").css("display", "none"); // No hay datos para mostrar
-                    var data = JSON.parse(res);
-
-                    Expenses_of_the_months(data);
-                } else {
-                    $("#expenses_of_the_months").hide();
-                    $("#chart2").css("display", "flex"); // No hay datos para mostrar
-                }
-            },
-        });
-    }
-
-    function Expenses_of_the_months(data) {
-        var ctx = document.getElementById("expenses_of_the_months").getContext("2d");
-
-        let labels = [];
-        let datos = [];
-
-        // Loop
-        for (let index = 0; index < data.length; index++) {
-            labels.push(
-                data[index][0].charAt(0).toUpperCase() +
-                data[index][0].slice(1).toLowerCase()
-            );
-            datos.push(data[index][1]);
-        }
-
-        var expenses_of_the_months = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: "Gastos",
-                    data: datos,
-                    backgroundColor: [
-                        "#db2b2b87"
-                    ],
-                    borderColor: [
-                        "#db2b2b"
-                    ],
-                    borderWidth: 1,
-                    tension: 0.1
-                },],
-            },
-            options: {
-                locale: "en-IN",
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            callback: function (value) {
-                                return abbreviateNumber(value);
-                            },
-                        },
-                    },],
+            tooltips: {
+                callbacks: {
+                    // Formatea el número con coma como separador de miles y dos decimales
+                    label: tooltipItem =>
+                        tooltipItem.yLabel
+                            .toFixed(2)
+                            .replace(/\d(?=(\d{3})+\.)/g, '$&,'),
                 },
-                tooltips: {
-                    callbacks: {
-                        label: function (tooltipItem, data) {
-                            return tooltipItem.yLabel.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-                        }
-                    },
-                    backgroundColor: ["#353535"]
-                }
+                backgroundColor: ["#353535"], // Color de fondo del tooltip
             },
-        }); // Chart
-    } // Function
+        },
+    });
+}
 
-    // Ventas diarias
 
-    var month = document.querySelector("#month");
+/**
+ * Carga y renderiza un gráfico tipo línea utilizando Chart.js.
+ *
+ * @param {Object} options - Parámetros de configuración.
+ * @param {string} options.idCanvas - ID del elemento canvas donde se dibuja el gráfico.
+ * @param {string} options.idContainer - ID del contenedor del gráfico (para mostrar/ocultar).
+ * @param {string} options.idFallback - ID del contenedor de mensaje alternativo (cuando no hay datos).
+ * @param {string} options.action - Nombre de la acción enviada al backend vía AJAX.
+ * @param {string} options.label - Etiqueta del gráfico (ej. 'Ventas', 'Gastos').
+ * @param {string} options.color - Color hexadecimal base para el gráfico.
+ */
+function loadChart({ idCanvas, idContainer, idFallback, action, label, color }) {
+    // Obtener el canvas del DOM
+    const canvas = document.querySelector(`#${idCanvas}`);
+    if (!canvas) return; // Si no existe, salir
 
-    if (month != null) {
-        sendAjaxRequest({
-            url: "services/home.php",
-            data: {
-                action: "ventas_mes",
-            },
-            successCallback: (res) => {
-                var data = JSON.parse(res);
+    // Enviar la petición AJAX
+    sendAjaxRequest({
+        url: "services/home.php",
+        data: { action: action },
+        successCallback: (res) => {
+            const data = JSON.parse(res); // Convertir la respuesta a objeto JS
 
-                if (Array.isArray(data)) {
-                   
-                    $("#month").show();
-                    $("#chart3").css("display", "none"); // No hay datos para mostrar
+            const container = $(`#${idContainer}`); // Contenedor del gráfico
+            const fallback = $(`#${idFallback}`);   // Contenedor de mensaje de error
 
-                    Month(data);
-                } else {
-                    $("#month").hide();
-                    $("#chart3").css("display", "flex"); // No hay datos para mostrar
-                }
-            },verbose: true
-        })
-    }
+            if (Array.isArray(data)) {
+                // Si hay datos válidos, mostrar gráfico y ocultar el fallback
+                container.show();
+                fallback.hide();
 
-    function Month(data) {
-        var ctx = document.getElementById("month").getContext("2d");
+                // Renderizar el gráfico usando Chart.js
+                renderLineChart(idCanvas, label, data, color);
+            } else {
+                // Si no hay datos válidos, ocultar gráfico y mostrar mensaje
+                container.hide();
+                fallback.show();
+            }
+        },
+    });
+}
 
-        let labels = [];
-        let datos = [];
 
-        data.forEach(item => {
-             labels.push(item.dia);
-            datos.push(item.total);
-        });
+// 📈 Cargar gráficas
+loadChart({
+    idCanvas: "sales_of_the_months",
+    idContainer: "sales_of_the_months",
+    idFallback: "chart1",
+    action: "ventas_meses",
+    label: "Ventas",
+    color: "#2cc098",
+});
 
-        var month = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date()),
-                    data: datos,
-                    backgroundColor: ["#822cc066"],
-                    tension: 0.1,
-                    borderColor: ["#822cc0"],
-                    borderWidth: 1,
-                },],
-            },
-            options: {
-                locale: "en-IN",
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            callback: function (value) {
-                                return abbreviateNumber(value);
-                            },
-                        },
-                    },],
-                },
-                tooltips: {
-                    callbacks: {
-                        label: function (tooltipItem, data) {
-                            return tooltipItem.yLabel.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-                        }
-                    },
-                    backgroundColor: ["#353535"]
-                }
-            },
-        }); // Chart
-    } // Function
+loadChart({
+    idCanvas: "expenses_of_the_months",
+    idContainer: "expenses_of_the_months",
+    idFallback: "chart2",
+    action: "gastos_meses",
+    label: "Gastos",
+    color: "#db2b2b",
+});
+
+loadChart({
+    idCanvas: "month",
+    idContainer: "month",
+    idFallback: "chart3",
+    action: "ventas_mes",
+    label: new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date()),
+    color: "#822cc0",
+});
 
 
 }); // Ready

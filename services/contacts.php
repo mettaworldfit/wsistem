@@ -26,9 +26,9 @@ try {
           'select' => ' SELECT nombre_proveedor, apellidos, direccion, email, telefono1, fecha, proveedor_id',
           'table_rows' => function ($row) {
              return [
-                 'id' => $row['proveedor_id'],
+                 'id' => '<span class="text-success hide-cell">' .$row['proveedor_id']. '</span>',
                  'nombre'    => ucwords($row['nombre_proveedor'] . ' ' . $row['apellidos']),
-                 'correo'     => $row['email'],
+                 'correo'    => '<span class="text-success hide-cell">' .$row['email']. '</span>',
                  'telefono'  => formatTel($row['telefono1'] ?? ''),
                  'fecha'     => $row['fecha'],
            
@@ -68,13 +68,13 @@ try {
           'table_with_joins' => 'clientes c',
           'select' => 'SELECT c.nombre, c.apellidos, c.cedula, c.telefono1, c.fecha, c.cliente_id, c.direccion',
           'table_rows' => function ($row) {
-            return [
+            return [ 
               'id' => $row['cliente_id'],
               'nombre' => ucwords($row['nombre'] . ' ' . $row['apellidos']),
-              'cedula' => $row['cedula'],
+              'cedula' => '<span class="hide-cell">' . $row['cedula']. '</span>',
               'telefono' => formatTel($row['telefono1'] ?? ''),
               'fecha' => $row['fecha'],
-              'direccion' => $row['direccion'],
+              'direccion' => '<span class="hide-cell">' . $row['direccion']. '</span>',
               'acciones' => '<a class="action-edit" href="' . base_url . 'contacts/edit_customer&id=' . $row['cliente_id'] . '" title="Editar">
                                 <i class="fas fa-pencil-alt"></i>
                               </a>

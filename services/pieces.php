@@ -69,13 +69,13 @@ switch ($action) {
         }
 
         $acciones = $editLink . ' ' . $toggleAction . ' ' . $deleteAction;
-
+ 
         return [
-          'id' => $row['cod_pieza'],
+          'id' => '<span class="hide-cell">'. $row['cod_pieza']. '</span>',
           'nombre' => ucwords($row['nombre_pieza']),
-          'categoria' => ucwords($row['nombre_categoria'] ?? 'N/A'),
+          'categoria' => '<span class="hide-cell">'. ucwords($row['nombre_categoria'] ?? 'N/A'). '</span>',
           'cantidad' => $row['cantidad'],
-          'precio_costo' => number_format($row['precio_costo'], 2),
+          'precio_costo' => '<span class="hide-cell">'. number_format($row['precio_costo'] ?? 0, 2). '</span>',
           'precio_unitario' => number_format($row['precio_unitario'], 2),
           'acciones' => $acciones
         ];

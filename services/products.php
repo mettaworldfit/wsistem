@@ -224,12 +224,12 @@ switch ($action) {
         $cantidad .= $row['cantidad'] . '</span>';
 
         return [
-          'codigo' => $row['cod_producto'],
-          'nombre' => $row['nombre_producto'],
-          'categoria' => $row['nombre_categoria'],
-          'almacen' => $row['nombre_almacen'],
+          'codigo' => '<span class="hide-cell">'. $row['cod_producto']. '</span>',
+          'nombre' => $row['nombre_producto'], 
+          'categoria' => '<span class="hide-cell">'. $row['nombre_categoria']. '</span>',
+          'almacen' => '<span class="hide-cell">'. $row['nombre_almacen']. '</span>',
           'cantidad' => $cantidad,
-          'precio_costo' => number_format($row['precio_costo'], 2),
+          'precio_costo' => '<span class="hide-cell">'. number_format($row['precio_costo'] ?? 0, 2). '</span>', 
           'precio_unitario' => number_format($row['precio_unitario'], 2),
           'estado' => '<span class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</span>',
 

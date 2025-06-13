@@ -56,7 +56,7 @@ switch ($action) {
         es.nombre_estado, es.estado_id",
       // Configuración del contenido de cada fila de la tabla
       'table_rows' => function ($row) {
-        return [
+        return [ 
           'orden' => '<span><a href="#" class="' .
             ($row['facturaRP_id'] > 0 ? 'text-secondary' : 'text-danger') . '">OR-00' . $row['id'] . '</a>' .
             '<span id="toggle" class="toggle-right toggle-md">No. Orden: OR-00' . $row['id'] . '<br>' .
@@ -72,9 +72,9 @@ switch ($action) {
             'Marca: ' . $row['nombre_marca'] . '<br>Modelo: ' . $row['modelo'] . '<br>' .
             'IMEI: ' . $row['imei'] . '<br>Serie: ' . $row['serie'] . '</span></span>',
 
-          'fecha_entrada' => '<span class="text-success hide-cell">' . $row['fecha_entrada'] . '</span>',
-          'fecha_salida' => '<span class="text-danger hide-cell">' . $row['fecha_salida'] . '</span>',
-          'condicion' => Help::SHOW_CONDITONS_ORDER($row['id']),
+          'fecha_entrada' => '<span class="text-success hide-cell">' . $row['fecha_entrada']. '</span>',
+          'fecha_salida' => '<span class="text-danger hide-cell">' . $row['fecha_salida']. '</span>',
+          'condicion' => '<span class="hide-cell">' . Help::loadOrderConditionById($row['id']) . '</span>',
 
           'estado' => '<select class="form-custom ' . $row['nombre_estado'] . '" id="status_rp" onchange="updateOrderStatus(this);">'
             . '<option workshop_id="' . $row['id'] . '" value="' . $row['estado_id'] . '" selected>' . $row['nombre_estado'] . '</option>' .

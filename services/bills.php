@@ -12,13 +12,13 @@ if ($_POST['action'] == "index_gastos") {
 
   handleDataTableRequest($db, [
     'columns' => [
+      'g.fecha',
       'g.gasto_id',
       'p.nombre_proveedor',
       'p.apellidos',
       'g.total',
       'g.pagado',
-      'g.orden_id',
-      'g.fecha'
+      'g.orden_id'
     ],
     'searchable' => [
       'p.nombre_proveedor',

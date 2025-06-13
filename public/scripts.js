@@ -497,7 +497,8 @@ $(document).ready(function () {
         action: 'index_clientes',
         columns: [
             'id', 'nombre', 'direccion', 'cedula', 'telefono', 'fecha', 'acciones'
-        ]
+        ],
+        hiddenColumns: [2,3]
     },
     {
         id: '#providers',
@@ -505,7 +506,8 @@ $(document).ready(function () {
         action: 'index_proveedores',
         columns: [
             'id', 'nombre', 'correo', 'telefono', 'fecha', 'acciones'
-        ]
+        ],
+        hiddenColumns: [0,2]
     },
     {
         id: '#workshop',
@@ -513,7 +515,8 @@ $(document).ready(function () {
         action: 'index_taller',
         columns: [
             'orden', 'nombre', 'equipo', 'fecha_entrada', 'fecha_salida', 'condicion', 'estado', 'acciones'
-        ]
+        ],
+        hiddenColumns: [3,4,5]
     },
     {
         id: '#products',
@@ -521,7 +524,8 @@ $(document).ready(function () {
         action: 'index_productos',
         columns: [
             'codigo', 'nombre', 'categoria', 'almacen', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
-        ]
+        ],
+        hiddenColumns: [0,2,3,5]
     },
     {
         id: '#invoicesrp',
@@ -591,7 +595,8 @@ $(document).ready(function () {
         action: 'index_piezas',
         columns: [
             'id', 'nombre', 'categoria', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
-        ]
+        ],
+        hiddenColumns: [0,2,4]
     },
     {
         id: '#minStockProduct',
@@ -615,7 +620,8 @@ $(document).ready(function () {
         action: 'index_usuarios',
         columns: [
             'usuario_id', 'nombre', 'rol', 'estado', 'fecha', 'acciones'
-        ]
+        ],
+        hiddenColumns: [0]
     },
     {
         id: '#brands',

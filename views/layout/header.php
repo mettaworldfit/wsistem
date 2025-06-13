@@ -146,6 +146,8 @@
                     <li class="page"><a href="<?= base_url ?>invoices/index">Facturas de ventas</a> <a
                         href="<?= base_url ?>invoices/addpurchase"><i class="fas fa-plus-circle"></i></a></li>
                     <li><a href="<?= base_url ?>invoices/index_repair">Facturas de reparaciones</a> </li>
+                     <li class="page"><a href="<?= base_url ?>invoices/quotes">Cotizaciones</a> <a
+                    href="<?= base_url ?>invoices/quote"><i class="fas fa-plus-circle"></i></a></li>
                     <li class="page"><a href="<?= base_url ?>payments/index">Pagos</a> <a
                         href="<?= base_url ?>payments/add"><i class="fas fa-plus-circle"></i></a></li>
                   </ul>
@@ -168,7 +170,7 @@
                 </li>
 
                 <li class="dropdown-3">
-                  <div class="link"><i class="mr-3 fas fa-tools"></i>Servicios <i class="fas fa-chevron-down"></i></div>
+                  <div class="link"><i class="mr-3 fas fa-tools"></i>Taller <i class="fas fa-chevron-down"></i></div>
                   <ul class="submenu ">
                     <li><a href="<?= base_url ?>workshop/index">Órdenes de servicios</a> </li>
 
@@ -334,7 +336,7 @@
             </li>
 
             <li class="dropdown-3">
-              <div class="link"><i class="mr-3 fas fa-tools"></i>Servicios <i class="fas fa-chevron-down"></i></div>
+              <div class="link"><i class="mr-3 fas fa-tools"></i>Taller <i class="fas fa-chevron-down"></i></div>
               <ul class="submenu ">
                 <li><a href="<?= base_url ?>workshop/index">Órdenes de servicios</a> </li>
 

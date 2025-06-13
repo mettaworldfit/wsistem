@@ -14,28 +14,25 @@ if ($_POST['action'] == 'ventas_meses') {
 
     $query1 = "SET @@lc_time_names = 'es_DO';";
 
-    $query2 = "SELECT monthname(fecha) AS 'mes' ,sum(total) as total FROM (
+    $query2 = "SELECT MONTH(fecha) AS mes_num, MONTHNAME(fecha) AS mes,SUM(total) AS total
+    FROM (
+        -- Ingresos de facturas ventas
+        SELECT f.recibido AS total, f.fecha
+        FROM facturas_ventas f
+        WHERE YEAR(f.fecha) = YEAR(CURDATE())
 
-        SELECT sum(f.recibido) as 'total', f.fecha FROM facturas_ventas f
-        WHERE f.fecha > now() - interval 11 month
-        GROUP BY f.fecha     
-        
-          UNION ALL
-          
-        SELECT sum(fr.recibido) as 'total', fr.fecha FROM facturasRP fr
-        WHERE fr.fecha > now() - interval 11 month
-        GROUP BY fr.fecha              
-                                      
-    ) ingresos_por_meses group by mes";
+        UNION ALL
+
+        -- Ingresos de facturas RP
+        SELECT fr.recibido AS total, fr.fecha
+        FROM facturasRP fr
+        WHERE YEAR(fr.fecha) = YEAR(CURDATE())
+
+    ) ingresos
+    GROUP BY mes_num,mes ORDER BY mes_num;";
 
     $db->query($query1);
-    $datos = $db->query($query2);
-
-    if ($datos->num_rows > 0) {
-
-        $result = $datos->fetch_all();
-        echo json_encode($result, JSON_UNESCAPED_UNICODE);
-    }
+    jsonQueryResult($db, $query2);
 }
 
 
@@ -46,29 +43,26 @@ if ($_POST['action'] == 'gastos_meses') {
 
     $query1 = "SET @@lc_time_names = 'es_DO';";
 
-    $query2 = "SELECT monthname(fecha) AS 'mes' ,sum(total) as total FROM (
+    $query2 = "SELECT MONTH(fecha) AS mes_num,MONTHNAME(fecha) AS mes,SUM(total) AS total FROM (
+    SELECT SUM(g.pagado) AS total, g.fecha
+    FROM gastos g
+    WHERE YEAR(g.fecha) = YEAR(CURDATE())
+    GROUP BY g.fecha
 
-        SELECT sum(g.pagado) as 'total', g.fecha FROM gastos g
-        WHERE g.fecha > now() - interval 11 month
-        GROUP BY g.fecha     
-        
-          UNION ALL
-          
-        SELECT sum(f.pagado) as 'total', f.fecha FROM ordenes_compras o 
-        INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
-        WHERE o.estado_id = 12 AND f.fecha > now() - interval 11 month
-        GROUP BY f.fecha              
-                                      
-    ) gastos_por_meses group by mes";
+    UNION ALL
+
+    SELECT SUM(f.pagado) AS total, f.fecha
+    FROM ordenes_compras o 
+    INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
+    WHERE o.estado_id = 12 AND YEAR(f.fecha) = YEAR(CURDATE())
+    GROUP BY f.fecha
+    ) AS gastos_por_meses GROUP BY mes_num, mes ORDER BY mes_num";
 
     $db->query($query1);
-    $datos = $db->query($query2);
+    
+    jsonQueryResult($db,$query2);
 
-    if ($datos->num_rows > 0) {
-
-        $result = $datos->fetch_all();
-        echo json_encode($result, JSON_UNESCAPED_UNICODE);
-    }
+    
 }
 
 
@@ -117,7 +111,7 @@ if ($_POST['action'] == 'ventas_mes') {
 
     ) ventas_del_mes GROUP BY DAY(fecha) ORDER BY dia";
 
-    jsonQueryResult($db,$query);  
+    jsonQueryResult($db, $query);
 }
 
 

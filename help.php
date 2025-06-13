@@ -883,7 +883,7 @@ class Help
    }
 
 
-   public static function SHOW_CONDITONS_ORDER($id)
+   public static function loadOrderConditionById($id)
    {
       $query = "SELECT c.sintoma as descripcion FROM ordenes_rp o 
       INNER JOIN ordenes_rp_con_condiciones oc ON oc.orden_rp_id = o.orden_rp_id
