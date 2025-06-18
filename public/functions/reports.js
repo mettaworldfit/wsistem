@@ -43,7 +43,7 @@ $(document).ready(function () {
         // const ingresosTarjeta = parseFloat($('#card_income').val().replace(/,/g, "")) || 0;
         // const ingresosTransfer = parseFloat($('#transfer_income').val().replace(/,/g, "")) || 0;
         // const ingresosCheque = parseFloat($('#check_income').val().replace(/,/g, "")) || 0;
-        const cash_expenses = parseFloat($('#cash_expenses').val()) || 0;
+        const cash_expenses = parseFloat($('#cash_expenses').val().replace(/,/g, "")) || 0;
         const withdrawals = parseFloat($('#withdrawals').val()) || 0;
 
         // Calcular el total esperado
@@ -153,8 +153,8 @@ function cashClosing() {
         card_income: parseFloat($('#card_income').val().replace(/,/g, "")) || 0,
         transfer_income: parseFloat($('#transfer_income').val().replace(/,/g, "")) || 0,
         check_income: parseFloat($('#check_income').val().replace(/,/g, "")) || 0,
-        cash_expenses: parseFloat($('#cash_expenses').val()) || 0,
-        external_expenses: parseFloat($('#external_expenses').val()) || 0,
+        cash_expenses: parseFloat($('#cash_expenses').val().replace(/,/g, "")) || 0,
+        external_expenses: parseFloat($('#external_expenses').val().replace(/,/g, "")) || 0,
         withdrawals: parseFloat($('#withdrawals').val()) || 0,
         total: parseFloat($('#total').val().replace(/,/g, "")) || 0,
         current_total: $('#current_total').val(),

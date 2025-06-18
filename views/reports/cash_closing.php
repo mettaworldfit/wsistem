@@ -92,38 +92,38 @@
               </div>
               <div class="col-sm-12">
                 <label class="form-label">Ingresos Efectivo:</label>
-                <input type="text" class="form-custom" id="cash_income" value="<?= number_format($cash, 2) ?>" readonly disabled>
+                <input type="text" class="form-custom color-black" id="cash_income" value="<?= number_format($cash, 2) ?>" readonly disabled>
               </div>
               <div class="col-sm-12">
                 <label class="form-label">Ingresos Tarjeta:</label>
-                <input type="text" class="form-custom" id="card_income" value="<?= number_format($card ?? 0.00, 2) ?>" readonly disabled>
+                <input type="text" class="form-custom color-black" id="card_income" value="<?= number_format($card ?? 0.00, 2) ?>" readonly disabled>
               </div>
               <div class="col-sm-12">
                 <label class="form-label">Ingresos Transferencia:</label>
-                <input type="text" class="form-custom" id="transfer_income" value="<?= number_format($transfers ?? 0.00, 2) ?>" readonly disabled>
+                <input type="text" class="form-custom color-black" id="transfer_income" value="<?= number_format($transfers ?? 0.00, 2) ?>" readonly disabled>
               </div>
               <div class="col-sm-12">
                 <label class="form-label">Ingresos Cheques:</label>
-                <input type="text" class="form-custom" id="check_income" value="<?= number_format($checks ?? 0.00, 2) ?>" readonly disabled>
+                <input type="text" class="form-custom color-black" id="check_income" value="<?= number_format($checks ?? 0.00, 2) ?>" readonly disabled>
               </div>
             </div>
 
             <div class="col-md-4">
               <div class="col-sm-12">
                 <label class="form-label">Fecha Apertura:</label>
-                <input type="datetime-local" class="form-custom" value="<?= $cashOpening->fecha_apertura ?? '' ?>" id="opening_date" required>
+                <input type="datetime-local" class="form-custom color-black" value="<?= $cashOpening->fecha_apertura ?? '' ?>" id="opening_date" disabled required>
               </div>
               <div class="col-sm-12">
                 <label class="form-label">Gastos fuera de caja:</label>
-                <input type="number" class="form-custom text-danger" id="external_expenses" value="<?= $externalExpenses ?? 0 ?>" disabled>
+                <input type="number" class="form-custom color-black" id="external_expenses" value="<?= $externalExpenses ?? 0 ?>" disabled>
               </div>
               <div class="col-sm-12">
                 <label class="form-label">Gastos de caja:</label>
-                <input type="number" class="form-custom text-danger" id="cash_expenses" value="<?= $cashExpenses ?? 0 ?>" disabled>
+                <input type="number" class="form-custom color-black" id="cash_expenses" value="<?= $cashExpenses ?? 0 ?>" disabled>
               </div>
               <div class="col-sm-12">
                 <label class="form-label">Retiros:</label>
-                <input type="number" class="form-custom text-danger" id="withdrawals" value="0.00">
+                <input type="number" class="form-custom color-black" id="withdrawals" value="0.00">
               </div>
             </div>
 
