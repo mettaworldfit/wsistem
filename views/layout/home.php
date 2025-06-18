@@ -219,11 +219,11 @@
               </div>
               <div class="col-sm-12">
                 <label class="form-label">Gastos fuera de caja:</label>
-                <input type="number" class="form-custom text-danger" id="external_expenses" value="<?= $externalExpenses ?? 0.00  ?>" disabled>
+                <input type="number" class="form-custom text-danger" id="external_expenses" value="<?= $externalExpenses ?? 0 ?>" disabled>
               </div>
               <div class="col-sm-12">
                 <label class="form-label">Gastos de caja:</label>
-                <input type="number" class="form-custom text-danger" id="cash_expenses" value="<?= $cashExpenses ?? 0.00  ?>" disabled>
+                <input type="number" class="form-custom text-danger" id="cash_expenses" value="<?= $cashExpenses ?? 0 ?>" disabled>
               </div>
               <div class="col-sm-12">
                 <label class="form-label">Retiros:</label>

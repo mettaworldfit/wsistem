@@ -32,6 +32,7 @@ if ($_POST['action'] == 'cierre_caja') {
         $_POST['external_expenses'],
         $_POST['withdrawals'],
         $_POST['total'],
+        $_POST['current_total'],
         $_POST['notes'] ?? ""
     ];
 

@@ -156,7 +156,8 @@ function cashClosing() {
         cash_expenses: parseFloat($('#cash_expenses').val()) || 0,
         external_expenses: parseFloat($('#external_expenses').val()) || 0,
         withdrawals: parseFloat($('#withdrawals').val()) || 0,
-        total: parseFloat($('#total').val()) || 0,
+        total: parseFloat($('#total').val().replace(/,/g, "")) || 0,
+        current_total: $('#current_total').val(),
         notes: $('#notes').val() || ""
     };
 
