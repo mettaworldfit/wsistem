@@ -1,7 +1,28 @@
+/**
+ * Muestra una alerta con el monto de devolución en estilo limpio y con animación de latido solo en el valor.
+ * Usa Alertify.js.
+ * 
+ * @param {number|string} data - Monto a devolver.
+ */
 function cashback(data) {
-    alertify.alert(`<div class='row-affected d-flex flex-column'>
-    <h2>Devuelta</h2> <br>` + "<h1 class='text-danger'> $" + data + `</h1></div>`).set('basic', true);
+    alertify.alert(
+        `<div class="cashback-modal">
+            <div class="cashback-header">
+                <i class="fa fa-dollar-sign icon"></i>
+                <h2 class="title">Cambio a devolver</h2>
+            </div>
+            <div class="cashback-body">
+                <p class="amount heartbeat">$${data}</p>
+            </div>
+        </div>`
+    ).set({
+        basic: true,
+        movable: false,
+        closable: true,
+        transition: 'fade'
+    });
 }
+
 
 
 // Total de la factura
@@ -121,7 +142,7 @@ function resetModal() {
 }
 
 $(document).ready(function () {
-
+    
     // Ocultar botones por defecto (cotización, editar última factura, tipos de facturación)
     $('#SaveQuote, #last_invoice_edit, #credit-in-finish, #credit-in-finish-receipt, #cash-in-finish-receipt, #cash-in-finish').hide();
 

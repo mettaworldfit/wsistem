@@ -3,8 +3,8 @@
     ?>
     <!-- ChartJS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
-
     <script src="<?= base_url ?>public/functions/home.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/reports.js" type="text/javascript"></script>
     <?php
 
 } elseif (

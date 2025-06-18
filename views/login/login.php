@@ -32,7 +32,7 @@
 
 
       <button type="submit">
-        <div id="btn-txt">Iniciar sesión</div>
+        <div id="btn-txt">Iniciar sesión <i class="fas fa-sign-out-alt"></i></div>
         <div class="load">
           <div class="loadingio-spinner-pulse-gf09yprf7f8">
             <div class="ldio-gbaxaaxfkjf">

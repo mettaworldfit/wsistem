@@ -256,6 +256,20 @@
                             </div>
                         </div>
 
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Origen</label>
+                            <div class="input-div">
+                                <div class="i b-right">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <select class="form-custom-icon search" name="" id="origin" required>
+                                    <option value="" selected disabled>Elegir origen</option>
+                                    <option value="caja">Gasto de caja</option>
+                                    <option value="fuera_caja">Gasto fuera de caja</option>
+                                </select>
+                            </div>
+                        </div>
+
 
                     </div> <!-- Row -->
 

@@ -3,7 +3,87 @@
 require_once '../config/db.php';
 require_once '../help.php';
 require_once '../config/parameters.php';
+require_once 'functions/functions.php';
 session_start();
+
+if ($_POST['action'] == 'abrir_caja') {
+    
+    $db = Database::connect();
+    $params = [
+       (int) $_SESSION['identity']->usuario_id,
+        $_POST['opening_date'],
+        $_POST['initial_balance'],
+    ];
+
+    echo handleProcedureAction($db,'c_aperturaCaja',$params);
+}
+
+if ($_POST['action'] == 'cierre_caja') {
+    $db = Database::connect();
+    $params = [
+        (int)$_POST['user_id'],
+        $_POST['closing_date'],
+        $_POST['initial_balance'],
+        $_POST['cash_income'],
+        $_POST['card_income'],
+        $_POST['transfer_income'],
+        $_POST['check_income'],
+        $_POST['cash_expenses'],
+        $_POST['external_expenses'],
+        $_POST['withdrawals'],
+        $_POST['current_total'],
+        $_POST['notes'] ?? ""
+    ];
+
+    echo handleProcedureAction($db,'c_cierreCaja',$params);
+}
+
+// index cierres de caja
+
+if ($_POST['action'] == 'index_cierre_caja') {
+    $db = Database::connect();
+
+    handleDataTableRequest($db, [
+        'columns' => [
+            'cierre_id',
+            'cajero',
+            'total_esperado',
+            'total_real',
+            'diferencia',
+            'fecha_apertura',
+            'fecha_cierre',
+            'estado'
+        ],
+        'searchable' => [
+            'cierre_id',
+            'cajero',
+            'total_esperado',
+            'total_real',
+            'diferencia',
+            'fecha_apertura',
+            'fecha_cierre',
+            'estado'
+        ],
+        'base_table' => 'cierres_caja c',
+        'table_with_joins' => 'cierres_caja c
+      INNER JOIN usuarios u ON u.usuario_id = c.usuario_id',
+        'select' => "SELECT c.cierre_id,concat(u.nombre,' ',IFNULL(u.apellidos,'')) as cajero, c.total_esperado,
+       c.total_real,c.diferencia,c.fecha_apertura,c.fecha_cierre,c.estado",
+        'table_rows' => function ($row) {
+            return [
+                'id' => '<span class="hide-cell">' . $row['cierre_id'] . '</span>',
+                'cajero' => ucwords($row['cajero']),
+                'total_esperado' => '<span class="hide-cell text-success">' . number_format($row['total_esperado']) . '</span>',
+                'total_real' => '<span class="hide-cell text-primary">' . number_format($row['total_real']) . '</span>',
+                'diferencia' => '<span class="hide-cell text-danger">' . number_format($row['diferencia']) . '</span>',
+                'fecha_apertura' => $row['fecha_apertura'],
+                'fecha_cierre' => $row['fecha_cierre'],
+                'estado' => '<span class="hide-cell">' . ucwords($row['estado']) . '</span>',
+                'acciones' => ''
+            ];
+        }
+    ]);
+}
 
 // Index de ventas diarias
 
@@ -153,14 +233,14 @@ if ($_POST['action'] == "index_ventas_hoy") {
         $acciones .= ' title="Eliminar"><i class="fas fa-times"></i></span>';
 
         $data[] = [
-      
+
             'id' => '
         <span>
             <a href="#">
                 ' . $row['tipo'] . '-00' . $row['id'] . '
             </a>
             <span id="toggle" class="toggle-right toggle-md">
-               ' . 'Método: '. $row['nombre_metodo'] . '
+               ' . 'Método: ' . $row['nombre_metodo'] . '
             </span>
         </span>
     ',

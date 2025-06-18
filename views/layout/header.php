@@ -222,6 +222,7 @@
                   <ul class="submenu">
                     <li class="page"><a href="<?= base_url ?>reports/day">Ventas del día</a></li>
                     <li class="page"><a href="<?= base_url ?>reports/querys">Consultas</a></li>
+                    <li class="page"><a href="<?= base_url ?>reports/cash_closing">Cierres de caja</a></li>
                     <li class="page"><a href="<?= base_url ?>reports/pending">Cuentas por cobrar</a> </li>
                   </ul>
                 </li>
@@ -387,8 +388,7 @@
               <ul class="submenu">
                 <li class="page"><a href="<?= base_url ?>reports/day">Ventas del día</a></li>
                 <li class="page"><a href="<?= base_url ?>reports/querys">Consultas</a></li>
-                <!-- <li class="page"><a href="<?= base_url ?>reports/month">Ventas del mes</a> </li>
-                <li class="page"><a href="<?= base_url ?>reports/date">Reporte de fecha</a> </li> -->
+                <li class="page"><a href="<?= base_url ?>reports/cash_closing">Cierres de caja</a></li>
                 <li class="page"><a href="<?= base_url ?>reportss/pending">Cuentas por cobrar</a> </li>
 
               </ul>

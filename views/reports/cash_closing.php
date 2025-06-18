@@ -1,149 +1,47 @@
-<div class="section-wrapper mt-2">
-  <div class="align-content clearfix">
-    <div class="float-left">
-      <h1><i class="far fa-chart-bar"></i> Panel de control</h1>
-    </div>
-
-    <div class="float-right">
-      <a href="#" class="btn-custom btn-green" data-toggle="modal" data-target="#modalCashOpening">
-        <i class="fas fa-door-open"></i>
-        <p>Abrir caja</p>
-      </a>
-
-      <?php if ($cashOpening): ?>
-        <a href="#" class="btn-custom btn-red" data-toggle="modal" data-target="#modalCashClosing" id="cash_closing">
-          <i class="fas fa-door-closed"></i>
-          <p>Cerrar caja</p>
-        </a>
-      <?php endif; ?>
-    </div>
-  </div>
-</div> <br>
-
-<div class="grid-container">
-
-  <a href="<?= base_url ?>reports/day" class="card-grid">
-    <div>
-      <p>Ventas</p>
-      <p><?= date("d/m/Y"); ?></p>
-    </div>
-
-    <span title="<?= number_format(floatval($totalPurchase), 2) ?>">
-      $<?= number_format_short(floatval($totalPurchase)) ?>
-    </span>
-  </a>
-
-  <a href="#" class="card-grid">
-    <div>
-      <p>Gastos</p>
-      <p><?= date("d/m/Y"); ?></p>
-    </div>
-    <span title="<?= number_format(floatval($totalExpenses), 2) ?>">
-      $<?= number_format_short(floatval($totalExpenses)) ?>
-    </span>
-  </a>
-
-  <a href="<?= base_url ?>contacts/customers" class="card-grid">
-    <div>
-      <p>Clientes</p>
-      <p>Total clientes</p>
-    </div>
-    <span><?= number_format($customers) ?></span>
-  </a>
-
-  <a href="<?= base_url ?>contacts/providers" class="card-grid">
-    <div>
-      <p>Proveedores</p>
-      <p>Total proveedores</p>
-    </div>
-    <span><?= number_format($providers) ?></span>
-  </a>
-
-  <a href="<?= base_url ?>products/index" class="card-grid">
-    <div>
-      <p>Productos</p>
-      <p>Total productos</p>
-    </div>
-
-    <span><?= number_format($products) ?></span>
-  </a>
-
-  <a href="<?= base_url ?>pieces/index" class="card-grid">
-    <div>
-      <p>Piezas</p>
-      <p>Total piezas</p>
-    </div>
-
-    <span><?= number_format($pieces) ?></span>
-  </a>
-
-
-  <div class="card-grid">
-    <canvas id="sales_of_the_months"></canvas>
-
-    <div class="chart-empty" id="chart1">
-      <span>Ingresos - Mensuales</span>
-      <p>Aún no tienes suficientes datos para mostrar</p>
-      <div class="loadingio-spinner-gear-zp4adgmadk">
-        <div class="ldio-f9ntw0vxf94">
-          <div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
+<div class="section-wrapper">
+    <div class="align-content clearfix">
+        <div class="float-left">
+            <h1>Cierres de caja</h1>
         </div>
-      </div>
-    </div>
-  </div>
 
 
-  <div class="card-grid">
-    <canvas id="month"></canvas>
+        <div class="float-right">
+            <div class="float-right">
+                <a href="#" class="btn-custom btn-green" data-toggle="modal" data-target="#modalCashOpening">
+                    <i class="fas fa-door-open"></i>
+                    <p>Abrir caja</p>
+                </a>
 
-    <div class="chart-empty" id="chart3">
-      <span>Ventas del mes</span>
-      <p>Aún no tienes suficientes datos para mostrar</p>
-      <div class="loadingio-spinner-gear-zp4adgmadk">
-        <div class="ldio-f9ntw0vxf94">
-          <div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
+                <?php if ($cashOpening): ?>
+                    <a href="#" class="btn-custom btn-red" data-toggle="modal" data-target="#modalCashClosing" id="cash_closing">
+                        <i class="fas fa-door-closed"></i>
+                        <p>Cerrar caja</p>
+                    </a>
+                <?php endif; ?>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-
-
-  <div class="card-grid">
-    <canvas id="expenses_of_the_months"></canvas>
-
-    <div class="chart-empty" id="chart2">
-      <span>Egresos - Mensuales</span>
-      <p>Aún no tienes suficientes datos para mostrar</p>
-      <div class="loadingio-spinner-gear-zp4adgmadk">
-        <div class="ldio-f9ntw0vxf94">
-          <div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
 </div>
+
+<div class="generalContainer">
+    <table id="cashClosing" class="table-custom table">
+        <thead>
+            <tr>
+                <th class="hide-cell">N°</th>
+                <th>Cajero</th>
+                <th class="hide-cell">Total esperado</th>
+                <th class="hide-cell">Total real</th>
+                <th class="hide-cell">Diferencia</th>
+                <th>Fecha apertura</th>
+                <th>Fecha cierre</th>
+                <th class="hide-cell">Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+
 
 <!-- Cierre de caja -->
 <div class="modal fade" id="modalCashClosing" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalCierreCajaLabel" aria-hidden="true">

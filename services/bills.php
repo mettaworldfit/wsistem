@@ -78,7 +78,7 @@ if ($_POST['action'] == "index_facturas_proveedores") {
     'select' => 'SELECT f.factura_proveedor_id, f.fecha, f.total, f.pagado, f.por_pagar, p.apellidos, p.nombre_proveedor, e.nombre_estado, f.orden_id',
     'table_rows' => function ($row) {
       return [
-        'id'     =>  '<span class="hide-cell">'.'FP-00' . $row['factura_proveedor_id']. '</span>',
+        'id'     =>  '<span class="hide-cell">' . 'FP-00' . $row['factura_proveedor_id'] . '</span>',
         'proveedor'  => ucwords($row['nombre_proveedor'] . ' ' . $row['apellidos']),
         'fecha'      => $row['fecha'],
         'total'      => '<span class="text-primary">' . number_format($row['total'], 2) . '</span>',
@@ -319,7 +319,7 @@ if ($_POST['action'] == "calcular_factura") {
     INNER JOIN proveedores p ON p.proveedor_id = o.proveedor_id
     WHERE d.orden_id = '$id'";
 
-  jsonQueryResult($db,$query);
+  jsonQueryResult($db, $query);
 }
 
 
@@ -450,23 +450,16 @@ if ($_POST['action'] == "eliminar_factura_proveedor") {
 
 if ($_POST['action'] == "crear_orden_gasto") {
 
-  $provider_id = $_POST['provider_id'];
-  $user_id = $_SESSION['identity']->usuario_id;
-  $date = $_POST['date'];
-
   $db = Database::connect();
 
-  $query = "CALL or_ordenGasto($provider_id,$user_id,'$date')";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
+  $params = [
+    (int)$_POST['provider_id'],
+    (int)$_SESSION['identity']->usuario_id,
+    $_POST['origin'],
+    $_POST['date']
+  ];
 
-  if ($data->msg > 0) {
-
-    echo $data->msg;
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error : " . $data->msg;
-  }
+  echo handleProcedureAction($db, 'or_ordenGasto', $params);
 }
 
 // Agregar detalle gastos

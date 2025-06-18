@@ -5,6 +5,17 @@ require_once '../config/parameters.php';
 require_once 'functions/functions.php';
 session_start();
 
+if ($_POST['action'] == 'productos_mas_vendidos_mes') {
+    $db = Database::connect();
+
+    $query = "SELECT p.nombre_producto, SUM(d.cantidad) AS cantidad FROM detalle_facturas_ventas d
+        INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
+        INNER JOIN productos p ON p.producto_id = dp.producto_id 
+        WHERE MONTH(d.fecha) = MONTH(CURRENT_DATE) AND YEAR(d.fecha) = YEAR(CURRENT_DATE)
+        GROUP BY p.nombre_producto ORDER BY cantidad DESC;";
+
+    jsonQueryResult($db, $query);
+}
 
 // Ventas de todos los meses
 
@@ -59,10 +70,8 @@ if ($_POST['action'] == 'gastos_meses') {
     ) AS gastos_por_meses GROUP BY mes_num, mes ORDER BY mes_num";
 
     $db->query($query1);
-    
-    jsonQueryResult($db,$query2);
 
-    
+    jsonQueryResult($db, $query2);
 }
 
 

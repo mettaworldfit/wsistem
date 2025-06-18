@@ -648,7 +648,7 @@ function CancelBills() {
 }
 
 
-// guardar orden de compra
+// guardar orden de gasto
 
 function saveBills() {
     sendAjaxRequest({
@@ -656,10 +656,12 @@ function saveBills() {
         data: {
             action: "crear_orden_gasto",
             provider_id: $('#provider').val(),
+            origin: $('#origin').val(),
             date: $('#date').val()
         },
         successCallback: (res) => AddOrderDetail(res),
-        errorCallback: (res) => mysql_error(res)
+        errorCallback: (res) => mysql_error(res),
+        verbose: true
     })
 }
 

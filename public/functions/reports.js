@@ -1,6 +1,6 @@
-$(document).ready(function() {
+$(document).ready(function () {
 
-    $('#action').on('change', function() {
+    $('#action').on('change', function () {
 
         if (this.value == "productos_vendidos" || this.value == "servicios_vendidos") {
 
@@ -21,9 +21,9 @@ $(document).ready(function() {
 
     });
 
-      /**
-     * ! Reporte de ventas filtrado por fecha 
-     */
+    /**
+   * ! Reporte de ventas filtrado por fecha 
+   */
 
     $('#date_query').change((e) => {
         e.preventDefault()
@@ -32,9 +32,135 @@ $(document).ready(function() {
 
     })
 
+    /**
+    * Calcula el total esperado al cierre de caja.
+    * Fórmula: initial_balance + cash_income + otros_ingresos - cash_expenses - withdrawals
+    */
+    function calculateExpectedTotal() {
+        // Obtener los valores de cada campo (si está vacío se usa 0)
+        const saldoInicial = parseFloat($('#initial_balance').val()) || 0;
+        const ingresosEfectivo = parseFloat($('#cash_income').val().replace(/,/g, "")) || 0;
+        const ingresosTarjeta = parseFloat($('#card_income').val().replace(/,/g, "")) || 0;
+        const ingresosTransfer = parseFloat($('#transfer_income').val().replace(/,/g, "")) || 0;
+        const ingresosCheque = parseFloat($('#check_income').val().replace(/,/g, "")) || 0;
+        const cash_expenses = parseFloat($('#cash_expenses').val()) || 0;
+        const withdrawals = parseFloat($('#withdrawals').val()) || 0;
+
+        // Calcular el total esperado
+        const totalEsperado = saldoInicial + ingresosEfectivo + ingresosTarjeta + ingresosTransfer + ingresosCheque - cash_expenses - withdrawals;
+
+        // Mostrar el resultado en el campo correspondiente
+        $('#total_expected').val(format.format(totalEsperado));
+    }
+
+    // Calcular al abrir cierre de caja
+    $('#cash_closing').on('click', () => {
+        calculateExpectedTotal();
+    })
+
+    // Ejecutar el cálculo cuando se modifique cualquiera de los campos relacionados
+    $('#initial_balance, #cash_income, #cash_expenses, #withdrawals').on('input', calculateExpectedTotal);
+
+
+    // Calcular diferencia
+    function updateDifference() {
+
+        const ingresosTarjeta = parseFloat($('#card_income').val().replace(/,/g, "")) || 0;
+        const ingresosTransfer = parseFloat($('#transfer_income').val().replace(/,/g, "")) || 0;
+        const ingresosCheque = parseFloat($('#check_income').val().replace(/,/g, "")) || 0;
+
+        const valReal = parseFloat($('#current_total').val()) || 0;
+        const valEsperado = parseFloat($('#total_expected').val().replace(/,/g, "")) || 0;
+
+        const diferencia = format.format(valReal + ingresosTarjeta + ingresosTransfer + ingresosCheque - valEsperado);
+
+        $('#total_difference').val(diferencia);            // Actualiza el campo de diferencia
+        $('#real').val(format.format(valReal));      // Muestra el total real en el input con id="real"
+    }
+
+    // Recalcular cuando se escriba en los campos relevantes
+    $('#current_total,#initial_balance').on('input', updateDifference);
+    $('#cash_expenses,#withdrawals').on('input', updateDifference);
 
 
 }); // Ready
+
+// Abrir caja
+
+function cashOpening() {
+
+    let OpeningDateRaw = $('#opening').val(); // "2025-06-17T10:17"
+    let localDate = new Date(OpeningDateRaw);
+
+    // Formatear a "YYYY-MM-DD HH:MM:SS"
+    let formattedOpeningDate = localDate.getFullYear() + '-' +
+        String(localDate.getMonth() + 1).padStart(2, '0') + '-' +
+        String(localDate.getDate()).padStart(2, '0') + ' ' +
+        String(localDate.getHours()).padStart(2, '0') + ':' +
+        String(localDate.getMinutes()).padStart(2, '0') + ':' +
+        '00'; // segundos fijos
+
+    data = {
+        action: "abrir_caja",
+        initial_balance: parseFloat($('#cash_initial').val()) || 0,
+        opening_date: formattedOpeningDate,
+    }
+
+    sendAjaxRequest({
+        url: "services/reports.php",
+        data: data,
+        successCallback: (res) => {
+            $('.float-right').load(window.location.href + ' .float-right > *');
+            setTimeout(() => location.reload(), 900);
+            mysql_row_affected()
+        },
+        errorCallback: (res) => mysql_error(res),
+        verbose: true
+    })
+
+}
+
+// Cierre de caja
+function cashClosing() {
+
+    let closingDateRaw = $('#closing_date').val(); // "2025-06-17T10:17"
+    let localDate = new Date(closingDateRaw);
+
+    // Formatear a "YYYY-MM-DD HH:MM:SS"
+    let formattedClosingDate = localDate.getFullYear() + '-' +
+        String(localDate.getMonth() + 1).padStart(2, '0') + '-' +
+        String(localDate.getDate()).padStart(2, '0') + ' ' +
+        String(localDate.getHours()).padStart(2, '0') + ':' +
+        String(localDate.getMinutes()).padStart(2, '0') + ':' +
+        '00'; // segundos fijos
+
+    const data = {
+        action: "cierre_caja",
+        user_id: $('#user_id').val(),
+        closing_date: formattedClosingDate, // closing_date
+        initial_balance: parseFloat($('#initial_balance').val()) || 0,
+        cash_income: parseFloat($('#cash_income').val().replace(/,/g, "")) || 0,
+        card_income: parseFloat($('#card_income').val().replace(/,/g, "")) || 0,
+        transfer_income: parseFloat($('#transfer_income').val().replace(/,/g, "")) || 0,
+        check_income: parseFloat($('#check_income').val().replace(/,/g, "")) || 0,
+        cash_expenses: parseFloat($('#cash_expenses').val()) || 0,
+        external_expenses: parseFloat($('#external_expenses').val()) || 0,
+        withdrawals: parseFloat($('#withdrawals').val()) || 0,
+        current_total: parseFloat($('#current_total').val()) || 0,
+        notes: $('#notes').val() || ""
+    };
+
+    sendAjaxRequest({
+        url: "services/reports.php",
+        data: data,
+        successCallback: (res) => {
+            $('.float-left').load(window.location.href + ' .float-left > *');
+            mysql_row_affected()
+        },
+        errorCallback: (res) => mysql_error(res),
+        verbose: true
+    })
+}
 
 
 function Query() {
@@ -63,10 +189,10 @@ function PV() {
             dateq2: $('#dateq2').val(),
             action: $('#action').val()
         },
-        beforeSend: function() {
+        beforeSend: function () {
 
         },
-        success: function(res) {
+        success: function (res) {
 
             var data = JSON.parse(res);
 
@@ -86,7 +212,7 @@ function PV() {
         </table>`;
 
             var tr = "<tr>";
-            $(data).each(function(index, element) {
+            $(data).each(function (index, element) {
 
                 tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.nombre_producto + "</td>";
                 tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.cantidad + "</td>";
@@ -112,10 +238,10 @@ function PZ() {
             dateq2: $('#dateq2').val(),
             action: $('#action').val()
         },
-        beforeSend: function() {
+        beforeSend: function () {
 
         },
-        success: function(res) {
+        success: function (res) {
 
             var data = JSON.parse(res);
 
@@ -135,7 +261,7 @@ function PZ() {
         </table>`;
 
             var tr = "<tr>";
-            $(data).each(function(index, element) {
+            $(data).each(function (index, element) {
 
                 tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.nombre_pieza + "</td>";
                 tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.cantidad + "</td>";
@@ -162,10 +288,10 @@ function SV() {
             dateq2: $('#dateq2').val(),
             action: $('#action').val()
         },
-        beforeSend: function() {
+        beforeSend: function () {
 
         },
-        success: function(res) {
+        success: function (res) {
 
             var data = JSON.parse(res);
 
@@ -183,7 +309,7 @@ function SV() {
         </table>`;
 
             var tr = "<tr>";
-            $(data).each(function(index, element) {
+            $(data).each(function (index, element) {
 
                 tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.nombre_servicio + "</td>";
                 tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.cantidad + "</td>";
@@ -204,10 +330,10 @@ function IMF() {
             query: $('#query').val(),
             action: $('#action').val()
         },
-        beforeSend: function() {
+        beforeSend: function () {
 
         },
-        success: function(res) {
+        success: function (res) {
 
             var data = JSON.parse(res);
 
@@ -228,7 +354,7 @@ function IMF() {
         </table>`;
 
             var tr = "<tr>";
-            $(data).each(function(index, element) {
+            $(data).each(function (index, element) {
 
                 tr += "<td style='padding: 2px 10px; font-size: 13px;'> FT-00" + element.factura_venta_id + "</td>";
                 tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.nombre + "</td>";

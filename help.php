@@ -36,6 +36,55 @@ class Help
       return $db->query($query)->fetch_object()->total;
    }
 
+
+   public static function getDailySalesByPaymentMethod($metodo_id)
+   {
+      $db = Database::connect();
+      $query = "SELECT SUM(total) AS total FROM (
+
+    -- Subconsulta 1: Facturas ventas
+    SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
+    FROM facturas_ventas f
+    INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
+    LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
+    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+    WHERE f.fecha = CURDATE() AND f.metodo_pago_id = '$metodo_id'
+    GROUP BY f.factura_venta_id
+
+    UNION ALL
+
+    -- Subconsulta 2: Facturas RP
+    SELECT (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, fr.fecha
+    FROM facturasRP fr
+     INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = fr.metodo_pago_id
+    LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
+    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+    WHERE fr.fecha = CURDATE() AND fr.metodo_pago_id = '$metodo_id'
+    GROUP BY fr.facturaRP_id
+
+    UNION ALL
+
+    -- Subconsulta 3: Pagos RP
+    SELECT p.recibido AS total, p.fecha
+    FROM pagos_a_facturasRP pf 
+    INNER JOIN pagos p ON pf.pago_id = p.pago_id
+	INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
+    WHERE p.fecha = CURDATE() AND p.metodo_pago_id = '$metodo_id'
+
+    UNION ALL
+
+    -- Subconsulta 4: Pagos ventas
+    SELECT p.recibido AS total, p.fecha
+    FROM pagos_a_facturas_ventas pf 
+    INNER JOIN pagos p ON pf.pago_id = p.pago_id
+     INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
+    WHERE p.fecha = CURDATE() AND p.metodo_pago_id = '$metodo_id'
+
+) ventas_por_tipo_pago;";
+
+      return $db->query($query)->fetch_object()->total;
+   }
+
    public static function getPurchaseToday()
    {
       $db = Database::connect();
@@ -107,6 +156,35 @@ class Help
       return $db->query($query)->fetch_object()->total;
    }
 
+
+    public static function getOriginExpensesToday($origin)
+   {
+      $db = Database::connect();
+      $query = "SELECT sum(total) as total FROM (
+
+            SELECT sum(g.pagado) as 'total', g.fecha FROM gastos g
+            INNER JOIN ordenes_gastos o ON o.orden_id = g.orden_id
+            WHERE g.fecha = curdate() AND o.origen = '$origin'
+            GROUP BY g.fecha     
+            
+              UNION ALL
+              
+            SELECT sum(f.pagado) as 'total', f.fecha FROM ordenes_compras o 
+            INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
+            WHERE o.estado_id = 12 AND f.fecha = curdate()
+            GROUP BY f.fecha    
+
+            UNION ALL
+            
+            SELECT sum(p.recibido) as 'total', p.fecha from pagos_proveedores p
+            WHERE p.fecha = curdate()
+            GROUP BY p.fecha          
+                                          
+        ) origen_gastos";
+
+      return $db->query($query)->fetch_object()->total;
+   }
+
    public static function getTotalInventoryValue()
    {
 
@@ -123,6 +201,20 @@ class Help
       return $db->query($query);
    }
 
+
+
+
+
+   public static function getCashOpening()
+   {
+      $db = Database::connect();
+
+      $query = "SELECT fecha_apertura, saldo_inicial,cierre_id FROM cierres_caja 
+      WHERE DATE(fecha_apertura) = CURDATE() AND estado = 'abierto'
+      ORDER BY cierre_id DESC LIMIT 1";
+
+      return $db->query($query)->fetch_object();
+   }
 
 
    public static function ConfigPDF()
@@ -164,6 +256,16 @@ class Help
    /**
     * Usuarios
       --------------------------------------*/
+
+   public static function loadUsers()
+   {
+      $query = "SELECT u.usuario_id,concat(u.nombre,' ',IFNULL(u.apellidos,'')) as nombre FROM usuarios u
+                   INNER JOIN roles r ON  u.rol_id = r.rol_id";
+
+      $db = Database::connect();
+
+      return $db->query($query);
+   }
 
    public static function userID($id)
    {
