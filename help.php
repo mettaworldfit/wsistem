@@ -160,27 +160,27 @@ class Help
     public static function getOriginExpensesToday($origin)
    {
       $db = Database::connect();
-      $query = "SELECT sum(total) as total FROM (
+      $query = "SELECT SUM(total) AS total FROM (
 
-            SELECT sum(g.pagado) as 'total', g.fecha FROM gastos g
-            INNER JOIN ordenes_gastos o ON o.orden_id = g.orden_id
-            WHERE g.fecha = curdate() AND o.origen = '$origin'
-            GROUP BY g.fecha     
-            
-              UNION ALL
-              
-            SELECT sum(f.pagado) as 'total', f.fecha FROM ordenes_compras o 
-            INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
-            WHERE o.estado_id = 12 AND f.fecha = curdate()
-            GROUP BY f.fecha    
+        SELECT SUM(g.pagado) AS total
+        FROM gastos g
+        INNER JOIN ordenes_gastos o ON o.orden_id = g.orden_id
+        WHERE g.fecha = CURDATE() AND o.origen = '$origin'
 
-            UNION ALL
-            
-            SELECT sum(p.recibido) as 'total', p.fecha from pagos_proveedores p
-            WHERE p.fecha = curdate()
-            GROUP BY p.fecha          
-                                          
-        ) origen_gastos";
+        UNION ALL
+
+        SELECT SUM(f.pagado) AS total
+        FROM ordenes_compras o
+        INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
+        WHERE o.estado_id = 12 AND f.fecha = CURDATE()
+
+        UNION ALL
+
+        SELECT SUM(p.recibido) AS total
+        FROM pagos_proveedores p
+        WHERE p.fecha = CURDATE()
+
+    ) AS origen_gastos";
 
       return $db->query($query)->fetch_object()->total;
    }

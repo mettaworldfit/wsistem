@@ -159,19 +159,24 @@
           <input type="hidden" name="id" value="<?= $cashOpening->cierre_id ?>" id="closingId">
 
           <div class="row col-sm-12 invoice-head-modal">
-            <div class="col-sm-4 head-content">
-              <h6>Total Esperado</h6>
-              <input type="text" class="invisible-input text-success" value="" id="total_expected" disabled>
+            <div class="col-sm-3 head-content">
+              <h6>Total vendido</h6>
+              <input type="text" class="invisible-input text-success" value="<?= number_format($totalPurchase ?? 0) ?>" id="total" disabled>
             </div>
 
-            <div class="col-sm-4 head-content">
-              <h6>Total Actual</h6>
+            <div class="col-sm-3 head-content">
+              <h6>Total Esperado</h6>
+              <input type="text" class="invisible-input text-primary" value="" id="total_expected" disabled>
+            </div>
+
+            <div class="col-sm-3 head-content">
+              <h6>Efectivo</h6>
               <input type="text" class="invisible-input text-primary" value="0" id="real" disabled>
             </div>
 
-            <div class="col-sm-4 head-content">
+            <div class="col-sm-3 head-content">
               <h6>Diferencia</h6>
-              <input type="text" class="invisible-input text-danger" value="0" id="total_difference" disabled>
+              <input type="text" class="invisible-input" value="0" id="total_difference" disabled>
             </div>
           </div>
           <br>
@@ -241,7 +246,7 @@
               </div>
 
               <div class="col-sm-12">
-                <label class="form-label fw-bold">Total Actual:</label>
+                <label class="form-label fw-bold">Total efectivo en caja:</label>
                 <input type="number" class="form-custom fw-bold text-success" id="current_total" value="" required>
               </div>
             </div>

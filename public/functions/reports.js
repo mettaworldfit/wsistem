@@ -40,14 +40,14 @@ $(document).ready(function () {
         // Obtener los valores de cada campo (si está vacío se usa 0)
         const saldoInicial = parseFloat($('#initial_balance').val()) || 0;
         const ingresosEfectivo = parseFloat($('#cash_income').val().replace(/,/g, "")) || 0;
-        const ingresosTarjeta = parseFloat($('#card_income').val().replace(/,/g, "")) || 0;
-        const ingresosTransfer = parseFloat($('#transfer_income').val().replace(/,/g, "")) || 0;
-        const ingresosCheque = parseFloat($('#check_income').val().replace(/,/g, "")) || 0;
+        // const ingresosTarjeta = parseFloat($('#card_income').val().replace(/,/g, "")) || 0;
+        // const ingresosTransfer = parseFloat($('#transfer_income').val().replace(/,/g, "")) || 0;
+        // const ingresosCheque = parseFloat($('#check_income').val().replace(/,/g, "")) || 0;
         const cash_expenses = parseFloat($('#cash_expenses').val()) || 0;
         const withdrawals = parseFloat($('#withdrawals').val()) || 0;
 
         // Calcular el total esperado
-        const totalEsperado = saldoInicial + ingresosEfectivo + ingresosTarjeta + ingresosTransfer + ingresosCheque - cash_expenses - withdrawals;
+        const totalEsperado = saldoInicial + ingresosEfectivo - cash_expenses - withdrawals;
 
         // Mostrar el resultado en el campo correspondiente
         $('#total_expected').val(format.format(totalEsperado));
@@ -64,18 +64,28 @@ $(document).ready(function () {
 
     // Calcular diferencia
     function updateDifference() {
-
-        const ingresosTarjeta = parseFloat($('#card_income').val().replace(/,/g, "")) || 0;
-        const ingresosTransfer = parseFloat($('#transfer_income').val().replace(/,/g, "")) || 0;
-        const ingresosCheque = parseFloat($('#check_income').val().replace(/,/g, "")) || 0;
-
         const valReal = parseFloat($('#current_total').val()) || 0;
         const valEsperado = parseFloat($('#total_expected').val().replace(/,/g, "")) || 0;
 
-        const diferencia = format.format(valReal + ingresosTarjeta + ingresosTransfer + ingresosCheque - valEsperado);
+        const diferenciaValor = (valReal - valEsperado);
+        const signo = diferenciaValor > 0 ? '+' : (diferenciaValor < 0 ? '-' : '');
+        const diferenciaFormateada = signo + format.format(Math.abs(diferenciaValor));
 
-        $('#total_difference').val(diferencia);            // Actualiza el campo de diferencia
-        $('#real').val(format.format(valReal));      // Muestra el total real en el input con id="real"
+        // Actualiza el campo con el valor formateado
+        $('#total_difference').val(diferenciaFormateada);
+
+        // Establece el color según el valor
+        const $diffField = $('#total_difference');
+        $diffField.removeClass('text-success text-danger');
+
+        if (diferenciaValor > 0) {
+            $diffField.addClass('text-success');
+        } else if (diferenciaValor < 0) {
+            $diffField.addClass('text-danger');
+        }
+
+        // Actualiza también el campo real con formato
+        $('#real').val(format.format(valReal));
     }
 
     // Recalcular cuando se escriba en los campos relevantes
@@ -146,7 +156,7 @@ function cashClosing() {
         cash_expenses: parseFloat($('#cash_expenses').val()) || 0,
         external_expenses: parseFloat($('#external_expenses').val()) || 0,
         withdrawals: parseFloat($('#withdrawals').val()) || 0,
-        current_total: parseFloat($('#current_total').val()) || 0,
+        total: parseFloat($('#total').val()) || 0,
         notes: $('#notes').val() || ""
     };
 

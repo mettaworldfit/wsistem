@@ -28,8 +28,7 @@
         <thead>
             <tr>
                 <th class="hide-cell">N°</th>
-                <th>Cajero</th>
-                <th class="hide-cell">Total esperado</th>
+                <th>Usuario</th>
                 <th class="hide-cell">Total real</th>
                 <th class="hide-cell">Diferencia</th>
                 <th>Fecha apertura</th>

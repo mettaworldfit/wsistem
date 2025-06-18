@@ -31,7 +31,7 @@ if ($_POST['action'] == 'cierre_caja') {
         $_POST['cash_expenses'],
         $_POST['external_expenses'],
         $_POST['withdrawals'],
-        $_POST['current_total'],
+        $_POST['total'],
         $_POST['notes'] ?? ""
     ];
 
@@ -73,8 +73,7 @@ if ($_POST['action'] == 'index_cierre_caja') {
             return [
                 'id' => '<span class="hide-cell">' . $row['cierre_id'] . '</span>',
                 'cajero' => ucwords($row['cajero']),
-                'total_esperado' => '<span class="hide-cell text-success">' . number_format($row['total_esperado']) . '</span>',
-                'total_real' => '<span class="hide-cell text-primary">' . number_format($row['total_real']) . '</span>',
+                'total_real' => '<span class="hide-cell text-success">' . number_format($row['total_real']) . '</span>',
                 'diferencia' => '<span class="hide-cell text-danger">' . number_format($row['diferencia']) . '</span>',
                 'fecha_apertura' => $row['fecha_apertura'],
                 'fecha_cierre' => $row['fecha_cierre'],

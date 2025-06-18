@@ -754,8 +754,8 @@ $(document).ready(function () {
         id: '#cashClosing',
         url: 'services/reports.php',
         action: 'index_cierre_caja',
-        columns: ['id','cajero','total_esperado','total_real','diferencia','fecha_apertura','fecha_cierre','estado','acciones'],
-       hiddenColumns: [0,2,3,4,7]
+        columns: ['id','cajero','total_real','diferencia','fecha_apertura','fecha_cierre','estado','acciones'],
+       hiddenColumns: [0,2,3,6]
     }
 
     ];
