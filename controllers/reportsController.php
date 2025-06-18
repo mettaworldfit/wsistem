@@ -30,6 +30,8 @@ class ReportsController
             $transfers = Help::getDailySalesByPaymentMethod(4); // Tranferencias
             $checks = Help::getDailySalesByPaymentMethod(5); // Cheques
             $totalExpenses = Help::getExpensesToday(); // Total gastado hoy
+            $cashExpenses = Help::getOriginExpensesToday('caja'); // Total Origen de gastos
+            $externalExpenses = Help::getOriginExpensesToday('fuera_caja'); // Total Origen de gastos
 
             require_once './views/reports/cash_closing.php';
         } else {

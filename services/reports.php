@@ -7,15 +7,15 @@ require_once 'functions/functions.php';
 session_start();
 
 if ($_POST['action'] == 'abrir_caja') {
-    
+
     $db = Database::connect();
     $params = [
-       (int) $_SESSION['identity']->usuario_id,
+        (int) $_SESSION['identity']->usuario_id,
         $_POST['opening_date'],
         $_POST['initial_balance'],
     ];
 
-    echo handleProcedureAction($db,'c_aperturaCaja',$params);
+    echo handleProcedureAction($db, 'c_aperturaCaja', $params);
 }
 
 if ($_POST['action'] == 'cierre_caja') {
@@ -35,7 +35,7 @@ if ($_POST['action'] == 'cierre_caja') {
         $_POST['notes'] ?? ""
     ];
 
-    echo handleProcedureAction($db,'c_cierreCaja',$params);
+    echo handleProcedureAction($db, 'c_cierreCaja', $params);
 }
 
 // index cierres de caja
@@ -218,16 +218,21 @@ if ($_POST['action'] == "index_ventas_hoy") {
             }
         }
 
-        $acciones .= '<span class="action-delete"';
+        $acciones .= '<span ';
 
-        if ($row['tipo'] == 'FT') {
-            $acciones .= ' onclick="deleteInvoice(\'' . $row['id'] . '\')"';
-        } elseif ($row['tipo'] == 'RP') {
-            $acciones .= ' onclick="deleteInvoiceRP(\'' . $row['id'] . '\')"';
-        } elseif ($row['tipo'] == 'PF') {
-            $acciones .= ' onclick="deletePayment(\'' . $row['id'] . '\', \'' . $row['orden'] . '\', 0)"';
-        } elseif ($row['tipo'] == 'PR') {
-            $acciones .= ' onclick="deletePayment(\'' . $row['id'] . '\', 0, \'' . $row['orden'] . '\')"';
+        if ($_SESSION['identity']->nombre_rol == 'administrador') {
+             $acciones .= 'class="action-delete"';
+            if ($row['tipo'] == 'FT') {
+                $acciones .= ' onclick="deleteInvoice(\'' . $row['id'] . '\')"';
+            } elseif ($row['tipo'] == 'RP') {
+                $acciones .= ' onclick="deleteInvoiceRP(\'' . $row['id'] . '\')"';
+            } elseif ($row['tipo'] == 'PF') {
+                $acciones .= ' onclick="deletePayment(\'' . $row['id'] . '\', \'' . $row['orden'] . '\', 0)"';
+            } elseif ($row['tipo'] == 'PR') {
+                $acciones .= ' onclick="deletePayment(\'' . $row['id'] . '\', 0, \'' . $row['orden'] . '\')"';
+            }
+        } else {
+             $acciones .= 'class="action-delete action-disable"';
         }
 
         $acciones .= ' title="Eliminar"><i class="fas fa-times"></i></span>';

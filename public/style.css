@@ -634,9 +634,8 @@ span.select2-container--default {
     padding: 0 6px;
 }
 
-@media (min-width:1025px) {
+@media (min-width:724px) {
     .wrap {
-        width: 81%;
         padding: 0 19px;
     }
 }
@@ -648,8 +647,9 @@ span.select2-container--default {
     }
 }
 
-@media (min-width:724px) {
+@media (min-width:1250px) {
     .wrap {
+        width: 77%;
         padding: 0 19px;
     }
 }
@@ -691,6 +691,13 @@ span.select2-container--default {
     }
 }
 
+@media (min-width: 1250px) {
+    .container-logo {
+        display: block;
+        width: 24.8%;
+    }
+}
+
 section.content-bar {
     width: 100%;
     display: flex;
@@ -710,10 +717,17 @@ section.content-bar {
 
 .explorer input {
     height: 31px;
-    font-size: 13px;
+    font-size: 9pt;
     padding-left: 30px;
-    border-radius: 16px;
+    border-radius: 20px;
     background: #efefef;
+}
+
+@media (min-width: 1350px) {
+    .explorer input {
+        height: 40px;
+        font-size: 11pt;
+    }
 }
 
 .explorer {
@@ -1083,17 +1097,18 @@ ul#search_result li:hover {
     overflow: auto
 }
 
-@media (min-width:1024px) {
-    .sidebar {
-        display: block;
-        width: 18%;
-    }
-}
 
 @media (min-width:970px) {
     .sidebar {
         display: block;
         width: 21%;
+    }
+}
+
+@media (min-width:1250px) {
+    .sidebar {
+        display: block;
+        width: 23%;
     }
 }
 
@@ -2408,9 +2423,6 @@ a.button-404:hover {
 }
 
 @media (min-width: 1350px) {
-    .card-grid p {
-        font-size: 14px;
-    }
 
     .card-grid:nth-child(7) {
         height: 350px !important;
@@ -2477,7 +2489,7 @@ a.button-404:hover {
 }
 
 .card-grid p {
-    font-size: 11px;
+    font-size: 8pt;
     font-weight: 600;
     margin: 0px;
     color: #353535;
@@ -2511,6 +2523,16 @@ a.button-404:hover {
 @media (min-width: 970px) {
     .grid-config {
         grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1350px) {
+    .card-grid p {
+        font-size: 11pt;
+    }
+
+    .card-grid span {
+        font-size: 25pt;
     }
 }
 
@@ -2694,18 +2716,24 @@ li.paginate_button.page-item {
 }
 
 @keyframes heartbeat {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: scale(1);
     }
+
     14% {
         transform: scale(1.3);
     }
+
     28% {
         transform: scale(1);
     }
+
     42% {
         transform: scale(1.3);
     }
+
     70% {
         transform: scale(1);
     }

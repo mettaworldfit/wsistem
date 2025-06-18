@@ -19,19 +19,37 @@ switch ($action) {
       'table_with_joins' => 'servicios',
       'select' => 'SELECT servicio_id, nombre_servicio, precio',
       'table_rows' => function ($row) {
+
+        $acciones = '<td>';
+        // Editar
+        if ($_SESSION['identity']->nombre_rol == 'administrador') {
+          $acciones .= '<a href="' . base_url . 'services/edit&id=' . $row['servicio_id'] . '">
+                  <span class="action-edit"><i class="fas fa-pencil-alt"></i></span>
+                </a>';
+        } else {
+          $acciones .= '<a href="#">
+                  <span class="action-edit action-disable"><i class="fas fa-pencil-alt"></i></span>
+                </a>';
+        }
+
+        // Eliminar
+        if ($_SESSION['identity']->nombre_rol == 'administrador') {
+          $acciones .= '<span class="action-delete" onclick="deleteService(\'' . $row['servicio_id'] . '\')" title="Eliminar">
+                  <i class="fas fa-times"></i>
+                </span>';
+        } else {
+          $acciones .= '<span class="action-delete action-disable" title="Eliminar">
+                  <i class="fas fa-times"></i>
+                </span>';
+        }
+
+        $acciones .= '</td>';
+
         return [
           'servicio_id' => "<td>{$row['servicio_id']}</td>",
           'nombre_servicio' => "<td>" . htmlspecialchars($row['nombre_servicio']) . "</td>",
           'precio' => "<td>" . number_format($row['precio'] ?? 0, 2) . "</td>",
-          'acciones' => '
-          <td>
-            <a href="' . base_url . 'services/edit&id=' . $row['servicio_id'] . '">
-              <span class="action-edit"><i class="fas fa-pencil-alt"></i></span>
-            </a>
-            <span class="action-delete" onclick="deleteService(\'' . $row['servicio_id'] . '\')" title="Eliminar">
-              <i class="fas fa-times"></i>
-            </span>
-          </td>'
+          'acciones' => $acciones
         ];
       }
     ]);
@@ -65,6 +83,6 @@ switch ($action) {
 
   // Eliminar servicio
   case 'eliminar_servicio':
-    echo handleProcedureAction($db,'sv_eliminarServicio',[(int)$_POST['service_id']]);
+    echo handleProcedureAction($db, 'sv_eliminarServicio', [(int)$_POST['service_id']]);
     break;
 }

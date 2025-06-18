@@ -84,8 +84,23 @@ switch ($_POST['action']) {
 
       // Formateo del resultado para el DataTable
       'table_rows' => function ($row) {
+        $acciones = '<span';
+        if ($_SESSION['identity']->nombre_rol == 'administrador') {
+          if ($row['factura_venta_id'] > 0) {
+            $acciones .= ' onclick="deletePayment(\'' . $row['pago_id'] . '\',1,0)" class="action-delete" title="Eliminar">
+                  <i class="fas fa-times"></i>
+                </span>';
+          } else {
+            $acciones .= ' onclick="deletePayment(\'' . $row['pago_id'] . '\',0,1)" class="action-delete" title="Eliminar">
+                  <i class="fas fa-times"></i>
+                </span>';
+          }
+        } else {
+          $acciones .= ' class="action-delete action-disable" title="Eliminar"><i class="fas fa-times"></i></span>';
+        }
+
         return [
-          'pago_id' => '<span class="hide-cell">' .'00' . $row['pago_id']. '</span>',
+          'pago_id' => '<span class="hide-cell">' . '00' . $row['pago_id'] . '</span>',
           'factura_id' => ($row['factura_venta_id'] > 0)
             ? 'FT-00' . $row['factura_venta_id']
             : (($row['facturaRP_id'] > 0)
@@ -93,11 +108,9 @@ switch ($_POST['action']) {
               : '<span class="text-danger">Factura eliminada</span>'),
           'nombre' => ucwords($row['nombre'] . ' ' . $row['apellidos']),
           'recibido' => '<span class="text-success">' . number_format($row['recibido'], 2) . '</span>',
-          'observacion' => '<span class="hide-cell">'. $row['observacion'] .'</span>',
-          'fecha' => '<span class="hide-cell">'. $row['fecha']. '</span>',
-          'acciones' => ($row['factura_venta_id'] > 0)
-            ? '<span onclick="deletePayment(\'' . $row['pago_id'] . '\',1,0)" class="action-delete"><i class="fas fa-times"></i></span>'
-            : '<span onclick="deletePayment(\'' . $row['pago_id'] . '\',0,1)" class="action-delete"><i class="fas fa-times"></i></span>'
+          'observacion' => '<span class="hide-cell">' . $row['observacion'] . '</span>',
+          'fecha' => '<span class="hide-cell">' . $row['fecha'] . '</span>',
+          'acciones' => $acciones
         ];
       }
     ]);

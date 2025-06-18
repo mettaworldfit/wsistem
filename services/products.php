@@ -143,6 +143,41 @@ switch ($action) {
                          p.cantidad_min, p.cantidad, p.precio_costo, p.precio_unitario,
                          e.nombre_estado, e.estado_id, p.producto_id',
       'table_rows' => function ($row) {
+
+        $acciones = '<a ';
+        if ($_SESSION['identity']->nombre_rol == 'administrador') {
+          if ($row['nombre_estado'] == 'Activo') {
+            $acciones .= 'class="action-edit" href="' . base_url . 'products/edit&id=' . $row['idproducto'] . '"';
+          } else {
+            $acciones .= 'class="action-edit action-disable" href="#"';
+          }
+        } else {
+          $acciones .= 'class="action-edit action-disable" href="#"';
+        }
+        $acciones .= ' title="Editar"><i class="fas fa-pencil-alt"></i></a>';
+
+        // Activar o desactivar producto
+        if ($_SESSION['identity']->nombre_rol == 'administrador') {
+          if ($row['nombre_estado'] == 'Activo') {
+            $acciones .= '<span onclick="disableProduct(\'' . $row['idproducto'] . '\')" class="action-active" title="Desactivar ítem"><i class="fas fa-lightbulb"></i></span>';
+          } else {
+            $acciones .= '<span onclick="enableProduct(\'' . $row['idproducto'] . '\')" class="action-delete" title="Activar"><i class="fas fa-lightbulb"></i></span>';
+          }
+        } else {
+          if ($row['nombre_estado'] == 'Activo') {
+            $acciones .= '<span class="action-active action-disable" title="Desactivar ítem"><i class="fas fa-lightbulb"></i></span>';
+          } else {
+            $acciones .= '<span class="action-delete action-disable" title="Activar"><i class="fas fa-lightbulb"></i></span>';
+          }
+        }
+
+        // Eliminar
+        if ($_SESSION['identity']->nombre_rol == 'administrador') {
+          $acciones .= '<span onclick="deleteProduct(\'' . $row['idproducto'] . '\')" class="action-delete" title="Eliminar"><i class="fas fa-times"></i></span>';
+        } else {
+          $acciones .= '<span class="action-delete action-disable" title="Eliminar"><i class="fas fa-times"></i></span>';
+        }
+
         return [
           'cod_producto' => $row['cod_producto'],
           'nombre' => ucwords($row['nombre_producto']),
@@ -158,30 +193,7 @@ switch ($action) {
           'precio_costo' => number_format($row['precio_costo'], 2),
           'precio_unitario' => number_format($row['precio_unitario'], 2),
 
-          'acciones' =>
-          // Botón editar
-          '<a class="action-edit ' . ($row['nombre_estado'] != 'Activo' ? 'action-disable' : '') . '" title="Editar" href="' .
-            ($row['nombre_estado'] == 'Activo' ? base_url . 'products/edit&id=' . $row['producto_id'] : '#') . '">' .
-            '<i class="fas fa-pencil-alt"></i></a> ' .
-
-            // Botón activar/desactivar
-            '<span class="' . ($row['nombre_estado'] == 'Activo' ? 'action-active' : 'action-delete') . '" ' .
-            (
-              ($_SESSION['identity']->nombre_rol == 'administrador')
-              ? (
-                $row['nombre_estado'] == 'Activo'
-                ? 'onclick="disableProduct(\'' . $row['producto_id'] . '\')"'
-                : 'onclick="enableProduct(\'' . $row['producto_id'] . '\')"'
-              )
-              : ''
-            ) . ' title="' . ($row['nombre_estado'] == 'Activo' ? 'Desactivar ítem' : 'Activar') . '">' .
-            '<i class="fas fa-lightbulb"></i></span> ' .
-
-            // Botón eliminar
-            '<span class="' .
-            ($_SESSION['identity']->nombre_rol == 'administrador' ? 'action-delete' : 'action-delete action-disable') . '" ' .
-            ($_SESSION['identity']->nombre_rol == 'administrador' ? 'onclick="deleteProduct(\'' . $row['producto_id'] . '\')"' : '') .
-            ' title="Eliminar"><i class="fas fa-times"></i></span>'
+          'acciones' => $acciones
         ];
       }
 
@@ -213,6 +225,41 @@ switch ($action) {
                          a.nombre_almacen, p.cantidad_min, p.cantidad, p.precio_costo,
                          p.precio_unitario, e.nombre_estado, p.producto_id as idproducto',
       'table_rows' => function ($row) {
+
+        $acciones = '<a ';
+        if ($_SESSION['identity']->nombre_rol == 'administrador') {
+          if ($row['nombre_estado'] == 'Activo') {
+            $acciones .= 'class="action-edit" href="' . base_url . 'products/edit&id=' . $row['idproducto'] . '"';
+          } else {
+            $acciones .= 'class="action-edit action-disable" href="#"';
+          }
+        } else {
+          $acciones .= 'class="action-edit action-disable" href="#"';
+        }
+        $acciones .= ' title="Editar"><i class="fas fa-pencil-alt"></i></a>';
+
+        // Activar o desactivar producto
+        if ($_SESSION['identity']->nombre_rol == 'administrador') {
+          if ($row['nombre_estado'] == 'Activo') {
+            $acciones .= '<span onclick="disableProduct(\'' . $row['idproducto'] . '\')" class="action-active" title="Desactivar ítem"><i class="fas fa-lightbulb"></i></span>';
+          } else {
+            $acciones .= '<span onclick="enableProduct(\'' . $row['idproducto'] . '\')" class="action-delete" title="Activar"><i class="fas fa-lightbulb"></i></span>';
+          }
+        } else {
+          if ($row['nombre_estado'] == 'Activo') {
+            $acciones .= '<span class="action-active action-disable" title="Desactivar ítem"><i class="fas fa-lightbulb"></i></span>';
+          } else {
+            $acciones .= '<span class="action-delete action-disable" title="Activar"><i class="fas fa-lightbulb"></i></span>';
+          }
+        }
+
+        // Eliminar
+        if ($_SESSION['identity']->nombre_rol == 'administrador') {
+          $acciones .= '<span onclick="deleteProduct(\'' . $row['idproducto'] . '\')" class="action-delete" title="Eliminar"><i class="fas fa-times"></i></span>';
+        } else {
+          $acciones .= '<span class="action-delete action-disable" title="Eliminar"><i class="fas fa-times"></i></span>';
+        }
+
         $cantidad = '<span ';
         if ($row['cantidad'] > $row['cantidad_min']) {
           $cantidad .= 'class="text-success">';
@@ -224,41 +271,16 @@ switch ($action) {
         $cantidad .= $row['cantidad'] . '</span>';
 
         return [
-          'codigo' => '<span class="hide-cell">'. $row['cod_producto']. '</span>',
-          'nombre' => $row['nombre_producto'], 
-          'categoria' => '<span class="hide-cell">'. $row['nombre_categoria']. '</span>',
-          'almacen' => '<span class="hide-cell">'. $row['nombre_almacen']. '</span>',
+          'codigo' => '<span class="hide-cell">' . $row['cod_producto'] . '</span>',
+          'nombre' => $row['nombre_producto'],
+          'categoria' => '<span class="hide-cell">' . $row['nombre_categoria'] . '</span>',
+          'almacen' => '<span class="hide-cell">' . $row['nombre_almacen'] . '</span>',
           'cantidad' => $cantidad,
-          'precio_costo' => '<span class="hide-cell">'. number_format($row['precio_costo'] ?? 0, 2). '</span>', 
+          'precio_costo' => '<span class="hide-cell">' . number_format($row['precio_costo'] ?? 0, 2) . '</span>',
           'precio_unitario' => number_format($row['precio_unitario'], 2),
           'estado' => '<span class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</span>',
 
-          'acciones' => '
-      <a class="action-edit ' . ($row['nombre_estado'] != 'Activo' ? 'action-disable' : '') . '" 
-         title="Editar"
-         href="' . ($row['nombre_estado'] == 'Activo' ? base_url . 'products/edit&id=' . $row['idproducto'] : '#') . '"> 
-          <i class="fas fa-pencil-alt"></i>
-      </a>
-  
-      <span class="' . ($row['nombre_estado'] == 'Activo' ? 'action-active' : 'action-delete') . '" 
-            ' . (
-            $row['nombre_estado'] == 'Activo' && $_SESSION['identity']->nombre_rol == 'administrador'
-            ? 'onclick="disableProduct(\'' . $row['idproducto'] . '\')"'
-            : ($_SESSION['identity']->nombre_rol == 'administrador'
-              ? 'onclick="enableProduct(\'' . $row['idproducto'] . '\')"'
-              : '')
-          ) . '
-            ' . ($row['nombre_estado'] == 'Activo' ? 'title="Desactivar ítem"' : 'title="Activar"') . '>
-          <i class="fas fa-lightbulb"></i>
-      </span>
-  
-      <span ' .
-            ($_SESSION['identity']->nombre_rol == 'administrador'
-              ? 'class="action-delete" onclick="deleteProduct(\'' . $row['idproducto'] . '\')"'
-              : 'class="action-delete action-disable"'
-            ) . ' title="Eliminar">
-          <i class="fas fa-times"></i>
-      </span>'
+          'acciones' => $acciones
 
         ];
       }
@@ -306,7 +328,6 @@ switch ($action) {
           'entrada'          => '<td>' . $row['entrada'] . '</td>',
           'acciones'         => $button
         ];
-        
       }
     ]);
 

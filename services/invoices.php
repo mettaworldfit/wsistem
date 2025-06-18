@@ -188,9 +188,13 @@ if ($_POST['action'] == "index_facturas_ventas") {
       } else {
         $acciones .= 'class="action-edit action-disable" href="#"';
       }
-      $acciones .= ' title="editar"><i class="fas fa-pencil-alt"></i></a>';
+      $acciones .= ' title="Editar"><i class="fas fa-pencil-alt"></i></a>';
 
-      $acciones .= '<span onclick="deleteInvoice(\'' . $row['factura_venta_id'] . '\')" class="action-delete"><i class="fas fa-times"></i></span>';
+      if ($_SESSION['identity']->nombre_rol == 'administrador') {
+      $acciones .= '<span onclick="deleteInvoice(\'' . $row['factura_venta_id'] . '\')" class="action-delete" title="Eliminar"><i class="fas fa-times"></i></span>';
+      } else {
+       $acciones .= '<span class="action-delete action-disable" title="Eliminar"><i class="fas fa-times"></i></span>';
+      }
 
       return [
         'factura_venta_id' => 'FT-00' . $row['factura_venta_id'],

@@ -794,7 +794,7 @@ function deleteSpending(id) {
                 success: function (res) {
 
                     if (res == "ready") {
-                        bills.ajax.reload() // Recargar datatable
+                        dataTablesInstances['bills'].ajax.reload() // Recargar datatable
                     } else {
                         mysql_error(res)
                     }
@@ -1178,7 +1178,7 @@ function deleteOrderC(id) {
                 },
                 success: function (res) {
                     if (res == "ready") {
-                        ordersC.ajax.reload() // Recargar datatable
+                        dataTablesInstances['ordersc'].ajax.reload() // Recargar datatable
                     } else {
                         mysql_error(res);
                     }
