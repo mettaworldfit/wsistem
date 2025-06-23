@@ -1,10 +1,10 @@
 <?php
 
 // Configurar sesión
-ini_set('session.gc_maxlifetime', 3600);
+ini_set('session.gc_maxlifetime', 4800);
 session_start();
 
-$timeout = 3600;
+$timeout = 4800;
 
 require_once 'config/parameters.php';
 

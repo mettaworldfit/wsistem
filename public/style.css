@@ -405,10 +405,12 @@ span:hover #toggle {
 .Cobrar,
 .No,
 .se,
-.pudo {
+.pudo,
+.cerrado {
     color: #fff;
     background: #e20303;
-    padding: 2px 0 3px 10px;
+    padding: 2px 5px 3px 5px;
+    text-align: center;
     width: 100%;
     border-radius: 2px;
     margin-bottom: 0
@@ -430,9 +432,11 @@ span:hover #toggle {
 .Facturado,
 .Pagada,
 .Activo,
-.Listo {
-    padding: 2px 0 3px 10px;
+.Listo,
+.abierto {
+    padding: 2px 5px 3px 5px;
     border-radius: 2px;
+    text-align: center;
     margin-bottom: 0
 }
 
@@ -442,6 +446,7 @@ span:hover #toggle {
     background: #00b3ff
 }
 
+.abierto,
 .Entregado {
     color: #fff;
     background: #01ad09
@@ -483,14 +488,14 @@ span.select2-container--default {
     border-radius: 2px;
     padding: 2px 0 2px 5px;
     margin: 2px 0;
-    font-size: 14px;
+    font-size: 9pt;
     width: 100%
 }
 
-@media (max-width:1340px) {
+@media (min-width: 1340px) {
     .form-custom {
-        padding: 4px 0 4px 2px;
-        font-size: 12px
+        padding: 6px 0 6px 5px;
+        font-size: 11pt
     }
 }
 
@@ -2726,3 +2731,118 @@ li.paginate_button.page-item {
         transform: scale(1);
     }
 }
+
+/* Cierre de caja modal */
+
+.grid-date-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    border: 1px solid #ccc;
+    background: #f8f9fa;
+    gap: 10px;
+    margin: 10px 0px;
+    padding: 8px;
+    border-radius: 5px;
+}
+
+.grid-form-user,
+.grid-form-date {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.grid-date-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.grid-date-field input:first-child {
+    margin-bottom: 8px;
+}
+
+.cash-closing-radio label {
+    margin: 0;
+    padding-left: 8px;
+}
+
+.cash-closing-radio {
+    display: flex;
+}
+
+.grid-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2px 10px;
+}
+
+.grid-cash-closing,
+.grid-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    background: #f8f9fa;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    gap: 4px;
+}
+
+legend.summary-legend {
+    font-size: 11pt;
+    font-weight: 500;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #d7d7d7;
+}
+
+legend.cash-closing-legend {
+    font-size: 11pt;
+    font-weight: 500;
+    border-bottom: 1px solid #d7d7d7;
+}
+
+.form-field {
+    background: #efefef;
+    border-radius: 3px;
+    padding: 3px 8px 3px 7px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-left: 5px solid #636363;
+}
+
+.form-field label {
+    margin: 5px 0px;
+    font-size: 9pt;
+}
+
+.form-field input {
+    background: #fff0;
+    border: none;
+    text-align: end;
+    color: black;
+    font-size: 10pt;
+}
+
+.grid-observaciones {
+    display: flex;
+    flex-direction: column;
+}
+
+.grid-observaciones label {
+    margin: 0;
+}
+
+.field-active {
+    box-shadow: none !important;
+    border: none !important;
+    border-bottom: 0.5px solid black !important;
+}
+
+.field-subtraction {
+    border-left: 5px solid #e03535;
+}
+
+.field-subtraction-active {
+    background: #dbdbdb;
+    border-left: 5px solid #e03535;
+}
+

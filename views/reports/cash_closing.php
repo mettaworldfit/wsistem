@@ -30,6 +30,7 @@
                 <th class="hide-cell">N°</th>
                 <th>Usuario</th>
                 <th class="hide-cell">Total real</th>
+                <th class="hide-cell">Gastos</th>
                 <th class="hide-cell">Diferencia</th>
                 <th>Fecha apertura</th>
                 <th>Fecha cierre</th>
@@ -75,13 +76,12 @@
               <input type="text" class="invisible-input" value="0" id="total_difference" disabled>
             </div>
           </div>
-          <br>
 
-          <div class="row d-flex justify-content-between">
+          <div class="grid-date-container">
 
-            <div class="col-sm-4">
-              <div class="col-sm-12">
-                <label class="form-label">Usuario:</label>
+            <div class="grid-form-user">
+              <div class="grid-date-field">
+                <label class="">Usuario:</label>
                 <select class="form-custom search col-sm-12" name="user" id="user_id" required>
                   <option value="" selected disabled>Selecionar usuario</option>
                   <?php $users = Help::loadUsers();
@@ -90,92 +90,124 @@
                   <?php endwhile; ?>
                 </select>
               </div>
-              <div class="col-sm-12">
-                <label class="form-label">Ingresos Efectivo:</label>
-                <input type="text" class="form-custom color-black" id="cash_income" value="<?= number_format($cash, 2) ?>" readonly disabled>
-              </div>
-              <div class="col-sm-12">
-                <label class="form-label">Ingresos Tarjeta:</label>
-                <input type="text" class="form-custom color-black" id="card_income" value="<?= number_format($card ?? 0.00, 2) ?>" readonly disabled>
-              </div>
-              <div class="col-sm-12">
-                <label class="form-label">Ingresos Transferencia:</label>
-                <input type="text" class="form-custom color-black" id="transfer_income" value="<?= number_format($transfers ?? 0.00, 2) ?>" readonly disabled>
-              </div>
-              <div class="col-sm-12">
-                <label class="form-label">Ingresos Cheques:</label>
-                <input type="text" class="form-custom color-black" id="check_income" value="<?= number_format($checks ?? 0.00, 2) ?>" readonly disabled>
+
+              <div class="cash-closing-check">
+                <div class="cash-closing-radio">
+                  <input class="" type="radio" name="radioDefault" id="generatePDF" checked>
+                  <label class="" for="generatePDF"><i class="fas fa-file-pdf"></i> PDF</label>
+                </div>
+
+                <div class="cash-closing-radio">
+                  <input class="" type="radio" name="radioDefault" id="generateMail">
+                  <label class="" for="generateMail"><i class="fas fa-envelope"></i> Email</label>
+                </div>
               </div>
             </div>
 
-            <div class="col-md-4">
-              <div class="col-sm-12">
-                <label class="form-label">Fecha Apertura:</label>
+            <div class="grid-form-date">
+              <div class="grid-date-field">
+                <label class="">Fecha Apertura:</label>
                 <input type="datetime-local" class="form-custom color-black" value="<?= $cashOpening->fecha_apertura ?? '' ?>" id="opening_date" disabled required>
               </div>
-              <div class="col-sm-12">
-                <label class="form-label">Gastos fuera de caja:</label>
-                <input type="number" class="form-custom color-black" id="external_expenses" value="<?= $externalExpenses ?? 0 ?>" disabled>
-              </div>
-              <div class="col-sm-12">
-                <label class="form-label">Gastos de caja:</label>
-                <input type="number" class="form-custom color-black" id="cash_expenses" value="<?= $cashExpenses ?? 0 ?>" disabled>
-              </div>
-              <div class="col-sm-12">
-                <label class="form-label">Retiros:</label>
-                <input type="number" class="form-custom color-black" id="withdrawals" value="0.00">
-              </div>
-            </div>
 
-            <div class="col-sm-4">
-              <div class="col-sm-12">
+              <div class="grid-date-field">
                 <?php
                 date_default_timezone_set('America/Santo_Domingo');
                 $datetimeRD = date('Y-m-d\TH:i');
                 ?>
-                <label class="form-label">Fecha Cierre:</label>
+                <label class="">Fecha Cierre:</label>
                 <input type="datetime-local" class="form-custom" id="closing_date" value="<?= $datetimeRD ?>" required>
               </div>
-              <div class="col-sm-12">
-                <label class="form-label">Saldo Inicial:</label>
-                <input type="number" class="form-custom text-primary" id="initial_balance" value="<?= $cashOpening->saldo_inicial ?? 0.00 ?>">
-              </div>
-
-              <div class="col-sm-12">
-                <label class="form-label fw-bold">Total efectivo en caja:</label>
-                <input type="number" class="form-custom fw-bold text-success" id="current_total" value="" required>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Observaciones -->
-
-          <div class="col-sm-12 mb-3">
-            <div class="col-sm-12">
-              <label class="form-label">Observaciones:</label>
-              <textarea class="form-custom" rows="2" id="notes" placeholder="Notas adicionales..."></textarea>
             </div>
           </div>
 
-          <div class="modal-footer bg-light">
 
-            <button type="button" class="btn-custom btn-red" data-dismiss="modal" id="">
-              <i class="fas fa-window-close"></i>
-              <p>Salir</p>
-            </button>
-            <button type="submit" class="btn-custom btn-green" id="">
-              <i class="fas fa-plus"></i>
-              <p>Registrar</p>
-            </button>
-          </div>
+          <!-- Información detallada -->
+          <div class="grid-form">
 
-        </form>
+            <div class="grid-summary">
+
+              <legend class="summary-legend">Resumen de cierre</legend>
+
+              <div class="form-field">
+                <label class="">+ Ingresos Efectivo:</label>
+                <input type="text" class="" id="cash_income" value="<?= number_format($cash ?? 0.00, 2) ?>" readonly disabled>
+              </div>
+
+              <div class="form-field">
+                <label class="">+ Ingresos Tarjeta:</label>
+                <input type="text" class="" id="card_income" value="<?= number_format($card ?? 0.00, 2) ?>" readonly disabled>
+              </div>
+
+              <div class="form-field">
+                <label class="">+ Ingresos Transferencia:</label>
+                <input type="text" class="" id="transfer_income" value="<?= number_format($transfers ?? 0.00, 2) ?>" readonly disabled>
+              </div>
+
+              <div class="form-field">
+                <label class="">+ Ingresos Cheques:</label>
+                <input type="text" class="" id="check_income" value="<?= number_format($checks ?? 0.00, 2) ?>" readonly disabled>
+              </div>
+
+
+              <div class="form-field field-subtraction">
+                <label class="">- Gastos externos:</label>
+                <input type="number" class="" id="external_expenses" value="<?= number_format($externalExpenses ?? 0.00, 2) ?>" disabled>
+              </div>
+
+              <div class="form-field field-subtraction">
+                <label class="">- Gastos internos:</label>
+                <input type="number" class="" id="cash_expenses" value="<?= number_format($cashExpenses ?? 0.00, 2) ?>" disabled>
+              </div>
+
+              <div class="form-field field-subtraction-active">
+                <label class="">- Reembolsos:</label>
+                <input type="number" class="field-active" id="refund" placeholder="0.00">
+              </div>
+
+              <div class="form-field field-subtraction-active">
+                <label class="">- Retiros:</label>
+                <input type="number" class="field-active" id="withdrawals" placeholder="0.00">
+              </div>
+
+            </div><!-- grid-summary -->
+
+
+            <div class="grid-cash-closing">
+              <legend class="cash-closing-legend">Datos de cierre</legend>
+
+              <label class="">Observaciones:</label>
+              <textarea class="form-custom" rows="3" id="notes" placeholder="Notas adicionales..."></textarea>
+
+              <div class="field-cash-closing">
+                <label class="">Saldo Inicial:</label>
+                <input type="number" class="form-custom" id="initial_balance" value="<?= $cashOpening->saldo_inicial ?? 0.00 ?>">
+
+                <label class="fw-bold">Total efectivo en caja:</label>
+                <input type="number" class="form-custom fw-bold" id="current_total" value="" required>
+              </div>
+            </div> <!-- grid-cash-closing-->
+
+          </div><!-- grid-form -->
+
+      </div> <!-- body -->
+      <div class="modal-footer bg-light">
+
+        <button type="button" class="btn-custom btn-red" data-dismiss="modal" id="">
+          <i class="fas fa-window-close"></i>
+          <p>Salir</p>
+        </button>
+        <button type="submit" class="btn-custom btn-green" id="">
+          <i class="fas fa-door-closed"></i>
+          <p>Cerrar caja</p>
+        </button>
       </div>
+
+      </form>
     </div>
   </div>
 </div>
-
+</div>
 
 <!-- Abrir caja -->
 <div class="modal fade" id="modalCashOpening" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"

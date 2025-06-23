@@ -6,6 +6,13 @@ require_once '../config/parameters.php';
 require_once 'functions/functions.php';
 session_start();
 
+if ($_POST['action'] == 'eliminar_cierre') {
+
+    $db = Database::connect();
+
+    echo handleDeletionAction($db,(int)$_POST['id'],'c_eliminarCierre');
+}
+
 if ($_POST['action'] == 'abrir_caja') {
 
     $db = Database::connect();
@@ -31,6 +38,7 @@ if ($_POST['action'] == 'cierre_caja') {
         $_POST['cash_expenses'],
         $_POST['external_expenses'],
         $_POST['withdrawals'],
+         $_POST['refunds'],
         $_POST['total'],
         $_POST['current_total'],
         $_POST['notes'] ?? ""
@@ -66,20 +74,60 @@ if ($_POST['action'] == 'index_cierre_caja') {
             'estado'
         ],
         'base_table' => 'cierres_caja c',
-        'table_with_joins' => 'cierres_caja c
-      INNER JOIN usuarios u ON u.usuario_id = c.usuario_id',
+        'table_with_joins' => 'cierres_caja c INNER JOIN usuarios u ON u.usuario_id = c.usuario_id',
         'select' => "SELECT c.cierre_id,concat(u.nombre,' ',IFNULL(u.apellidos,'')) as cajero, c.total_esperado,
-       c.total_real,c.diferencia,c.fecha_apertura,c.fecha_cierre,c.estado",
+                    c.total_real,c.diferencia,c.saldo_inicial,c.ingresos_efectivo,c.ingresos_tarjeta,
+                    c.ingresos_transferencia,c.ingresos_cheque,c.egresos_caja,c.egresos_fuera,c.retiros,
+                    c.fecha_apertura,c.fecha_cierre,c.observaciones,c.estado",
         'table_rows' => function ($row) {
+            // Generar PDF
+            $acciones = '<span ';
+            if ($_SESSION['identity']->nombre_rol == 'administrador') {
+                $acciones .= ' onclick="generateCashClosingPDF(\'' . $row['cierre_id'] . '\')" class="action-delete"';
+            } else {
+                $acciones .= ' class="action-delete action-disable"';
+            }
+            $acciones .= ' title="PDF"><i class="fas fa-file-pdf"></i></span>';
+
+            // Eliminar
+            $acciones .= '<span ';
+            if ($_SESSION['identity']->nombre_rol == 'administrador') {
+                $acciones .= ' onclick="deleteCashClosing(\'' . $row['cierre_id'] . '\')" class="action-delete"';
+            } else {
+                $acciones .= ' class="action-delete action-disable"';
+            }
+            $acciones .= ' title="Eliminar"><i class="fas fa-times"></i></span>';        
+            
             return [
                 'id' => '<span class="hide-cell">' . $row['cierre_id'] . '</span>',
                 'cajero' => ucwords($row['cajero']),
-                'total_real' => '<span class="hide-cell text-success">' . number_format($row['total_real']) . '</span>',
-                'diferencia' => '<span class="hide-cell text-danger">' . number_format($row['diferencia']) . '</span>',
+                'total_real' => '<span>
+                    <a href="#" class="hide-cell text-success">
+                        ' . number_format($row['total_real']) . '
+                    </a>
+                    <span id="toggle" class="toggle-right toggle-md">' .
+                    'Efectivo: ' . number_format($row['ingresos_efectivo'], 2) . '<br>' .
+                    'Tarjeta: ' . number_format($row['ingresos_tarjeta'], 2) . '<br>' .
+                    'Transferencia: ' . number_format($row['ingresos_transferencia'], 2) . '<br>' .
+                    'Cheque: ' . number_format($row['ingresos_cheque'], 2)
+                    . '</span>' .
+                    '</span>',
+                'gastos' => '<span>
+                    <a href="#" class="hide-cell text-danger">
+                        ' . number_format($row['egresos_caja'] + $row['egresos_fuera'], 2) . '
+                    </a>
+                    <span id="toggle" class="toggle-right toggle-md">' .
+                    'Gastos de caja: ' . number_format($row['egresos_caja'], 2) . '<br>' .
+                    'Gastos fuera de caja: ' . number_format($row['egresos_fuera'], 2) . '<br>' .
+                    'Retiros: ' . number_format($row['retiros'], 2)
+                    . '</span>' .
+                    '</span>',
+
+                'diferencia' => '<span class="hide-cell">' . number_format($row['diferencia']) . '</span>',
                 'fecha_apertura' => $row['fecha_apertura'],
                 'fecha_cierre' => $row['fecha_cierre'],
-                'estado' => '<span class="hide-cell">' . ucwords($row['estado']) . '</span>',
-                'acciones' => ''
+                'estado' => '<p class="hide-cell ' . $row['estado'] . '">' . ucwords($row['estado']) . '</p>',
+                'acciones' => $acciones
             ];
         }
     ]);
@@ -221,7 +269,7 @@ if ($_POST['action'] == "index_ventas_hoy") {
         $acciones .= '<span ';
 
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
-             $acciones .= 'class="action-delete"';
+            $acciones .= 'class="action-delete"';
             if ($row['tipo'] == 'FT') {
                 $acciones .= ' onclick="deleteInvoice(\'' . $row['id'] . '\')"';
             } elseif ($row['tipo'] == 'RP') {
@@ -232,23 +280,21 @@ if ($_POST['action'] == "index_ventas_hoy") {
                 $acciones .= ' onclick="deletePayment(\'' . $row['id'] . '\', 0, \'' . $row['orden'] . '\')"';
             }
         } else {
-             $acciones .= 'class="action-delete action-disable"';
+            $acciones .= 'class="action-delete action-disable"';
         }
 
         $acciones .= ' title="Eliminar"><i class="fas fa-times"></i></span>';
 
         $data[] = [
 
-            'id' => '
-        <span>
-            <a href="#">
-                ' . $row['tipo'] . '-00' . $row['id'] . '
-            </a>
-            <span id="toggle" class="toggle-right toggle-md">
-               ' . 'Método: ' . $row['nombre_metodo'] . '
-            </span>
-        </span>
-    ',
+            'id' => '<span>
+                <a href="#">
+                    ' . $row['tipo'] . '-00' . $row['id'] . '
+                </a>
+                <span id="toggle" class="toggle-right toggle-md">
+                ' . 'Método: ' . $row['nombre_metodo'] . '
+                </span>
+            </span>',
             'nombre' => ucwords($row['nombre'] . ' ' . $row['apellidos']),
             'fecha' => $row['fecha_factura'],
             'total' => '<span class="text-primary">' . number_format($row['total'], 2) . '</span>',

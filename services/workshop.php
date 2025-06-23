@@ -70,7 +70,9 @@ switch ($action) {
             ucwords($row['nombre_marca'] . ' ' . $row['nombre_modelo'] . ' ' . $row['modelo']) . '</a>' .
             '<span id="toggle" class="toggle-right toggle-xl">' .
             'Marca: ' . $row['nombre_marca'] . '<br>Modelo: ' . $row['modelo'] . '<br>' .
-            'IMEI: ' . $row['imei'] . '<br>Serie: ' . $row['serie'] . '</span></span>',
+            'IMEI: ' . $row['imei'] . '<br>Serie: ' . $row['serie'] . 
+            '</span>
+            </span>',
 
           'fecha_entrada' => '<span class="text-success hide-cell">' . $row['fecha_entrada']. '</span>',
           'fecha_salida' => '<span class="text-danger hide-cell">' . $row['fecha_salida']. '</span>',

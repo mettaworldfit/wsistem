@@ -40,14 +40,12 @@ $(document).ready(function () {
         // Obtener los valores de cada campo (si está vacío se usa 0)
         const saldoInicial = parseFloat($('#initial_balance').val()) || 0;
         const ingresosEfectivo = parseFloat($('#cash_income').val().replace(/,/g, "")) || 0;
-        // const ingresosTarjeta = parseFloat($('#card_income').val().replace(/,/g, "")) || 0;
-        // const ingresosTransfer = parseFloat($('#transfer_income').val().replace(/,/g, "")) || 0;
-        // const ingresosCheque = parseFloat($('#check_income').val().replace(/,/g, "")) || 0;
         const cash_expenses = parseFloat($('#cash_expenses').val().replace(/,/g, "")) || 0;
-        const withdrawals = parseFloat($('#withdrawals').val()) || 0;
+        const withdrawals = parseFloat($('#withdrawals').val().replace(/,/g, "")) || 0;
+        const refunds = parseFloat($('#refund').val().replace(/,/g, "")) || 0;
 
         // Calcular el total esperado
-        const totalEsperado = saldoInicial + ingresosEfectivo - cash_expenses - withdrawals;
+        const totalEsperado = saldoInicial + ingresosEfectivo - cash_expenses - withdrawals - refunds;
 
         // Mostrar el resultado en el campo correspondiente
         $('#total_expected').val(format.format(totalEsperado));
@@ -59,7 +57,7 @@ $(document).ready(function () {
     })
 
     // Ejecutar el cálculo cuando se modifique cualquiera de los campos relacionados
-    $('#initial_balance, #cash_income, #cash_expenses, #withdrawals').on('input', calculateExpectedTotal);
+    $('#initial_balance, #cash_income, #cash_expenses, #withdrawals, #refund').on('input', calculateExpectedTotal);
 
 
     // Calcular diferencia
@@ -90,10 +88,27 @@ $(document).ready(function () {
 
     // Recalcular cuando se escriba en los campos relevantes
     $('#current_total,#initial_balance').on('input', updateDifference);
-    $('#cash_expenses,#withdrawals').on('input', updateDifference);
+    $('#cash_expenses,#withdrawals, #refund').on('input', updateDifference);
 
+
+  
 
 }); // Ready
+
+  // Generar cierre pdf
+    function generateCashClosingPDF(id) {
+        
+        var width = 1000;
+        var height = 800;
+
+        // Centrar la ventana
+        var x = parseInt((window.screen.width / 2) - (width / 2));
+        var y = parseInt((window.screen.height / 2) - (height / 2));
+
+        var url = SITE_URL + 'src/pdf/cierre_caja.php?id=' + id;
+        window.open(url, 'ciere_caja', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
+
+    }
 
 // Abrir caja
 
@@ -156,6 +171,7 @@ function cashClosing() {
         cash_expenses: parseFloat($('#cash_expenses').val().replace(/,/g, "")) || 0,
         external_expenses: parseFloat($('#external_expenses').val().replace(/,/g, "")) || 0,
         withdrawals: parseFloat($('#withdrawals').val()) || 0,
+        refunds: parseFloat($('#refund').val().replace(/,/g, "")) || 0,
         total: parseFloat($('#total').val().replace(/,/g, "")) || 0,
         current_total: $('#current_total').val(),
         notes: $('#notes').val() || ""
@@ -171,6 +187,28 @@ function cashClosing() {
         errorCallback: (res) => mysql_error(res),
         verbose: true
     })
+}
+
+// Eliminar cierre de caja
+
+function deleteCashClosing(id) {
+    alertify.confirm("Eliminar cierre de caja", "¿Estas seguro que deseas eliminar el cierre? ",
+        function () {
+            sendAjaxRequest({
+                url: "services/reports.php",
+                data: {
+                    action: "eliminar_cierre",
+                    id: id
+                },
+                successCallback: (res) => {
+                    dataTablesInstances['cashClosing'].ajax.reload()
+
+                },
+                errorCallback: (res) => mysql_error(res),
+            })
+        },
+        function () { }
+    );
 }
 
 
