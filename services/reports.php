@@ -324,22 +324,15 @@ if ($_POST['action'] == "productos_vendidos") {
     $d1 = $_POST['dateq1'];
     $d2 = $_POST['dateq2'];
 
-
     $query = "SELECT p.nombre_producto, sum(d.cantidad) as cantidad,sum(d.precio - d.descuento) as total,
     sum(p.precio_costo * d.cantidad) as costo, sum((d.precio - d.descuento)-(p.precio_costo * d.cantidad)) as ganancia  from detalle_facturas_ventas d 
-inner join detalle_ventas_con_productos dp on dp.detalle_venta_id = d.detalle_venta_id
-inner join productos p on p.producto_id = dp.producto_id
-where p.nombre_producto like '%$q%' and d.fecha between '$d1' and '$d2' group by p.nombre_producto order by total desc;";
-    $result = $db->query($query);
+    inner join detalle_ventas_con_productos dp on dp.detalle_venta_id = d.detalle_venta_id
+    inner join productos p on p.producto_id = dp.producto_id
+    where p.nombre_producto like '%$q%' and d.fecha between '$d1' and '$d2' group by p.nombre_producto order by total desc;";
+        $result = $db->query($query);
 
-    $arr = [];
+    jsonQueryResult($db,$query);
 
-    while ($element = $result->fetch_assoc()) {
-        $arr[] = $element;
-    }
-
-    echo json_encode($arr, JSON_UNESCAPED_UNICODE);
-    exit;
 }
 
 
