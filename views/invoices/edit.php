@@ -94,7 +94,6 @@
 </div> <!-- generalConntainer -->
 
 
-
 <!--Modal agregar detalle-->
 <div class="modal fade" id="add_detail" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -127,12 +126,7 @@
                                 <input type="radio" name="tipo" value="servicio" id="radio3">
                                 <label for="radio3">Servicios</label>
                             </div>
-
-
-
                         </div>
-
-
                     </div>
 
                     <!-- Información -->
@@ -177,6 +171,7 @@
                                     <?php endwhile; ?>
                                 </select>
                                 <input type="hidden" name="" value="" id="piece_id">
+                                <input type="hidden" name="" value="" id="piece_cost">
                             </div>
                         </div>
 
@@ -197,6 +192,7 @@
                                 </select>
                                 <input type="hidden" name="" value="" id="taxes">
                                 <input type="hidden" name="" value="" id="product_id">
+                                <input type="hidden" name="" value="" id="product_cost">
                             </div>
 
                         </div>

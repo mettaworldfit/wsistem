@@ -36,7 +36,7 @@ function updateService(serviceId) {
         errorCallback: (res) => mysql_error(res)
     })
 }
-
+ 
 // Eliminar servicio
 
 function deleteService(serviceId) {

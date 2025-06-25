@@ -362,7 +362,7 @@ if ($_POST['action'] == 'eliminar_detalle_temporal') {
 
   $db = Database::connect();
 
-  echo handleDeletionAction($db,(int)$_POST['id'],'vt_eliminarDetalleTemporal');
+  echo handleDeletionAction($db, (int)$_POST['id'], 'vt_eliminarDetalleTemporal');
 }
 
 // Eliminar producto del detalle venta
@@ -371,7 +371,7 @@ if ($_POST['action'] == 'eliminar_detalle_venta') {
 
   $db = Database::connect();
 
-  echo handleDeletionAction($db,(int)$_POST['id'],'vt_eliminarDetalleVenta');
+  echo handleDeletionAction($db, (int)$_POST['id'], 'vt_eliminarDetalleVenta');
 }
 
 // Factura al contado
@@ -405,6 +405,10 @@ if ($_POST['action'] == "factura_contado") {
 
 if ($_POST['action'] == "registrar_detalle_de_venta") {
 
+  /**
+   * Registrar variantes asociadas al detalle
+   */
+
   function facturarVariantes($detail_temp_id, $detail_id)
   {
 
@@ -433,21 +437,18 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
 
   $db = Database::connect();
 
+  // Desactivar triggers temporalmente
+  $db->query("DROP TRIGGER IF EXISTS restar_stock_productos");
+  $db->query("DROP TRIGGER IF EXISTS restar_stock_piezas");
+  $db->query("DROP TRIGGER IF EXISTS devolver_variantes_temporales");
+  $db->query("DROP TRIGGER IF EXISTS devolver_stocks_temporales");
+
+  // Obtener datos del carrito temporal
   $query1 = "SELECT d.detalle_temporal_id, d.usuario_id, d.producto_id,d.servicio_id,
   d.pieza_id,d.descripcion,d.cantidad,d.costo,d.precio,d.impuesto,d.descuento FROM detalle_temporal d 
   WHERE d.usuario_id = '$user_id';";
 
   $datos = $db->query($query1);
-
-  // Desactivar TRIGGER
-  $drop1 = "DROP TRIGGER IF EXISTS restar_stock_productos";
-  $drop2 = "DROP TRIGGER IF EXISTS restar_stock_piezas";
-  $drop3 = "DROP TRIGGER IF EXISTS devolver_variantes_temporales";
-  $drop4 = "DROP TRIGGER IF EXISTS devolver_stocks_temporales";
-  $db->query($drop1);
-  $db->query($drop2);
-  $db->query($drop3);
-  $db->query($drop4);
 
   while ($element = $datos->fetch_object()) {
 
@@ -482,6 +483,7 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
     }
   }
 
+  // Obtener el detalle insertado (para devolverlo)
   $response = $db->query($query1);
   echo json_encode($response->fetch_all(), JSON_UNESCAPED_UNICODE); // devolver datos del detalle
 

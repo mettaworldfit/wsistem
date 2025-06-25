@@ -329,8 +329,7 @@ $(document).ready(function () {
 
                     }
                 },
-                errorCallback: (res) => mysql_error(res),
-                verbose: true
+                errorCallback: (res) => mysql_error(res)
             })
         }
     }
@@ -412,22 +411,22 @@ $(document).ready(function () {
             // Aplicar bono
             var customer_id = $('#cash-in-customer').val()
 
-            if (customer_id > 1) {
-                $.ajax({
-                    type: "post",
-                    url: SITE_URL + "services/invoices.php",
+            if (customer_id > 1) { // Diferente al consumidor final
+
+                sendAjaxRequest({
+                    url: "services/invoices.php",
                     data: {
                         action: "consultar_bono",
                         customer_id: customer_id
                     },
-                    success: function (res) {
+                    successCallback: (res) => {
                         var data = JSON.parse(res);
 
                         if (data.valor > 0) {
                             calculateTotalInvoice(data.valor) // aplicar bono a el total de la factura
                         }
                     }
-                });
+                })
 
             } else {
                 calculateTotalInvoice()
@@ -439,7 +438,7 @@ $(document).ready(function () {
 
 
 
-    // Introducir monto
+    // Evento: validar y mostrar boton de facturar a credito
 
     $('#credit-pay').on('keyup', (e) => {
         e.preventDefault();
