@@ -31,7 +31,7 @@ function fetchProductData($field, $value, $useLike = false)
   $operator = $useLike ? "LIKE '%$escaped_value%'" : "= '$escaped_value'";
 
   // Consulta principal para obtener los datos del producto
-  $query = "SELECT p.nombre_producto, p.cantidad, p.precio_unitario, p.cod_producto, 
+  $query = "SELECT p.nombre_producto, p.cantidad, p.precio_unitario, p.precio_costo, p.cod_producto, 
                    pl.valor AS valor_lista, o.valor AS oferta, 
                    p.producto_id AS IDproducto, i.valor AS impuesto, 
                    p.estado_id, pos.referencia 

@@ -142,7 +142,7 @@ function resetModal() {
 }
 
 $(document).ready(function () {
-    
+
     // Ocultar botones por defecto (cotización, editar última factura, tipos de facturación)
     $('#SaveQuote, #last_invoice_edit, #credit-in-finish, #credit-in-finish-receipt, #cash-in-finish-receipt, #cash-in-finish').hide();
 
@@ -226,128 +226,113 @@ $(document).ready(function () {
 
 
 
-    /**
-     *! Facturas de ventas
-     -----------------------------------------------------------*/
-
-    // Crear factura al contado
-
-    $('#cash-in-finish').on('click', (e) => {
+    // Botón: Crear factura al contado sin ticket
+    $('#cash-in-finish').on('click', function (e) {
         e.preventDefault();
+        createCashInvoice(false);
+    });
 
-        CASH_INV_FINISH();
-    })
-
-
-    $('#cash-in-finish-receipt').on('click', (e) => {
+    // Botón: Crear factura al contado con ticket
+    $('#cash-in-finish-receipt').on('click', function (e) {
         e.preventDefault();
+        createCashInvoice(true);
+    });
 
-        CASH_INV_FINISH(true);
+    function createCashInvoice(receipt = false) {
 
-    })
-
-    function CASH_INV_FINISH(receipt = false) {
-
-        data = {
+        const data = {
+            // Datos del ticket
             customer: $('#select2-cash-in-customer-container').attr('title'),
             seller: $('#cash-in-seller').val(),
             payment_method: $('#select2-cash-in-method-container').attr('title'),
-            subtotal: $('#in-subtotal').val().replace(/,/g, ""),
-            discount: $('#in-discount').val().replace(/,/g, ""),
-            taxes: $('#in-taxes').val().replace(/,/g, ""),
-            total: $('#in-total').val().replace(/,/g, ""),
-            bonus: $('#cash-bonus').val().replace(/,/g, ""),
+            subtotal: parseFloat($('#in-subtotal').val().replace(/,/g, "")) || 0,
+            discount: parseFloat($('#in-discount').val().replace(/,/g, "")) || 0,
+            taxes: parseFloat($('#in-taxes').val().replace(/,/g, "")) || 0,
+            total: parseFloat($('#in-total').val().replace(/,/g, "")) || 0,
+            bonus: parseFloat($('#cash-bonus').val().replace(/,/g, "")) || 0,
             date: $('#cash-in-date').val(),
-            observation: $('#observation').val()
+            observation: $('#observation').val(),
+
+            // Datos para la factura
+            action: "factura_contado",
+            customer_id: $('#cash-in-customer').val(),
+            method_id: $('#cash-in-method').val(),
+            total_invoice: parseFloat($('#cash-topay').val().replace(/,/g, "")) || 0,
+        };
+
+        // Validación rápida
+        if (!data.customer_id || !data.method_id || !data.seller) {
+            alert("Completa todos los datos obligatorios.");
+            return;
         }
 
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: data,
+            successCallback: (res) => {
 
-        $.ajax({
-            type: "post",
-            url: SITE_URL + "services/invoices.php",
-            data: {
-                action: "factura_contado",
-                customer_id: $('#cash-in-customer').val(),
-                payment_method: $('#cash-in-method').val(),
-                description: $('#observation').val(),
-                total_invoice: $('#cash-topay').val().replace(/,/g, ""),
-                bonus: data.bonus,
-                date: data.date
-            },
-            success: function (res) {
                 if (res > 0) {
 
-                    REGISTER_DETAIL_ON_CASH(res, data, receipt);
+                    registerInvoiceDetails(res, data, receipt);
                     $('#cash-received').val($('#cash-topay').val())
                     $('#cash-pending').val('0.00')
 
                     $('#last_invoice_edit').show()
                     $('#last_invoice_edit').attr('href', SITE_URL + 'invoices/edit&id=' + res) // botón para editar la  última factura agregada
 
-
-                } else {
-                    mysql_error(res)
                 }
-            }
-        });
+            },
+            errorCallback: (res) => mysql_error(res)
+        })
 
-        // Registrar detalle de factura al contado
+        // Función separada para registrar detalles y manejar impresión
 
-        function REGISTER_DETAIL_ON_CASH(invoice_id, data, receipt) {
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/invoices.php",
+        function registerInvoiceDetails(invoice_id, data, receipt) {
+
+            sendAjaxRequest({
+                url: "services/invoices.php",
                 data: {
                     action: 'registrar_detalle_de_venta',
                     invoice_id: invoice_id,
-                    date: $('#cash-in-date').val()
+                    date: data.date
                 },
-                success: function (res) {
+                successCallback: (res) => {
+                    // Calcular devolucion
 
-                    if (res != "") {
+                    var topay = $('#cash-topay').val().replace(/,/g, "");
+                    var received = $('#calc_return').val();
+                    let calc_return;
 
-                        // Calcular devolucion
+                    if (received != '') {
 
-                        var topay = $('#cash-topay').val().replace(/,/g, "");
-                        var received = $('#calc_return').val();
-                        let calc_return;
-
-                        if (received != '') {
-
-                            calc_return = received - topay;
-                            cashback(format.format(calc_return));
-
-                        } else {
-                            mysql_row_affected()
-                        }
-
-                        reloadInvoiceDetail() // Actualizar datos
-
-
-                        // Imprimir ticket 
-                        if (receipt == true) {
-                            printer(invoice_id, res, data, "cash");
-
-                            // Enviar email
-                            if ($("#sendMail").is(':checked')) return SendmailCashft(invoice_id)
-
-                        } else {
-
-                            GeneratePDF(invoice_id) // Imprimir PDF
-                            // Enviar email
-                            if ($("#sendMail").is(':checked')) return SendmailCashft(invoice_id)
-
-                        }
-
+                        calc_return = received - topay;
+                        cashback(format.format(calc_return));
 
                     } else {
-                        mysql_error(res)
+                        mysql_row_affected()
                     }
-                }
-            });
+
+                    reloadInvoiceDetail() // Actualizar datos
+
+                    // Imprimir ticket 
+                    if (receipt == true) {
+                        printer(invoice_id, res, data, "cash");
+
+                        // Enviar email
+                        if ($("#sendMail").is(':checked')) return SendmailCashft(invoice_id)
+
+                    } else {
+
+                        GeneratePDF(invoice_id) // Imprimir PDF
+                        // Enviar email
+                        if ($("#sendMail").is(':checked')) return SendmailCashft(invoice_id)
+
+                    }
+                },
+                errorCallback: (res) => mysql_error(res),
+                verbose: true
+            })
         }
-
-
     }
 
     // Generar factura pdf
@@ -903,7 +888,7 @@ function addDetailItem() {
 
     const tipo = $('input:radio[name=tipo]:checked').val();
 
-    let description, quantity, discount, piece_id = 0, product_id = 0, service_id = 0, variant_id, total_variant = 0;
+    let description, cost, quantity, discount, piece_id = 0, product_id = 0, service_id = 0, variant_id, total_variant = 0;
 
     if (tipo === 'servicio') {
         quantity = 1;
@@ -917,6 +902,7 @@ function addDetailItem() {
         discount = $('#discount').val().replace(/,/g, "");
         quantity = $('#quantity').val();
         description = $('#select2-piece-container').attr('title');
+        cost = $('#piece_cost').val();
         addItem();
         resetModal();
 
@@ -924,6 +910,7 @@ function addDetailItem() {
         discount = $('#discount').val().replace(/,/g, "");
         product_id = $('#product').val();
         quantity = $('#quantity').val();
+        cost = $('#product_cost').val();
         description = $('#select2-product-container').attr('title');
         variant_id = $('#variant_id').val();
         total_variant = parseInt($('#total_variant').val()) || 0;
@@ -973,7 +960,8 @@ function addDetailItem() {
                 quantity: quantity,
                 discount: discount,
                 taxes: ($('#price_out').val().replace(/,/g, "") * $('#taxes').val()) / 100, // Calcular impuestos
-                price: $('#price_out').val().replace(/,/g, "")
+                price: $('#price_out').val().replace(/,/g, ""),
+                cost: cost
             },
             successCallback: (res) => {
                 calculateTotalInvoice()

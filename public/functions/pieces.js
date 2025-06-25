@@ -36,6 +36,7 @@ $(document).ready(function () {
         $('#locate').val(piece.referencia);
         $('#quantity').val(1).removeAttr('disabled');
         $('#price_out').val(format.format(piece.precio_unitario));
+        $("#piece_cost").val(piece.precio_costo);
         $('#discount').removeAttr('disabled');
 
         // Aplicar oferta si existe

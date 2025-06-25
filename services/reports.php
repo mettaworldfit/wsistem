@@ -325,7 +325,9 @@ if ($_POST['action'] == "productos_vendidos") {
     $d2 = $_POST['dateq2'];
 
     $query = "SELECT p.nombre_producto, sum(d.cantidad) as cantidad,sum(d.precio - d.descuento) as total,
-    sum(p.precio_costo * d.cantidad) as costo, sum((d.precio - d.descuento)-(p.precio_costo * d.cantidad)) as ganancia  from detalle_facturas_ventas d 
+    sum(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) as costo, 
+    sum((d.precio - d.descuento)-(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad)) as ganancia  
+    from detalle_facturas_ventas d 
     inner join detalle_ventas_con_productos dp on dp.detalle_venta_id = d.detalle_venta_id
     inner join productos p on p.producto_id = dp.producto_id
     where p.nombre_producto like '%$q%' and d.fecha between '$d1' and '$d2' group by p.nombre_producto order by total desc;";
@@ -412,7 +414,9 @@ if ($_POST['action'] == "piezas_vendidas") {
     $query = "SELECT nombre_pieza, sum(cantidad) as cantidad, sum(total) as total, sum(costo) as costo, sum(ganancia) as ganancia FROM (
 
     SELECT p.nombre_pieza as nombre_pieza, sum(d.cantidad) as cantidad,sum(d.precio - d.descuento) as total,
-    sum(p.precio_costo * d.cantidad) as costo, sum((d.precio - d.descuento)-(p.precio_costo * d.cantidad)) as ganancia from detalle_facturas_ventas d 
+    sum(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) as costo, 
+    sum((d.precio - d.descuento)-(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad)) as ganancia 
+    from detalle_facturas_ventas d 
     inner join detalle_ventas_con_piezas_ dp on dp.detalle_venta_id = d.detalle_venta_id
     inner join piezas p on p.pieza_id = dp.pieza_id
     where p.nombre_pieza like '%$q%' and d.fecha between '$d1' and '$d2' group by p.nombre_pieza

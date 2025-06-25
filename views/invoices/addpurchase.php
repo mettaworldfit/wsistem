@@ -169,6 +169,7 @@
                                     <?php endwhile; ?>
                                 </select>
                                 <input type="hidden" name="" value="" id="piece_id">
+                                 <input type="hidden" name="" value="" id="piece_cost">
                             </div>
                         </div>
 
@@ -188,6 +189,7 @@
                                     <?php endwhile; ?>
                                 </select>
                                 <input type="hidden" name="" value="" id="taxes">
+                                <input type="hidden" name="" value="" id="product_cost">
                                 <input type="hidden" name="" value="" id="product_id">
                             </div>
 

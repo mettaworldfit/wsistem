@@ -89,7 +89,7 @@ switch ($action) {
   case "buscar_codigo_pieza":
 
     $q = $_POST['piece_code'];
-    $query = "SELECT p.nombre_pieza, p.cantidad, p.precio_unitario, p.cod_pieza, count(l.lista_id) AS lista_total, 
+    $query = "SELECT p.nombre_pieza, p.cantidad, p.precio_costo,p.precio_unitario, p.cod_pieza, count(l.lista_id) AS lista_total, 
             pl.valor as valor_lista, o.valor as oferta, p.pieza_id as IDpieza, p.estado_id, pos.referencia FROM piezas p 
             LEFT JOIN piezas_con_ofertas po ON p.pieza_id = po.pieza_id
             LEFT JOIN ofertas o ON po.oferta_id = o.oferta_id
@@ -109,7 +109,7 @@ switch ($action) {
   case "buscar_pieza":
 
     $q = $_POST['piece_id'];
-    $query = " SELECT p.nombre_pieza, p.cantidad, p.precio_unitario, p.cod_pieza,pl.valor as valor_lista, 
+    $query = " SELECT p.nombre_pieza, p.cantidad, p.precio_unitario, p.precio_costo, p.cod_pieza,pl.valor as valor_lista, 
           o.valor as oferta, p.pieza_id as IDpieza, p.estado_id, pos.referencia FROM piezas p 
           LEFT JOIN piezas_con_ofertas po ON p.pieza_id = po.pieza_id
           LEFT JOIN ofertas o ON po.oferta_id = o.oferta_id

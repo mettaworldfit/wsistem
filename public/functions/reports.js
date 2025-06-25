@@ -356,16 +356,16 @@ function getSoldServices() {
 
             document.querySelector("#queryResult").innerHTML = ""; // Vaciar campos de resultado
             document.querySelector("#queryResult").innerHTML = ` 
-      <table class="queryTable" id="echoQuery" style="width: 100%; margin-top: 2.5em; 
-      background: #f1f1f1; border-radius: 7px;">
-            <thead>
-                <tr>
-                    <td style=" padding: 2px 10px; font-size: 13px;">Nombre servicio</td>
-                    <td style=" padding: 2px 10px; font-size: 13px;">Cantidad</td>
-                    <td style=" padding: 2px 10px; font-size: 13px;">Total</td>
-                </tr>
-            </thead>
-        </table>`;
+            <table class="queryTable" id="echoQuery" style="width: 100%; margin-top: 2.5em; 
+            background: #f1f1f1; border-radius: 7px;">
+                    <thead>
+                        <tr>
+                            <td style=" padding: 2px 10px; font-size: 13px;">Nombre servicio</td>
+                            <td style=" padding: 2px 10px; font-size: 13px;">Cantidad</td>
+                            <td style=" padding: 2px 10px; font-size: 13px;">Total</td>
+                        </tr>
+                    </thead>
+                </table>`;
 
             var tr = "<tr>";
             $(data).each(function (index, element) {

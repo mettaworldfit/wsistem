@@ -645,6 +645,7 @@ $(document).ready(function () {
 
         const discountRate = parseFloat(product.oferta) || 0;
         const unitPrice = parseFloat(product.precio_unitario) || 0;
+        const productCost = parseFloat(product.precio_costo) || 0;
 
         // Mostrar botón para agregar producto libre
         $("#add_item_free").show();
@@ -657,6 +658,7 @@ $(document).ready(function () {
         $("#quantity").val(1);
         $("#locate").val(product.referencia);
         $("#price_out").val(format.format(unitPrice));
+        $("#product_cost").val(productCost);
         $("#taxes").val(format.format(product.impuesto));
         $("#quantity").removeAttr("disabled");
         $("#discount").removeAttr("disabled");
@@ -706,7 +708,7 @@ $(document).ready(function () {
             url: "services/products.php",
             data: {
                 product_id: product_id,
-                action: "buscar_producto"
+                action: "buscar_producto" 
             },
             successCallback: (res) => {
 

@@ -93,7 +93,7 @@ if ($_POST['action'] == "cargar_detalle_temporal") {
         'cantidad' => $row['cantidad'],
         'precio' => number_format($row['precio'], 2),
         'impuesto' => '<span class="hide-cell">' . number_format($row['cantidad'] * $row['impuesto'], 2) . '</span>',
-        'descuento' => number_format($row['descuento'], 2),
+        'descuento' => number_format($row['descuento'] ?? 0, 2),
         'importe' => number_format(
           ($row['cantidad'] * $row['precio']) +
             ($row['cantidad'] * $row['impuesto']) -
@@ -191,9 +191,9 @@ if ($_POST['action'] == "index_facturas_ventas") {
       $acciones .= ' title="Editar"><i class="fas fa-pencil-alt"></i></a>';
 
       if ($_SESSION['identity']->nombre_rol == 'administrador') {
-      $acciones .= '<span onclick="deleteInvoice(\'' . $row['factura_venta_id'] . '\')" class="action-delete" title="Eliminar"><i class="fas fa-times"></i></span>';
+        $acciones .= '<span onclick="deleteInvoice(\'' . $row['factura_venta_id'] . '\')" class="action-delete" title="Eliminar"><i class="fas fa-times"></i></span>';
       } else {
-       $acciones .= '<span class="action-delete action-disable" title="Eliminar"><i class="fas fa-times"></i></span>';
+        $acciones .= '<span class="action-delete action-disable" title="Eliminar"><i class="fas fa-times"></i></span>';
       }
 
       return [
@@ -215,32 +215,22 @@ if ($_POST['action'] == "index_facturas_ventas") {
 
 if ($_POST['action'] == "agregar_detalle_temporal") {
 
-  $user_id = $_SESSION['identity']->usuario_id;
-  $product_id = (!empty($_POST['product_id'])) ? $_POST['product_id'] : 0;
-  $piece_id = (!empty($_POST['piece_id'])) ? $_POST['piece_id'] : 0;
-  $service_id = (!empty($_POST['service_id'])) ? $_POST['service_id'] : 0;
-  $description = $_POST['description'];
-  $quantity = $_POST['quantity'];
-  $discount = (!empty($_POST['discount'])) ? $_POST['discount'] : 0;
-  $taxes = (!empty($_POST['taxes'])) ? $_POST['taxes'] : 0;
-  $price = $_POST['price'];
-
   $db = Database::connect();
 
-  $query = "CALL vt_crearDetalleTemporal($product_id,$piece_id,$service_id,'$description',$user_id,$quantity,'$price','$taxes','$discount')";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
+  $params = [
+    (int)$_POST['product_id'],
+    (int)$_POST['piece_id'],
+    (int)$_POST['service_id'],
+    $_POST['description'],
+    (int)$_SESSION['identity']->usuario_id,
+    $_POST['quantity'],
+    $_POST['cost'],
+    $_POST['price'],
+    $_POST['taxes'],
+    (int)$_POST['discount'] ?? 0
+  ];
 
-  if ($data->msg > 0) {
-
-    echo $data->msg; // Devuelve el id del detalle
-  } else if (str_contains($data->msg, 'Duplicate')) {
-
-    echo "duplicate";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error : " . $data->msg;
-  }
+  echo handleProcedureAction($db, 'vt_crearDetalleTemporal', $params);
 }
 
 if ($_POST['action'] == "asignar_variantes_temporales") {
@@ -298,10 +288,11 @@ if ($_POST['action'] == "agregar_detalle_venta") {
   $quantity = (!empty($_POST['quantity'])) ? $_POST['quantity'] : 0;
   $taxes = (!empty($_POST['taxes'])) ? $_POST['taxes'] : 0;
   $price = $_POST['price'];
+  $cost = $_POST['cost'];
 
   $db = Database::connect();
 
-  $query = "INSERT INTO detalle_facturas_ventas values (null,$invoice_id,$user_id,$quantity,$price,$taxes,$discount,curdate())";
+  $query = "INSERT INTO detalle_facturas_ventas values (null,$invoice_id,$user_id,$quantity,$cost,$price,$taxes,$discount,curdate())";
 
   if ($db->query($query) === TRUE) {
 
@@ -347,7 +338,7 @@ if ($_POST['action'] == "precios_detalle_temp") {
   $query = "SELECT sum(cantidad * impuesto) as taxes, sum(descuento) as descuentos, sum(cantidad * precio) as precios 
   FROM detalle_temporal WHERE usuario_id = '$user_id'";
 
-  jsonQueryResult($db,$query);
+  jsonQueryResult($db, $query);
 }
 
 // Obtener precios del detalle de factura
@@ -362,50 +353,26 @@ if ($_POST['action'] == "precios_detalle_venta") {
   f.total, f.pendiente, f.recibido
   FROM detalle_facturas_ventas d INNER JOIN facturas_ventas f on f.factura_venta_id = d.factura_venta_id WHERE d.factura_venta_id = '$invoice_id'";
 
-  jsonQueryResult($db,$query);
+  jsonQueryResult($db, $query);
 }
 
 // Eliminar producto del detalle temporar
 
 if ($_POST['action'] == 'eliminar_detalle_temporal') {
 
-  $id = $_POST['id'];
   $db = Database::connect();
 
-  $query = "CALL vt_eliminarDetalleTemporal($id)";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo "ready";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error : " . $data->msg;
-  }
+  echo handleDeletionAction($db,(int)$_POST['id'],'vt_eliminarDetalleTemporal');
 }
 
 // Eliminar producto del detalle venta
 
 if ($_POST['action'] == 'eliminar_detalle_venta') {
 
-  $id = $_POST['id'];
   $db = Database::connect();
 
-  $query = "CALL vt_eliminarDetalleVenta($id)";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo "ready";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error : " . $data->msg;
-  }
+  echo handleDeletionAction($db,(int)$_POST['id'],'vt_eliminarDetalleVenta');
 }
-
-
 
 // Factura al contado
 
@@ -413,8 +380,8 @@ if ($_POST['action'] == "factura_contado") {
 
   $customer_id = $_POST['customer_id'];
   $total = $_POST['total_invoice'];
-  $description = $_POST['description'];
-  $method = $_POST['payment_method'];
+  $description = $_POST['observation'];
+  $method = $_POST['method_id'];
   $bonus = (!empty($_POST['bonus'])) ? $_POST['bonus'] : 0;
   $user_id = $_SESSION['identity']->usuario_id;
   $date = $_POST['date'];
@@ -460,20 +427,17 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
     }
   }
 
-
-
   $invoice_id = $_POST['invoice_id'];
   $user_id = $_SESSION['identity']->usuario_id;
   $date = $_POST['date'];
 
   $db = Database::connect();
 
-  $query1 = "SELECT d.detalle_temporal_id, d.usuario_id, d.producto_id, d.servicio_id,
-  d.pieza_id, d.descripcion, d.cantidad,d.precio,d.impuesto,d.descuento FROM detalle_temporal d 
+  $query1 = "SELECT d.detalle_temporal_id, d.usuario_id, d.producto_id,d.servicio_id,
+  d.pieza_id,d.descripcion,d.cantidad,d.costo,d.precio,d.impuesto,d.descuento FROM detalle_temporal d 
   WHERE d.usuario_id = '$user_id';";
 
   $datos = $db->query($query1);
-
 
   // Desactivar TRIGGER
   $drop1 = "DROP TRIGGER IF EXISTS restar_stock_productos";
@@ -490,17 +454,17 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
     $product_id = $element->producto_id;
     $piece_id = $element->pieza_id;
     $service_id = $element->servicio_id;
+    $cost = $element->costo;
     $price = $element->precio;
     $discount = $element->descuento;
     $quantity = $element->cantidad;
     $taxes = $element->impuesto;
     $detail_temp_id = $element->detalle_temporal_id;
 
-    $query2 = "INSERT INTO detalle_facturas_ventas values (null,$invoice_id,$user_id,$quantity,$price,$taxes,$discount,curdate())";
+    $query2 = "INSERT INTO detalle_facturas_ventas values (null,$invoice_id,$user_id,$quantity,$cost,$price,$taxes,$discount,curdate())";
     if ($db->query($query2) === TRUE) {
 
       $detail_id = $db->insert_id; // ID 
-
 
       if ($piece_id > 0) {
         $exec1 = "INSERT INTO detalle_ventas_con_piezas_ values ($detail_id,$piece_id,$invoice_id)";
@@ -730,5 +694,5 @@ if ($_POST['action'] == "total_cotizacion") {
   INNER JOIN cotizaciones c ON c.cotizacion_id = d.cotizacion_id
    WHERE c.cotizacion_id = '$id'";
 
-  jsonQueryResult($db,$query);
+  jsonQueryResult($db, $query);
 }
