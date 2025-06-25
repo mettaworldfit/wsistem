@@ -2,103 +2,56 @@
 
 function calculateInvoiceTotalRp() {
 
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/repair.php",
+    sendAjaxRequest({
+        url: "services/repair.php",
         data: {
             action: 'precio_detalle',
             orden_id: $('#orden_id').val()
         },
-        success: function (res) {
+        successCallback: (res) => {
+            const data = JSON.parse(res);
+            const formatValue = (val) => format.format(parseFloat(val || 0));
+            const safeNumber = (val) => parseFloat(val || 0);
 
-            var data = JSON.parse(res);
+            // Valores base
+            const subtotal = safeNumber(data[0].precios);
+            const discount = safeNumber(data[0].descuentos);
+            const total = subtotal - discount;
 
-            var discount = format.format(data[0].descuentos);
-            var subtotal = format.format(data[0].precios);
-            var total = format.format(parseFloat(data[0].precios) - parseFloat(data[0].descuentos));
+            // Mostrar valores en inputs
+            $('#in-subtotal').val(formatValue(subtotal));
+            $('#in-discount').val(formatValue(discount));
+            $('#in-total').val(isNaN(total) ? '0' : formatValue(total));
+            $('#total_price').val(isNaN(total) ? '0' : total.toFixed(2).replace(/,/g, ''));
 
-            var total_price = total.replace(/,/g, "")
+            // Limpiar recibido
+            $('#cash-received, #credit-received').val('0.00');
 
-            $('#total_price').val(total_price)
-            $('#in-subtotal').val(subtotal)
-            $('#in-discount').val(discount)
+            // Factura al contado
+            if (pageURL.includes("invoices/repair_edit") && !isNaN(total)) {
+                const detalle = data[1];
+                const totalFmt = formatValue(detalle.total);
+                const pendienteFmt = formatValue(detalle.pendiente);
+                const recibidoFmt = formatValue(detalle.recibido);
 
-            if (total != 'NaN') {
-                $('#in-total').val(total)
+                $('#cash-topay, #cash-topay2').val(totalFmt);
+                $('#cash-pending, #cash-pending2').val(pendienteFmt);
+                $('#cash-received, #cash-received2').val(recibidoFmt);
             } else {
-                $('#in-total').val('0')
+                const totalFmt = isNaN(total) ? '0.00' : formatValue(total);
+                $('#cash-topay, #cash-pending').val(totalFmt);
             }
 
-            // Modal Factura al contado y actualizar datos de factura
-            $('#cash-received').val('0.00')
-            if (pageURL.includes("invoices/repair_edit")) {
+            // Factura a crédito
+            const creditFmt = isNaN(total) ? '0.00' : formatValue(total);
+            $('#credit-topay, #credit-pending').val(creditFmt);
 
-
-                if (total != 'NaN') {
-
-                    $('#cash-topay').val(format.format(data[1].total))
-                    $('#cash-pending').val(format.format(data[1].pendiente))
-                    $('#cash-received').val(format.format(data[1].recibido))
-
-                    $('#cash-topay2').val(format.format(data[1].total))
-                    $('#cash-pending2').val(format.format(data[1].pendiente))
-                    $('#cash-received2').val(format.format(data[1].recibido))
-
-                } else {
-                    $('#cash-topay').val('0.00')
-                    $('#cash-pending').val('0.00')
-                }
-
-            } else {
-
-                if (total != 'NaN') {
-
-                    $('#cash-topay').val(total)
-                    $('#cash-pending').val(total)
-
-                } else {
-                    $('#cash-topay').val('0.00')
-                    $('#cash-pending').val('0.00')
-                }
-            }
-
-            // Modal Factura a crédito
-
-            $('#credit-received').val('0.00')
-            if (total != 'NaN') {
-
-                $('#credit-topay').val(total)
-                $('#credit-pending').val(total)
-
-            } else {
-                $('#credit-topay').val('0.00')
-                $('#credit-pending').val('0.00')
-            }
-
-            // Validar botón de procesar venta al contado
-
-            if (total != 'NaN') {
-                $('#cash-in-finish_rp').show();
-                $('#cash-in-finish-rp-receipt').show();
-                $('#credit-in-finish-rp-receipt').show();
-                $('#credit-in-finish_rp').show();
-            } else {
-                $('#cash-in-finish_rp').hide();
-                $('#cash-in-finish-rp-receipt').hide();
-                $('#credit-in-finish-rp-receipt').hide();
-                $('#credit-in-finish_rp').hide();
-            }
-
-            // Validar campo ingresar monto factura a crédito
-
-            if (total != 'NaN') {
-                $('.pay').show();
-            } else {
-                $('.pay').hide();
-            }
-
+            // Mostrar/Ocultar botones
+            const showButtons = !isNaN(total);
+            $('#cash-in-finish_rp, #cash-in-finish-rp-receipt, #credit-in-finish-rp-receipt, #credit-in-finish_rp').toggle(showButtons);
+            $('.pay').toggle(showButtons);
         }
-    });
+    })
 }
 
 function reloadOrdenRepair() {
@@ -144,7 +97,7 @@ $(document).ready(function () {
             } else if ($(this).val() == "servicio") {
 
                 $('.service').show()
-                $('.piece').hide()
+                $('.piece, #cost-field').hide()
 
                 // Default
 
@@ -442,8 +395,6 @@ $(document).ready(function () {
 }) // Ready
 
 
-
-
 // Agregar detalle
 
 function addDetailOrdenRepair() {
@@ -452,13 +403,16 @@ function addDetailOrdenRepair() {
     let service = 0;
     let description = '';
     let quantity = 1;
+    let cost = 0;
 
     const tipo = $('input:radio[name=tipo]:checked').val();
 
     if (tipo === 'servicio') {
+        cost = $('#service_cost').val().replace(/,/g, "")
         service = $('#rp_service').val();
         description = $('#select2-rp_service-container').attr('title');
     } else if (tipo === 'pieza') {
+        cost = $('#piece_cost').val()
         piece_id = $('#piece').val();
         quantity = $('#quantity').val();
         description = $('#select2-piece-container').attr('title');
@@ -475,13 +429,15 @@ function addDetailOrdenRepair() {
             quantity: quantity,
             discount: $('#discount').val(),
             price: $('#price_out').val().replace(/,/g, ""),
+            cost: cost
         },
         successCallback: () => {
             calculateInvoiceTotalRp()
             reloadOrdenRepair()
-             setTimeout(() => location.reload(), 1000);
+            setTimeout(() => location.reload(), 1000);
         },
-        errorCallback: (res) => mysql_error(res)
+        errorCallback: (res) => mysql_error(res),
+        verbose: true
     })
 }
 
@@ -545,7 +501,7 @@ function updateInvoiceInfo() {
             method: $('#method').val(),
             id: $('#orden_id').val()
         },
-        successCallback: () =>  mysql_row_update(),
+        successCallback: () => mysql_row_update(),
         errorCallback: (res) => mysql_error(res)
     });
 }

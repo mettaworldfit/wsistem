@@ -204,7 +204,7 @@ $(document).ready(function () {
                     // Mostrar campos relacionados con servicios
                     $('.service').show();
                     $('.product, .piece, .product-piece').hide();
-                    $('.discount').hide();
+                    $('.discount, #cost-field').hide();
                     $('#discount_service').show();
                     $('#add_item_free').hide();
 
@@ -223,8 +223,6 @@ $(document).ready(function () {
             }
         });
     }
-
-
 
     // Botón: Crear factura al contado sin ticket
     $('#cash-in-finish').on('click', function (e) {
@@ -890,6 +888,7 @@ function addDetailItem() {
     let description, cost, quantity, discount, piece_id = 0, product_id = 0, service_id = 0, variant_id, total_variant = 0;
 
     if (tipo === 'servicio') {
+        cost = $('#service_cost').val().replace(/,/g, "");
         quantity = 1;
         discount = $('#discount_service').val().replace(/,/g, "");
         service_id = $('#service').val();

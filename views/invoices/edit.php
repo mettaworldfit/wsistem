@@ -336,6 +336,16 @@
                             </div>
                         </div>
 
+                         <div class="form-group col-sm-3 service" id="cost-field">
+                            <label class="form-check-label" for="">Costo</label>
+                            <div class="input-div">
+                                <div class="i">
+                                    <i class="fas fa-level-down-alt"></i>
+                                </div>
+                                <input type="number" class="form-custom-icon b-left" name="costo" value="" id="service_cost" style="font-weight: 600" required disabled>
+                            </div>
+                        </div>
+
                         <div class="form-group col-sm-3">
                             <label class="form-check-label" for="">Precio</label>
                             <div class="input-div">
@@ -361,8 +371,6 @@
                     </div> <!-- Row -->
 
                     <div class="row col-sm-12 mt-1">
-
-
 
                     </div> <!-- Row -->
 

@@ -5,6 +5,7 @@ function addService() {
         url: "services/services.php",
         data: {
             name: $('#service_name').val(),
+            cost: $('#service_cost').val(),
             price: $('#service_price').val(),
             action: 'agregar_servicio'
         },
@@ -26,6 +27,7 @@ function updateService(serviceId) {
         data: {
             service_id: serviceId,
             name: $('#service_name').val(),
+            cost: $('#service_cost').val(),
             price: $('#service_price').val(),
             action: 'actualizar_servicio'
         },
@@ -36,7 +38,7 @@ function updateService(serviceId) {
         errorCallback: (res) => mysql_error(res)
     })
 }
- 
+
 // Eliminar servicio
 
 function deleteService(serviceId) {
@@ -82,11 +84,15 @@ $(document).ready(function () {
     })
 
     // Buscar servicio por nombre
+    $("#service, #rp_service").on("change", function () {
+        const service_id = $(this).val();
 
-    $("#service").change(function () {
-        var service_id = $(this).val();
-        fetchService(service_id);
+        // Validar que haya un valor antes de hacer la petición
+        if (service_id) {
+            fetchService(service_id);
+        }
     });
+
 
     function fetchService(serviceId) {
         sendAjaxRequest({
@@ -97,19 +103,32 @@ $(document).ready(function () {
             },
             successCallback: (res) => {
                 const data = JSON.parse(res)[0];
-                const $priceOut = $("#price_out");
-                
-                // Reiniciar y deshabilitar el campo por defecto
-                $priceOut.val('').prop("disabled", true);
-                
+
+                const priceOut = $("#price_out");
+                const cost = $("#service_cost");
+
+                // Reiniciar y deshabilitar los campos por defecto
+                priceOut.val('').prop("disabled", true);
+                cost.val('').prop("disabled", true);
+
                 // Si el precio es válido y mayor que cero, se formatea y se asigna
                 if (Number(data.precio) > 0) {
-                    $priceOut.val(format.format(data.precio));
+                    priceOut.val(format.format(data.precio));
                 } else {
                     // Si el precio es 0 o no existe, se habilita el campo para edición manual
-                    $priceOut.prop("disabled", false);
+                    priceOut.prop("disabled", false);
                 }
-                
+
+                // Si el costo es válido y mayor que cero, se formatea y se asigna
+                if (Number(data.costo) > 0) {
+                    cost.val(format.format(data.costo));
+                    $('#cost-field').hide()
+                } else {
+                    // Si el costo es 0 o no existe, se habilita el campo para edición manual
+                    cost.prop("disabled", false);
+                    $('#cost-field').show()
+                    cost.val(0)
+                }
             }
         });
     }

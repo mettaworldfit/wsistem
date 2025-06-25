@@ -8,7 +8,6 @@
     </div>
 </div>
 
-
 <div class="generalContainer-medium">
     <form action="" onsubmit="event.preventDefault(); addService();">
         <div class="container row">
@@ -21,7 +20,16 @@
                         data-content="And here's some amazing content. It's very engaging. Right?"><i
                             class="far fa-question-circle"></i></a>
                 </div>
+            </div>
 
+            <div class="form-group col-md-8">
+                <div class="form-group d-flex">
+                    <label for="" class="col-sm-3 text-right ">Costo</label>
+                    <input class="form-custom col-sm-6 ml-3" type="number" name="" id="service_cost">
+                    <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Popover title"
+                        data-content="And here's some amazing content. It's very engaging. Right?"><i
+                            class="far fa-question-circle"></i></a>
+                </div>
             </div>
 
             <div class="form-group col-md-8">

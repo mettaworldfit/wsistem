@@ -29,7 +29,7 @@ if ($_POST['action'] == "cargar_facturarp") {
                 'descripcion' => $row['descripcion'],
                 'cantidad'    => number_format($row['cantidad'], 2),
                 'precio'      => number_format($row['precio'], 2),
-                'descuento'   => number_format($row['descuento'], 2),
+                'descuento'   => number_format($row['descuento'] ?? 0, 2),
                 'total'       => number_format(($row['cantidad'] * $row['precio'] - $row['descuento']), 2),
                 'acciones'    => '<a class="text-danger" style="font-size: 16px;" onclick="deleteDetail(\'' . $row['detalle_id'] . '\')"><i class="fas fa-times"></i></a>'
             ];
@@ -62,7 +62,7 @@ if ($_POST['action'] == "cargar_ordenrp") {
                 'descripcion' => $row['descripcion'],
                 'cantidad' => number_format($row['cantidad'], 2),
                 'precio' => number_format($row['precio'], 2),
-                'descuento' => number_format($row['descuento'], 2),
+                'descuento' => number_format($row['descuento'] ?? 0, 2),
                 'total' => number_format(($row['cantidad'] * $row['precio'] - $row['descuento']), 2),
                 'acciones' => ($is_exists == 0)
                     ? '<a class="text-danger" style="font-size: 16px;" onclick="deleteDetail(\'' . $row['detalle_id'] . '\')"><i class="fas fa-times"></i></a>'
@@ -175,31 +175,21 @@ FROM detalle_ordenRP WHERE orden_rp_id = '$orden_id'";
 
 if ($_POST['action'] == "agregar_detalle_a_orden") {
 
-    $user_id = $_SESSION['identity']->usuario_id;
-    $piece_id = $_POST['piece_id'];
-    $service_id = $_POST['service_id'];
-    $description = $_POST['description'];
-    $orden_id = $_POST['orden_id'];
-    $quantity = $_POST['quantity'];
-    $discount = (!empty($_POST['discount'])) ? $_POST['discount'] : 0;
-    $price = $_POST['price'];
+    $params = [
+        (int)$_SESSION['identity']->usuario_id,
+        (int)$_POST['piece_id'],
+        (int)$_POST['orden_id'],
+        (int)$_POST['service_id'],
+        $_POST['description'],
+        $_POST['quantity'] ?? 0,
+        $_POST['cost'],
+        $_POST['price'],
+        $_POST['discount'] ?? 0
+    ];
 
     $db = Database::connect();
 
-    $query = "CALL rp_crearDetalleOrdenRP($user_id,$piece_id,$orden_id,$service_id,'$description','$quantity','$price','$discount')";
-    $result = $db->query($query);
-    $data = $result->fetch_object();
-
-    if ($data->msg > 0) {
-
-        echo $data->msg;
-    } else if (str_contains($data->msg, 'Duplicate')) {
-
-        echo "duplicate";
-    } else if (str_contains($data->msg, 'SQL')) {
-
-        echo "Error : " . $data->msg;
-    }
+    echo handleProcedureAction($db, 'rp_crearDetalleOrdenRP', $params);
 }
 
 // Eliminar detalle

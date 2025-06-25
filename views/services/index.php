@@ -20,6 +20,7 @@
             <tr>
                 <th>No.</th>
                 <th>Nombre</th>
+                <th>Costo</th>
                 <th>Precio</th>
                 <th>Acciones</th>
             </tr>

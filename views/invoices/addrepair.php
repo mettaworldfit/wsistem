@@ -157,6 +157,7 @@
                                         <option value="<?= $piece->pieza_id ?>"><?= $piece->nombre_pieza ?></option>
                                     <?php endwhile; ?>
                                 </select>
+                                <input type="hidden" name="" value="" id="piece_cost">
                             </div>
                         </div>
 
@@ -200,8 +201,7 @@
                                 <div class="i">
                                     <i class="fas fa-box-open"></i>
                                 </div>
-                                <input type="number" class="form-custom-icon b-left" name="cantidad" id="quantity"
-                                    required>
+                                <input type="number" class="form-custom-icon b-left" name="cantidad" id="quantity" required>
                             </div>
                         </div>
 
@@ -212,6 +212,16 @@
                                     <i class="fas fa-level-down-alt"></i>
                                 </div>
                                 <input type="number" class="form-custom-icon b-left" name="descuento" id="discount">
+                            </div>
+                        </div>
+
+                         <div class="form-group col-sm-3 service" id="cost-field">
+                            <label class="form-check-label" for="">Costo</label>
+                            <div class="input-div">
+                                <div class="i">
+                                    <i class="fas fa-level-down-alt"></i>
+                                </div>
+                                <input type="number" class="form-custom-icon b-left" name="costo" value="" id="service_cost" style="font-weight: 600" required disabled>
                             </div>
                         </div>
 

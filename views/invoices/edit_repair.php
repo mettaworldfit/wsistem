@@ -162,6 +162,7 @@
                                         <option value="<?= $piece->pieza_id ?>"><?= $piece->nombre_pieza ?></option>
                                     <?php endwhile; ?>
                                 </select>
+                                <input type="hidden" name="" value="" id="piece_cost">
                             </div>
                         </div>
 
@@ -218,6 +219,16 @@
                                     <i class="fas fa-level-down-alt"></i>
                                 </div>
                                 <input type="number" class="form-custom-icon b-left" name="descuento" id="discount">
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-3 service" id="cost-field">
+                            <label class="form-check-label" for="">Costo</label>
+                            <div class="input-div">
+                                <div class="i">
+                                    <i class="fas fa-level-down-alt"></i>
+                                </div>
+                                <input type="number" class="form-custom-icon b-left" name="costo" value="" id="service_cost" style="font-weight: 600" required disabled>
                             </div>
                         </div>
 
@@ -320,10 +331,10 @@
                                         <i class="fas fa-portrait"></i>
                                     </div>
                                     <select class="form-custom-icon search" name="" id="customer" requireds>
-                                        <option value="<?= $info->cliente_id ?>" selected><?= ucwords($info->nombre_cliente)." ".ucwords($info->apellidos_cliente) ?></option>
+                                        <option value="<?= $info->cliente_id ?>" selected><?= ucwords($info->nombre_cliente) . " " . ucwords($info->apellidos_cliente) ?></option>
                                         <?php $customers = Help::showCustomers();
                                         while ($customer = $customers->fetch_object()): ?>
-                                            <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre)." ".ucwords($customer->apellidos) ?></option>
+                                            <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre) . " " . ucwords($customer->apellidos) ?></option>
                                         <?php endwhile; ?>
                                     </select>
                                 </div>

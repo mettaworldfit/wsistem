@@ -611,7 +611,7 @@ $(document).ready(function () {
         url: 'services/services.php',
         action: 'index_servicios',
         columns: [
-            'servicio_id', 'nombre_servicio', 'precio', 'acciones'
+            'servicio_id', 'nombre_servicio', 'costo' ,'precio', 'acciones'
         ]
     },
     {

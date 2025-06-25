@@ -45,6 +45,8 @@
     <script src="<?= base_url ?>public/functions/price_lists.js" type="text/javascript"></script>
     <script src="<?= base_url ?>public/functions/repair.js" type="text/javascript"></script>
     <script src="<?= base_url ?>public/functions/contacts.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/services.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/functions/pieces.js" type="text/javascript"></script>
     <?php
 
 } elseif (

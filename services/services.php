@@ -17,7 +17,7 @@ switch ($action) {
       'searchable' => ['nombre_servicio', 'precio'],
       'base_table' => 'servicios',
       'table_with_joins' => 'servicios',
-      'select' => 'SELECT servicio_id, nombre_servicio, precio',
+      'select' => 'SELECT servicio_id, nombre_servicio,costo ,precio',
       'table_rows' => function ($row) {
 
         $acciones = '<td>';
@@ -42,12 +42,13 @@ switch ($action) {
                   <i class="fas fa-times"></i>
                 </span>';
         }
-
+ 
         $acciones .= '</td>';
 
         return [
           'servicio_id' => "<td>{$row['servicio_id']}</td>",
           'nombre_servicio' => "<td>" . htmlspecialchars($row['nombre_servicio']) . "</td>",
+          'costo' => "<td>" . number_format($row['costo'] ?? 0, 2) . "</td>",
           'precio' => "<td>" . number_format($row['precio'] ?? 0, 2) . "</td>",
           'acciones' => $acciones
         ];
@@ -66,6 +67,7 @@ switch ($action) {
     $params = [
       $_SESSION['identity']->usuario_id,
       $_POST['name'] ?? '',
+      $_POST['cost'] ?? 0,
       $_POST['price'] ?? 0
     ];
     echo handleProcedureAction($db, 'sv_agregarServicio', $params);
@@ -76,6 +78,7 @@ switch ($action) {
     $params = [
       $_POST['service_id'],
       $_POST['name'] ?? '',
+      $_POST['cost'] ?? 0,
       $_POST['price'] ?? 0
     ];
     echo handleProcedureAction($db, 'sv_actualizarServicio', $params);
