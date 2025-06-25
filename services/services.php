@@ -13,8 +13,8 @@ switch ($action) {
   // Cargar tabla de servicios
   case 'index_servicios':
     handleDataTableRequest($db, [
-      'columns' => ['nombre_servicio', 'precio', 'servicio_id'],
-      'searchable' => ['nombre_servicio', 'precio'],
+      'columns' => ['nombre_servicio', 'precio','costo', 'servicio_id'],
+      'searchable' => ['nombre_servicio', 'precio','costo'],
       'base_table' => 'servicios',
       'table_with_joins' => 'servicios',
       'select' => 'SELECT servicio_id, nombre_servicio,costo ,precio',
