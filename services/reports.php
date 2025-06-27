@@ -324,9 +324,10 @@ if ($_POST['action'] == "productos_vendidos") {
     $d1 = $_POST['dateq1'];
     $d2 = $_POST['dateq2'];
 
-    $query = "SELECT p.nombre_producto, sum(d.cantidad) as cantidad,sum(d.precio - d.descuento) as total,
+    $query = "SELECT p.nombre_producto, sum(d.cantidad) as cantidad,
     sum(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) as costo, 
-    sum((d.precio - d.descuento)-(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad)) as ganancia  
+    sum(d.precio * d.cantidad - d.descuento) as total,
+    sum((d.precio * d.cantidad - d.descuento)-(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad)) as ganancia  
     from detalle_facturas_ventas d 
     inner join detalle_ventas_con_productos dp on dp.detalle_venta_id = d.detalle_venta_id
     inner join productos p on p.producto_id = dp.producto_id
@@ -346,17 +347,29 @@ if ($_POST['action'] == "servicios_vendidos") {
     $d1 = $_POST['dateq1'];
     $d2 = $_POST['dateq2'];
 
+    $query = "SELECT nombre_servicio, sum(cantidad) as cantidad, sum(costo) as costo,
+    sum(total) as total, sum(ganancia) as ganancia FROM (
 
-    $query = "SELECT nombre_servicio, sum(cantidad) as cantidad, sum(total) as total  FROM (
-
-    SELECT s.nombre_servicio as nombre_servicio, sum(d.cantidad) as cantidad, sum(d.precio - d.descuento) as total from detalle_facturas_ventas d 
+    SELECT s.nombre_servicio as nombre, 'Servicio' as tipo ,sum(d.cantidad) as cantidad, 
+    sum(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad,0)) as costo,
+    -- Total facturado (precio - descuento)
+    sum(d.precio * d.cantidad - d.descuento) as total,
+    -- Ganancia = total - costo
+	sum((d.precio * d.cantidad - d.descuento)-COALESCE((IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo)) * d.cantidad,0)) as ganancia
+    from detalle_facturas_ventas d 
     inner join detalle_ventas_con_servicios ds on ds.detalle_venta_id = d.detalle_venta_id
     inner join servicios s on s.servicio_id = ds.servicio_id 
     where s.nombre_servicio like '%$q%' and d.fecha between '$d1' and '$d2' group by s.nombre_servicio
 
     UNION ALL
     
-    SELECT s.nombre_servicio as nombre_servicio, sum(d.cantidad) as cantidad, sum(d.precio - d.descuento) as total from detalle_ordenRP d 
+    SELECT s.nombre_servicio as nombre,'Servicio' as tipo, sum(d.cantidad) as cantidad, 
+    sum(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad,0)) as costo,
+    -- Total facturado (precio - descuento)
+    sum(d.precio * d.cantidad - d.descuento) as total,
+    -- Ganancia = total - costo
+	sum((d.precio * d.cantidad - d.descuento)-COALESCE((IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo)) * d.cantidad,0)) as ganancia
+    from detalle_ordenRP d 
     inner join facturasRP frp on frp.orden_rp_id = d.orden_rp_id
     inner join detalle_ordenRP_con_servicios dp on dp.detalle_ordenRP_id = d.detalle_ordenRP_id
     inner join servicios s on s.servicio_id = dp.servicio_id
@@ -413,9 +426,10 @@ if ($_POST['action'] == "piezas_vendidas") {
 
     $query = "SELECT nombre_pieza, sum(cantidad) as cantidad, sum(total) as total, sum(costo) as costo, sum(ganancia) as ganancia FROM (
 
-    SELECT p.nombre_pieza as nombre_pieza, sum(d.cantidad) as cantidad,sum(d.precio - d.descuento) as total,
+    SELECT p.nombre_pieza as nombre,'Pieza' as tipo,sum(d.cantidad) as cantidad,
     sum(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) as costo, 
-    sum((d.precio - d.descuento)-(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad)) as ganancia 
+    sum(d.precio * d.cantidad - d.descuento) as total,
+    sum((d.precio * d.cantidad - d.descuento)-(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad)) as ganancia 
     from detalle_facturas_ventas d 
     inner join detalle_ventas_con_piezas_ dp on dp.detalle_venta_id = d.detalle_venta_id
     inner join piezas p on p.pieza_id = dp.pieza_id
@@ -423,8 +437,11 @@ if ($_POST['action'] == "piezas_vendidas") {
 
     UNION ALL
 
-    SELECT p.nombre_pieza as nombre_pieza, sum(d.cantidad) as cantidad,sum(d.precio - d.descuento) as total,
-        sum(p.precio_costo * d.cantidad) as costo, sum((d.precio - d.descuento)-(p.precio_costo * d.cantidad)) as ganancia  from detalle_ordenRP d 
+    SELECT p.nombre_pieza as nombre,'Pieza' as tipo,sum(d.cantidad) as cantidad,
+    sum(d.precio * d.cantidad - d.descuento) as total,
+	sum(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) as costo, 
+    sum((d.precio * d.cantidad - d.descuento)-(p.precio_costo * d.cantidad)) as ganancia  
+    from detalle_ordenRP d 
     inner join detalle_ordenRP_con_piezas dp on dp.detalle_ordenRP_id = d.detalle_ordenRP_id
     inner join piezas p on p.pieza_id = dp.pieza_id
     where p.nombre_pieza like '%$q%' and d.fecha between '$d1' and '$d2' group by p.nombre_pieza

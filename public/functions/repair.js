@@ -427,7 +427,7 @@ function addDetailOrdenRepair() {
             orden_id: $('#orden_id').val(),
             piece_id: piece_id,
             quantity: quantity,
-            discount: $('#discount').val(),
+            discount: $('#discount').val() || 0,
             price: $('#price_out').val().replace(/,/g, ""),
             cost: cost
         },
@@ -436,8 +436,7 @@ function addDetailOrdenRepair() {
             reloadOrdenRepair()
             setTimeout(() => location.reload(), 1000);
         },
-        errorCallback: (res) => mysql_error(res),
-        verbose: true
+        errorCallback: (res) => mysql_error(res)
     })
 }
 

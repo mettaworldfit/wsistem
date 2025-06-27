@@ -125,8 +125,6 @@ while($result = $datos->fetch_object()) {
 
 }
 
-
-
 /* Here there will be some code where you create $spreadsheet */
 // redirect output to client browser
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
