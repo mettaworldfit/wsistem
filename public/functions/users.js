@@ -140,8 +140,8 @@ $(document).ready(function () {
                     $('.load').hide();
                     $('.missing, #btn-txt').show();
                 }
-
-            }
+            },
+            verbose: true
         })
     })
 

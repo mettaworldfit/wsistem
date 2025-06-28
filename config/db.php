@@ -3,92 +3,52 @@
 class Database
 {
 
+    private static $mainHost = 'localhost';
+    private static $mainUser = 'Wilmin';
+    private static $mainPass = 'Mett@1106';
+    private static $mainDB   = 'central_config';
+
     public static function dbSelect($username)
     {
+       // Conectar al sistema de configuración
+        $config = new mysqli(self::$mainHost, self::$mainUser, self::$mainPass, self::$mainDB);
 
-        // Configuración de las bases de datos
-        $dbConfig = [
-            'local' => [
-                'host' => 'localhost',
-                'dbname' => 'proyecto',
-                'user' => 'root',
-                'pass' => '',
-                'company' => 'Localhost', // Localhost
-            ],
-
-            'invitado' => [
-                'host' => 'localhost',
-                'dbname' => 'invitados',
-                'user' => 'Wilmin',
-                'pass' => 'Mett@1106',
-                'company' => 'Modo Prueba', // Cliente Prueba 1
-            ],
-
-            'mambo' => [
-                'host' => 'localhost',
-                'dbname' => 'mamborestaurant',
-                'user' => 'Wilmin',
-                'pass' => 'Mett@1106',
-                'company' => 'Mamborestaurant', // Cliente Mambocafeteria
-            ],
-
-            'master' => [
-                'host' => 'localhost',
-                'dbname' => 'master_movil',
-                'user' => 'Wilmin',
-                'pass' => 'Mett@1106',
-                'company' => 'Master Movil', // EliSaul Brito
-            ],
-
-            'admin' => [
-                'host' => 'localhost',
-                'dbname' => 'chino_com_mao',
-                'user' => 'Wilmin',
-                'pass' => 'Mett@1106',
-                'company' => 'Chino comunicaciones', // Chino comunicaciones
-            ],
-
-            'erivibe' => [
-                'host' => 'localhost',
-                'dbname' => 'erivibeprotein',
-                'user' => 'Wilmin',
-                'pass' => 'Mett@1106',
-                'company' => 'Erivibeprotein', // Erivibeprotein
-            ],
-
-            // Agrega más clientes según sea necesario
-        ];
-
-        if (!isset($dbConfig[$username])) {
-            throw new Exception("Cliente no encontrado.");
+        if ($config->connect_errno) {
+            throw new Exception("Error conectando a central_config: " . $config->connect_error);
         }
 
-        $client = $dbConfig[$username];
+        // Buscar el cliente
+        $stmt = $config->prepare("SELECT db_host, db_nombre, db_user, db_pass, empresa FROM clientes WHERE usuario = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $stmt->bind_result($host, $dbname, $user, $pass, $empresa);
 
-        try {
-            $db = new mysqli($client['host'], $client['user'], $client['pass'], $client['dbname']);
+        if ($stmt->fetch()) {
+            $stmt->close();
+            $config->close();
 
+            $db = new mysqli($host, $user, $pass, $dbname);
             if ($db->connect_errno) {
-                printf("Error de conexión: %s\n", $db->connect_error);
-                exit();
+                throw new Exception("Error al conectar con la base de datos del cliente: " . $db->connect_error);
             }
 
-            // Crear sesion de los datos del negocio
             $_SESSION['infoClient'] = [
-                "dbname" => $client['dbname'],
-                "company" => $client['company'],
+                'dbname' => $dbname,
+                'company' => $empresa,
             ];
 
             return $db;
-        } catch (Exception $e) {
-            echo "Error de conexión: " . $e->getMessage();
+        } else {
+            throw new Exception("Cliente '$username' no encontrado.");
         }
-
-
-        $db->close();
     }
+
+
     public static function connect()
     {
+        if (!isset($_SESSION['infoClient'])) {
+            throw new Exception("No hay cliente seleccionado.");
+        }
 
         // Obtener base de datos a utilizar 
 

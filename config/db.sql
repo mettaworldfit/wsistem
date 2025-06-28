@@ -4,6 +4,31 @@ IF NOT EXISTS proyecto CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 USE proyecto;
 
+CREATE TABLE configuraciones (
+
+config_id int auto_increment NOT NULL,
+empresa varchar(50) DEFAULT 'Codevrd',
+email varchar(50) DEFAULT 'example@host.com',
+password varchar (50) DEFAULT 'XXXX XXXX XXXX XXXX',
+host varchar(35) DEFAULT 'localhost',
+smtps varchar(3) NULL, 
+puerto int DEFAULT '587',
+logo_url varchar(100) NULL,
+logo_pdf varchar(50) DEFAULT 'public/imagen/sistem/pdf.png',
+slogan varchar(100) DEFAULT 'En la web, en todas partes',
+direccion varchar(100) DEFAULT '-',
+link_fb varchar(100) NULL,
+link_ws varchar(100) NULL,
+link_ig varchar(100) NULL,
+tel varchar(20) DEFAULT '000-000-0000',
+condiciones varchar(400) DEFAULT '-',
+titulo varchar(200) DEFAULT '-',
+
+PRIMARY KEY (config_id)
+
+)ENGINE = InnoDb;
+
+
 CREATE TABLE roles (
 
 rol_id int auto_increment NOT NULL,
@@ -275,16 +300,15 @@ CONSTRAINT proveedores_y_piezas_con_proveedores FOREIGN KEY (proveedor_id) REFER
 
 
 CREATE TABLE servicios(
-
 servicio_id int auto_increment NOT NULL,
 usuario_id int NOT NULL,
 nombre_servicio varchar(70) NOT NULL unique,
+costo DECIMAL(10,2) NULL,
 precio int NULL,
 fecha date NULL,
 
 PRIMARY KEY (servicio_id),
 CONSTRAINT servicios_usuarios FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id)
-
 )ENGINE = InnoDb;
 
 
@@ -316,11 +340,11 @@ CREATE TABLE variantes (
 variante_id int auto_increment NOT NULL,
 producto_id int NOT NULL,
 estado_id int NOT NULL,
-imei varchar(15) NULL unique,
-serial varchar(17) NULL unique,
+tipo ENUM('dispositivo','producto') NOT NULL,
+sabor varchar(45) NULL,
+serial varchar(20) NULL unique,
 costo_unitario decimal(19,2) null,
 caja varchar(2) null,
-imagen varchar(50) NULL,
 fecha date NULL,
 
 PRIMARY KEY (variante_id),
@@ -490,6 +514,7 @@ detalle_venta_id int auto_increment NOT NULL,
 factura_venta_id int NOT NULL,
 usuario_id int NOT NULL,
 cantidad int NOT NULL,
+costo DECIMAL(10,2) NOT NULL DEFAULT 0.00,
 precio int NOT NULL,
 impuesto int NULL,
 descuento int NULL,
@@ -565,6 +590,7 @@ pieza_id int NULL,
 servicio_id int NULL,
 descripcion varchar(100) NOT NULL,
 cantidad int NOT NULL,
+costo DECIMAL(10,2) NOT NULL DEFAULT 0.00,
 precio int NOT NULL,
 impuesto int NULL,
 descuento int NULL,
@@ -680,12 +706,12 @@ CONSTRAINT condiciones_condiciones FOREIGN KEY (condicion_id) REFERENCES condici
 
 
 CREATE TABLE detalle_ordenRP(
-
 detalle_ordenRP_id int auto_increment NOT NULL,
 usuario_id int NOT NULL,
 orden_rp_id int NOT NULL,
 descripcion varchar(50),
 cantidad int NULL,
+costo DECIMAL(10,2) NOT NULL DEFAULT '0.00',
 precio int NULL,
 descuento int NULL,
 fecha date NOT NULL,
@@ -693,8 +719,8 @@ fecha date NOT NULL,
 PRIMARY KEY (detalle_ordenRP_id),
 CONSTRAINT detalle_ordenRP_usuarios FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id),
 CONSTRAINT detalle_ordenRP_ordenes_rp FOREIGN KEY (orden_rp_id) REFERENCES ordenes_rp(orden_rp_id) ON DELETE CASCADE ON UPDATE CASCADE
-
 )ENGINE = InnoDb; 
+
 
 
 CREATE TABLE detalle_ordenRP_con_piezas(
@@ -838,6 +864,7 @@ CREATE TABLE ordenes_gastos (
 orden_id int auto_increment NOT NULL,
 usuario_id int NOT NULL,
 proveedor_id int NOT NULL,
+origen ENUM('caja', 'fuera_caja') NOT NULL DEFAULT 'caja',
 fecha date NOT NULL,
 
 PRIMARY KEY (orden_id),
@@ -994,4 +1021,28 @@ CONSTRAINT detalle_cotizaciones_usuarios FOREIGN KEY (usuario_id) REFERENCES usu
 CONSTRAINT detalle_cotizaciones_cotizaciones FOREIGN KEY (cotizacion_id) REFERENCES cotizaciones(cotizacion_id) ON UPDATE CASCADE ON DELETE CASCADE
 
 )ENGINE = InnoDb; 
+
+
+CREATE TABLE cierres_caja (
+    cierre_id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    fecha_apertura DATETIME NOT NULL,
+    fecha_cierre DATETIME DEFAULT NULL,
+    saldo_inicial DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    ingresos_efectivo DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    ingresos_tarjeta DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+	ingresos_transferencia DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+	ingresos_cheque DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    egresos_caja DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    egresos_fuera DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    retiros DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    reembolsos DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    total_esperado DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    total_real DECIMAL(10,2) NOT NULL DEFAULT 0.00, 
+    diferencia DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    observaciones TEXT NULL,
+    estado ENUM('abierto', 'cerrado') DEFAULT 'abierto' NOT NULL,
+    
+    CONSTRAINT cierres_caja_usuarios FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id) ON UPDATE CASCADE
+)ENGINE = InnoDb;
 
