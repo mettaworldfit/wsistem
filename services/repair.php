@@ -22,13 +22,20 @@ if ($_POST['action'] == "cargar_facturarp") {
         ],
         'base_table' => 'detalle_ordenRP',
         'table_with_joins' => 'detalle_ordenRP',
-        'select' => 'SELECT precio,descuento,descripcion,orden_rp_id, cantidad,detalle_ordenRP_id as detalle_id',
+        'select' => 'SELECT costo,precio,descuento,descripcion,orden_rp_id, cantidad,detalle_ordenRP_id as detalle_id',
         'base_condition' => 'orden_rp_id =' . $id,
         'table_rows' => function ($row) {
             return [
                 'descripcion' => $row['descripcion'],
                 'cantidad'    => number_format($row['cantidad'], 2),
-                'precio'      => number_format($row['precio'], 2),
+                'precio'      => '<span>
+                            <a href="#">
+                                ' . number_format($row['precio'], 2) . '
+                            </a>
+                            <span id="toggle" class="toggle-right toggle-md">
+                            ' . 'Costo: ' . number_format($row['costo'], 2) . '
+                            </span>
+                        </span>',
                 'descuento'   => number_format($row['descuento'] ?? 0, 2),
                 'total'       => number_format(($row['cantidad'] * $row['precio'] - $row['descuento']), 2),
                 'acciones'    => '<a class="text-danger" style="font-size: 16px;" onclick="deleteDetail(\'' . $row['detalle_id'] . '\')"><i class="fas fa-times"></i></a>'
@@ -53,7 +60,7 @@ if ($_POST['action'] == "cargar_ordenrp") {
         ],
         'base_table' => 'detalle_ordenRP',
         'table_with_joins' => 'detalle_ordenRP',
-        'select' => 'SELECT precio,descuento,descripcion,orden_rp_id, cantidad,detalle_ordenRP_id as detalle_id',
+        'select' => 'SELECT precio,descuento,costo,descripcion,orden_rp_id, cantidad,detalle_ordenRP_id as detalle_id',
         'base_condition' => 'orden_rp_id =' . $id,
         'table_rows' => function ($row) use ($id) {
 
@@ -61,7 +68,14 @@ if ($_POST['action'] == "cargar_ordenrp") {
             return [
                 'descripcion' => $row['descripcion'],
                 'cantidad' => number_format($row['cantidad'], 2),
-                'precio' => number_format($row['precio'], 2),
+                'precio' => '<span>
+                            <a href="#">
+                                ' . number_format($row['precio'], 2) . '
+                            </a>
+                            <span id="toggle" class="toggle-right toggle-md">
+                            ' . 'Costo: ' . number_format($row['costo'], 2) . '
+                            </span>
+                        </span>',
                 'descuento' => number_format($row['descuento'] ?? 0, 2),
                 'total' => number_format(($row['cantidad'] * $row['precio'] - $row['descuento']), 2),
                 'acciones' => ($is_exists == 0)
@@ -136,9 +150,9 @@ if ($_POST['action'] == "index_facturas_reparacion") {
                 'id' => 'RP-00' . $facturaId,
                 'nombre' => $nombre . ' ' . $apellidos,
                 'fecha' => $row['fecha'],
-                'total' => '<span class="text-primary hide-cell">' . number_format($row['total'], 2) . '</span>',
-                'recibido' => '<span class="text-success hide-cell">' . number_format($row['recibido'], 2) . '</span>',
-                'pendiente' => '<span class="text-danger hide-cell">' . number_format($row['pendiente'], 2) . '</span>',
+                'total' => '<span class="text-primary hide-cell">' . number_format($row['total'] ?? 0, 2) . '</span>',
+                'recibido' => '<span class="text-success hide-cell">' . number_format($row['recibido'] ?? 0, 2) . '</span>',
+                'pendiente' => '<span class="text-danger hide-cell">' . number_format($row['pendiente'] ?? 0, 2) . '</span>',
                 'estado' => '<p class="' . $estado . '">' . $estado . '</p>',
                 'acciones' => $acciones
             ];

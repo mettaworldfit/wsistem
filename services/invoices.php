@@ -35,7 +35,7 @@ if ($_POST['action'] == "cargar_detalle_facturas") {
                LEFT JOIN detalle_ventas_con_servicios dvs ON df.detalle_venta_id = dvs.detalle_venta_id
                LEFT JOIN servicios s ON s.servicio_id = dvs.servicio_id',
     'select' => 'SELECT p.nombre_producto, df.precio, pz.nombre_pieza, s.nombre_servicio, df.cantidad as cantidad_total, 
-      df.detalle_venta_id as "id", df.descuento, df.impuesto, i.valor',
+      df.detalle_venta_id as "id", df.descuento, df.impuesto, i.valor, df.costo',
     'base_condition' => 'df.factura_venta_id = ' . $id,
     'table_rows' => function ($row) {
       return [
@@ -47,7 +47,14 @@ if ($_POST['action'] == "cargar_detalle_facturas") {
             : (!empty($row['nombre_servicio']) ? ucwords($row['nombre_servicio']) : '')
           ),
         'cantidad' => $row['cantidad_total'],
-        'precio' => number_format($row['precio'], 2),
+        'precio' => '<span>
+                <a href="#">
+                    ' . number_format($row['precio'], 2) . '
+                </a>
+                <span id="toggle" class="toggle-right toggle-md">
+                ' . 'Costo: ' . number_format($row['costo'], 2) . '
+                </span>
+            </span>',
         'impuesto' => '<span class="hide-cell">' . number_format($row['cantidad_total'] * $row['impuesto'], 2) . ' - (' . $row['valor'] . '%)' . '</span>',
         'descuento' => number_format($row['descuento'], 2),
         'total' => number_format(
@@ -85,13 +92,22 @@ if ($_POST['action'] == "cargar_detalle_temporal") {
     'base_table' => 'detalle_temporal',
     'table_with_joins' => 'detalle_temporal',
     'select' => 'SELECT detalle_temporal_id,usuario_id,producto_id,pieza_id,servicio_id,descripcion,
-      cantidad,precio,impuesto,descuento,fecha,hora',
+      cantidad,precio,costo,impuesto,descuento,fecha,hora',
     'base_condition' => 'usuario_id = ' . $user_id,
     'table_rows' => function ($row) {
+
+          
       return [
         'descripcion' => Help::loadVariantTemp($row['detalle_temporal_id']),
         'cantidad' => $row['cantidad'],
-        'precio' => number_format($row['precio'], 2),
+        'precio' => '<span>
+                <a href="#">
+                    ' . number_format($row['precio'], 2) . '
+                </a>
+                <span id="toggle" class="toggle-right toggle-md">
+                ' . 'Costo: ' . number_format($row['costo'], 2) . '
+                </span>
+            </span>',
         'impuesto' => '<span class="hide-cell">' . number_format($row['cantidad'] * $row['impuesto'], 2) . '</span>',
         'descuento' => number_format($row['descuento'] ?? 0, 2),
         'importe' => number_format(
@@ -276,7 +292,7 @@ if ($_POST['action'] == "asignar_variantes_temporales") {
 }
 
 // Agregar producto al detalle de venta
-
+ 
 if ($_POST['action'] == "agregar_detalle_venta") {
 
   $user_id = $_SESSION['identity']->usuario_id;

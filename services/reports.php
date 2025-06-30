@@ -347,7 +347,7 @@ if ($_POST['action'] == "servicios_vendidos") {
     $d1 = $_POST['dateq1'];
     $d2 = $_POST['dateq2'];
 
-    $query = "SELECT nombre_servicio, sum(cantidad) as cantidad, sum(costo) as costo,
+    $query = "SELECT nombre, sum(cantidad) as cantidad, sum(costo) as costo,
     sum(total) as total, sum(ganancia) as ganancia FROM (
 
     SELECT s.nombre_servicio as nombre, 'Servicio' as tipo ,sum(d.cantidad) as cantidad, 
@@ -375,7 +375,7 @@ if ($_POST['action'] == "servicios_vendidos") {
     inner join servicios s on s.servicio_id = dp.servicio_id
     where s.nombre_servicio like '%$q%' and d.fecha between '$d1' and '$d2' group by s.nombre_servicio
 
-    ) servicios_vendidos group by nombre_servicio order by total desc;";
+    ) servicios_vendidos group by nombre order by total desc;";
 
     $result = $db->query($query);
 

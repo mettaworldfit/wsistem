@@ -380,7 +380,7 @@ function getSoldServices() {
                 <tbody>
                     ${data.map(el => `
                         <tr>
-                            <td style="padding: 2px 10pt; font-size: 10pt;">${el.nombre_servicio}</td>
+                            <td style="padding: 2px 10pt; font-size: 10pt;">${el.nombre}</td>
                             <td style="padding: 2px 10pt; font-size: 10pt;">${el.cantidad}</td>
                             <td style="padding: 2px 10pt; font-size: 10pt;">${format.format(el.costo || 0)}</td>
                             <td style="padding: 2px 10pt; font-size: 10pt;">${format.format(el.total || 0)}</td>
