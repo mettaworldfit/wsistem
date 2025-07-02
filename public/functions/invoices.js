@@ -958,7 +958,8 @@ function addDetailItem() {
                 discount: discount,
                 taxes: ($('#price_out').val().replace(/,/g, "") * $('#taxes').val()) / 100, // Calcular impuestos
                 price: $('#price_out').val().replace(/,/g, ""),
-                cost: cost
+                cost: cost,
+                date: $('#date').val()
             },
             successCallback: (res) => {
                 calculateTotalInvoice()

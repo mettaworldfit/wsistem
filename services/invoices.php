@@ -304,11 +304,12 @@ if ($_POST['action'] == "agregar_detalle_venta") {
   $quantity = (!empty($_POST['quantity'])) ? $_POST['quantity'] : 0;
   $taxes = (!empty($_POST['taxes'])) ? $_POST['taxes'] : 0;
   $price = $_POST['price'];
-  $cost = $_POST['cost'];
+  $cost = $_POST['cost'] ?? 0;
+  $date = $_POST['date'];
 
   $db = Database::connect();
 
-  $query = "INSERT INTO detalle_facturas_ventas values (null,$invoice_id,$user_id,$quantity,$cost,$price,$taxes,$discount,curdate())";
+  $query = "INSERT INTO detalle_facturas_ventas values (null,$invoice_id,$user_id,$quantity,$cost,$price,$taxes,$discount,'$date')";
 
   if ($db->query($query) === TRUE) {
 
