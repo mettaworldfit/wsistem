@@ -2488,6 +2488,41 @@ a.button-404:hover {
     color: #353535;
 }
 
+.profit-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.profit-container svg {
+    font-size: 12.5pt;
+    margin-left: 2px;
+}
+
+.earnings svg {
+    color: black;
+}
+
+.earnings div {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.profit-container p:last-child {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profit-color {
+      color: #2cc098 !important;
+}
+
+.lost-color {
+    color: #db2b2b !important;
+}
+
 .card-grid p:nth-child(2) {
     font-weight: 300;
     margin: 0;
@@ -2845,4 +2880,3 @@ legend.cash-closing-legend {
     background: #dbdbdb;
     border-left: 5px solid #e03535;
 }
-

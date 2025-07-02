@@ -24,8 +24,54 @@
 
   <a href="<?= base_url ?>reports/day" class="card-grid">
     <div>
-      <p>Ventas</p>
-      <p><?= date("d/m/Y"); ?></p>
+      <div class="profit-container">
+        <div class="profit-date">
+          <p>Ventas</p>
+          <p><?= date("d/m/Y"); ?></p>
+        </div>
+
+        <div class="earnings">
+          <div>
+            <?php
+            $profit = number_format_short(floatval($monthProfit), 2);
+            $className = "";
+            $icon = "";
+
+
+            if ($profit > 0) {
+              $className .= "profit-color";
+              $icon .= "fas fa-caret-up";
+            } else if ($profit < 0) {
+              $className .= "lost-color";
+              $icon = "fas fa-caret-down";
+            }
+            ?>
+            <p class="<?= $className ?>" title="ganancias del mes: <?= number_format($monthProfit ?? 0)?>"><?= $profit ?></p>
+            <i class="<?= $icon . ' ' . $className ?>"></i>
+          </div>
+
+          <div>
+            <?php
+            $profit = number_format_short(floatval($dailyProfit), 2);
+            $className = "";
+            $icon = "";
+
+
+            if ($profit > 0) {
+              $className .= "profit-color";
+              $icon .= "fas fa-caret-up";
+            } else if ($profit < 0) {
+              $className .= "lost-color";
+              $icon = "fas fa-caret-down";
+            }
+            ?>
+
+            <p class="<?= $className ?>" title="ganancias de hoy: <?= number_format($dailyProfit ?? 0)?>"><?= $profit ?></p>
+            <i class="<?= $icon . ' ' . $className ?>"></i>
+          </div>
+
+        </div>
+      </div>
     </div>
 
     <span title="<?= number_format(floatval($totalPurchase), 2) ?>">

@@ -240,7 +240,7 @@ if ($_POST['action'] == "agregar_detalle_temporal") {
     $_POST['description'],
     (int)$_SESSION['identity']->usuario_id,
     $_POST['quantity'],
-    $_POST['cost'],
+    $_POST['cost'] ?? 0,
     $_POST['price'],
     $_POST['taxes'],
     (int)$_POST['discount'] ?? 0
@@ -478,7 +478,7 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
     $taxes = $element->impuesto;
     $detail_temp_id = $element->detalle_temporal_id;
 
-    $query2 = "INSERT INTO detalle_facturas_ventas values (null,$invoice_id,$user_id,$quantity,$cost,$price,$taxes,$discount,curdate())";
+    $query2 = "INSERT INTO detalle_facturas_ventas values (null,$invoice_id,$user_id,$quantity,$cost,$price,$taxes,$discount,'$date')";
     if ($db->query($query2) === TRUE) {
 
       $detail_id = $db->insert_id; // ID 

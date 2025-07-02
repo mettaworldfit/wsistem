@@ -400,7 +400,6 @@ $(document).ready(function () {
         SendmailCashft(id)
     })
 
-
     // Consultar si el cliente a crédito tiene un bono
 
     $("#include_bond").click(function () {
