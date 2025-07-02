@@ -30,7 +30,7 @@ function cashback(data) {
 function calculateTotalInvoice(bonus = 0) {
     // Determinar acción según la URL
     let action, id;
-
+ 
     if (pageURL.includes("invoices/addpurchase")) {
         action = 'precios_detalle_temp';
     } else if (pageURL.includes("invoices/edit_quote")) {
@@ -870,8 +870,6 @@ $(document).ready(function () {
 }); // Ready
 
 
-
-
 // Agregar producto al detalle temporal / detalle de venta
 
 function addDetailItem() {
@@ -958,8 +956,7 @@ function addDetailItem() {
                 discount: discount,
                 taxes: ($('#price_out').val().replace(/,/g, "") * $('#taxes').val()) / 100, // Calcular impuestos
                 price: $('#price_out').val().replace(/,/g, ""),
-                cost: cost,
-                date: $('#date').val()
+                cost: cost
             },
             successCallback: (res) => {
                 calculateTotalInvoice()
@@ -968,12 +965,12 @@ function addDetailItem() {
                     assignVariants(res, variant_id); // Asignar variantes al detalle temporal
                 }
             },
-            errorCallback: (res) => mysql_error(error)
+            errorCallback: (res) => mysql_error(error),
+            verbose: true
 
         });
     }
 }
-
 
 // Eliminar item del detalle temporar / detalle de venta
 

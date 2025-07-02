@@ -14,7 +14,6 @@
     </div>
 </div>
 
-
 <input type="hidden" name="number" value="<?= $_GET['id'] ?>" id="invoice_id">
 
 <div class="generalContainer padding-10 box-shadow-low">
@@ -412,7 +411,7 @@
 
                     <!-- Head -->
                     <?php $data = Help::INFO_INVOICE($_GET['id']);
-                    while ($info = $data->fetch_object()): ?>
+                      while ($info = $data->fetch_object()): ?>
                         <div class="row col-sm-12 invoice-head-modal">
 
                             <div class="col-sm-4 head-content">
@@ -477,8 +476,7 @@
                                     <div class="i">
                                         <i class="far fa-calendar-alt"></i>
                                     </div>
-                                    <input class="form-custom-icon b-left" type="text" name=""
-                                        value="<?= $info->fecha_factura ?>" id="date" disabled>
+                                    <input class="form-custom-icon b-left" type="text" name="" value="<?= $info->fecha_factura ?>" disabled>
                                 </div>
                             </div>
 
@@ -517,6 +515,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- Crear cliente -->
 
