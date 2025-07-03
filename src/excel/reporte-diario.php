@@ -80,7 +80,7 @@ $queryIngresos = "SELECT * FROM (
 
     UNION ALL
 
-    SELECT d.cantidad, p.nombre_producto AS descripcion, p.precio_unitario AS precio,
+    SELECT d.cantidad, p.nombre_producto AS descripcion, d.precio AS precio,
            '-' AS recibido,
            CONCAT('FT-00', f.factura_venta_id), concat(c.nombre,' ', IFNULL(c.apellidos, '')) AS cliente_proveedor,
            e.nombre_estado, d.descuento, f.fecha, mp.nombre_metodo as tipo_pago
@@ -110,7 +110,7 @@ $queryIngresos = "SELECT * FROM (
 
     UNION ALL
 
-    SELECT d.cantidad, pz.nombre_pieza AS descripcion, pz.precio_unitario AS precio,
+    SELECT d.cantidad, pz.nombre_pieza AS descripcion, d.precio AS precio,
            '-' AS recibido,
            CONCAT('FT-00', f.factura_venta_id), concat(c.nombre,' ', IFNULL(c.apellidos, '')) AS cliente_proveedor,
            e.nombre_estado, d.descuento, f.fecha, mp.nombre_metodo as tipo_pago
@@ -140,7 +140,7 @@ $queryIngresos = "SELECT * FROM (
 
     UNION ALL
 
-    SELECT d.cantidad, d.descripcion, pz.precio_unitario AS precio,
+    SELECT d.cantidad, d.descripcion, d.precio AS precio,
            '-' AS recibido,
            CONCAT('RP-00', f.facturaRP_id), concat(c.nombre,' ', IFNULL(c.apellidos, '')) AS cliente_proveedor,
            e.nombre_estado, d.descuento, f.fecha, mp.nombre_metodo as tipo_pago

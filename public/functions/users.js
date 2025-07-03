@@ -118,7 +118,7 @@ function enableUser(userId) {
 
 $(document).ready(function () {
 
-    $('.load', '.missing').hide();
+    $('.load, .missing').hide();
 
     // Iniciar sesión
 
