@@ -39,7 +39,7 @@
 
 
             if ($profit > 0) {
-              $className .= "profit-color";
+              $className .= "month-profit-color";
               $icon .= "fas fa-caret-up";
             } else if ($profit < 0) {
               $className .= "lost-color";

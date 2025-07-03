@@ -8,48 +8,68 @@ class Help
    {
       $query = "SELECT sum(ganancia) as total_ganancias FROM (
 
-    SELECT sum((d.precio * d.cantidad - d.descuento)-(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad)) as ganancia  
+    SELECT ROUND(SUM(
+	(f.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
+	((d.precio * d.cantidad - d.descuento) - 
+	COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
+	),2) AS ganancia
     from detalle_facturas_ventas d 
     inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
     inner join detalle_ventas_con_productos dp on dp.detalle_venta_id = d.detalle_venta_id
     inner join productos p on p.producto_id = dp.producto_id
-    where d.fecha = curdate() AND f.estado_id != 4
+    where d.fecha = curdate()
     
     UNION ALL
     
-    SELECT sum((d.precio * d.cantidad - d.descuento)-(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad)) as ganancia 
+    SELECT ROUND(SUM(
+	(f.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
+	((d.precio * d.cantidad - d.descuento) - 
+	COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
+	),2) AS ganancia
     from detalle_facturas_ventas d
     inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
     inner join detalle_ventas_con_piezas_ dp on dp.detalle_venta_id = d.detalle_venta_id
     inner join piezas p on p.pieza_id = dp.pieza_id
-    where d.fecha = curdate() AND f.estado_id != 4
+    where d.fecha = curdate()
 
     UNION ALL
 
-    SELECT sum((d.precio * d.cantidad - d.descuento)-(p.precio_costo * d.cantidad)) as ganancia  
+    SELECT ROUND(SUM(
+	(frp.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
+	((d.precio * d.cantidad - d.descuento) - 
+	COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
+	),2) AS ganancia 
     from detalle_ordenRP d 
     inner join facturasRP frp on frp.orden_rp_id = d.orden_rp_id
     inner join detalle_ordenRP_con_piezas dp on dp.detalle_ordenRP_id = d.detalle_ordenRP_id
     inner join piezas p on p.pieza_id = dp.pieza_id
-    where d.fecha = curdate() AND frp.estado_id != 4
+    where d.fecha = curdate()
 
     UNION ALL
 
-    SELECT sum((d.precio * d.cantidad - d.descuento)-COALESCE((IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo)) * d.cantidad,0)) as ganancia
+    SELECT ROUND(SUM(
+	(f.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
+	((d.precio * d.cantidad - d.descuento) - 
+	COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0))
+	),2) AS ganancia
     from detalle_facturas_ventas d 
     inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
     inner join detalle_ventas_con_servicios ds on ds.detalle_venta_id = d.detalle_venta_id
     inner join servicios s on s.servicio_id = ds.servicio_id 
-    where d.fecha = curdate() AND f.estado_id != 4
+    where d.fecha = curdate()
 
     UNION ALL
     
-    SELECT sum((d.precio * d.cantidad - d.descuento)-COALESCE((IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo)) * d.cantidad,0)) as ganancia
-    from detalle_ordenRP d 
+    SELECT ROUND(SUM(
+	(frp.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
+	((d.precio * d.cantidad - d.descuento) - 
+	COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0))
+	),2) AS ganancia 
+	from detalle_ordenRP d 
     inner join facturasRP frp on frp.orden_rp_id = d.orden_rp_id
     inner join detalle_ordenRP_con_servicios dp on dp.detalle_ordenRP_id = d.detalle_ordenRP_id
     inner join servicios s on s.servicio_id = dp.servicio_id
-    where d.fecha = curdate() AND frp.estado_id != 4
+    where d.fecha = curdate()
     
     ) ganancias_dia";
 
@@ -62,48 +82,68 @@ class Help
    {
       $query = "SELECT sum(ganancia) as total_ganancias FROM (
 
-    SELECT sum((d.precio * d.cantidad - d.descuento)-(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad)) as ganancia  
+      SELECT ROUND(SUM(
+	(f.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
+	((d.precio * d.cantidad - d.descuento) - 
+	COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
+	),2) AS ganancia
     from detalle_facturas_ventas d 
-	 inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
+    inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
     inner join detalle_ventas_con_productos dp on dp.detalle_venta_id = d.detalle_venta_id
     inner join productos p on p.producto_id = dp.producto_id
-    where d.fecha between DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE()) AND f.estado_id != 4
+    where d.fecha between DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
     
     UNION ALL
     
-    SELECT sum((d.precio * d.cantidad - d.descuento)-(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad)) as ganancia 
-    from detalle_facturas_ventas d 
-	 inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
+    SELECT ROUND(SUM(
+	(f.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
+	((d.precio * d.cantidad - d.descuento) - 
+	COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
+	),2) AS ganancia
+    from detalle_facturas_ventas d
+    inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
     inner join detalle_ventas_con_piezas_ dp on dp.detalle_venta_id = d.detalle_venta_id
     inner join piezas p on p.pieza_id = dp.pieza_id
-    where d.fecha between DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE()) AND f.estado_id != 4
+    where d.fecha between DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
 
     UNION ALL
-   
-    SELECT sum((d.precio * d.cantidad - d.descuento)-(p.precio_costo * d.cantidad)) as ganancia  
+
+    SELECT ROUND(SUM(
+	(frp.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
+	((d.precio * d.cantidad - d.descuento) - 
+	COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
+	),2) AS ganancia 
     from detalle_ordenRP d 
-	 inner join facturasRP frp on frp.orden_rp_id = d.orden_rp_id
+    inner join facturasRP frp on frp.orden_rp_id = d.orden_rp_id
     inner join detalle_ordenRP_con_piezas dp on dp.detalle_ordenRP_id = d.detalle_ordenRP_id
     inner join piezas p on p.pieza_id = dp.pieza_id
-    where d.fecha between DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE()) AND frp.estado_id != 4
+    where d.fecha between DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
 
     UNION ALL
 
-    SELECT sum((d.precio * d.cantidad - d.descuento)-COALESCE((IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo)) * d.cantidad,0)) as ganancia
+    SELECT ROUND(SUM(
+	(f.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
+	((d.precio * d.cantidad - d.descuento) - 
+	COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0))
+	),2) AS ganancia
     from detalle_facturas_ventas d 
     inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
     inner join detalle_ventas_con_servicios ds on ds.detalle_venta_id = d.detalle_venta_id
     inner join servicios s on s.servicio_id = ds.servicio_id 
-    where d.fecha between DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE()) AND f.estado_id != 4
+    where d.fecha between DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
 
     UNION ALL
     
-    SELECT sum((d.precio * d.cantidad - d.descuento)-COALESCE((IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo)) * d.cantidad,0)) as ganancia
-    from detalle_ordenRP d 
+    SELECT ROUND(SUM(
+	(frp.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
+	((d.precio * d.cantidad - d.descuento) - 
+	COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0))
+	),2) AS ganancia 
+	from detalle_ordenRP d 
     inner join facturasRP frp on frp.orden_rp_id = d.orden_rp_id
     inner join detalle_ordenRP_con_servicios dp on dp.detalle_ordenRP_id = d.detalle_ordenRP_id
     inner join servicios s on s.servicio_id = dp.servicio_id
-    where d.fecha between DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE()) AND frp.estado_id != 4
+    where d.fecha between DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
     
     ) ganancias_mes_actual;";
 
