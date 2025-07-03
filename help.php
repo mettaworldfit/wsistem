@@ -6,72 +6,117 @@ class Help
 
    public static function getDailyProfit()
    {
-      $query = "SELECT sum(ganancia) as total_ganancias FROM (
+      $query = "SELECT SUM(ganancia) AS total_ganancias FROM (
 
-    SELECT ROUND(SUM(
-	(f.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
-	((d.precio * d.cantidad - d.descuento) - 
-	COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
-	),2) AS ganancia
-    from detalle_facturas_ventas d 
-    inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
-    inner join detalle_ventas_con_productos dp on dp.detalle_venta_id = d.detalle_venta_id
-    inner join productos p on p.producto_id = dp.producto_id
-    where d.fecha = curdate()
-    
-    UNION ALL
-    
-    SELECT ROUND(SUM(
-	(f.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
-	((d.precio * d.cantidad - d.descuento) - 
-	COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
-	),2) AS ganancia
-    from detalle_facturas_ventas d
-    inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
-    inner join detalle_ventas_con_piezas_ dp on dp.detalle_venta_id = d.detalle_venta_id
-    inner join piezas p on p.pieza_id = dp.pieza_id
-    where d.fecha = curdate()
+  -- Ganancia Productos en facturas de ventas hoy
+  SELECT SUM(
+    (f.recibido / NULLIF(ft.total_facturado, 0)) *
+    (
+      (d.precio * d.cantidad - d.descuento) -
+      COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)
+    )
+  ) AS ganancia
+  FROM detalle_facturas_ventas d
+  INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+  INNER JOIN (
+    SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+    FROM detalle_facturas_ventas
+    WHERE fecha = CURDATE()
+    GROUP BY factura_venta_id
+  ) ft ON ft.factura_venta_id = f.factura_venta_id
+  INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
+  INNER JOIN productos p ON p.producto_id = dp.producto_id
+  WHERE d.fecha = CURDATE()
 
-    UNION ALL
+  UNION ALL
 
-    SELECT ROUND(SUM(
-	(frp.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
-	((d.precio * d.cantidad - d.descuento) - 
-	COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
-	),2) AS ganancia 
-    from detalle_ordenRP d 
-    inner join facturasRP frp on frp.orden_rp_id = d.orden_rp_id
-    inner join detalle_ordenRP_con_piezas dp on dp.detalle_ordenRP_id = d.detalle_ordenRP_id
-    inner join piezas p on p.pieza_id = dp.pieza_id
-    where d.fecha = curdate()
+  -- Ganancia Piezas en facturas de ventas hoy
+  SELECT SUM(
+    (f.recibido / NULLIF(ft.total_facturado, 0)) *
+    (
+      (d.precio * d.cantidad - d.descuento) -
+      COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)
+    )
+  ) AS ganancia
+  FROM detalle_facturas_ventas d
+  INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+  INNER JOIN (
+    SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+    FROM detalle_facturas_ventas
+    WHERE fecha = CURDATE()
+    GROUP BY factura_venta_id
+  ) ft ON ft.factura_venta_id = f.factura_venta_id
+  INNER JOIN detalle_ventas_con_piezas_ dp ON dp.detalle_venta_id = d.detalle_venta_id
+  INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
+  WHERE d.fecha = CURDATE()
 
-    UNION ALL
+  UNION ALL
 
-    SELECT ROUND(SUM(
-	(f.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
-	((d.precio * d.cantidad - d.descuento) - 
-	COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0))
-	),2) AS ganancia
-    from detalle_facturas_ventas d 
-    inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
-    inner join detalle_ventas_con_servicios ds on ds.detalle_venta_id = d.detalle_venta_id
-    inner join servicios s on s.servicio_id = ds.servicio_id 
-    where d.fecha = curdate()
+  -- Ganancia Piezas en órdenes de reparación hoy
+  SELECT SUM(
+    (frp.recibido / NULLIF(ft.total_facturado, 0)) *
+    (
+      (d.precio * d.cantidad - d.descuento) -
+      COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)
+    )
+  ) AS ganancia
+  FROM detalle_ordenRP d
+  INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
+  INNER JOIN (
+    SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
+    FROM detalle_ordenRP
+    WHERE fecha = CURDATE()
+    GROUP BY orden_rp_id
+  ) ft ON ft.orden_rp_id = frp.orden_rp_id
+  INNER JOIN detalle_ordenRP_con_piezas dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
+  INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
+  WHERE d.fecha = CURDATE()
 
-    UNION ALL
-    
-    SELECT ROUND(SUM(
-	(frp.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
-	((d.precio * d.cantidad - d.descuento) - 
-	COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0))
-	),2) AS ganancia 
-	from detalle_ordenRP d 
-    inner join facturasRP frp on frp.orden_rp_id = d.orden_rp_id
-    inner join detalle_ordenRP_con_servicios dp on dp.detalle_ordenRP_id = d.detalle_ordenRP_id
-    inner join servicios s on s.servicio_id = dp.servicio_id
-    where d.fecha = curdate()
-    
-    ) ganancias_dia";
+  UNION ALL
+
+  -- Ganancia Servicios en facturas de ventas hoy
+  SELECT SUM(
+    (f.recibido / NULLIF(ft.total_facturado, 0)) *
+    (
+      (d.precio * d.cantidad - d.descuento) -
+      COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)
+    )
+  ) AS ganancia
+  FROM detalle_facturas_ventas d
+  INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+  INNER JOIN (
+    SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+    FROM detalle_facturas_ventas
+    WHERE fecha = CURDATE()
+    GROUP BY factura_venta_id
+  ) ft ON ft.factura_venta_id = f.factura_venta_id
+  INNER JOIN detalle_ventas_con_servicios ds ON ds.detalle_venta_id = d.detalle_venta_id
+  INNER JOIN servicios s ON s.servicio_id = ds.servicio_id
+  WHERE d.fecha = CURDATE()
+
+  UNION ALL
+
+  -- Ganancia Servicios en órdenes de reparación hoy
+  SELECT SUM(
+    (frp.recibido / NULLIF(ft.total_facturado, 0)) *
+    (
+      (d.precio * d.cantidad - d.descuento) -
+      COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)
+    )
+  ) AS ganancia
+  FROM detalle_ordenRP d
+  INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
+  INNER JOIN (
+    SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
+    FROM detalle_ordenRP
+    WHERE fecha = CURDATE()
+    GROUP BY orden_rp_id
+  ) ft ON ft.orden_rp_id = frp.orden_rp_id
+  INNER JOIN detalle_ordenRP_con_servicios dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
+  INNER JOIN servicios s ON s.servicio_id = dp.servicio_id
+  WHERE d.fecha = CURDATE()
+
+) ganancias_dia;";
 
       $db = Database::connect();
       return $db->query($query)->fetch_object()->total_ganancias;
@@ -80,72 +125,117 @@ class Help
 
    public static function getMonthProfit()
    {
-      $query = "SELECT sum(ganancia) as total_ganancias FROM (
+      $query = "SELECT SUM(ganancia) AS total_ganancias FROM (
 
-      SELECT ROUND(SUM(
-	(f.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
-	((d.precio * d.cantidad - d.descuento) - 
-	COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
-	),2) AS ganancia
-    from detalle_facturas_ventas d 
-    inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
-    inner join detalle_ventas_con_productos dp on dp.detalle_venta_id = d.detalle_venta_id
-    inner join productos p on p.producto_id = dp.producto_id
-    where d.fecha between DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
-    
-    UNION ALL
-    
-    SELECT ROUND(SUM(
-	(f.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
-	((d.precio * d.cantidad - d.descuento) - 
-	COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
-	),2) AS ganancia
-    from detalle_facturas_ventas d
-    inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
-    inner join detalle_ventas_con_piezas_ dp on dp.detalle_venta_id = d.detalle_venta_id
-    inner join piezas p on p.pieza_id = dp.pieza_id
-    where d.fecha between DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
+  -- Ganancia Productos en facturas de ventas
+  SELECT SUM(
+    (f.recibido / NULLIF(ft.total_facturado, 0)) *
+    (
+      (d.precio * d.cantidad - d.descuento) -
+      COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)
+    )
+  ) AS ganancia
+  FROM detalle_facturas_ventas d
+  INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+  INNER JOIN (
+    SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+    FROM detalle_facturas_ventas
+    WHERE fecha BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
+    GROUP BY factura_venta_id
+  ) ft ON ft.factura_venta_id = f.factura_venta_id
+  INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
+  INNER JOIN productos p ON p.producto_id = dp.producto_id
+  WHERE d.fecha BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
 
-    UNION ALL
+  UNION ALL
 
-    SELECT ROUND(SUM(
-	(frp.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
-	((d.precio * d.cantidad - d.descuento) - 
-	COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
-	),2) AS ganancia 
-    from detalle_ordenRP d 
-    inner join facturasRP frp on frp.orden_rp_id = d.orden_rp_id
-    inner join detalle_ordenRP_con_piezas dp on dp.detalle_ordenRP_id = d.detalle_ordenRP_id
-    inner join piezas p on p.pieza_id = dp.pieza_id
-    where d.fecha between DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
+  -- Ganancia Piezas en facturas de ventas
+  SELECT SUM(
+    (f.recibido / NULLIF(ft.total_facturado, 0)) *
+    (
+      (d.precio * d.cantidad - d.descuento) -
+      COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)
+    )
+  ) AS ganancia
+  FROM detalle_facturas_ventas d
+  INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+  INNER JOIN (
+    SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+    FROM detalle_facturas_ventas
+    WHERE fecha BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
+    GROUP BY factura_venta_id
+  ) ft ON ft.factura_venta_id = f.factura_venta_id
+  INNER JOIN detalle_ventas_con_piezas_ dp ON dp.detalle_venta_id = d.detalle_venta_id
+  INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
+  WHERE d.fecha BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
 
-    UNION ALL
+  UNION ALL
 
-    SELECT ROUND(SUM(
-	(f.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
-	((d.precio * d.cantidad - d.descuento) - 
-	COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0))
-	),2) AS ganancia
-    from detalle_facturas_ventas d 
-    inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
-    inner join detalle_ventas_con_servicios ds on ds.detalle_venta_id = d.detalle_venta_id
-    inner join servicios s on s.servicio_id = ds.servicio_id 
-    where d.fecha between DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
+  -- Ganancia Piezas en ordenes de reparacion
+  SELECT SUM(
+    (frp.recibido / NULLIF(ft.total_facturado, 0)) *
+    (
+      (d.precio * d.cantidad - d.descuento) -
+      COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)
+    )
+  ) AS ganancia
+  FROM detalle_ordenRP d
+  INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
+  INNER JOIN (
+    SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
+    FROM detalle_ordenRP
+    WHERE fecha BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
+    GROUP BY orden_rp_id
+  ) ft ON ft.orden_rp_id = frp.orden_rp_id
+  INNER JOIN detalle_ordenRP_con_piezas dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
+  INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
+  WHERE d.fecha BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
 
-    UNION ALL
-    
-    SELECT ROUND(SUM(
-	(frp.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
-	((d.precio * d.cantidad - d.descuento) - 
-	COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0))
-	),2) AS ganancia 
-	from detalle_ordenRP d 
-    inner join facturasRP frp on frp.orden_rp_id = d.orden_rp_id
-    inner join detalle_ordenRP_con_servicios dp on dp.detalle_ordenRP_id = d.detalle_ordenRP_id
-    inner join servicios s on s.servicio_id = dp.servicio_id
-    where d.fecha between DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
-    
-    ) ganancias_mes_actual;";
+  UNION ALL
+
+  -- Ganancia Servicios en facturas de ventas
+  SELECT SUM(
+    (f.recibido / NULLIF(ft.total_facturado, 0)) *
+    (
+      (d.precio * d.cantidad - d.descuento) -
+      COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)
+    )
+  ) AS ganancia
+  FROM detalle_facturas_ventas d
+  INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+  INNER JOIN (
+    SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+    FROM detalle_facturas_ventas
+    WHERE fecha BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
+    GROUP BY factura_venta_id
+  ) ft ON ft.factura_venta_id = f.factura_venta_id
+  INNER JOIN detalle_ventas_con_servicios ds ON ds.detalle_venta_id = d.detalle_venta_id
+  INNER JOIN servicios s ON s.servicio_id = ds.servicio_id
+  WHERE d.fecha BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
+
+  UNION ALL
+
+  -- Ganancia Servicios en ordenes de reparacion
+  SELECT SUM(
+    (frp.recibido / NULLIF(ft.total_facturado, 0)) *
+    (
+      (d.precio * d.cantidad - d.descuento) -
+      COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)
+    )
+  ) AS ganancia
+  FROM detalle_ordenRP d
+  INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
+  INNER JOIN (
+    SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
+    FROM detalle_ordenRP
+    WHERE fecha BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
+    GROUP BY orden_rp_id
+  ) ft ON ft.orden_rp_id = frp.orden_rp_id
+  INNER JOIN detalle_ordenRP_con_servicios dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
+  INNER JOIN servicios s ON s.servicio_id = dp.servicio_id
+  WHERE d.fecha BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
+
+) ganancias_mes_actual;";
 
       $db = Database::connect();
       return $db->query($query)->fetch_object()->total_ganancias;

@@ -28,93 +28,148 @@ if ($month < 1 || $month > 12 || $year < 2000) {
     exit;
 }
 
-$query = "SELECT nombre, tipo ,sum(cantidad) as cantidad, sum(costo) as costo,
-sum(total) as total, sum(ganancia) as ganancia FROM (
-
-    SELECT p.nombre_producto as nombre,'Producto' as tipo ,sum(d.cantidad) as cantidad,
-    sum(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) as costo, 
-    sum(d.precio * d.cantidad - d.descuento) as total,
-	ROUND(SUM(
-		(f.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
-		((d.precio * d.cantidad - d.descuento) - 
-		COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
-	),2) AS ganancia
-    from detalle_facturas_ventas d 
-    inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
-    inner join detalle_ventas_con_productos dp on dp.detalle_venta_id = d.detalle_venta_id
-    inner join productos p on p.producto_id = dp.producto_id
-    where MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year' GROUP BY p.nombre_producto
-    
-    UNION ALL
-    
-    SELECT p.nombre_pieza as nombre,'Pieza' as tipo,sum(d.cantidad) as cantidad,
-    sum(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) as costo, 
-    sum(d.precio * d.cantidad - d.descuento) as total,
-    ROUND(SUM(
-	(f.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
-	((d.precio * d.cantidad - d.descuento) - 
-	COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
-	),2) AS ganancia
-    from detalle_facturas_ventas d 
-    inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
-    inner join detalle_ventas_con_piezas_ dp on dp.detalle_venta_id = d.detalle_venta_id
-    inner join piezas p on p.pieza_id = dp.pieza_id
-    where MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year' GROUP BY p.nombre_pieza
-
-    UNION ALL
-
-    SELECT p.nombre_pieza as nombre,'Pieza' as tipo,sum(d.cantidad) as cantidad,
-    sum(d.precio * d.cantidad - d.descuento) as total,
-	sum(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) as costo, 
-    ROUND(SUM(
-	(frp.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
-	((d.precio * d.cantidad - d.descuento) - 
-	COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
-	),2) AS ganancia
-    from detalle_ordenRP d 
-    inner join facturasRP frp on frp.orden_rp_id = d.orden_rp_id
-    inner join detalle_ordenRP_con_piezas dp on dp.detalle_ordenRP_id = d.detalle_ordenRP_id
-    inner join piezas p on p.pieza_id = dp.pieza_id
-    where MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year' GROUP BY p.nombre_pieza
+$query = "SELECT 
+  nombre, 
+  tipo, 
+  SUM(cantidad) AS cantidad, 
+  SUM(costo) AS costo,
+  SUM(total) AS total, 
+  ROUND(SUM(ganancia), 2) AS ganancia
+FROM (
+    -- Productos en facturas de ventas
+    SELECT 
+      p.nombre_producto AS nombre,
+      'Producto' AS tipo,
+      SUM(d.cantidad) AS cantidad,
+      SUM(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) AS costo,
+      SUM(d.precio * d.cantidad - d.descuento) AS total,
+      SUM(
+        (f.recibido / NULLIF(ft.total_facturado, 0)) * 
+        ((d.precio * d.cantidad - d.descuento) - 
+        COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
+      ) AS ganancia
+    FROM detalle_facturas_ventas d
+    INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+    INNER JOIN (
+      SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+      FROM detalle_facturas_ventas
+      WHERE MONTH(fecha) = 07 AND YEAR(fecha) = 2025
+      GROUP BY factura_venta_id
+    ) ft ON ft.factura_venta_id = f.factura_venta_id
+    INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
+    INNER JOIN productos p ON p.producto_id = dp.producto_id
+    WHERE MONTH(d.fecha) = 07 AND YEAR(d.fecha) = 2025
+    GROUP BY p.nombre_producto
 
     UNION ALL
 
-    SELECT s.nombre_servicio as nombre, 'Servicio' as tipo ,sum(d.cantidad) as cantidad, 
-    sum(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad,0)) as costo,
-    -- Total facturado (precio - descuento)
-    sum(d.precio * d.cantidad - d.descuento) as total,
-    -- Ganancia = total - costo
-    ROUND(SUM(
-	(f.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
-	((d.precio * d.cantidad - d.descuento) - 
-	COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0))
-	),2) AS ganancia
-	from detalle_facturas_ventas d 
-    inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
-    inner join detalle_ventas_con_servicios ds on ds.detalle_venta_id = d.detalle_venta_id
-    inner join servicios s on s.servicio_id = ds.servicio_id 
-    where MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year' GROUP BY s.nombre_servicio
+    -- Piezas en facturas de ventas
+    SELECT 
+      p.nombre_pieza AS nombre,
+      'Pieza' AS tipo,
+      SUM(d.cantidad) AS cantidad,
+      SUM(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) AS costo,
+      SUM(d.precio * d.cantidad - d.descuento) AS total,
+      SUM(
+        (f.recibido / NULLIF(ft.total_facturado, 0)) * 
+        ((d.precio * d.cantidad - d.descuento) - 
+        COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
+      ) AS ganancia
+    FROM detalle_facturas_ventas d
+    INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+    INNER JOIN (
+      SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+      FROM detalle_facturas_ventas
+      WHERE MONTH(fecha) = 07 AND YEAR(fecha) = 2025
+      GROUP BY factura_venta_id
+    ) ft ON ft.factura_venta_id = f.factura_venta_id
+    INNER JOIN detalle_ventas_con_piezas_ dp ON dp.detalle_venta_id = d.detalle_venta_id
+    INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
+    WHERE MONTH(d.fecha) = 07 AND YEAR(d.fecha) = 2025
+    GROUP BY p.nombre_pieza
 
     UNION ALL
-    
-    SELECT s.nombre_servicio as nombre,'Servicio' as tipo, sum(d.cantidad) as cantidad, 
-    sum(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad,0)) as costo,
-    -- Total facturado (precio - descuento)
-    sum(d.precio * d.cantidad - d.descuento) as total,
-    -- Ganancia = total - costo
-    ROUND(SUM(
-	(frp.recibido / NULLIF((d.precio * d.cantidad - d.descuento), 0)) * 
-	((d.precio * d.cantidad - d.descuento) - 
-	COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0))
-	),2) AS ganancia
-	from detalle_ordenRP d 
-    inner join facturasRP frp on frp.orden_rp_id = d.orden_rp_id
-    inner join detalle_ordenRP_con_servicios dp on dp.detalle_ordenRP_id = d.detalle_ordenRP_id
-    inner join servicios s on s.servicio_id = dp.servicio_id
-    where MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year' GROUP BY s.nombre_servicio
-    
-    ) detalle_ventas_mes 
-    GROUP BY nombre, tipo ORDER BY tipo DESC";
+
+    -- Piezas en ordenes de reparacion (facturasRP)
+    SELECT 
+      p.nombre_pieza AS nombre,
+      'Pieza' AS tipo,
+      SUM(d.cantidad) AS cantidad,
+      SUM(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) AS costo,
+      SUM(d.precio * d.cantidad - d.descuento) AS total,
+      SUM(
+        (frp.recibido / NULLIF(ft.total_facturado, 0)) * 
+        ((d.precio * d.cantidad - d.descuento) - 
+        COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
+      ) AS ganancia
+    FROM detalle_ordenRP d
+    INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
+    INNER JOIN (
+      SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
+      FROM detalle_ordenRP
+      WHERE MONTH(fecha) = 07 AND YEAR(fecha) = 2025
+      GROUP BY orden_rp_id
+    ) ft ON ft.orden_rp_id = frp.orden_rp_id
+    INNER JOIN detalle_ordenRP_con_piezas dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
+    INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
+    WHERE MONTH(d.fecha) = 07 AND YEAR(d.fecha) = 2025
+    GROUP BY p.nombre_pieza
+
+    UNION ALL
+
+    -- Servicios en facturas de ventas
+    SELECT 
+      s.nombre_servicio AS nombre,
+      'Servicio' AS tipo,
+      SUM(d.cantidad) AS cantidad,
+      SUM(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)) AS costo,
+      SUM(d.precio * d.cantidad - d.descuento) AS total,
+      SUM(
+        (f.recibido / NULLIF(ft.total_facturado, 0)) * 
+        ((d.precio * d.cantidad - d.descuento) - 
+        COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0))
+      ) AS ganancia
+    FROM detalle_facturas_ventas d
+    INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+    INNER JOIN (
+      SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+      FROM detalle_facturas_ventas
+      WHERE MONTH(fecha) = 07 AND YEAR(fecha) = 2025
+      GROUP BY factura_venta_id
+    ) ft ON ft.factura_venta_id = f.factura_venta_id
+    INNER JOIN detalle_ventas_con_servicios ds ON ds.detalle_venta_id = d.detalle_venta_id
+    INNER JOIN servicios s ON s.servicio_id = ds.servicio_id
+    WHERE MONTH(d.fecha) = 07 AND YEAR(d.fecha) = 2025
+    GROUP BY s.nombre_servicio
+
+    UNION ALL
+
+    -- Servicios en ordenes de reparacion (facturasRP)
+    SELECT 
+      s.nombre_servicio AS nombre,
+      'Servicio' AS tipo,
+      SUM(d.cantidad) AS cantidad,
+      SUM(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)) AS costo,
+      SUM(d.precio * d.cantidad - d.descuento) AS total,
+      SUM(
+        (frp.recibido / NULLIF(ft.total_facturado, 0)) * 
+        ((d.precio * d.cantidad - d.descuento) - 
+        COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0))
+      ) AS ganancia
+    FROM detalle_ordenRP d
+    INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
+    INNER JOIN (
+      SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
+      FROM detalle_ordenRP
+      WHERE MONTH(fecha) = 07 AND YEAR(fecha) = 2025
+      GROUP BY orden_rp_id
+    ) ft ON ft.orden_rp_id = frp.orden_rp_id
+    INNER JOIN detalle_ordenRP_con_servicios dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
+    INNER JOIN servicios s ON s.servicio_id = dp.servicio_id
+    WHERE MONTH(d.fecha) = 07 AND YEAR(d.fecha) = 2025
+    GROUP BY s.nombre_servicio
+) AS detalle_ventas_mes GROUP BY nombre, tipo
+ ORDER BY tipo DESC;";
 
 $result = $db->query($query);
 
