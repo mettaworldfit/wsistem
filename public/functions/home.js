@@ -20,102 +20,168 @@ $(document).ready(function () {
     }
 
     /**
-     * Renderiza un gráfico de línea utilizando Chart.js.
-     *
-     * @param {string} elementId - ID del elemento <canvas> donde se renderiza el gráfico.
-     * @param {string} label - Etiqueta del dataset (ej. "Ventas", "Gastos").
-     * @param {Array<Object>} data - Arreglo de objetos con los datos, cada objeto debe tener `mes` o `dia` y `total`.
-     * @param {string} color - Color base del gráfico en formato hexadecimal (ej. "#2cc098").
-     */
-    function renderLineChart(elementId, label, data, color) {
-        // Obtener contexto del canvas
+ * Renderiza un gráfico de línea con múltiples datasets utilizando Chart.js.
+ *
+ * @param {string} elementId - ID del elemento <canvas> donde se renderiza el gráfico.
+ * @param {Array<Object>} datasets - Arreglo de datasets, cada uno debe tener:
+ *    - label: etiqueta del dataset (ej. "Ventas", "Ganancias")
+ *    - data: arreglo de objetos con `mes` o `dia` y `total`
+ *    - color: color hexadecimal base (ej. "#2cc098")
+ */
+    function renderLineChart(elementId, datasets) {
         const ctx = document.getElementById(elementId).getContext("2d");
 
-        // Generar etiquetas: si el objeto tiene "mes" se usa ese, si no, "dia"
-        const labels = data.map(item =>
+        // Suponemos que todos los datasets tienen los mismos días o meses
+        const labels = datasets[0].data.map(item =>
             item.mes ? formatMonthName(item.mes) : item.dia
         );
 
-        // Extraer los valores numéricos (totales)
-        const valores = data.map(item => item.total);
+        // Mapear cada dataset a un formato compatible con Chart.js
+        const chartDatasets = datasets.map(ds => ({
+            label: ds.label,
+            data: ds.data.map(item => item.total),
+            backgroundColor: ds.color + "66", // con transparencia
+            borderColor: ds.color,
+            borderWidth: 1,
+            tension: 0.1
+        }));
 
         // Crear el gráfico
         new Chart(ctx, {
             type: "line",
             data: {
                 labels: labels,
-                datasets: [{
-                    label: label,
-                    data: valores,
-                    backgroundColor: [color + "66"], // Color con transparencia
-                    borderColor: [color],            // Borde del gráfico
-                    borderWidth: 1,
-                    tension: 0.1                     // Suavizado de línea
-                }],
+                datasets: chartDatasets
             },
             options: {
-                locale: "en-IN", // Localización para números
+                locale: "en-IN",
                 scales: {
-                    yAxes: [{
+                    y: {
                         ticks: {
-                            callback: value => abbreviateNumber(value), // Formatea los valores del eje Y
+                            callback: value => abbreviateNumber(value),
                         },
-                    }],
+                    }
                 },
-                tooltips: {
-                    callbacks: {
-                        // Formatea el número con coma como separador de miles y dos decimales
-                        label: tooltipItem =>
-                            tooltipItem.yLabel
-                                .toFixed(2)
-                                .replace(/\d(?=(\d{3})+\.)/g, '$&,'),
-                    },
-                    backgroundColor: ["#353535"], // Color de fondo del tooltip
-                },
-            },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: context => {
+                                let value = context.parsed.y;
+                                return value
+                                    .toFixed(2)
+                                    .replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                            }
+                        },
+                        backgroundColor: "#353535"
+                    }
+                }
+            }
         });
     }
 
 
     /**
-     * Carga y renderiza un gráfico tipo línea utilizando Chart.js.
+     * Carga y renderiza múltiples datasets en un gráfico tipo línea con Chart.js.
      *
-     * @param {Object} options - Parámetros de configuración.
-     * @param {string} options.idCanvas - ID del elemento canvas donde se dibuja el gráfico.
-     * @param {string} options.idContainer - ID del contenedor del gráfico (para mostrar/ocultar).
-     * @param {string} options.idFallback - ID del contenedor de mensaje alternativo (cuando no hay datos).
-     * @param {string} options.action - Nombre de la acción enviada al backend vía AJAX.
-     * @param {string} options.label - Etiqueta del gráfico (ej. 'Ventas', 'Gastos').
-     * @param {string} options.color - Color hexadecimal base para el gráfico.
+     * @param {Object} options
+     * @param {string} options.idCanvas - ID del canvas
+     * @param {string} options.idContainer - ID del contenedor del gráfico
+     * @param {string} options.idFallback - ID del contenedor alternativo (sin datos)
+     * @param {Array<Object>} options.sources - Arreglo con objetos como:
+     *     { action: 'ventas_diarias', label: 'Ventas', color: '#36a2eb' }
      */
-    function loadChart({ idCanvas, idContainer, idFallback, action, label, color }) {
-        // Obtener el canvas del DOM
+    function loadChart({ idCanvas, idContainer, idFallback, sources }) {
         const canvas = document.querySelector(`#${idCanvas}`);
-        if (!canvas) return; // Si no existe, salir
+        if (!canvas) return;
 
-        // Enviar la petición AJAX
+        const container = $(`#${idContainer}`);
+        const fallback = $(`#${idFallback}`);
+
+        const datasets = [];
+        let pending = sources.length;
+
+        sources.forEach(({ action, label, color }) => {
+            sendAjaxRequest({
+                url: "services/home.php",
+                data: { action: action },
+                successCallback: res => {
+                    try {
+                        const data = JSON.parse(res);
+                        if (Array.isArray(data)) {
+                            datasets.push({ label, data, color });
+                        }
+                    } catch (e) {
+                        console.error("Error parsing response for", action);
+                    } finally {
+                        pending--;
+                        if (pending === 0) {
+                            if (datasets.length > 0) {
+                                container.show();
+                                fallback.hide();
+                                renderLineChart(idCanvas, datasets);
+                            } else {
+                                container.hide();
+                                fallback.show();
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    }
+
+
+    /**
+     * Carga y renderiza un gráfico con múltiples datasets desde una sola acción AJAX.
+     *
+     * @param {Object} options
+     * @param {string} options.idCanvas - ID del canvas
+     * @param {string} options.idContainer - ID del contenedor del gráfico
+     * @param {string} options.idFallback - ID del contenedor alternativo (sin datos)
+     * @param {string} options.action - Acción AJAX
+     * @param {Array<Object>} options.datasets - Configuración de cada dataset esperada en la respuesta.
+     *     Cada uno debe tener: { key: "ventas", label: "Ventas", color: "#2cc098" }
+     */
+    function loadCombinedChart({ idCanvas, idContainer, idFallback, action, datasets }) {
+        const canvas = document.querySelector(`#${idCanvas}`);
+        if (!canvas) return;
+
+        const container = $(`#${idContainer}`);
+        const fallback = $(`#${idFallback}`);
+
         sendAjaxRequest({
             url: "services/home.php",
-            data: { action: action },
+            data: { action },
             successCallback: (res) => {
-                const data = JSON.parse(res); // Convertir la respuesta a objeto JS
+                try {
+                    const json = JSON.parse(res); // Esto es un array, no objeto
 
-                const container = $(`#${idContainer}`); // Contenedor del gráfico
-                const fallback = $(`#${idFallback}`);   // Contenedor de mensaje de error
+                    const validDatasets = [];
 
-                if (Array.isArray(data)) {
-                    // Si hay datos válidos, mostrar gráfico y ocultar el fallback
-                    container.show();
-                    fallback.hide();
+                    datasets.forEach(({ index, label, color }) => {
+                        if (Array.isArray(json[index])) {
+                            validDatasets.push({
+                                label,
+                                color,
+                                data: json[index]
+                            });
+                        }
+                    });
 
-                    // Renderizar el gráfico usando Chart.js
-                    renderLineChart(idCanvas, label, data, color);
-                } else {
-                    // Si no hay datos válidos, ocultar gráfico y mostrar mensaje
+                    if (validDatasets.length > 0) {
+                        container.show();
+                        fallback.hide();
+                        renderLineChart(idCanvas, validDatasets);
+                    } else {
+                        container.hide();
+                        fallback.show();
+                    }
+                } catch (e) {
+                    console.error("Error al parsear JSON:", e);
                     container.hide();
                     fallback.show();
                 }
-            },
+            },verbose: true
         });
     }
 
@@ -125,29 +191,38 @@ $(document).ready(function () {
         idCanvas: "sales_of_the_months",
         idContainer: "sales_of_the_months",
         idFallback: "chart1",
-        action: "ventas_meses",
-        label: "Ventas",
-        color: "#2cc098",
+        sources: [
+            {
+                action: "ventas_meses",
+                label: "Ventas",
+                color: "#2cc098",
+            }
+        ]
     });
 
     loadChart({
         idCanvas: "expenses_of_the_months",
         idContainer: "expenses_of_the_months",
         idFallback: "chart2",
-        action: "gastos_meses",
-        label: "Gastos",
-        color: "#db2b2b",
+        sources: [
+            {
+                action: "gastos_meses",
+                label: "Gastos",
+                color: "#db2b2b",
+            }
+        ]
     });
 
-    loadChart({
+    loadCombinedChart({
         idCanvas: "month",
         idContainer: "month",
         idFallback: "chart3",
-        action: "ventas_mes",
-        label: new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date()),
-        color: "#822cc0",
+        action: "ventas_dias", // esta acción en tu backend debe retornar ambos
+        datasets: [
+            { index: 0, label: "Ventas", color: "#147ae0" },
+            { index: 1, label: "Ganancias", color: "#05c65c" }
+        ]
     });
-
 
 
 

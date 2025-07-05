@@ -5,6 +5,7 @@ require_once '../config/parameters.php';
 require_once 'functions/functions.php';
 session_start();
 
+
 if ($_POST['action'] == 'productos_mas_vendidos_mes') {
     $db = Database::connect();
 
@@ -75,7 +76,7 @@ if ($_POST['action'] == 'gastos_meses') {
 }
 
 
-if ($_POST['action'] == 'ventas_mes') {
+if ($_POST['action'] == 'ventas_dias') {
     $db = Database::connect();
 
     $query = "SELECT DAY(fecha) AS dia, SUM(total) AS total
@@ -118,9 +119,121 @@ if ($_POST['action'] == 'ventas_mes') {
         WHERE MONTH(p.fecha) = MONTH(CURDATE()) AND YEAR(p.fecha) = YEAR(CURDATE())
         GROUP BY p.pago_id
 
-    ) ventas_del_mes GROUP BY DAY(fecha) ORDER BY dia";
+    ) ventas_del_mes GROUP BY DAY(fecha) ORDER BY dia;
+    
 
-    jsonQueryResult($db, $query);
+
+    SELECT DAY(fecha) AS dia, ROUND(SUM(ganancia),0) AS total
+FROM (
+
+  -- Ganancia Productos en facturas de ventas
+  SELECT d.fecha,
+    (f.recibido / NULLIF(ft.total_facturado, 0)) *
+    (
+      (d.precio * d.cantidad - d.descuento) -
+      COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)
+    ) AS ganancia
+  FROM detalle_facturas_ventas d
+  INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+  INNER JOIN (
+    SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+    FROM detalle_facturas_ventas
+    WHERE MONTH(fecha) = MONTH(CURDATE()) AND YEAR(fecha) = YEAR(CURDATE())
+    GROUP BY factura_venta_id
+  ) ft ON ft.factura_venta_id = f.factura_venta_id
+  INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
+  INNER JOIN productos p ON p.producto_id = dp.producto_id
+  WHERE MONTH(d.fecha) = MONTH(CURDATE()) AND YEAR(d.fecha) = YEAR(CURDATE())
+
+  UNION ALL
+
+  -- Ganancia Piezas en facturas de ventas
+  SELECT d.fecha,
+    (f.recibido / NULLIF(ft.total_facturado, 0)) *
+    (
+      (d.precio * d.cantidad - d.descuento) -
+      COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)
+    ) AS ganancia
+  FROM detalle_facturas_ventas d
+  INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+  INNER JOIN (
+    SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+    FROM detalle_facturas_ventas
+    WHERE MONTH(fecha) = MONTH(CURDATE()) AND YEAR(fecha) = YEAR(CURDATE())
+    GROUP BY factura_venta_id
+  ) ft ON ft.factura_venta_id = f.factura_venta_id
+  INNER JOIN detalle_ventas_con_piezas_ dp ON dp.detalle_venta_id = d.detalle_venta_id
+  INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
+  WHERE MONTH(d.fecha) = MONTH(CURDATE()) AND YEAR(d.fecha) = YEAR(CURDATE())
+
+  UNION ALL
+
+  -- Ganancia Piezas en órdenes de reparación
+  SELECT d.fecha,
+    (frp.recibido / NULLIF(ft.total_facturado, 0)) *
+    (
+      (d.precio * d.cantidad - d.descuento) -
+      COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)
+    ) AS ganancia
+  FROM detalle_ordenRP d
+  INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
+  INNER JOIN (
+    SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
+    FROM detalle_ordenRP
+    WHERE MONTH(fecha) = MONTH(CURDATE()) AND YEAR(fecha) = YEAR(CURDATE())
+    GROUP BY orden_rp_id
+  ) ft ON ft.orden_rp_id = frp.orden_rp_id
+  INNER JOIN detalle_ordenRP_con_piezas dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
+  INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
+  WHERE MONTH(d.fecha) = MONTH(CURDATE()) AND YEAR(d.fecha) = YEAR(CURDATE())
+
+  UNION ALL
+
+  -- Ganancia Servicios en facturas de ventas
+  SELECT d.fecha,
+    (f.recibido / NULLIF(ft.total_facturado, 0)) *
+    (
+      (d.precio * d.cantidad - d.descuento) -
+      COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)
+    ) AS ganancia
+  FROM detalle_facturas_ventas d
+  INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+  INNER JOIN (
+    SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+    FROM detalle_facturas_ventas
+    WHERE MONTH(fecha) = MONTH(CURDATE()) AND YEAR(fecha) = YEAR(CURDATE())
+    GROUP BY factura_venta_id
+  ) ft ON ft.factura_venta_id = f.factura_venta_id
+  INNER JOIN detalle_ventas_con_servicios ds ON ds.detalle_venta_id = d.detalle_venta_id
+  INNER JOIN servicios s ON s.servicio_id = ds.servicio_id
+  WHERE MONTH(d.fecha) = MONTH(CURDATE()) AND YEAR(d.fecha) = YEAR(CURDATE())
+
+  UNION ALL
+
+  -- Ganancia Servicios en órdenes de reparación
+  SELECT d.fecha,
+    (frp.recibido / NULLIF(ft.total_facturado, 0)) *
+    (
+      (d.precio * d.cantidad - d.descuento) -
+      COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)
+    ) AS ganancia
+  FROM detalle_ordenRP d
+  INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
+  INNER JOIN (
+    SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
+    FROM detalle_ordenRP
+    WHERE MONTH(fecha) = MONTH(CURDATE()) AND YEAR(fecha) = YEAR(CURDATE())
+    GROUP BY orden_rp_id
+  ) ft ON ft.orden_rp_id = frp.orden_rp_id
+  INNER JOIN detalle_ordenRP_con_servicios dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
+  INNER JOIN servicios s ON s.servicio_id = dp.servicio_id
+  WHERE MONTH(d.fecha) = MONTH(CURDATE()) AND YEAR(d.fecha) = YEAR(CURDATE())
+
+) AS ganancias_mes
+GROUP BY DAY(fecha)
+ORDER BY DAY(fecha);";
+
+    jsonMultiQueryResult($db, $query);
 }
 
 

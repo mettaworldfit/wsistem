@@ -133,9 +133,8 @@ $(document).ready(function () {
 
         var total = $('#cash-topay').val().replace(/,/g, "");
 
-        $.ajax({
-            type: "post",
-            url: SITE_URL + "services/repair.php",
+        sendAjaxRequest({
+            url: "services/repair.php",
             data: {
                 action: "factura_contado",
                 orden_id: $('#orden_id').val(),
@@ -145,7 +144,7 @@ $(document).ready(function () {
                 total_invoice: total,
                 date: $('#cash-in-date').val()
             },
-            success: function (res) {
+            successCallback: (res) => {
                 if (res > 0) {
 
                     // Imprimir ticket 
@@ -163,7 +162,9 @@ $(document).ready(function () {
                     mysql_error(res)
                 }
             }
-        });
+        })
+
+
     }
 
 

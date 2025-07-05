@@ -234,3 +234,52 @@ function jsonQueryResult(mysqli $db, string $query): void
 
     exit;
 }
+
+
+/**
+ * Ejecuta múltiples consultas SQL separadas por punto y coma (;) usando mysqli
+ * y devuelve los resultados como un array JSON indexado (por posición).
+ *
+ * Cada conjunto de resultados se almacena como un array de objetos asociativos,
+ * y se devuelve en una estructura tipo: [ [fila1, fila2], [fila1, fila2], ... ]
+ *
+ * Si una consulta no retorna filas (por ejemplo, un UPDATE), se inserta `null`.
+ * Si ocurre un error en la ejecución, se devuelve un JSON con detalles del error.
+ *
+ * @param mysqli $db     Conexión activa a la base de datos MySQL.
+ * @param string $query  Cadena con múltiples consultas separadas por `;`.
+ *
+ * @return void          La función imprime directamente un JSON y finaliza con `exit`.
+ */
+function jsonMultiQueryResult(mysqli $db, string $query): void
+{
+    $data = [];
+
+    if ($db->multi_query($query)) {
+        do {
+            // Captura el resultado actual
+            if ($result = $db->store_result()) {
+                $rows = [];
+                while ($row = $result->fetch_assoc()) {
+                    $rows[] = $row;
+                }
+                $data[] = $rows;
+                $result->free();
+            } else {
+                // Si no hay resultado (por ejemplo, UPDATE), agregar null
+                $data[] = null;
+            }
+        } while ($db->more_results() && $db->next_result());
+    } else {
+        echo json_encode([
+            'error' => true,
+            'message' => 'Error al ejecutar múltiples consultas',
+            'sql_error' => $db->error,
+            'sql' => $query
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    echo json_encode($data, JSON_UNESCAPED_UNICODE);
+    exit;
+}
