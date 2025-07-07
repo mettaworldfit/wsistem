@@ -152,12 +152,12 @@
 
               <div class="form-field field-subtraction">
                 <label class="">- Gastos externos:</label>
-                <input type="number" class="" id="external_expenses" value="<?= number_format($externalExpenses ?? 0.00, 2) ?>" disabled>
+                <input type="text" class="" id="external_expenses" value="<?= number_format($externalExpenses ?? 0.00, 2) ?>" disabled>
               </div>
 
               <div class="form-field field-subtraction">
                 <label class="">- Gastos internos:</label>
-                <input type="number" class="" id="cash_expenses" value="<?= number_format($cashExpenses ?? 0.00, 2) ?>" disabled>
+                <input type="text" class="" id="cash_expenses" value="<?= number_format($cashExpenses ?? 0.00, 2) ?>" disabled>
               </div>
 
               <div class="form-field field-subtraction-active">
