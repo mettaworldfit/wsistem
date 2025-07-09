@@ -165,26 +165,20 @@ if ($_POST['action'] == "crear_orden_compra") {
 
   $fecha_actual = date("Y-m-d");
 
-  $user_id = $_SESSION['identity']->usuario_id;
-  $status_id = 6;
-  $date = $_POST['date'];
-  $expiration = (!empty($_POST['expiration'])) ? $_POST['expiration'] : date("Y-m-d", strtotime($fecha_actual . "+ 1 month"));
-  $provider = $_POST['provider'];
-  $observation = $_POST['observation'];
-
   $db = Database::connect();
 
-  $query = "CALL or_ordenCompra($user_id,$status_id,$provider,'$date','$expiration','$observation')";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
+  $params = [
+    (int)$_SESSION['identity']->usuario_id,
+    6, // Estado_id
+    $_POST['provider'],
+    $_POST['date'],
+    (!empty($_POST['expiration'])) ? $_POST['expiration'] : date("Y-m-d", strtotime($fecha_actual . "+ 1 month")),
+    $_POST['observation'],
+    $_POST['origin']
+  ];
 
-  if ($data->msg > 0) {
+  echo handleProcedureAction($db,'or_ordenCompra',$params);
 
-    echo $data->msg;
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error : " . $data->msg;
-  }
 }
 
 

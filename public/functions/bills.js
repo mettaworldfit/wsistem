@@ -1097,26 +1097,26 @@ function clctotal(arr) {
 
 // Crear orden de compra
 
-function save_order() {
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/bills.php",
+function saveOrder() {
+    sendAjaxRequest({
+        url: "services/bills.php",
         data: {
             action: "crear_orden_compra",
             provider: $("#provider").val(),
             observation: $("#observation").val(),
             date: $("#date").val(),
+            origin: $('#origin').val(),
             expiration: $("#expiration").val(),
         },
-        success: function (res) {
+        successCallback: (res) => {
             if (res > 0) {
                 add_detailOR(res);
                 mysql_row_affected();
             } else {
                 mysql_error(res);
             }
-        },
-    });
+        }
+    })
 }
 
 // Crear detalle de orden de compra

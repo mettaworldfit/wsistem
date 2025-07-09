@@ -30,7 +30,7 @@ function cashback(data) {
 function calculateTotalInvoice(bonus = 0) {
     // Determinar acción según la URL
     let action, id;
- 
+
     if (pageURL.includes("invoices/addpurchase")) {
         action = 'precios_detalle_temp';
     } else if (pageURL.includes("invoices/edit_quote")) {
@@ -286,7 +286,6 @@ $(document).ready(function () {
         // Función separada para registrar detalles y manejar impresión
 
         function registerInvoiceDetails(invoice_id, data, receipt) {
-
             sendAjaxRequest({
                 url: "services/invoices.php",
                 data: {
@@ -573,13 +572,17 @@ $(document).ready(function () {
 
     }
 
-    /**
-     * TODO: Imprimir factura
-     */
 
+    /**
+     * Imprime una factura según el tipo especificado.
+     *
+     * @param {number|string} invoice_id - El ID de la factura. Puede ser un número o una cadena.
+     * @param {object} detail - Un objeto que contiene información detallada sobre los artículos de la factura. La estructura exacta depende de la aplicación.
+     * @param {object} data - Un objeto que contiene datos generales de la factura (por ejemplo, información del cliente, fechas). La estructura exacta depende de la aplicación.
+     * @param {string} type - El tipo de factura, ya sea "cash" (contado) o "credit" (crédito). Esto determina qué archivo PHP se utiliza.
+     */
     function printer(invoice_id, detail, data, type) {
         console.log('imprimiendo.....')
-
 
         let file;
         if (type == "cash") {
@@ -599,163 +602,102 @@ $(document).ready(function () {
             },
             success: function (res) {
                 console.log(res)
-                // 'public/tickets/' + file
             }
         });
 
     }
 
-
-
-
-
-    // Agregar producto al detalle temporal y detalle de venta sin precio
-
+    
+    // Evento para agregar ítem manual sin precio
     $("#add_item_free").on("click", () => {
+        const tipo = $('input[name=tipo]:checked').val();
+        const price = clean($('#price_out').val());
+        const tax = (price * clean($('#taxes').val())) / 100;
 
-        // Verificar a cual detalle insertar el producto
+        // Determinar acción según la URL
+        const action = pageURL.includes("addpurchase") ? "agregar_detalle_temporal" :
+            pageURL.includes("edit") ? "agregar_detalle_venta" : null;
+        if (!action) return;
 
-        let action;
-        if (pageURL.includes("invoices/addpurchase")) {
-            action = "agregar_detalle_temporal";
-        } else if (pageURL.includes("invoices/edit")) {
-            action = "agregar_detalle_venta";
-        }
+        // Variables comunes
+        let product_id = 0, piece_id = 0, service_id = 0, cost = 0, quantity = 1, discount = 0;
+        let description = "", variant_id = [], total_variant = 0;
 
-        // Validar tipo de item
-        let description;
-        let quantity;
-        let discount;
-        let piece_id;
-        let product_id;
-        let service_id;
-        let variant_id
-        let total_variant = 0;
 
-        if ($('input:radio[name=tipo]:checked').val() == 'servicio') {
-
-            quantity = 1;
-            discount = $('#discount_service').val().replace(/,/g, "");
+        // Configuración según tipo
+        if (tipo === 'servicio') {
             service_id = $('#service').val();
-            piece_id = 0;
-            product_id = 0;
-            description = $('#select2-service-container').attr('title')
-            addItem();
-
-        } else if ($('input:radio[name=tipo]:checked').val() == 'pieza') {
-
+            discount = clean($('#discount_service').val());
+            description = $('#select2-service-container').attr('title');
+        } else if (tipo === 'pieza') {
             piece_id = $('#piece').val();
-            service_id = 0;
-            product_id = 0;
-            discount = $('#discount').val().replace(/,/g, "")
+            cost = $('#piece_cost').val();
             quantity = $('#quantity').val();
-            description = $('#select2-piece-container').attr('title')
-            addItem();
-
-        } else if ($('input:radio[name=tipo]:checked').val() == 'producto') {
-
-            piece_id = 0;
-            service_id = 0;
-            discount = $('#discount').val().replace(/,/g, "")
-            product_id = $('#product').val();;
+            discount = clean($('#discount').val());
+            description = $('#select2-piece-container').attr('title');
+        } else if (tipo === 'producto') {
+            product_id = $('#product').val();
+            cost = $('#product_cost').val();
             quantity = $('#quantity').val();
-            description = $('#select2-product-container').attr('title')
+            discount = clean($('#discount').val());
+            description = $('#select2-product-container').attr('title');
             variant_id = $('#variant_id').val();
-            $('.empty-variant').css("border", "1px solid #ced4da");
-            total_variant = $('#total_variant').val();
+            total_variant = parseInt($('#total_variant').val()) || 0;
 
-            // Si el producto tiene variantes
-            if (total_variant > 0) {
-
-                // Si hay variante seleccionada
-                if (variant_id.length == quantity) {
-
-                    addItem()
-                } else {
-                    $('.empty-variant').css("border", "1px solid red");
-                }
-
-            } else {
-                addItem();
+            // Validar si hay variantes obligatorias
+            $('.empty-variant').css("border", "#ced4da 1px solid");
+            if (total_variant > 0 && variant_id.length != quantity) {
+                $('.empty-variant').css("border", "1px solid red");
+                return;
             }
         }
+
+        // Enviar detalle al servidor
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: {
+                action,
+                invoice: $('#invoice_id').val(),
+                product_id, piece_id, service_id, description, quantity, cost,
+                price, taxes: tax,
+                discount: price + tax
+            },
+            successCallback: (res) => {
+                if (res > 0) {
+                    calculateTotalInvoice();
+                    reloadInvoiceDetail();
+                    if (total_variant > 0) assignVariants(res, variant_id);
+                } else {
+                    mysql_error(res === "duplicate" ? "Este ítem ya ha sido agregado al detalle" : res);
+                }
+            }
+        });
 
         function assignVariants(detail_id, array) {
+            const action2 = pageURL.includes("addpurchase") ? "asignar_variantes_temporales" :
+                pageURL.includes("edit") ? "asignar_variantes" : null;
 
-            let action2;
-            if (pageURL.includes("invoices/addpurchase")) {
-                action2 = "asignar_variantes_temporales";
-            } else if (pageURL.includes("invoices/edit")) {
-                action2 = "asignar_variantes";
-            }
-
-            array.forEach(element => {
-                $.ajax({
-                    url: SITE_URL + "services/invoices.php",
-                    method: "post",
+            if (!Array.isArray(array)) return;
+            array.forEach(id => {
+                sendAjaxRequest({
+                    url: "services/invoices.php",
                     data: {
                         action: action2,
-                        variant_id: element,
+                        variant_id: id,
                         detail_id: detail_id,
 
                     },
-                    success: function (res) {
+                    successCallback: (res) => {
 
-                        if (res == "ready") {
-
-
-                        } else {
-                            mysql_error(res)
-                        }
                     }
-                });
-            });
-
-        }
-
-
-        function addItem() {
-
-            var taxes = ($('#price_out').val().replace(/,/g, "") * $('#taxes').val()) / 100 // Calcular impuestos
-
-            $.ajax({
-                url: SITE_URL + "services/invoices.php",
-                method: "post",
-                data: {
-                    action: action,
-                    invoice: $('#invoice_id').val(),
-                    product_id: product_id,
-                    piece_id: piece_id,
-                    service_id: service_id,
-                    description: description,
-                    quantity: quantity,
-                    discount: parseInt($('#price_out').val().replace(/,/g, "")) + parseInt(taxes),
-                    taxes: taxes,
-                    price: $('#price_out').val().replace(/,/g, "")
-
-                },
-                success: function (res) {
-
-                    if (res > 0) {
-
-                        calculateTotalInvoice()
-                        reloadInvoiceDetail()
-                        if (total_variant > 0) {
-                            assignVariants(res, variant_id); // Asignar variantes al detalle temporal
-                        }
-
-                    } else if (res == "duplicate") {
-                        mysql_error('Este ítem ya ha sido agregado al detalle');
-                    } else {
-                        mysql_error(res)
-                    }
-                }
+                })
             });
         }
 
-    })
-
-
+        function clean(val) {
+            return parseFloat((val || "").toString().replace(/,/g, "")) || 0;
+        }
+    });
 
 
 

@@ -461,7 +461,7 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
 
   // Obtener datos del carrito temporal
   $query1 = "SELECT d.detalle_temporal_id, d.usuario_id, d.producto_id,d.servicio_id,
-  d.pieza_id,d.descripcion,d.cantidad,d.costo,d.precio,d.impuesto,d.descuento FROM detalle_temporal d 
+  d.pieza_id,d.descripcion,d.cantidad,d.precio,d.impuesto,d.descuento,d.costo FROM detalle_temporal d 
   WHERE d.usuario_id = '$user_id';";
 
   $datos = $db->query($query1);

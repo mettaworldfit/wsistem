@@ -481,6 +481,7 @@ $(document).ready(function () {
         columns: [
             'factura_venta_id', 'nombre', 'fecha_factura', 'total', 'recibido', 'pendiente', 'bono', 'nombre_estado', 'acciones'
         ],
+        order: [[0, 'desc']],
         hiddenColumns: [3, 4, 5, 6]
     },
     {
@@ -489,7 +490,8 @@ $(document).ready(function () {
         action: 'index_ventas_hoy',
         columns: [
             'id', 'nombre', 'fecha', 'total', 'recibido', 'pendiente', 'estado', 'acciones'
-        ]
+        ],
+        order: [[0, 'desc']],
     },
     {
         id: '#customers',
@@ -498,7 +500,7 @@ $(document).ready(function () {
         columns: [
             'id', 'nombre', 'direccion', 'cedula', 'telefono', 'fecha', 'acciones'
         ],
-        hiddenColumns: [2,3]
+        hiddenColumns: [2, 3]
     },
     {
         id: '#providers',
@@ -507,7 +509,7 @@ $(document).ready(function () {
         columns: [
             'id', 'nombre', 'correo', 'telefono', 'fecha', 'acciones'
         ],
-        hiddenColumns: [0,2]
+        hiddenColumns: [0, 2]
     },
     {
         id: '#workshop',
@@ -516,7 +518,8 @@ $(document).ready(function () {
         columns: [
             'orden', 'nombre', 'equipo', 'fecha_entrada', 'fecha_salida', 'condicion', 'estado', 'acciones'
         ],
-        hiddenColumns: [3,4,5]
+        order: [[0, 'desc']],
+        hiddenColumns: [3, 4, 5]
     },
     {
         id: '#products',
@@ -525,7 +528,7 @@ $(document).ready(function () {
         columns: [
             'codigo', 'nombre', 'categoria', 'almacen', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
         ],
-        hiddenColumns: [0,2,3,5]
+        hiddenColumns: [0, 2, 3, 5]
     },
     {
         id: '#invoicesrp',
@@ -534,6 +537,7 @@ $(document).ready(function () {
         columns: [
             'id', 'nombre', 'fecha', 'total', 'recibido', 'pendiente', 'estado', 'acciones'
         ],
+        order: [[0, 'desc']],
         hiddenColumns: [3, 4, 5]
     },
     {
@@ -543,6 +547,7 @@ $(document).ready(function () {
         columns: [
             'id', 'nombre', 'fecha', 'total', 'acciones'
         ],
+        order: [[0, 'desc']],
         hiddenColumns: [3]
     },
     {
@@ -552,6 +557,7 @@ $(document).ready(function () {
         columns: [
             'pago_id', 'factura_id', 'nombre', 'recibido', 'observacion', 'fecha', 'acciones'
         ],
+        order: [[0, 'desc']],
         hiddenColumns: [0, 4, 5]
     },
     {
@@ -561,6 +567,7 @@ $(document).ready(function () {
         columns: [
             'orden_id', 'proveedor', 'articulos', 'fecha', 'expiracion', 'estado', 'acciones'
         ],
+        order: [[0, 'desc']],
         hiddenColumns: [2, 4, 5]
     },
     {
@@ -570,6 +577,7 @@ $(document).ready(function () {
         columns: [
             'id', 'proveedor', 'fecha', 'total', 'pagado', 'por_pagar', 'estado', 'acciones'
         ],
+        order: [[0, 'desc']],
         hiddenColumns: [0,]
     },
     {
@@ -579,6 +587,7 @@ $(document).ready(function () {
         columns: [
             'id', 'proveedor', 'gastos', 'fecha', 'total', 'pagado', 'acciones'
         ],
+        order: [[0, 'desc']],
         hiddenColumns: [1, 5]
     },
     {
@@ -587,7 +596,8 @@ $(document).ready(function () {
         action: 'index_pagos_proveedores',
         columns: [
             'pago_id', 'factura', 'proveedor', 'recibido', 'observacion', 'fecha', 'acciones'
-        ]
+        ],
+        order: [[0, 'desc']],
     },
     {
         id: '#pieces',
@@ -596,7 +606,7 @@ $(document).ready(function () {
         columns: [
             'id', 'nombre', 'categoria', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
         ],
-        hiddenColumns: [0,2,4]
+        hiddenColumns: [0, 2, 4]
     },
     {
         id: '#minStockProduct',
@@ -611,7 +621,7 @@ $(document).ready(function () {
         url: 'services/services.php',
         action: 'index_servicios',
         columns: [
-            'servicio_id', 'nombre_servicio', 'costo' ,'precio', 'acciones'
+            'servicio_id', 'nombre_servicio', 'costo', 'precio', 'acciones'
         ]
     },
     {
@@ -693,7 +703,8 @@ $(document).ready(function () {
         action: 'index_bonos',
         columns: [
             'id', 'cliente', 'valor', 'usuario', 'fecha', 'acciones'
-        ]
+        ],
+        order: [[0, 'desc']],
     },
 
     // Cargar detalles
@@ -754,8 +765,9 @@ $(document).ready(function () {
         id: '#cashClosing',
         url: 'services/reports.php',
         action: 'index_cierre_caja',
-        columns: ['id','cajero','total_real','gastos','diferencia','fecha_apertura','fecha_cierre','estado','acciones'],
-       hiddenColumns: [0,2,3,4,7]
+        columns: ['id', 'cajero', 'total_real', 'gastos', 'diferencia', 'fecha_apertura', 'fecha_cierre', 'estado', 'acciones'],
+        order: [[0, 'desc']],
+        hiddenColumns: [0, 2, 3, 4, 7]
     }
 
     ];

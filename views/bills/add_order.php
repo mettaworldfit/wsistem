@@ -249,7 +249,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); save_order();">
+                <form action="" onsubmit="event.preventDefault(); saveOrder();">
 
                     <!-- Content -->
                     <div class="row col-sm-12">
@@ -265,7 +265,7 @@
                                     <?php $providers = Help::showProviders();
                                     while ($provider = $providers->fetch_object()): ?>
                                         <option value="<?= $provider->proveedor_id ?>">
-                                            <?= ucwords($provider->nombre_proveedor) ?>     <?= ucwords($provider->apellidos) ?>
+                                            <?= ucwords($provider->nombre_proveedor) ?> <?= ucwords($provider->apellidos ?? '') ?>
                                         </option>
                                     <?php endwhile; ?>
                                 </select>
@@ -289,7 +289,7 @@
                         </div>
 
                         <div class="form-group col-sm-4">
-                            <label class="form-check-label" for="">Ordenado por</label>
+                            <label class="form-check-label" for="">Registrado por</label>
                             <div class="input-div">
                                 <div class="i">
                                     <i class="fas fa-user-tie"></i>
@@ -299,6 +299,19 @@
                             </div>
                         </div>
 
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Origen</label>
+                            <div class="input-div">
+                                <div class="i b-right">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <select class="form-custom-icon search" name="" id="origin" required>
+                                    <option value="" selected disabled>Elegir origen</option>
+                                    <option value="caja">Gasto de caja</option>
+                                    <option value="fuera_caja">Gasto fuera de caja</option>
+                                </select>
+                            </div>
+                        </div>
 
                     </div> <!-- Row -->
 
