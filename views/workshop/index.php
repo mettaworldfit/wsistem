@@ -203,7 +203,6 @@
 </div>
 
 <!-- Crear cliente -->
-
 <div class="modal fade" id="create_customer" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -284,8 +283,6 @@
 
                     </div>
 
-
-
                     <div class="mt-4 modal-footer">
                         <button type="button" data-dismiss="modal" class="btn-custom btn-red">
                             <i class="fas fa-window-close"></i>
@@ -297,9 +294,7 @@
                             <p>Registrar</p>
                         </button>
                     </div>
-
                 </form>
-
             </div> <!-- Body -->
         </div>
     </div>

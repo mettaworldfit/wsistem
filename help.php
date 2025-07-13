@@ -1188,9 +1188,16 @@ class Help
       return $db->query($query);
    }
 
-   public static function getOrderNoteId($id)
+   public static function getOrderNoteId(int $order_id, bool $rp = false)
    {
-      $query = "SELECT observacion FROM ordenes_rp where orden_rp_id = '$id'";
+
+      if($rp) {
+        $query = "SELECT observacion FROM ordenes_rp where orden_rp_id = '$order_id'";
+      } else {
+        $query = "SELECT f.descripcion FROM facturas_ventas f
+        INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
+        WHERE d.comanda_id = '$order_id'";
+      }
 
       $db = Database::connect();
       return $db->query($query);
@@ -1303,12 +1310,19 @@ class Help
 
    // Verificar si la orden ya fue facturada
 
-   public static function isInvoiceRPExists($id)
+   public static function checkOrderInvoiceExists(int $order_id, bool $rp = false)
    {
-      $query = "SELECT count(orden_rp_id) as is_exists FROM facturasRP WHERE orden_rp_id = '$id'";
+      if ($rp) {
+         $sql = "SELECT COUNT(*) as is_exists FROM facturasRP WHERE orden_rp_id = '$order_id'";
+      } else {
+         $sql = "SELECT COUNT(*) as is_exists FROM comandas co
+              INNER JOIN detalle_facturas_ventas d ON co.comanda_id = d.comanda_id
+              INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+              WHERE co.comanda_id = '$order_id'";
+      }
 
       $db = Database::connect();
-      return $db->query($query);
+      return $db->query($sql);
    }
 
    public static function INFO_INVOICE_RP($id)

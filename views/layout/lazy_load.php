@@ -10,7 +10,8 @@
 } elseif (
     str_contains($_SERVER["REQUEST_URI"], "invoices/addpurchase") ||
     str_contains($_SERVER["REQUEST_URI"], "invoices/edit") ||
-    str_contains($_SERVER["REQUEST_URI"], "invoices/quote")
+    str_contains($_SERVER["REQUEST_URI"], "invoices/quote") ||
+    str_contains($_SERVER["REQUEST_URI"], "invoices/add_order")
 ) {
 
     ?>
@@ -36,7 +37,8 @@
 } elseif (
     str_contains($_SERVER["REQUEST_URI"], "invoices/index") ||
     str_contains($_SERVER["REQUEST_URI"], "invoices/addrepair") ||
-    str_contains($_SERVER["REQUEST_URI"], "invoices/index_repair")
+    str_contains($_SERVER["REQUEST_URI"], "invoices/index_repair") ||
+    str_contains($_SERVER["REQUEST_URI"], "invoices/orders")
 ) {
 
     ?>

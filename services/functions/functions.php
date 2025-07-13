@@ -75,6 +75,21 @@ function handleDataTableRequest(mysqli $db, array $params)
     ]);
 }
 
+/**
+ * Abrevia un texto si supera la longitud máxima permitida.
+ *
+ * @param string $text Texto original.
+ * @param int $maxLength Longitud máxima antes de cortar.
+ * @return string Texto abreviado con "..." si es necesario.
+ */
+function shortenText($text, $maxLength = 20) {
+    $text = trim($text);
+    if (strlen($text) <= $maxLength) {
+        return $text;
+    }
+
+    return mb_substr($text, 0, $maxLength - 3) . '...';
+}
 
 
 /**

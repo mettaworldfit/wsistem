@@ -1,6 +1,6 @@
 navigator.serviceWorker && navigator.serviceWorker.register("../sw.js"); // Activacion del service worker
 const PRINTER_SERVER = "http://localhost:81/tickets/"; // URL local de la impresora
-const SITE_URL = window.location.protocol + '//' + window.location.host + '/'; // Raiz del sistema
+const SITE_URL = window.location.protocol + '//' + window.location.host + '/' + 'proyecto/'; // Raiz del sistema
 
 let pageURL = $(location).attr("pathname");
 const format = new Intl.NumberFormat('en'); // Formato 0,000
@@ -296,7 +296,7 @@ $(document).ready(function () {
 
     $(function () {
         const menuMap = [
-            { keywords: ["invoices/index", "invoices/edit", "invoices/addpurchase", "invoices/index_repair", "invoices/repair_edit", "payments/index", "payments/add", "invoices/quotes", "invoices/quote", "invoices/edit_quote"], dropdown: "dropdown-1" },
+            { keywords: ["invoices/index", "invoices/edit", "invoices/addpurchase", "invoices/index_repair", "invoices/repair_edit", "payments/index", "payments/add", "invoices/quotes", "invoices/quote", "invoices/edit_quote", "invoices/orders", "invoices/add_order"], dropdown: "dropdown-1" },
             { keywords: ["bills"], dropdown: "dropdown-2" },
             { keywords: ["workshop"], dropdown: "dropdown-3" },
             { keywords: ["products", "inventory_control", "services/index", "services/add", "price_list", "categories", "taxes", "offers", "pieces", "warehouses", "positions", "brands"], dropdown: "dropdown-4" },
@@ -768,9 +768,32 @@ $(document).ready(function () {
         columns: ['id', 'cajero', 'total_real', 'gastos', 'diferencia', 'fecha_apertura', 'fecha_cierre', 'estado', 'acciones'],
         order: [[0, 'desc']],
         hiddenColumns: [0, 2, 3, 4, 7]
-    }
+    },
+    {
+        id: '#orders',
+        url: 'services/invoices.php',
+        action: 'index_ordenes',
+        columns: [
+            'comanda_id','nombre','telefono','entrega','fecha','estado','orden','acciones'
+        ],
+        order: [[0, 'desc']]
+    },
+    {
+        id: '#addorder',
+        url: 'services/invoices.php',
+        action: 'cargar_detalle_orden',
+        columns: [
+            'descripcion','cantidad','precio','impuesto','descuento','importe','acciones'
+        ],
+         hiddenColumns: [3],
+        paging: false,
+        searching: false,
+        ordering: false,
+        info: false
+    },
 
     ];
+
 
     // Inicialización automática
     tableConfigs.forEach(config => {

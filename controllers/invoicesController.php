@@ -41,10 +41,10 @@ class InvoicesController
         // Obtener datos relacionados a la orden
 
         $orden = Help::loadOrdenDetailId($id);
-        $note = Help::getOrderNoteId($id)->fetch_object()->observacion;
+        $note = Help::getOrderNoteId($id,true)->fetch_object()->observacion;
 
         // Verificar si la orden esta facturada
-        $is_exists = Help::isInvoiceRPExists($id)->fetch_object()->is_exists;
+        $is_exists = Help::checkOrderInvoiceExists($id,true)->fetch_object()->is_exists;
 
         // Devolver los datos en formato JSON para imprimir
 
@@ -70,7 +70,7 @@ class InvoicesController
             // Obtener datos relacionados a la orden
 
             $orden = Help::loadOrdenDetailId($id);
-            $note = Help::getOrderNoteId($id)->fetch_object()->observacion;
+            $note = Help::getOrderNoteId($id,true)->fetch_object()->observacion;
 
             // Devolver los datos en formato JSON para imprimir
 
@@ -106,4 +106,25 @@ class InvoicesController
 
         require_once './views/invoices/edit_quote.php';
     }
+
+     public function orders()
+    {
+
+        require_once './views/invoices/orders.php';
+    }
+
+    public function add_order()
+    {
+
+        $id = $_GET['id'];
+
+        // Obtener observacion de la factura
+        $note = Help::getOrderNoteId($id)->fetch_object()->descripcion ?? '';
+
+        // Verificar si la orden esta facturada
+        $is_exists = Help::checkOrderInvoiceExists($id)->fetch_object()->is_exists;
+
+        require_once './views/invoices/add_order.php';
+    }
+
 }

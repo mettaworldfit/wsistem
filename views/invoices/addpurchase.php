@@ -30,7 +30,7 @@
             <th>Descuento</th>
             <th>Importe</th>
             <th></th>
-        </thead>        
+        </thead>
     </table>
     <br>
 
@@ -61,7 +61,6 @@
                     <span><input type="text" class="invisible-input" value="" id="in-total" disabled></span>
                 </div>
             </div>
-
         </div>
 
     </div> <!-- Row -->
@@ -364,13 +363,9 @@
                                 <input class="form-custom-icon b-left" type="text" name="locate" id="locate" disabled>
                             </div>
                         </div>
-
-
                     </div> <!-- Row -->
 
                     <div class="row col-sm-12 mt-1">
-
-
 
                     </div> <!-- Row -->
 
@@ -395,8 +390,6 @@
     </div>
 </div>
 
-
-
 <!--Modal Factura al contado-->
 <div class="modal fade" id="cash_invoice" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -411,9 +404,7 @@
             <div class="modal-body">
 
                 <!-- Head -->
-
                 <div class="row col-sm-12 invoice-head-modal">
-
                     <div class="col-sm-3 head-content">
                         <h6>Total Pagado</h6>
                         <input type="text" class="invisible-input text-success" value="" id="cash-received" disabled>
@@ -433,7 +424,6 @@
                         <h6>Monto Pendiente</h6>
                         <input type="text" class="invisible-input text-danger" value="" id="cash-pending" disabled>
                     </div>
-
                 </div>
                 <br>
 
@@ -449,8 +439,8 @@
                             <select class="form-custom-icon search" name="" id="cash-in-customer" requireds>
                                 <?php $customers = Help::showCustomers();
                                 while ($customer = $customers->fetch_object()): ?>
-                                    <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre)." ".ucwords($customer->apellidos ?? '')?></option>
-                                
+                                    <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre) . " " . ucwords($customer->apellidos ?? '') ?></option>
+
                                 <?php endwhile; ?>
                             </select>
                         </div>
@@ -475,9 +465,8 @@
                         <label class="form-check-label" for="">Fecha</label>
                         <div class="input-div">
 
-                            <input type="date" name="" class="form-custom-icon" id="cash-in-date" value="<?php date_default_timezone_set('America/New_York');
-                            ;
-                            echo date('Y-m-d'); ?>">
+                            <input type="date" name="" class="form-custom-icon" id="cash-in-date" value="<?php date_default_timezone_set('America/New_York');;
+                                                                                                            echo date('Y-m-d'); ?>">
                         </div>
                     </div>
 
@@ -509,7 +498,7 @@
 
                     <div class="control-group mt-4">
                         <label class="control control-checkbox mt-2">
-                        <i class="fas fa-dollar-sign"></i> Bono
+                            <i class="fas fa-dollar-sign"></i> Bono
                             <input type="checkbox" id="include_bond" />
                             <div class="control_indicator"></div>
                         </label>
@@ -517,14 +506,13 @@
 
                     <div class="control-group mt-4">
                         <label class="control control-checkbox mt-2">
-                        <i class="fas fa-envelope"></i> Email
+                            <i class="fas fa-envelope"></i> Email
                             <input type="checkbox" id="sendMail" />
                             <div class="control_indicator"></div>
                         </label>
                     </div>
 
                 </div> <!-- Row -->
-
 
                 <div class="mt-4 modal-footer">
                     <button type="button" class="btn-custom btn-red" data-dismiss="modal" id="">
@@ -594,7 +582,7 @@
                             <select class="form-custom-icon search" name="" id="credit-in-customer" requireds>
                                 <?php $customers = Help::showCustomers();
                                 while ($customer = $customers->fetch_object()): ?>
-                                    <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre)." ".ucwords($customer->apellidos ?? '')?></option>
+                                    <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre) . " " . ucwords($customer->apellidos ?? '') ?></option>
                                 <?php endwhile; ?>
                             </select>
                         </div>
@@ -619,9 +607,8 @@
                         <label class="form-check-label" for="">Fecha</label>
                         <div class="input-div">
 
-                            <input type="date" name="" class="form-custom-icon" id="credit-in-date" value="<?php date_default_timezone_set('America/New_York');
-                            ;
-                            echo date('Y-m-d'); ?>">
+                            <input type="date" name="" class="form-custom-icon" id="credit-in-date" value="<?php date_default_timezone_set('America/New_York');;
+                                                                                                            echo date('Y-m-d'); ?>">
                         </div>
                     </div>
 

@@ -6,6 +6,173 @@ require_once 'functions/functions.php';
 require_once '../help.php';
 session_start();
 
+if ($_POST['action'] == "cargar_detalle_orden") {
+  $db = Database::connect();
+  $user_id = $_SESSION['identity']->usuario_id;
+  $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+
+  handleDataTableRequest($db, [
+    'columns' => [
+      'nombre_producto',
+      'precio',
+      'nombre_pieza',
+      'nombre_servicio',
+      'cantidad_total',
+      'id',
+      'descuento',
+      'impuesto',
+      'valor'
+    ],
+    'base_table' => 'detalle_facturas_ventas df',
+    'table_with_joins' => 'detalle_facturas_ventas df
+               LEFT JOIN detalle_ventas_con_productos dvp ON df.detalle_venta_id = dvp.detalle_venta_id
+               LEFT JOIN productos p ON p.producto_id = dvp.producto_id
+               LEFT JOIN productos_con_impuestos pim ON p.producto_id = pim.producto_id
+               LEFT JOIN impuestos i ON pim.impuesto_id = i.impuesto_id
+               LEFT JOIN detalle_ventas_con_piezas_ dvpz ON df.detalle_venta_id = dvpz.detalle_venta_id
+               LEFT JOIN piezas pz ON pz.pieza_id = dvpz.pieza_id
+               LEFT JOIN detalle_ventas_con_servicios dvs ON df.detalle_venta_id = dvs.detalle_venta_id
+               LEFT JOIN servicios s ON s.servicio_id = dvs.servicio_id',
+    'select' => 'SELECT p.nombre_producto, df.precio, pz.nombre_pieza, s.nombre_servicio, df.cantidad as cantidad_total, 
+      df.detalle_venta_id as "id", df.descuento, df.impuesto, i.valor, df.costo',
+    'base_condition' => 'df.comanda_id = ' . $id,
+    'table_rows' => function ($row) use ($id) {
+
+      $precio = (float)($row['precio'] ?? 0);
+      $costo = (float)($row['costo'] ?? 0);
+      $cantidad = (int)($row['cantidad_total'] ?? 0);
+      $impuesto = (float)($row['impuesto'] ?? 0);
+      $valor = (float)($row['valor'] ?? 0);
+      $descuento = (float)($row['descuento'] ?? 0);
+      $importe = ($cantidad * $precio) + ($cantidad * $impuesto) - $descuento;
+      $is_exists = Help::checkOrderInvoiceExists($id)->fetch_object()->is_exists;
+
+      return [
+        'descripcion' => $row['nombre_producto']
+          ? Help::getVariantId($row['id'])
+          : (
+            !empty($row['nombre_pieza'])
+            ? ucwords($row['nombre_pieza'])
+            : (!empty($row['nombre_servicio']) ? ucwords($row['nombre_servicio']) : '')
+          ),
+        'cantidad' => $cantidad,
+        'precio' => '<span>
+                <a href="#">' . number_format($precio, 2) . '</a>
+                <span id="toggle" class="toggle-right toggle-md">
+                Costo: ' . number_format($costo, 2) . '
+                </span>
+            </span>',
+        'impuesto' => '<span class="hide-cell">' . number_format($cantidad * $impuesto, 2) . '</span>',
+        'descuento' => number_format($descuento, 2),
+        'importe' => number_format($importe, 2),
+        'acciones' => ($is_exists == 0)
+          ? '<a class="text-danger pointer" style="font-size: 16px;" onclick="deleteInvoiceDetail(\'' . $row['id'] . '\')"><i class="fas fa-times"></i></a>'
+          : ''
+      ];
+    }
+  ]);
+}
+
+
+
+if ($_POST['action'] === "registrar_orden") {
+  $db = Database::connect();
+
+  echo handleProcedureAction($db, 'ov_agregarOrden', [
+    (int)$_POST['customer_id'],
+    (int)$_SESSION['identity']->usuario_id,
+    6, // Pendiente
+    $_POST['observation'],
+    $_POST['delivery'] ?? '-',
+    $_POST['direction'],
+    $_POST['name'],
+    $_POST['tel']
+  ]);
+}
+
+if ($_POST['action'] === "actualizar_estado_orden") {
+  $db = Database::connect();
+  echo handleProcedureAction($db, 'ov_actualizarEstadoOrden', [
+    (int)$_POST['status'],
+    (int)$_POST['order_id']
+  ]);
+}
+
+if ($_POST['action'] === "eliminar_orden") {
+  $db = Database::connect();
+  echo handleDeletionAction($db, (int)$_POST['id'], 'ov_eliminarOrden');
+}
+
+if ($_POST['action'] === "index_ordenes") {
+  $db = Database::connect();
+
+  handleDataTableRequest($db, [
+    'columns' => [
+      'co.comanda_id',
+      "c.nombre",
+      "c.apellidos",
+      'e.nombre_estado',
+      'co.telefono_receptor',
+      'co.direccion_entrega',
+      'co.tipo_entrega',
+      'co.fecha'
+    ],
+    'searchable' => [
+      'co.comanda_id',
+      'e.nombre_estado',
+      'co.telefono_receptor',
+      'co.fecha',
+      'c.nombre',
+      'c.apellidos'
+    ],
+    'base_table' => 'comandas co',
+    'table_with_joins' => 'comandas co
+              INNER JOIN clientes c ON c.cliente_id = co.cliente_id
+              INNER JOIN estados_generales e ON e.estado_id = co.estado_id
+              LEFT JOIN detalle_facturas_ventas d ON co.comanda_id = d.comanda_id',
+    'select' => "SELECT co.comanda_id, concat(c.nombre,' ',IFNULL(c.apellidos,'')) as nombre,
+                 e.nombre_estado,e.estado_id,co.observacion,co.telefono_receptor,DATE(co.fecha) as fecha,
+                 co.direccion_entrega,co.tipo_entrega,co.nombre_receptor, d.factura_venta_id",
+    'table_rows' => function ($row) {
+      $acciones  = '<a class="action-edit" href="' . base_url . 'invoices/add_order&id=' . $row['comanda_id'] . '" title="Agregar factura">';
+      $acciones .= '<i class="fas fa-shopping-cart"></i></a>';
+
+      // Solo permitir deleteOrder si es administrador
+      if ($_SESSION['identity']->nombre_rol === 'administrador') {
+        $acciones .= '<span onclick="deleteOrder(\'' . $row['comanda_id'] . '\')" class="action-delete" title="Eliminar">';
+        $acciones .= '<i class="fas fa-times"></i></span>';
+      } else {
+        // Mostrar icono deshabilitado sin evento
+        $acciones .= '<span class="action-delete action-disable" title="Eliminar">';
+        $acciones .= '<i class="fas fa-times"></i></span>';
+      }
+
+      return [
+        "comanda_id" => '<span><a href="#" class="' .
+          ($row['factura_venta_id'] > 0 ? 'text-secondary' : 'text-danger') . '">OV-00' . $row['comanda_id'] . '</a>' .
+          '<span id="toggle" class="toggle-right toggle-md">No. Orden: OV-00' . $row['comanda_id'] . '<br>' .
+          'No. Factura: ' . ($row['factura_venta_id'] > 0
+            ? '<a class="text-danger" href="' . base_url . 'invoices/edit&id=' . $row['factura_venta_id'] . '">FT-00' . $row['factura_venta_id'] . '</a>'
+            : '<a class="text-danger" href="#">No facturado</a>') . '</span></span>',
+        "nombre" => ucwords($row['nombre'], ""),
+        "telefono" => formatTel($row['telefono_receptor'] ?? ''),
+        "entrega" => $row['tipo_entrega'],
+        "fecha" => $row['fecha'],
+        'estado' => ($row['factura_venta_id'] > 0 ? '<a href="' . base_url . 'invoices/edit&id=' . $row['factura_venta_id'] . '" class="Facturado">' . 'Facturado' . '</a>' : '<span class="No">' . 'Sin facturar' . '</span>'),
+        'orden' => '<select class="form-custom ' . $row['nombre_estado'] . '" id="status_order" onchange="updateOrderStatus(this);">'
+          . '<option order_id="' . $row['comanda_id'] . '" value="' . $row['estado_id'] . '" selected>' . $row['nombre_estado'] . '</option>' .
+          '<option class="Pendiente" order_id="' . $row['comanda_id'] . '" value="6">Pendiente</option>' .
+          '<option class="En Proceso" order_id="' . $row['comanda_id'] . '" value="8">En Proceso</option>' .
+          '<option class="Entregado" order_id="' . $row['comanda_id'] . '" value="7">Entregado</option>' .
+          '<option class="Listo" order_id="' . $row['comanda_id'] . '" value="9">Listo</option>' .
+          '</select>',
+        'acciones' => $acciones
+
+      ];
+    }
+  ]);
+}
+
 if ($_POST['action'] == "cargar_detalle_facturas") {
   $db = Database::connect();
   $user_id = $_SESSION['identity']->usuario_id;
@@ -38,6 +205,14 @@ if ($_POST['action'] == "cargar_detalle_facturas") {
       df.detalle_venta_id as "id", df.descuento, df.impuesto, i.valor, df.costo',
     'base_condition' => 'df.factura_venta_id = ' . $id,
     'table_rows' => function ($row) {
+      $precio = (float)($row['precio'] ?? 0);
+      $costo = (float)($row['costo'] ?? 0);
+      $cantidad = (int)($row['cantidad_total'] ?? 0);
+      $impuesto = (float)($row['impuesto'] ?? 0);
+      $valor = (float)($row['valor'] ?? 0);
+      $descuento = (float)($row['descuento'] ?? 0);
+      $importe = ($cantidad * $precio) + ($cantidad * $impuesto) - $descuento;
+
       return [
         'descripcion' => $row['nombre_producto']
           ? Help::getVariantId($row['id'])
@@ -46,23 +221,16 @@ if ($_POST['action'] == "cargar_detalle_facturas") {
             ? ucwords($row['nombre_pieza'])
             : (!empty($row['nombre_servicio']) ? ucwords($row['nombre_servicio']) : '')
           ),
-        'cantidad' => $row['cantidad_total'],
+        'cantidad' => $cantidad,
         'precio' => '<span>
-                <a href="#">
-                    ' . number_format($row['precio'], 2) . '
-                </a>
+                <a href="#">' . number_format($precio, 2) . '</a>
                 <span id="toggle" class="toggle-right toggle-md">
-                ' . 'Costo: ' . number_format($row['costo'], 2) . '
+                Costo: ' . number_format($costo, 2) . '
                 </span>
             </span>',
-        'impuesto' => '<span class="hide-cell">' . number_format($row['cantidad_total'] * $row['impuesto'], 2) . ' - (' . $row['valor'] . '%)' . '</span>',
-        'descuento' => number_format($row['descuento'], 2),
-        'total' => number_format(
-          ($row['cantidad_total'] * $row['precio']) +
-            ($row['cantidad_total'] * $row['impuesto']) -
-            $row['descuento'],
-          2
-        ),
+        'impuesto' => '<span class="hide-cell">' . number_format($cantidad * $impuesto, 2) . ' - (' . number_format($valor, 2) . '%)</span>',
+        'descuento' => number_format($descuento, 2),
+        'total' => number_format($importe, 2),
         'acciones' => '<a class="text-danger pointer" style="font-size: 16px;" onclick="deleteInvoiceDetail(\'' . $row['id'] . '\')"><i class="fas fa-times"></i></a>'
       ];
     }
@@ -96,7 +264,7 @@ if ($_POST['action'] == "cargar_detalle_temporal") {
     'base_condition' => 'usuario_id = ' . $user_id,
     'table_rows' => function ($row) {
 
-          
+
       return [
         'descripcion' => Help::loadVariantTemp($row['detalle_temporal_id']),
         'cantidad' => $row['cantidad'],
@@ -216,10 +384,10 @@ if ($_POST['action'] == "index_facturas_ventas") {
         'factura_venta_id' => 'FT-00' . $row['factura_venta_id'],
         'nombre' => ucwords($row['nombre'] . ' ' . $row['apellidos']),
         'fecha_factura' => $row['fecha_factura'],
-        'total' => '<span class="text-primary hide-cell">' . number_format($row['total'], 2) . '</span>',
-        'recibido' => '<span class="text-success hide-cell">' . number_format($row['recibido'], 2) . '</span>',
-        'pendiente' => '<span class="text-danger hide-cell">' . number_format($row['pendiente'], 2) . '</span>',
-        'bono' => '<span class="text-warning hide-cell">' . number_format($row['bono'], 2) . '</span>',
+        'total' => '<span class="text-primary hide-cell">' . number_format($row['total'] ?? 0, 2) . '</span>',
+        'recibido' => '<span class="text-success hide-cell">' . number_format($row['recibido'] ?? 0, 2) . '</span>',
+        'pendiente' => '<span class="text-danger hide-cell">' . number_format($row['pendiente'] ?? 0, 2) . '</span>',
+        'bono' => '<span class="text-warning hide-cell">' . number_format($row['bono'] ?? 0, 2) . '</span>',
         'nombre_estado' => '<p class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</p>',
         'acciones' => $acciones
       ];
@@ -292,55 +460,43 @@ if ($_POST['action'] == "asignar_variantes_temporales") {
 }
 
 // Agregar producto al detalle de venta
- 
-if ($_POST['action'] == "agregar_detalle_venta") {
 
-  $user_id = $_SESSION['identity']->usuario_id;
-  $product_id =  $_POST['product_id'];
-  $piece_id = $_POST['piece_id'];
-  $service_id = $_POST['service_id'];
-  $invoice_id = $_POST['invoice'];
-  $discount = (!empty($_POST['discount'])) ? $_POST['discount'] : 0;
-  $quantity = (!empty($_POST['quantity'])) ? $_POST['quantity'] : 0;
-  $taxes = (!empty($_POST['taxes'])) ? $_POST['taxes'] : 0;
-  $price = $_POST['price'];
-  $cost = $_POST['cost'] ?? 0;
+if ($_POST['action'] === "agregar_detalle_venta") {
+
+  // 1) Validar invoice_id y order_id
+  $invoice = (isset($_POST['invoice']) && is_numeric($_POST['invoice']))
+    ? (int) $_POST['invoice']
+    : null;
+  $order = (isset($_POST['order_id']) && is_numeric($_POST['order_id']))
+    ? (int) $_POST['order_id']
+    : null;
+
+  // 2) Resto de datos
+  $user_id     = (int) $_SESSION['identity']->usuario_id;
+  $product_id  = (int) ($_POST['product_id']  ?? 0);
+  $piece_id    = (int) ($_POST['piece_id']    ?? 0);
+  $service_id  = (int) ($_POST['service_id']  ?? 0);
+  $quantity    = (int) ($_POST['quantity']    ?? 0);
+  $cost        = $_POST['cost'] ?? 0;
+  $price       = $_POST['price'];
+  $taxes       = $_POST['taxes'] ?? 0;
+  $discount    = $_POST['discount'] ?? 0;
 
   $db = Database::connect();
 
-  $query = "INSERT INTO detalle_facturas_ventas values (null,$invoice_id,$user_id,$quantity,$cost,$price,$taxes,$discount,curdate())";
-
-  if ($db->query($query) === TRUE) {
-
-    $detail_id = $db->insert_id; // ID 
-
-    if ($product_id > 0) {
-
-      $query1 = "INSERT INTO detalle_ventas_con_productos values ($detail_id,$product_id,$invoice_id)";
-      if ($db->query($query1) === TRUE) {
-
-        echo  $db->query("select last_insert_id() AS msg")->fetch_object()->msg;
-      } else {
-        echo "Ha ocurrido un error al insertar el producto";
-      }
-    } else if ($piece_id > 0) {
-
-      $query2 = "INSERT INTO detalle_ventas_con_piezas_ values ($detail_id,$piece_id,$invoice_id)";
-      if ($db->query($query2) === TRUE) {
-        echo 1;
-      } else {
-        echo "Ha ocurrido un error al insertar la pieza";
-      }
-    } else if ($service_id > 0) {
-
-      $query3 = "INSERT INTO detalle_ventas_con_servicios values ($detail_id,$service_id,$invoice_id)";
-      if ($db->query($query3) === TRUE) {
-        echo 1;
-      } else {
-        echo "Ha ocurrido un error al insertar el servicio";
-      }
-    }
-  }
+  echo handleProcedureAction($db, 'vt_agregarDetalleVenta', [
+    $invoice,
+    $order,
+    $user_id,
+    $quantity,
+    $cost,
+    $price,
+    $taxes,
+    $discount,
+    $product_id,
+    $piece_id,
+    $service_id
+  ]);
 }
 
 // Obtener precios del detalle temporal
@@ -363,11 +519,27 @@ if ($_POST['action'] == "precios_detalle_venta") {
 
   $db = Database::connect();
 
-  $invoice_id = $_POST['id'];
+  $invoice_id = (int)$_POST['invoice_id'];
 
-  $query = "SELECT sum(d.cantidad * d.impuesto) as taxes, sum(d.descuento) as descuentos, sum(d.cantidad * precio) as precios,
-  f.total, f.pendiente, f.recibido
-  FROM detalle_facturas_ventas d INNER JOIN facturas_ventas f on f.factura_venta_id = d.factura_venta_id WHERE d.factura_venta_id = '$invoice_id'";
+  $query = "SELECT sum(d.cantidad * d.impuesto) as taxes, sum(d.descuento) as descuentos, 
+  sum(d.cantidad * precio) as precios, f.total, f.pendiente, f.recibido
+  FROM detalle_facturas_ventas d 
+  INNER JOIN facturas_ventas f on f.factura_venta_id = d.factura_venta_id 
+  WHERE d.factura_venta_id = '$invoice_id'";
+
+  jsonQueryResult($db, $query);
+}
+
+// Obtener precios de las ordenes de ventas
+
+if ($_POST['action'] == "precios_ordenes_ventas") {
+
+  $db = Database::connect();
+
+  $order_id = (int)$_POST['order_id'];
+
+  $query = "SELECT sum(cantidad * impuesto) as taxes, sum(descuento) as descuentos, sum(cantidad * precio) as precios 
+  FROM detalle_facturas_ventas WHERE comanda_id = '$order_id'";
 
   jsonQueryResult($db, $query);
 }
@@ -394,30 +566,20 @@ if ($_POST['action'] == 'eliminar_detalle_venta') {
 
 if ($_POST['action'] == "factura_contado") {
 
-  $customer_id = $_POST['customer_id'];
-  $total = $_POST['total_invoice'];
-  $description = $_POST['observation'];
-  $method = $_POST['method_id'];
-  $bonus = (!empty($_POST['bonus'])) ? $_POST['bonus'] : 0;
-  $user_id = $_SESSION['identity']->usuario_id;
-  $date = $_POST['date'];
-
   $db = Database::connect();
 
-  $query = "CALL vt_facturaVenta($customer_id,$method,'$total','$bonus',$user_id,'$description','$date')";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg > 0) {
-
-    echo $data->msg;
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error : " . $data->msg;
-  }
+  echo handleProcedureAction($db,'vt_facturaVenta',[
+    (int)$_POST['customer_id'],
+    (int)$_POST['method_id'],
+    $_POST['total_invoice'],
+    $_POST['bonus'] ?? 0,
+    (int)$_SESSION['identity']->usuario_id,
+    $_POST['observation'],
+    $_POST['date']
+  ]);
 }
 
-// Pasar detalle temporal al detalle de la venta
+// Pasar detalle temporal al detalle de la venta y asignarle la factura
 
 if ($_POST['action'] == "registrar_detalle_de_venta") {
 
@@ -478,20 +640,20 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
     $taxes = $element->impuesto;
     $detail_temp_id = $element->detalle_temporal_id;
 
-    $query2 = "INSERT INTO detalle_facturas_ventas values (null,$invoice_id,$user_id,$quantity,$cost,$price,$taxes,$discount,'$date')";
+    $query2 = "INSERT INTO detalle_facturas_ventas values (null,$invoice_id,null,$user_id,$quantity,$cost,$price,$taxes,$discount,'$date')";
     if ($db->query($query2) === TRUE) {
 
       $detail_id = $db->insert_id; // ID 
 
       if ($piece_id > 0) {
-        $exec1 = "INSERT INTO detalle_ventas_con_piezas_ values ($detail_id,$piece_id,$invoice_id)";
+        $exec1 = "INSERT INTO detalle_ventas_con_piezas_ values ($detail_id,$piece_id,$invoice_id,null)";
         $db->query($exec1);
       } else if ($service_id > 0) {
-        $exec2 = "INSERT INTO detalle_ventas_con_servicios values ($detail_id,$service_id,$invoice_id)";
+        $exec2 = "INSERT INTO detalle_ventas_con_servicios values ($detail_id,$service_id,$invoice_id,null)";
         $db->query($exec2);
       } else if ($product_id > 0) {
 
-        $exec = "INSERT INTO detalle_ventas_con_productos values ($detail_id,$product_id,$invoice_id)";
+        $exec = "INSERT INTO detalle_ventas_con_productos values ($detail_id,$product_id,$invoice_id,null)";
         $db->query($exec);
 
         facturarVariantes($detail_temp_id, $detail_id);
@@ -713,4 +875,46 @@ if ($_POST['action'] == "total_cotizacion") {
    WHERE c.cotizacion_id = '$id'";
 
   jsonQueryResult($db, $query);
+}
+
+
+
+
+if ($_POST['action'] === "registrar_detalle_orden_venta") {
+  $db = Database::connect();
+
+  $order_id = $_POST['order_id'];
+  $invoice_id = $_POST['invoice_id'];
+
+  $db = Database::connect();
+
+  // Dos UPDATEs en un solo batch
+  $sql = "UPDATE detalle_ventas_con_productos
+        SET factura_venta_id = $invoice_id
+        WHERE comanda_id = $order_id;
+        
+        UPDATE detalle_facturas_ventas
+        SET factura_venta_id = $invoice_id
+        WHERE comanda_id = $order_id;";
+
+  $db->multi_query($sql);
+
+  $anyAffected = false;
+
+  // Consumir cada resultado y chequear affected_rows
+  do {
+    // almacenamos y liberamos el result set si lo hay
+    if ($res = $db->store_result()) {
+      $res->free();
+    }
+    // si alguna de las dos actualizaciones afectó filas, marcamos éxito
+    if ($db->affected_rows > 0) {
+      $anyAffected = true;
+    }
+  } while ($db->more_results() && $db->next_result());
+
+  echo json_encode([
+    "success"      => $anyAffected,
+    "anyAffected"  => $anyAffected
+  ]);
 }

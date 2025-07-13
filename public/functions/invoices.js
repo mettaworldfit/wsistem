@@ -1,3 +1,75 @@
+// Agregar orden de venta
+
+function registerSalesOrder() {
+    const data = {
+        action: "registrar_orden",
+        customer_id: $('#customer_id').val(),
+        name: $('#fullname').val(),
+        tel: $('#tel').val(),
+        direction: $('#direction').val(),
+        observation: $('#observation').val(),
+        delivery: $('#delivery').val()
+    }
+
+    sendAjaxRequest({
+        url: "services/invoices.php",
+        data: data,
+        successCallback: (res) => {
+            $('input[type="text"]').val('');
+            dataTablesInstances['orders'].ajax.reload(null, false);
+
+            window.location.href = SITE_URL + 'invoices/add_order&id=' + res
+        },
+        errorCallback: (res) => mysql_error(res),
+        verbose: true
+    })
+}
+
+
+// Actualizar estado de la orden
+
+function updateOrderStatus(selectElement) { // recibimos por parametro el elemento select
+
+    // obtenemos la opción seleccionada .
+    var order_id = $('option:selected', selectElement).attr('order_id');
+    var status_id = $('option:selected', selectElement).attr('value');
+
+    sendAjaxRequest({
+        url: "services/invoices.php",
+        data: {
+            status: status_id,
+            order_id: order_id,
+            action: 'actualizar_estado_orden'
+        },
+        successCallback: () => dataTablesInstances['orders'].ajax.reload(null, false),
+        errorCallback: (res) => mysql_error(res)
+    })
+}
+
+// Eliminar orden
+
+function deleteOrder(id) {
+
+    alertify.confirm("Eliminar orden", "¿Estas seguro que deseas eliminar esta orden? ",
+        function () {
+
+            sendAjaxRequest({
+                url: "services/invoices.php",
+                data: {
+                    id: id,
+                    action: 'eliminar_orden'
+                },
+                successCallback: () => dataTablesInstances['orders'].ajax.reload(null, false),
+                errorCallback: (res) => mysql_error("Ha ocurrido un error inesperado"),
+                verbose: true
+
+            });
+        },
+        function () {
+
+        });
+}
+
 /**
  * Muestra una alerta con el monto de devolución en estilo limpio y con animación de latido solo en el valor.
  * Usa Alertify.js.
@@ -29,27 +101,30 @@ function cashback(data) {
 
 function calculateTotalInvoice(bonus = 0) {
     // Determinar acción según la URL
-    let action, id;
+    let action, invoice_id, order_id;
 
     if (pageURL.includes("invoices/addpurchase")) {
         action = 'precios_detalle_temp';
     } else if (pageURL.includes("invoices/edit_quote")) {
         action = 'total_cotizacion';
-        id = $("#quote_id").val();
+        invoice_id = $("#quote_id").val();
     } else if (pageURL.includes("invoices/edit")) {
         action = 'precios_detalle_venta';
-        id = $("#invoice_id").val();
+        invoice_id = $("#invoice_id").val();
+    } else if (pageURL.includes("invoices/add_order")) {
+        action = 'precios_ordenes_ventas';
+        order_id = $("#order_id").val();
     }
 
     // Cargar totales según acción
-    loadInvoiceTotals(action, id);
+    loadInvoiceTotals(action, invoice_id, order_id);
 
     // Función para cargar totales de la factura
-    function loadInvoiceTotals(action, id) {
-
+    function loadInvoiceTotals(action, invoice_id, order_id) {
+        console.log(action)
         sendAjaxRequest({
             url: "services/invoices.php",
-            data: { action, id },
+            data: { action, invoice_id, order_id },
             successCallback: (res) => {
                 const data = JSON.parse(res)[0];
                 const discount = format.format(data.descuentos);
@@ -83,7 +158,7 @@ function calculateTotalInvoice(bonus = 0) {
 
                 // Botones y validaciones
                 toggleElementsByTotal(totalValue);
-            }
+            }, verbose: true
         })
 
 
@@ -120,8 +195,15 @@ function calculateTotalInvoice(bonus = 0) {
 
 function reloadInvoiceDetail() {
     // Actualizar detalle según la página
-    const tableKey = pageURL.includes('invoices/addpurchase') ? 'detailTemp' : 'editInvoice';
-    dataTablesInstances[tableKey].ajax.reload();
+    const tableKey = pageURL.includes('invoices/addpurchase') ? 'detailTemp'
+        : pageURL.includes('invoices/edit') ? 'editInvoice'
+            : pageURL.includes('invoices/add_order') ? 'addorder'
+                : null;
+
+    if (tableKey) {
+        dataTablesInstances[tableKey].ajax.reload();
+    }
+
 
     // Ocultar elementos relacionados con pagos
     $('#cash-in-finish, #cash-in-finish-receipt, #credit-in-finish, #credit-in-finish-receipt').hide();
@@ -150,7 +232,8 @@ $(document).ready(function () {
         pageURL.includes("invoices/addpurchase") ||
         pageURL.includes("invoices/edit") ||
         pageURL.includes("invoices/edit_quote") ||
-        pageURL.includes("invoices/quote")
+        pageURL.includes("invoices/quote") ||
+        pageURL.includes("invoices/add_order")
     ) {
         // Calcular total actual de la factura
         calculateTotalInvoice();
@@ -255,7 +338,7 @@ $(document).ready(function () {
             action: "factura_contado",
             customer_id: $('#cash-in-customer').val(),
             method_id: $('#cash-in-method').val(),
-            total_invoice: parseFloat($('#cash-topay').val().replace(/,/g, "")) || 0,
+            total_invoice: parseFloat($('#cash-topay').val().replace(/,/g, "")),
         };
 
         // Validación rápida
@@ -264,33 +347,41 @@ $(document).ready(function () {
             return;
         }
 
+        console.log(data);
+
+
         sendAjaxRequest({
             url: "services/invoices.php",
             data: data,
             successCallback: (res) => {
 
                 if (res > 0) {
-
                     registerInvoiceDetails(res, data, receipt);
+                    $('#buttons').hide()
                     $('#cash-received').val($('#cash-topay').val())
                     $('#cash-pending').val('0.00')
 
                     $('#last_invoice_edit').show()
                     $('#last_invoice_edit').attr('href', SITE_URL + 'invoices/edit&id=' + res) // botón para editar la  última factura agregada
-
                 }
             },
-            errorCallback: (res) => mysql_error(res)
+            errorCallback: (res) => mysql_error(res),
+            verbose: true
         })
 
-        // Función separada para registrar detalles y manejar impresión
+        // Función separada para registrar detalles con el ID de la factura y manejar impresión
 
         function registerInvoiceDetails(invoice_id, data, receipt) {
+
+           const action = pageURL.includes('invoices/add_order') ? 'registrar_detalle_orden_venta'
+                : 'registrar_detalle_de_venta';
+
             sendAjaxRequest({
                 url: "services/invoices.php",
                 data: {
-                    action: 'registrar_detalle_de_venta',
+                    action: action,
                     invoice_id: invoice_id,
+                    order_id: $('#order_id').val(),
                     date: data.date
                 },
                 successCallback: (res) => {
@@ -607,7 +698,7 @@ $(document).ready(function () {
 
     }
 
-    
+
     // Evento para agregar ítem manual sin precio
     $("#add_item_free").on("click", () => {
         const tipo = $('input[name=tipo]:checked').val();
@@ -819,7 +910,8 @@ function addDetailItem() {
 
     let action = pageURL.includes("invoices/addpurchase") ? "agregar_detalle_temporal"
         : pageURL.includes("invoices/edit") ? "agregar_detalle_venta"
-            : null;
+            : pageURL.includes("invoices/add_order") ? "agregar_detalle_venta"
+                : null;
     if (!action) return;
 
     const tipo = $('input:radio[name=tipo]:checked').val();
@@ -829,14 +921,14 @@ function addDetailItem() {
     if (tipo === 'servicio') {
         cost = $('#service_cost').val().replace(/,/g, "");
         quantity = 1;
-        discount = $('#discount_service').val().replace(/,/g, "");
+        discount = $('#discount_service').val().replace(/,/g, "") || 0;
         service_id = $('#service').val();
         description = $('#select2-service-container').attr('title');
         addItem();
 
     } else if (tipo === 'pieza') {
         piece_id = $('#piece').val();
-        discount = $('#discount').val().replace(/,/g, "");
+        discount = $('#discount').val().replace(/,/g, "") || 0;
         quantity = $('#quantity').val();
         description = $('#select2-piece-container').attr('title');
         cost = $('#piece_cost').val();
@@ -844,7 +936,7 @@ function addDetailItem() {
         resetModal();
 
     } else if (tipo === 'producto') {
-        discount = $('#discount').val().replace(/,/g, "");
+        discount = $('#discount').val().replace(/,/g, "") || 0;
         product_id = $('#product').val();
         quantity = $('#quantity').val();
         cost = $('#product_cost').val();
@@ -889,6 +981,7 @@ function addDetailItem() {
             url: "services/invoices.php",
             data: {
                 action: action,
+                order_id: $('#order_id').val(),
                 invoice: $('#invoice_id').val(),
                 product_id: product_id,
                 piece_id: piece_id,
@@ -908,8 +1001,6 @@ function addDetailItem() {
                 }
             },
             errorCallback: (res) => mysql_error(error),
-            verbose: true
-
         });
     }
 }
@@ -921,6 +1012,7 @@ function deleteInvoiceDetail(id) {
     function getDeleteAction(url) {
         if (url.includes("invoices/addpurchase")) return "eliminar_detalle_temporal";
         if (url.includes("invoices/edit")) return "eliminar_detalle_venta";
+        if (url.includes("invoices/add_order")) return "eliminar_detalle_venta";
         return null;
     }
 
@@ -934,9 +1026,14 @@ function deleteInvoiceDetail(id) {
         },
         successCallback: () => {
 
-            (pageURL.includes('invoices/addpurchase')) ?
-                dataTablesInstances['detailTemp'].ajax.reload()
-                : dataTablesInstances['editInvoice'].ajax.reload();
+            if (pageURL.includes('invoices/addpurchase')) {
+                dataTablesInstances['detailTemp'].ajax.reload();
+            } else if (pageURL.includes('invoices/edit')) {
+                dataTablesInstances['editInvoice'].ajax.reload();
+            } else if (pageURL.includes('invoices/add_order')) {
+                dataTablesInstances['addorder'].ajax.reload();
+            }
+
 
             calculateTotalInvoice()
         },

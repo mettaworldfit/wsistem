@@ -64,7 +64,7 @@ if ($_POST['action'] == "cargar_ordenrp") {
         'base_condition' => 'orden_rp_id =' . $id,
         'table_rows' => function ($row) use ($id) {
 
-            $is_exists = Help::isInvoiceRPExists($id)->fetch_object()->is_exists;
+            $is_exists = Help::checkOrderInvoiceExists($id,true)->fetch_object()->is_exists;
             return [
                 'descripcion' => $row['descripcion'],
                 'cantidad' => number_format($row['cantidad'], 2),
