@@ -201,7 +201,7 @@
 
                     <div class="row col-sm-12 mt-1">
 
-                        <div class="form-group col-sm-3 product-piece">
+                        <div class="form-group col-sm-3 piece">
                             <label class="form-check-label" for="">Cantidad</label>
                             <div class="input-div verify-quantity">
                                 <div class="i">

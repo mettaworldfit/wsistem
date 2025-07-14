@@ -83,7 +83,7 @@ $(document).ready(function () {
             if ($(this).val() == "pieza") {
 
                 $('.piece').show()
-                $('.service').hide()
+                $('.service').hide() 
 
                 // Default
 
