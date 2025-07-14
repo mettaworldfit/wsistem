@@ -62,25 +62,28 @@ function deleteService(serviceId) {
 
 $(document).ready(function () {
 
-    // Aplicar descuento
-    $('#discount_service').keyup(function (e) {
-        e.preventDefault();
+  // Aplicar descuento con cantidad
+$('#discount_service').keyup(function (e) {
+    e.preventDefault();
 
-        var price_service = parseInt($('#price_out').val().replace(/,/g, ""));
-        var discount = $('#discount_service').val();
+    // Obtener valores numéricos
+    const price = parseFloat($('#price_out').val().replace(/,/g, '')) || 0;
+    const quantity = parseFloat($('#service_quantity').val()) || 1;
+    const discount = parseFloat($('#discount_service').val()) || 0;
 
-        // Validar que el descuento no sea mayor que el precio del piezas
-        if (discount <= price_service) {
-            $('#rp_add_item').show(); // Botón de ventana detalle de ordenes de reparaciones
-            $('#add_item').show(); // Botón de ventana facturas de ventas
+    // Calcular precio total con cantidad
+    const total = price * quantity;
 
-        } else {
+    // Validar que el descuento no supere el total
+    if (discount <= total) {
+        $('#rp_add_item').show(); // Botón de orden de reparación
+        $('#add_item').show();    // Botón de factura
+    } else {
+        $('#rp_add_item').hide();
+        $('#add_item').hide();
+    }
+});
 
-            $('#rp_add_item').hide(); // Botón de ventana detalle de ordenes de reparaciones
-            $('#add_item').hide(); // Botón de ventana facturas de ventas
-
-        }
-    })
 
     // Buscar servicio por nombre
     $("#service, #rp_service").on("change", function () {
