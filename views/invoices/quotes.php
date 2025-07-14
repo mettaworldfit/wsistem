@@ -12,8 +12,6 @@
     </div>
 </div>
 
-
-
 <div class="generalContainer">
     <table id="quotes" class="table-custom table">
         <thead>

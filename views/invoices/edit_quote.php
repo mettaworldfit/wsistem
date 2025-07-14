@@ -309,8 +309,7 @@
                                 <div class="i">
                                     <i class="fas fa-box-open"></i>
                                 </div>
-                                <input type="number" class="form-custom-icon b-left" name="cantidad" id="service_quantity"
-                                    required>
+                                <input type="number" class="form-custom-icon b-left" name="cantidad" id="service_quantity">
                             </div>
                         </div>
 
