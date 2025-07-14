@@ -1,4 +1,4 @@
-<?php $services = Help::showServicesID($_GET['id']);
+<?php $services = Help::getServicesId($_GET['id']);
 while ($element = $services->fetch_object()): ?>
 
     <div class="section-wrapper">
@@ -6,11 +6,8 @@ while ($element = $services->fetch_object()): ?>
             <div class="float-left">
                 <h1><i class="far fa-edit"></i> Editar servicio</h1>
             </div>
-
-
         </div>
     </div>
-
 
     <div class="generalContainer-medium">
         <form action="" onsubmit="event.preventDefault(); updateService(<?= $element->servicio_id ?>);">
@@ -29,6 +26,16 @@ while ($element = $services->fetch_object()): ?>
 
                 <div class="form-group col-md-8">
                     <div class="form-group d-flex">
+                        <label for="" class="col-sm-3 text-right ">Costo</label>
+                        <input class="form-custom col-sm-6 ml-3" type="number" name="" value="<?= $element->costo ?>" id="service_cost">
+                        <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Popover title"
+                            data-content="And here's some amazing content. It's very engaging. Right?"><i
+                                class="far fa-question-circle"></i></a>
+                    </div>
+                </div>
+
+                <div class="form-group col-md-8">
+                    <div class="form-group d-flex">
                         <label for="" class="col-sm-3 text-right ">Precio</label>
                         <input class="form-custom col-sm-6 ml-3" type="number" name="" value="<?= $element->precio ?>"
                             id="service_price">
@@ -37,7 +44,6 @@ while ($element = $services->fetch_object()): ?>
                                 class="far fa-question-circle"></i></a>
                     </div>
                 </div>
-
 
             </div>
             <p class="info-sm mt-2">Los campos marcados con <span class="text-danger">*</span> son obligatorios</p>

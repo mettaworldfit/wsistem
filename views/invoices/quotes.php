@@ -4,7 +4,6 @@
             <h1>Cotizaciones</h1>
         </div>
 
-
         <div class="float-right">
             <a href="<?= base_url ?>invoices/quote" class="btn-custom btn-default">
             <i class="fas fa-plus"></i>

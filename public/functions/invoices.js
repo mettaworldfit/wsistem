@@ -3,7 +3,7 @@
 function registerSalesOrder() {
     const data = {
         action: "registrar_orden",
-        customer_id: $('#customer_id').val(),
+        customer_id: $('#ov_customer_id').val(),
         name: $('#fullname').val(),
         tel: $('#tel').val(),
         direction: $('#direction').val(),
@@ -121,7 +121,7 @@ function calculateTotalInvoice(bonus = 0) {
 
     // Función para cargar totales de la factura
     function loadInvoiceTotals(action, invoice_id, order_id) {
-        console.log(action)
+       
         sendAjaxRequest({
             url: "services/invoices.php",
             data: { action, invoice_id, order_id },
@@ -158,7 +158,7 @@ function calculateTotalInvoice(bonus = 0) {
 
                 // Botones y validaciones
                 toggleElementsByTotal(totalValue);
-            }, verbose: true
+            }
         })
 
 
@@ -247,13 +247,13 @@ $(document).ready(function () {
             const tipo = $(this).val();
 
             // Limpiar campos comunes
-            $('#code, #piece_code, #stock, #discount, #quantity, #price_out').val('');
+            $('#code, #piece_code, #stock, #discount, #quantity, #service_quantity, #price_out').val('');
 
             switch (tipo) {
                 case "pieza":
                     // Mostrar campos relacionados con piezas
                     $('.piece').show();
-                    $('.product, .service').hide();
+                    $('.product, .service', ).hide();
                     $('#piece_code').show();
                     $('.product-piece, .discount').show();
                     $('#code').hide();
@@ -346,9 +346,6 @@ $(document).ready(function () {
             alert("Completa todos los datos obligatorios.");
             return;
         }
-
-        console.log(data);
-
 
         sendAjaxRequest({
             url: "services/invoices.php",
@@ -920,7 +917,7 @@ function addDetailItem() {
 
     if (tipo === 'servicio') {
         cost = $('#service_cost').val().replace(/,/g, "");
-        quantity = 1;
+        quantity = $('#service_quantity').val();
         discount = $('#discount_service').val().replace(/,/g, "") || 0;
         service_id = $('#service').val();
         description = $('#select2-service-container').attr('title');

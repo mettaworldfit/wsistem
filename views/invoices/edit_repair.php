@@ -201,13 +201,24 @@
 
                     <div class="row col-sm-12 mt-1">
 
-                        <div class="form-group col-sm-3 piece">
+                        <div class="form-group col-sm-3 product-piece">
                             <label class="form-check-label" for="">Cantidad</label>
-                            <div class="input-div">
+                            <div class="input-div verify-quantity">
                                 <div class="i">
                                     <i class="fas fa-box-open"></i>
                                 </div>
                                 <input type="number" class="form-custom-icon b-left" name="cantidad" id="quantity"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-3 service">
+                            <label class="form-check-label" for="">Cantidad</label>
+                            <div class="input-div verify-quantity">
+                                <div class="i">
+                                    <i class="fas fa-box-open"></i>
+                                </div>
+                                <input type="number" class="form-custom-icon b-left" name="cantidad" id="service_quantity"
                                     required>
                             </div>
                         </div>

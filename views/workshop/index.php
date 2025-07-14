@@ -1,11 +1,10 @@
 <div class="section-wrapper">
     <div class="align-content clearfix">
         <div class="float-left">
-            <h1>Ordenes de servicios</h1>
+            <h1>Órdenes de reparación</h1>
         </div>
 
         <div class="float-right">
-
             <a href="#" class="btn-custom btn-blue" data-toggle="modal" data-target="#create_device">
                 <i class="fas fa-mobile-alt"></i>
                 <p>Agregar equipo</p>
@@ -23,13 +22,11 @@
 
             <a href="#" class="btn-custom btn-green" data-toggle="modal" data-target="#orden">
                 <i class="fas fa-plus"></i>
-                <p>Crear servicio</p>
+                <p>Nueva orden</p>
             </a>
-
         </div>
     </div>
 </div>
-
 
 <div class="generalContainer">
     <table id="workshop" class="table-custom table">
@@ -46,160 +43,7 @@
             </tr>
         </thead>
 
-       
     </table>
-</div>
-
-<!--Modal agregar orden-->
-<div class="modal fade" id="orden" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Crear orden de servicio</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); addOrdenRepair();">
-
-                    <div class="row">
-                        <div class="form-group col-sm-8">
-                            <label class="form-check-label" for="">Cliente<span class="text-danger">*</span></label>
-                            <div class="input-div">
-                                <div class="i b-right">
-                                    <i class="fas fa-list"></i>
-                                </div>
-                                <select class="form-custom-icon search" name="cliente" id="customer_id" required>
-                                    <option value="" selected>Nínguno</option>
-                                    <?php $customers = Help::showCustomers();
-                                    while ($customer = $customers->fetch_object()): ?>
-                                        <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre ?? '') ?>
-                                            <?= ucwords($customer->apellidos ?? '') ?>
-                                        </option>
-                                    <?php endwhile; ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-
-                        <div class="form-group col-sm-12">
-                            <label class="form-check-label" for="">Nombre del modelo<span
-                                    class="text-danger">*</span></label>
-                            <div class="input-div">
-                                <div class="i b-right">
-                                    <i class="fas fa-list"></i>
-                                </div>
-                                <select class="form-custom-icon search" name="device" id="device" required>
-                                    <option value="" selected>Nínguno</option>
-                                    <?php $devices = Help::showDevices();
-                                    while ($device = $devices->fetch_object()): ?>
-                                        <option value="<?= $device->equipo_id ?>"><?= ucwords($device->nombre_marca ?? '') ?>
-                                            <?= ucwords($device->nombre_modelo ?? '') ?>     <?= strtoupper($device->modelo ?? '') ?>
-                                        </option>
-                                    <?php endwhile; ?>
-                                </select>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="row">
-
-                        <div class="form-group col-sm-6">
-                            <label class="form-check-label" for="">Número de modelo</span></label>
-                            <div class="input-div">
-                                <div class="i">
-                                    <i class="fas fa-database"></i>
-                                </div>
-                                <input class="form-custom-icon b-left" type="text" name="modelo" id="model" disabled>
-
-                            </div>
-                        </div>
-
-                        <div class="form-group col-sm-6">
-                            <label class="form-check-label" for="">Fabricante</label>
-                            <div class="input-div">
-                                <div class="i b-right">
-                                    <i class="fas fa-copyright"></i>
-                                </div>
-                                <input class="form-custom-icon b-left" type="text" name="marca" id="brand" disabled>
-                            </div>
-                        </div>
-
-                        <div class="form-group col-sm-6">
-                            <label class="form-check-label" for="">Número de serie</label>
-                            <div class="input-div">
-                                <div class="i">
-                                    <i class="fas fa-barcode"></i>
-                                </div>
-                                <input class="form-custom-icon b-left" type="text" name="serie" id="serie">
-                            </div>
-                        </div>
-
-                        <div class="form-group col-sm-6">
-                            <label class="form-check-label" for="">IMEI</label>
-                            <div class="input-div">
-                                <div class="i">
-                                    <i class="fas fa-barcode"></i>
-                                </div>
-                                <input class="form-custom-icon b-left" type="number" name="imei" id="imei">
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="row">
-                        <div class="form-group col-sm-12">
-                            <label class="form-check-label" for="">Comentarios o instrucciones especiales</label>
-                            <textarea class="form-custom" name="" value="" id="observation" cols="30" rows="3"
-                                maxlength="254" placeholder="Observaciones"></textarea>
-                        </div>
-                    </div>
-
-                    <br>
-                    <div class="row">
-
-                        <div class="form-group col-sm-12">
-                            <label class="form-check-label" for="">Estado o condición del equipo<span
-                                    class="text-danger">*</span></label>
-                            <div class="input-div">
-                                <div class="i b-right">
-                                    <i class="fas fa-list"></i>
-                                </div>
-                                <select class="form-custom-icon search" name="condition" multiple id="condition_id"
-                                    required>
-                                    <?php $conditions = Help::showConditions();
-                                    while ($condition = $conditions->fetch_object()): ?>
-                                        <option value="<?= $condition->condicion_id ?>"><?= $condition->sintoma ?> </option>
-                                    <?php endwhile; ?>
-                                </select>
-                            </div>
-                        </div>
-
-
-                    </div>
-
-
-                    <div class="mt-4 modal-footer">
-                        <button type="button" class="btn-custom btn-red" data-dismiss="modal">
-                            <i class="fas fa-window-close"></i>
-                            <p>Salir</p>
-                        </button>
-
-                        <button type="submit" href="#" class="btn-custom btn-green">
-                            <i class="fas fa-plus"></i>
-                            <p>Crear servicio</p>
-                        </button>
-                    </div>
-
-                </form>
-            </div> <!-- Body -->
-        </div>
-    </div>
 </div>
 
 <!-- Crear cliente -->

@@ -6,8 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=0.9, user-scalable=si, shrink-to-fit=no">
   <meta name="title" content="Sistema de Control de Inventario">
-  <meta name="description"
-    content="Obtenga el control de su negocio desde cualquier lugar, vea estadísticas de ventas, stock, etc, “WS SYSTEM” es un Sistema de Ventas Web que te ayudará a obtener todos estos beneficios, desarrollado para tener el control total de un negocio en forma ordenada, sencilla y efectiva, posee los módulos necesarios con diferentes funciones que te permitirá administrar tu negocio." />
+  <meta name="description" content="Obtenga el control de su negocio desde cualquier lugar, vea estadísticas de ventas, stock, etc, “wsistems” es un Sistema de Ventas Web que te ayudará a obtener todos estos beneficios, desarrollado para tener el control total de un negocio en forma ordenada, sencilla y efectiva, posee los módulos necesarios con diferentes funciones que te permitirá administrar tu negocio." />
   <meta name="author" content="codevrd">
   <meta http-equiv="cache-control" content="no-cache">
   <meta http-equiv="expires" content="86400">
@@ -25,7 +24,7 @@
 
   <script src="<?= base_url ?>public/jquery/jquery.js"></script>
   <script src="<?= base_url ?>public/scripts.js"></script>
-
+  
   <link rel="manifest" href="<?= base_url ?>manifest.json">
   <script src="<?= base_url ?>sw.js" type="text/javascript"></script>
 
@@ -47,12 +46,8 @@
 
   <?php } ?>
 
-  <!-- Scripts -->
-
-  <script src="<?= base_url ?>public/functions/users.js" type="text/javascript"></script>
-
   <!-- Lazy loading -->
-  <?php require_once "lazy_load.php"; ?>
+  <?php require_once "includes/lazy_load.php"; ?>
 
   <!-- Font-Awesome -->
 
@@ -110,13 +105,13 @@
 
             <nav class="nav-container">
               <ul>
-                <li><a href="<?= base_url ?>invoices/addpurchase">Nueva venta</a></li>
-                <li><a href="<?= base_url ?>invoices/addrepair">Nueva reparación</a></li>
-                <li><a href="<?= base_url ?>products/add">Nuevo producto</a></li>
-                <li><a href="<?= base_url ?>pieces/add">Nueva pieza</a></li>
-                <li><a href="<?= base_url ?>contacts/add">Nuevo contacto</a></li>
-                <li><a href="<?= base_url ?>payments/add">Nuevo pago</a></li>
-
+                <li><a href="<?= base_url ?>invoices/addpurchase">Factura de venta</a></li>
+                <li data-toggle="modal" data-target="#modalComanda"><a href="#">Orden de venta</a></li>
+                <li data-toggle="modal" data-target="#orden"><a href="#">Orden de reparación</a></li>
+                <li><a href="<?= base_url ?>invoices/quote">Cotización</a></li>
+                <li><a href="<?= base_url ?>payments/add">Pagar factura</a></li>
+                <li><a href="<?= base_url ?>products/add">Agregar producto</a></li>
+                <li><a href="<?= base_url ?>services/add">Agregar servicio</a></li>
               </ul>
             </nav>
 
@@ -406,21 +401,12 @@
                 </div>
               </li>
             <?php endif; ?>
-
-
-
-
-
           </ul>
-
-
         </nav>
       </aside>
-
-
 
       <div class="main wrap">
         <main>
 
-
+          <?php require_once 'includes/modal-global.php'; ?>
         <?php endif; ?>

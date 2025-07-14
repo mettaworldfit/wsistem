@@ -1264,9 +1264,10 @@ class Help
    }
 
 
-   public static function showServicesID($id)
+   public static function getServicesId($id)
    {
-      $query = "SELECT *FROM servicios WHERE servicio_id = '$id'";
+      $query = "SELECT nombre_servicio,costo,precio,servicio_id 
+      FROM servicios WHERE servicio_id = '$id'";
 
       $db = Database::connect();
       return $db->query($query);

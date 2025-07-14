@@ -289,6 +289,17 @@
                             </div>
                         </div>
 
+                        <div class="form-group col-sm-3 service">
+                            <label class="form-check-label" for="">Cantidad</label>
+                            <div class="input-div verify-quantity">
+                                <div class="i">
+                                    <i class="fas fa-box-open"></i>
+                                </div>
+                                <input type="number" class="form-custom-icon b-left" name="cantidad" id="service_quantity"
+                                    required>
+                            </div>
+                        </div>
+
                         <div class="form-group col-sm-3 discount">
                             <label class="form-check-label" for="">Descuento</label>
                             <div class="input-div">
@@ -345,7 +356,7 @@
                             <i class="fas fa-window-close"></i>
                             <p>Salir</p>
                         </button>
-                    
+
                         <button type="submit" class="btn-custom btn-green" id="add_item">
                             <i class="fas fa-plus"></i>
                             <p>Agregar</p>
@@ -479,63 +490,64 @@
             </div>
             <div class="modal-body">
                 <form action="" onsubmit="event.preventDefault(); saveQuote();">
-    
-                        <!-- Content -->
-                        <div class="row col-sm-12">
 
-                            <div class="form-group col-sm-6">
-                                <label class="form-check-label" for="">Cliente</label>
-                                <div class="input-div">
-                                    <div class="i b-right">
-                                        <i class="fas fa-portrait"></i>
-                                    </div>
-                                    <select class="form-custom-icon search" name="" id="customer" requireds>
-                                        <?php $customers = Help::showCustomers();
-                                        while ($customer = $customers->fetch_object()): ?>
-                                            <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre)." ".ucwords($customer->apellidos)?></option>
-                                        <?php endwhile; ?>
-                                    </select>
+                    <!-- Content -->
+                    <div class="row col-sm-12">
+
+                        <div class="form-group col-sm-6">
+                            <label class="form-check-label" for="">Cliente</label>
+                            <div class="input-div">
+                                <div class="i b-right">
+                                    <i class="fas fa-portrait"></i>
                                 </div>
+                                <select class="form-custom-icon search" name="" id="customer" requireds>
+                                    <?php $customers = Help::showCustomers();
+                                    while ($customer = $customers->fetch_object()): ?>
+                                        <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre) . " " . ucwords($customer->apellidos) ?></option>
+                                    <?php endwhile; ?>
+                                </select>
                             </div>
+                        </div>
 
 
-                            <div class="form-group col-sm-4">
-                                <label class="form-check-label" for="">Fecha</label>
-                                <div class="input-div">
-                                    <div class="i">
-                                        <i class="far fa-calendar-alt"></i>
-                                    </div>
-                                    <input class="form-custom-icon b-left" type="date" name=""
-                                        value="<?php date_default_timezone_set('America/New_York'); echo date('Y-m-d'); ?>" id="date">
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Fecha</label>
+                            <div class="input-div">
+                                <div class="i">
+                                    <i class="far fa-calendar-alt"></i>
                                 </div>
+                                <input class="form-custom-icon b-left" type="date" name=""
+                                    value="<?php date_default_timezone_set('America/New_York');
+                                            echo date('Y-m-d'); ?>" id="date">
                             </div>
+                        </div>
 
 
-                        </div> <!-- Row -->
+                    </div> <!-- Row -->
 
-                        <div class="row col-sm-12 mt-1">
+                    <div class="row col-sm-12 mt-1">
 
-                            <div class="form-group col-sm-4">
-                                <label class="form-check-label" for="">Vendedor</label>
-                                <div class="input-div">
-                                    <div class="i">
-                                        <i class="fas fa-user-tie"></i>
-                                    </div>
-                                    <input class="form-custom-icon b-left" type="text" name=""
-                                        value="<?= ucwords($_SESSION['identity']->nombre) ?>" id="user_id" disabled>
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Vendedor</label>
+                            <div class="input-div">
+                                <div class="i">
+                                    <i class="fas fa-user-tie"></i>
                                 </div>
+                                <input class="form-custom-icon b-left" type="text" name=""
+                                    value="<?= ucwords($_SESSION['identity']->nombre) ?>" id="user_id" disabled>
                             </div>
+                        </div>
 
-                            <div class="control-group mt-4">
-                                <label class="control control-checkbox mt-2">
+                        <div class="control-group mt-4">
+                            <label class="control control-checkbox mt-2">
                                 <i class="fas fa-envelope"></i> Email
-                                    <input type="checkbox" id="sendMail" />
-                                    <div class="control_indicator"></div>
-                                </label>
-                            </div>
+                                <input type="checkbox" id="sendMail" />
+                                <div class="control_indicator"></div>
+                            </label>
+                        </div>
 
-                        </div> <!-- Row -->
-            
+                    </div> <!-- Row -->
+
 
                     <div class="mt-4 modal-footer">
                         <button type="button" class="btn-custom btn-red" data-dismiss="modal" id="">

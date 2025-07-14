@@ -312,6 +312,17 @@
                             </div>
                         </div>
 
+                        <div class="form-group col-sm-3 service">
+                            <label class="form-check-label" for="">Cantidad</label>
+                            <div class="input-div verify-quantity">
+                                <div class="i">
+                                    <i class="fas fa-box-open"></i>
+                                </div>
+                                <input type="number" class="form-custom-icon b-left" name="cantidad" id="service_quantity"
+                                    required>
+                            </div>
+                        </div>
+
                         <div class="form-group col-sm-3 discount">
                             <label class="form-check-label" for="">Descuento</label>
                             <div class="input-div">
@@ -328,8 +339,7 @@
                                 <div class="i">
                                     <i class="fas fa-level-down-alt"></i>
                                 </div>
-                                <input type="number" class="form-custom-icon b-left" name="descuento"
-                                    id="discount_service">
+                                <input type="number" class="form-custom-icon b-left" name="descuento" id="discount_service">
                             </div>
                         </div>
 

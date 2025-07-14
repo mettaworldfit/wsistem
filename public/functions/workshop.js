@@ -1,9 +1,10 @@
 function addOrdenRepair() {
+  
     sendAjaxRequest({
         url: "services/workshop.php",
         data: {
             action: 'agregar_orden_reparacion',
-            customer_id: $('#customer_id').val(),
+            customer_id: $('#or_customer_id').val(),
             device: $('#device').val(),
             serie: $('#serie').val(),
             observation: $('#observation').val(),

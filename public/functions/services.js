@@ -63,7 +63,6 @@ function deleteService(serviceId) {
 $(document).ready(function () {
 
     // Aplicar descuento
-
     $('#discount_service').keyup(function (e) {
         e.preventDefault();
 
@@ -93,7 +92,6 @@ $(document).ready(function () {
         }
     });
 
-
     function fetchService(serviceId) {
         sendAjaxRequest({
             url: "services/services.php",
@@ -104,6 +102,7 @@ $(document).ready(function () {
             successCallback: (res) => {
                 const data = JSON.parse(res)[0];
 
+                $('#service_quantity').val('1');
                 const priceOut = $("#price_out");
                 const cost = $("#service_cost");
 

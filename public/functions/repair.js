@@ -72,8 +72,8 @@ $(document).ready(function () {
 
         $('.service').hide()
         $('#stock').attr('disabled', true)
-        $('#quantity').attr('disabled', true)
-        $('#quantity').val('0')
+        // $('#quantity').attr('disabled', true)
+        $('#quantity').val('')
         $('#discount').attr('disabled', true)
         $('#price_out').attr('disabled', true)
         $('#rp_service').attr('required', false)
@@ -88,11 +88,11 @@ $(document).ready(function () {
                 // Default
 
                 $('#stock').attr('disabled', true)
-                $('#quantity').val('0')
+                $('#quantity').val('')
                 $('#price_out').attr('disabled', true)
                 $('#rp_service').attr('required', false)
                 $('#piece').attr('required', true)
-                $('#quantity').attr('required', true)
+            // $('#quantity').attr('required', true)
 
             } else if ($(this).val() == "servicio") {
 
@@ -100,12 +100,12 @@ $(document).ready(function () {
                 $('.piece, #cost-field').hide()
 
                 // Default
-
+                $('#quantity').val('')
                 $('#discount').attr('disabled', false)
                 $('#price_out').attr('disabled', false)
                 $('#rp_service').attr('required', true)
                 $('#piece').attr('required', false)
-                $('#quantity').attr('required', false)
+                // $('#quantity').attr('required', false)
                 $('#price_out').val('')
                 $('#rp_add_item').show();
 
