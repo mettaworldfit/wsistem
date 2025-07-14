@@ -193,7 +193,7 @@
 
 <!-- Cierre de caja -->
 <div class="modal fade" id="modalCashClosing" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalCierreCajaLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
+  <div class="modal-dialog modal-lg .modal-cashClosing">
     <div class="modal-content border-0 shadow-lg">
       <div class="modal-header bg-light border-bottom">
         <h5 class="modal-title" id="modalCierreCajaLabel">Cierre de Caja</h5>

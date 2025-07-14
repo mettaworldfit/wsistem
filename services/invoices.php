@@ -128,11 +128,10 @@ if ($_POST['action'] === "index_ordenes") {
     'base_table' => 'comandas co',
     'table_with_joins' => 'comandas co
               INNER JOIN clientes c ON c.cliente_id = co.cliente_id
-              INNER JOIN estados_generales e ON e.estado_id = co.estado_id
-              LEFT JOIN detalle_facturas_ventas d ON co.comanda_id = d.comanda_id',
+              INNER JOIN estados_generales e ON e.estado_id = co.estado_id',
     'select' => "SELECT co.comanda_id, concat(c.nombre,' ',IFNULL(c.apellidos,'')) as nombre,
                  e.nombre_estado,e.estado_id,co.observacion,co.telefono_receptor,DATE(co.fecha) as fecha,
-                 co.direccion_entrega,co.tipo_entrega,co.nombre_receptor, d.factura_venta_id",
+                 co.direccion_entrega,co.tipo_entrega,co.nombre_receptor",
     'table_rows' => function ($row) {
       $acciones  = '<a class="action-edit" href="' . base_url . 'invoices/add_order&id=' . $row['comanda_id'] . '" title="Agregar factura">';
       $acciones .= '<i class="fas fa-shopping-cart"></i></a>';
@@ -147,18 +146,20 @@ if ($_POST['action'] === "index_ordenes") {
         $acciones .= '<i class="fas fa-times"></i></span>';
       }
 
+      $invoice_id = Help::hasInvoice($row['comanda_id']);
+
       return [
         "comanda_id" => '<span><a href="#" class="' .
-          ($row['factura_venta_id'] > 0 ? 'text-secondary' : 'text-danger') . '">OV-00' . $row['comanda_id'] . '</a>' .
+          ($invoice_id > 0 ? 'text-secondary' : 'text-danger') . '">OV-00' . $row['comanda_id'] . '</a>' .
           '<span id="toggle" class="toggle-right toggle-md">No. Orden: OV-00' . $row['comanda_id'] . '<br>' .
-          'No. Factura: ' . ($row['factura_venta_id'] > 0
-            ? '<a class="text-danger" href="' . base_url . 'invoices/edit&id=' . $row['factura_venta_id'] . '">FT-00' . $row['factura_venta_id'] . '</a>'
+          'No. Factura: ' . ($invoice_id > 0
+            ? '<a class="text-danger" href="' . base_url . 'invoices/edit&id=' . $invoice_id . '">FT-00' . $invoice_id . '</a>'
             : '<a class="text-danger" href="#">No facturado</a>') . '</span></span>',
         "nombre" => ucwords($row['nombre'], ""),
         "telefono" => formatTel($row['telefono_receptor'] ?? ''),
         "entrega" => $row['tipo_entrega'],
         "fecha" => $row['fecha'],
-        'estado' => ($row['factura_venta_id'] > 0 ? '<a href="' . base_url . 'invoices/edit&id=' . $row['factura_venta_id'] . '" class="Facturado">' . 'Facturado' . '</a>' : '<span class="No">' . 'Sin facturar' . '</span>'),
+        'estado' => ($invoice_id > 0 ? '<a href="' . base_url . 'invoices/edit&id=' . $invoice_id . '" class="Facturado">' . 'Facturado' . '</a>' : '<span class="No">' . 'Sin facturar' . '</span>'),
         'orden' => '<select class="form-custom ' . $row['nombre_estado'] . '" id="status_order" onchange="updateOrderStatus(this);">'
           . '<option order_id="' . $row['comanda_id'] . '" value="' . $row['estado_id'] . '" selected>' . $row['nombre_estado'] . '</option>' .
           '<option class="Pendiente" order_id="' . $row['comanda_id'] . '" value="6">Pendiente</option>' .

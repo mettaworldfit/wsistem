@@ -477,6 +477,11 @@ span.select2-container--default {
     .modal-dialog {
         max-width: 1100px !important;
     }
+
+    .modal-cashClosing {
+        min-width: 830px !important;
+        margin: 1.75rem auto;
+    }
 }
 
 @media (max-width:1340px) {
@@ -2801,6 +2806,13 @@ li.paginate_button.page-item {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 
+@media (min-width: 1340px) {
+    .grid-form-user,
+    .grid-form-date {
+        grid-template-columns: 1fr;
+    }
+}
+
 .grid-date-field {
     display: flex;
     flex-direction: column;
@@ -2834,6 +2846,14 @@ li.paginate_button.page-item {
     border: 1px solid #ccc;
     border-radius: 5px;
     gap: 4px;
+}
+
+@media (min-width: 1340px) {
+
+    .grid-cash-closing,
+    .grid-summary {
+        grid-template-columns: 1fr;
+    }
 }
 
 legend.summary-legend {
