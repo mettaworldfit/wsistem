@@ -32,8 +32,6 @@
     <br>
 
     <!-- Información -->
-
-
     <div class="row col-sm-12">
         <div class="form-group col-sm-8">
             <textarea class="form-custom" name="" value="" id="observation" cols="30" rows="6" maxlength="150"
@@ -309,7 +307,7 @@
                                 <div class="i">
                                     <i class="fas fa-box-open"></i>
                                 </div>
-                                <input type="number" class="form-custom-icon b-left" name="cantidad" id="quantity"
+                                <input type="number" class="form-custom-icon b-left" step="0.01" min="0" max="999.99" name="cantidad" id="quantity"
                                     required>
                             </div>
                         </div>

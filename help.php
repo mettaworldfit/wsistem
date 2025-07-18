@@ -1524,7 +1524,7 @@ class Help
       
     
       declare ID int;
-      declare Cant int;
+      declare Cant decimal(10,2);
 
       SET @ID = (SELECT producto_id FROM detalle_ventas_con_productos where detalle_venta_id = NEW.detalle_venta_id);
       SET @Cant = (SELECT cantidad FROM detalle_facturas_ventas where detalle_venta_id = NEW.detalle_venta_id);
@@ -1558,9 +1558,9 @@ class Help
       BEGIN
       
       declare ID int;
-      declare Cant int;
+      declare Cant decimal(10,2);
       
-      SET @ID = (SELECT producto_id FROM detalle_ventas_con_piezas_ where detalle_venta_id = NEW.detalle_venta_id);
+      SET @ID = (SELECT pieza_id FROM detalle_ventas_con_piezas_ where detalle_venta_id = NEW.detalle_venta_id);
       SET @Cant = (SELECT cantidad FROM detalle_facturas_ventas where detalle_venta_id = NEW.detalle_venta_id);
       
       IF (@ID != '') THEN 
@@ -1639,8 +1639,76 @@ class Help
       }
    }
 
+   public static function CREATE_TRIGGER_agregar_item_venta()
+   {
+
+      $db = Database::connect();
+
+      $query = "CREATE TRIGGER agregar_item_venta
+         AFTER INSERT ON detalle_facturas_ventas FOR EACH ROW
+         BEGIN
+
+         DECLARE pendienteX DECIMAL(10,2);
+
+         Update facturas_ventas
+         set total = total + (NEW.cantidad * (NEW.impuesto + NEW.precio )- NEW.descuento), 
+         pendiente = total - recibido
+         where factura_venta_id = NEW.factura_venta_id;
+
+         SET @pendienteX = (select pendiente from facturas_ventas where factura_venta_id = NEW.factura_venta_id);
+
+         IF (@pendienteX = 0) THEN
+         UPDATE facturas_ventas SET estado_id = 3 WHERE factura_venta_id = NEW.factura_venta_id;
+         ELSEIF (@pendienteX > 0) THEN
+         UPDATE facturas_ventas SET estado_id = 4 WHERE factura_venta_id = NEW.factura_venta_id;
+         END IF;
+
+         END ;";
+
+      if ($db->query($query) === TRUE) {
+         return "create";
+      } else {
+
+         return "Error: " . $db->error;
+      }
+   }
 
 
+
+public static function createAllTriggers()
+{
+    self::CREATE_TRIGGER_restar_stock_productos();
+    self::CREATE_TRIGGER_restar_stock_piezas();
+    self::CREATE_TRIGGER_devolver_stocks_temporales();
+    self::CREATE_TRIGGER_devolver_variantes_temporales();
+    self::CREATE_TRIGGER_agregar_item_venta();
+}
+
+
+
+
+    public static function CREATE_TRIGGER_agregar_item_cotizacion()
+   {
+
+      $db = Database::connect();
+
+      $query = "CREATE TRIGGER agregar_item_cotizacion
+         AFTER INSERT ON detalle_cotizaciones FOR EACH ROW
+         BEGIN
+
+         Update cotizaciones
+         set total = total + (NEW.cantidad * (NEW.impuesto + NEW.precio )- NEW.descuento)
+         where cotizacion_id = NEW.cotizacion_id;
+
+         END ;";
+
+      if ($db->query($query) === TRUE) {
+         return "create";
+      } else {
+
+         return "Error: " . $db->error;
+      }
+   }
 
    // Función para mostrar la cantidad de productos y servicios fuera de stock
 

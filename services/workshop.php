@@ -79,12 +79,12 @@ switch ($action) {
           'condicion' => '<span class="hide-cell">' . Help::loadOrderConditionById($row['id']) . '</span>',
 
           'estado' => '<select class="form-custom ' . $row['nombre_estado'] . '" id="status_rp" onchange="updateOrderStatus(this);">'
-            . '<option workshop_id="' . $row['id'] . '" value="' . $row['estado_id'] . '" selected>' . $row['nombre_estado'] . '</option>' .
-            '<option class="Pendiente" workshop_id="' . $row['id'] . '" value="6">Pendiente</option>' .
-            '<option class="En Proceso" workshop_id="' . $row['id'] . '" value="8">En Proceso</option>' .
-            '<option class="Entregado" workshop_id="' . $row['id'] . '" value="7">Entregado</option>' .
-            '<option class="No se pudo" workshop_id="' . $row['id'] . '" value="10">No se pudo</option>' .
-            '<option class="Listo" workshop_id="' . $row['id'] . '" value="9">Listo</option>' .
+            . '<option order_id="' . $row['id'] . '" value="' . $row['estado_id'] . '" selected>' . $row['nombre_estado'] . '</option>' .
+            '<option class="Pendiente" order_id="' . $row['id'] . '" value="6">Pendiente</option>' .
+            '<option class="En Proceso" order_id="' . $row['id'] . '" value="8">En Proceso</option>' .
+            '<option class="Entregado" order_id="' . $row['id'] . '" value="7">Entregado</option>' .
+            '<option class="No se pudo" order_id="' . $row['id'] . '" value="10">No se pudo</option>' .
+            '<option class="Listo" order_id="' . $row['id'] . '" value="9">Listo</option>' .
             '</select>',
 
           'acciones' => '<a href="' . base_url . 'invoices/addrepair&id=' . $row['id'] . '" class="action-edit" title="Agregar factura">'
@@ -175,7 +175,7 @@ switch ($action) {
   case 'actualizar_estado_orden':
     echo handleProcedureAction($db, 'rp_actualizarEstadoOrden', [
       (int)$_POST['status'],
-      (int)$_POST['workshop_id']
+      (int)$_POST['order_id']
     ]);
     break;
 

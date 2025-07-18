@@ -1,5 +1,5 @@
 function addOrdenRepair() {
-  
+
     sendAjaxRequest({
         url: "services/workshop.php",
         data: {
@@ -45,24 +45,42 @@ function assignConditionToOrder(ordenId) {
 }
 
 // Actualizar estado de la orden
+function updateOrderStatus(selectElement) {
+    // Obtener valores de la opción seleccionada
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const status_id = selectedOption.value;
+    const order_id = selectedOption.getAttribute('order_id');
 
-function updateOrderStatus(selectElement) { // recibimos por parametro el elemento select
+    // Validación
+    if (!status_id || !order_id) {
+        console.warn("Faltan datos para actualizar el estado.");
+        return;
+    }
 
-    // obtenemos la opción seleccionada .
-    var workshop_id = $('option:selected', selectElement).attr('workshop_id');
-    var status_id = $('option:selected', selectElement).attr('value');
+    // Determinar URL según la página actual
+    const url = pageURL.includes("invoices/orders")
+        ? "services/invoices.php"
+        : "services/workshop.php";
 
+    // Enviar AJAX
     sendAjaxRequest({
-        url: "services/workshop.php",
+        url: url,
         data: {
             status: status_id,
-            workshop_id: workshop_id,
+            order_id: order_id,
             action: 'actualizar_estado_orden'
         },
-        successCallback: () => dataTablesInstances['workshop'].ajax.reload(null, false),
+        successCallback: () => {
+            const tableKey = pageURL.includes("invoices/orders") ? 'orders' : 'workshop';
+            if (dataTablesInstances[tableKey]) {
+                dataTablesInstances[tableKey].ajax.reload(null, false);
+            }
+        },
         errorCallback: (res) => mysql_error(res)
-    })
+    });
 }
+
+
 
 // Eliminar orden de reparación
 

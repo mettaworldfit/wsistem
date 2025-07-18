@@ -77,7 +77,7 @@
                         <?php } else { ?>
                             <input class="form-custom col-sm-12" type="number" value="<?= $element->cantidad ?>" name="quantity"
                                 placeholder="Vacío" disabled>
-                            <input type="hidden" name="quantity" value="<?= $element->cantidad ?>" id="input_quantity">
+                            <input type="hidden" name="quantity" step="0.01" min="0" max="999.99" value="<?= $element->cantidad ?>" id="input_quantity">
 
                         <?php } ?>
                     </div>

@@ -72,7 +72,7 @@ $(document).ready(function () {
 
         $('.service').hide()
         $('#stock').attr('disabled', true)
-        // $('#quantity').attr('disabled', true)
+        $('#quantity').attr('disabled', true)
         $('#quantity').val('')
         $('#discount').attr('disabled', true)
         $('#price_out').attr('disabled', true)
@@ -92,7 +92,7 @@ $(document).ready(function () {
                 $('#price_out').attr('disabled', true)
                 $('#rp_service').attr('required', false)
                 $('#piece').attr('required', true)
-            // $('#quantity').attr('required', true)
+                $('#quantity').attr('required', true)
 
             } else if ($(this).val() == "servicio") {
 
@@ -105,7 +105,7 @@ $(document).ready(function () {
                 $('#price_out').attr('disabled', false)
                 $('#rp_service').attr('required', true)
                 $('#piece').attr('required', false)
-                // $('#quantity').attr('required', false)
+                $('#quantity').attr('required', false)
                 $('#price_out').val('')
                 $('#rp_add_item').show();
 
@@ -457,14 +457,16 @@ function deleteDetail(id) {
 
             calculateInvoiceTotalRp()
         },
-        errorCallback: (res) => mysql_error(res)
+        errorCallback: (res) => mysql_error(res),
+        verbose: true
+
     });
 }
 
 
 // Eliminar factura reparación
 
-function deleteInvoiceRP(id) {
+function deleteInvoiceRP(orderId) {
 
     alertify.confirm("Eliminar factura", "¿Estas seguro que deseas eliminar esta factura? ",
         function () {
@@ -473,7 +475,7 @@ function deleteInvoiceRP(id) {
                 url: "services/repair.php",
                 data: {
                     action: "eliminar_factura",
-                    id: id
+                    id: orderId
                 },
                 successCallback: () => {
                     // Actualizar datatable

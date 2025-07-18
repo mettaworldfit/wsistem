@@ -121,12 +121,13 @@ function calculateTotalInvoice(bonus = 0) {
 
     // Función para cargar totales de la factura
     function loadInvoiceTotals(action, invoice_id, order_id) {
-       
+
         sendAjaxRequest({
             url: "services/invoices.php",
             data: { action, invoice_id, order_id },
             successCallback: (res) => {
                 const data = JSON.parse(res)[0];
+
                 const discount = format.format(data.descuentos);
                 const taxes = format.format(data.taxes);
                 const subtotal = format.format(data.precios);
@@ -253,7 +254,7 @@ $(document).ready(function () {
                 case "pieza":
                     // Mostrar campos relacionados con piezas
                     $('.piece').show();
-                    $('.product, .service', ).hide();
+                    $('.product, .service',).hide();
                     $('#piece_code').show();
                     $('.product-piece, .discount').show();
                     $('#code').hide();
@@ -354,7 +355,7 @@ $(document).ready(function () {
 
                 if (res > 0) {
                     registerInvoiceDetails(res, data, receipt);
-                    $('#buttons').hide()
+                    $('#buttons').hide() // Ocultar botones luego de facturar la orden
                     $('#cash-received').val($('#cash-topay').val())
                     $('#cash-pending').val('0.00')
 
@@ -362,16 +363,16 @@ $(document).ready(function () {
                     $('#last_invoice_edit').attr('href', SITE_URL + 'invoices/edit&id=' + res) // botón para editar la  última factura agregada
                 }
             },
-            errorCallback: (res) => mysql_error(res),
-            verbose: true
+            errorCallback: (res) => mysql_error(res)
         })
 
         // Función separada para registrar detalles con el ID de la factura y manejar impresión
 
         function registerInvoiceDetails(invoice_id, data, receipt) {
 
-           const action = pageURL.includes('invoices/add_order') ? 'registrar_detalle_orden_venta'
+            const action = pageURL.includes('invoices/add_order') ? 'registrar_detalle_orden_venta'
                 : 'registrar_detalle_de_venta';
+
 
             sendAjaxRequest({
                 url: "services/invoices.php",
@@ -521,7 +522,6 @@ $(document).ready(function () {
     });
 
 
-
     // Evento: validar y mostrar boton de facturar a credito
 
     $('#credit-pay').on('keyup', (e) => {
@@ -532,8 +532,8 @@ $(document).ready(function () {
 
         // Mostrar botón de facturar
 
-        var pay = parseInt($('#credit-pay').val());
-        var pending = parseInt($('#credit-pending').val().replace(/,/g, ""));
+        var pay = parseFloat($('#credit-pay').val());
+        var pending = parseFloat($('#credit-pending').val().replace(/,/g, ""));
 
         if (pay <= pending) {
             $('#credit-in-finish').show()
@@ -557,18 +557,17 @@ $(document).ready(function () {
     $('#credit-in-finish-receipt').on('click', (e) => {
 
         data = {
-            customer: $('#select2-cash-in-customer-container').attr('title'),
-            seller: $('#cash-in-seller').val(),
-            payment_method: $('#select2-cash-in-method-container').attr('title'),
+            customer: $('#select2-credit-in-customer-container').attr('title'),
+            seller: $('#credit-in-seller').val(),
+            payment_method: $('#select2-credit-in-method-container').attr('title'),
             description: $('#observation').val(),
-            total_invoice: $('#cash-topay').val().replace(/,/g, ""),
+            total_invoice: $('#credit-topay').val().replace(/,/g, ""),
             subtotal: $('#in-subtotal').val().replace(/,/g, ""),
             discount: $('#in-discount').val().replace(/,/g, ""),
             taxes: $('#in-taxes').val().replace(/,/g, ""),
             total: $('#in-total').val().replace(/,/g, ""),
             pay: $('#credit-pay').val(),
-            bonus: $('#cash-bonus').val().replace(/,/g, ""),
-            date: $('#cash-in-date').val()
+            date: $('#credit-in-date').val()
         }
 
         CREDIT_INV_FINISH(true, data)
@@ -597,14 +596,15 @@ $(document).ready(function () {
                 description: $('#observation').val(),
                 total_invoice: $('#credit-topay').val().replace(/,/g, ""),
                 pay: $('#credit-pay').val(),
-                pending: pending,
                 date: $('#credit-in-date').val()
             },
             success: function (res) {
                 if (res > 0) {
 
-                    REGISTER_DETAIL_ON_CREDIT(res, data, receipt); // Cargar de nuevo el detalle
 
+                    REGISTER_DETAIL_ON_CREDIT(res, data, receipt); // Cargar de nuevo el detalle
+                    $('#buttons').hide() // Ocultar botones luego de facturar la orden
+                    
                     // Vaciar campos
                     $('#in-subtotal').val('0')
                     $('#in-taxes').val('0')
@@ -629,12 +629,17 @@ $(document).ready(function () {
 
 
         function REGISTER_DETAIL_ON_CREDIT(invoice_id, data, receipt) {
+
+              const action = pageURL.includes('invoices/add_order') ? 'registrar_detalle_orden_venta'
+                : 'registrar_detalle_de_venta';
+
             $.ajax({
                 type: "post",
                 url: SITE_URL + "services/invoices.php",
                 data: {
-                    action: 'registrar_detalle_de_venta',
+                    action: action,
                     invoice_id: invoice_id,
+                    order_id: $('#order_id').val(),
                     date: $('#credit-in-date').val()
                 },
                 success: function (res) {
@@ -974,6 +979,7 @@ function addDetailItem() {
     }
 
     function addItem() {
+        
         sendAjaxRequest({
             url: "services/invoices.php",
             data: {
@@ -991,6 +997,7 @@ function addDetailItem() {
                 cost: cost
             },
             successCallback: (res) => {
+                console.log(res)
                 calculateTotalInvoice()
                 reloadInvoiceDetail()
                 if (total_variant > 0) {
@@ -1106,7 +1113,7 @@ function AddDQuote(onDb = false) {
     if ($('input:radio[name=tipo]:checked').val() == 'servicio') {
 
         var data = {
-            quantity: "1",
+            quantity: $('#service_quantity').val(),
             discount: $('#discount_service').val().replace(/,/g, ""),
             service_id: $('#service').val(),
             description: $('#select2-service-container').attr('title').trim(),
@@ -1274,35 +1281,30 @@ function DeleteItemQ(index, onDb = false) {
 
     } else {
 
-        $.ajax({
-            type: "post",
-            url: SITE_URL + "services/invoices.php",
+        sendAjaxRequest({
+            url: "services/invoices.php",
             data: {
                 action: "eliminar_detalle_cotizacion",
                 id: index
             },
-            success: function (res) {
+            successCallback: (res) => {
 
-                if (res == "ready") {
-                    dataTablesInstances['detailTemp'].ajax.reload(); // Actualizar detalle
-                    calculateTotalInvoice() // Cargar total de la cotizacion
-                } else {
-                    mysql_error(res)
-                }
+                $('#Detalle').load(location.href + " #Detalle");
+                calculateTotalInvoice() // Cargar total de la cotizacion
 
-            }
-        });
+            },
+            errorCallback: (res) => mysql_error(res)
+        })
     }
 }
 
 
-// Crear detalle de cotizacion
+// Crear cotizacion
 
 function saveQuote() {
 
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/invoices.php",
+    sendAjaxRequest({
+        url: "services/invoices.php",
         data: {
             action: "registrar_cotizaciones",
             customer_id: $("#customer").val(),
@@ -1310,8 +1312,7 @@ function saveQuote() {
             date: $("#date").val(),
             observation: $("#observation").val()
         },
-        success: function (res) {
-
+        successCallback: (res) => {
             if (res > 0) {
 
                 RegisterDetail(res)
@@ -1319,8 +1320,8 @@ function saveQuote() {
             } else {
                 mysql_error(res)
             }
-
-        }
+        },
+        verbose: true
     });
 
 } // function
@@ -1344,11 +1345,16 @@ function RegisterDetail(id, onDb = false, data) {
 
 
     function register(id, description, quantity, price, tax_value, discount) {
+         
+        const action = pageURL.includes('invoices/quote')
+        ? "crear_detalle_cotizacion"
+        : "agregar_detalle_cotizacion";
+
         $.ajax({
             type: "post",
             url: SITE_URL + "services/invoices.php",
             data: {
-                action: "agregar_detalle_cotizacion",
+                action: action,
                 id: id,
                 description: description,
                 quantity: quantity,
@@ -1362,7 +1368,7 @@ function RegisterDetail(id, onDb = false, data) {
 
                     if (onDb == true) {
                         calculateTotalInvoice() // Cargar total de la cotizacion
-                        dataTablesInstances['detailTemp'].ajax.reload(); // Actualizar detalle
+                        $('#Detalle').load(location.href + " #Detalle");
 
                     } else if (onDb != true) {
                         GenerateQuotePDF(id) // Generar PDF
@@ -1393,7 +1399,7 @@ function deleteQuote(id) {
                     action: "eliminar_cotizacion",
                     id: id
                 },
-                successCallback: () => dataTablesInstances['invoices'].ajax.reload(null, false),
+                successCallback: () => dataTablesInstances['quotes'].ajax.reload(null, false),
                 errorCallback: (res) => mysql_error(error)
             });
         },

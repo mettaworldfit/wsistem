@@ -65,7 +65,7 @@
 
                 <div class="form-group col-sm-5 mb-3">
                     <label class="form-check-label label-cant" for="">Cantidad<span class="text-danger">*</span></label>
-                    <input class="form-custom col-sm-12" type="number" name="quantity" placeholder="Vacío"
+                    <input class="form-custom col-sm-12" type="number" step="0.01" min="0" max="999.99" name="quantity" placeholder="Vacío"
                         id="product_quantity" required>
                 </div>
 
@@ -74,7 +74,7 @@
                             data-toggle="popover" title="Miníma cantidad"
                             data-content="Activa una alerta y al vender este producto sabrás si has llegado al stock mínimo de tu inventario."><i
                                 class="far fa-question-circle"></i></a></label>
-                    <input class="form-custom col-sm-12" type="number" name="inventary_min" id="min_quantity"
+                    <input class="form-custom col-sm-12" type="number" step="0.01" min="0" max="999.99" name="inventary_min" id="min_quantity"
                         placeholder="Vacío">
                 </div>
 

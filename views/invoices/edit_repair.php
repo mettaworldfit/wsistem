@@ -207,7 +207,7 @@
                                 <div class="i">
                                     <i class="fas fa-box-open"></i>
                                 </div>
-                                <input type="number" class="form-custom-icon b-left" name="cantidad" id="quantity"
+                                <input type="number" step="0.01" min="0" max="999.99" class="form-custom-icon b-left" name="cantidad" id="quantity"
                                     required>
                             </div>
                         </div>

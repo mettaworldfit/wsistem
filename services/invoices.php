@@ -40,7 +40,7 @@ if ($_POST['action'] == "cargar_detalle_orden") {
 
       $precio = (float)($row['precio'] ?? 0);
       $costo = (float)($row['costo'] ?? 0);
-      $cantidad = (int)($row['cantidad_total'] ?? 0);
+      $cantidad = ($row['cantidad_total'] ?? 0);
       $impuesto = (float)($row['impuesto'] ?? 0);
       $valor = (float)($row['valor'] ?? 0);
       $descuento = (float)($row['descuento'] ?? 0);
@@ -208,7 +208,7 @@ if ($_POST['action'] == "cargar_detalle_facturas") {
     'table_rows' => function ($row) {
       $precio = (float)($row['precio'] ?? 0);
       $costo = (float)($row['costo'] ?? 0);
-      $cantidad = (int)($row['cantidad_total'] ?? 0);
+      $cantidad = ($row['cantidad_total'] ?? 0);
       $impuesto = (float)($row['impuesto'] ?? 0);
       $valor = (float)($row['valor'] ?? 0);
       $descuento = (float)($row['descuento'] ?? 0);
@@ -460,7 +460,7 @@ if ($_POST['action'] == "asignar_variantes_temporales") {
   }
 }
 
-// Agregar producto al detalle de venta
+// Agregar producto al detalle de ventas
 
 if ($_POST['action'] === "agregar_detalle_venta") {
 
@@ -477,7 +477,7 @@ if ($_POST['action'] === "agregar_detalle_venta") {
   $product_id  = (int) ($_POST['product_id']  ?? 0);
   $piece_id    = (int) ($_POST['piece_id']    ?? 0);
   $service_id  = (int) ($_POST['service_id']  ?? 0);
-  $quantity    = (int) ($_POST['quantity']    ?? 0);
+  $quantity    = $_POST['quantity'] ?? 0;
   $cost        = $_POST['cost'] ?? 0;
   $price       = $_POST['price'];
   $taxes       = $_POST['taxes'] ?? 0;
@@ -498,6 +498,7 @@ if ($_POST['action'] === "agregar_detalle_venta") {
     $piece_id,
     $service_id
   ]);
+
 }
 
 // Obtener precios del detalle temporal
@@ -621,6 +622,7 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
   $db->query("DROP TRIGGER IF EXISTS restar_stock_piezas");
   $db->query("DROP TRIGGER IF EXISTS devolver_variantes_temporales");
   $db->query("DROP TRIGGER IF EXISTS devolver_stocks_temporales");
+  $db->query("DROP TRIGGER IF EXISTS agregar_item_venta");
 
   // Obtener datos del carrito temporal
   $query1 = "SELECT d.detalle_temporal_id, d.usuario_id, d.producto_id,d.servicio_id,
@@ -671,10 +673,7 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
   $db->query($query4);
 
   // Activar TRIGGER
-  Help::CREATE_TRIGGER_restar_stock_productos();
-  Help::CREATE_TRIGGER_restar_stock_piezas();
-  Help::CREATE_TRIGGER_devolver_stocks_temporales();
-  Help::CREATE_TRIGGER_devolver_variantes_temporales();
+  Help::createAllTriggers();   
 }
 
 
@@ -688,12 +687,12 @@ if ($_POST['action'] == "factura_credito") {
   $method = $_POST['payment_method'];
   $user_id = $_SESSION['identity']->usuario_id;
   $pay = $_POST['pay'];
-  $pending = $_POST['pending'];
+  //$pending = $_POST['pending'];
   $date = $_POST['date'];
 
   $db = Database::connect();
 
-  $query = "CALL vt_facturaAcredito($customer_id,$method,'$total','$pay','$pending',$user_id,'$description','$date')";
+  $query = "CALL vt_facturaAcredito($customer_id,$method,'$total','$pay',$user_id,'$description','$date')";
   $result = $db->query($query);
   $data = $result->fetch_object();
 
@@ -773,25 +772,16 @@ if ($_POST['action'] == 'actualizar_factura') {
 
 if ($_POST['action'] == "registrar_cotizaciones") {
 
-  $customer_id = $_POST['customer_id'];
-  $total = $_POST['total'];
-  $observation = $_POST['observation'];
-  $user_id = $_SESSION['identity']->usuario_id;
-  $date = $_POST['date'];
-
   $db = Database::connect();
-
-  $query = "CALL ct_cotizacion($customer_id,$user_id,'$total','$observation','$date')";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg > 0) {
-
-    echo $data->msg;
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Ha ocurrido un error al registrar: " . $data->msg;
-  }
+  
+  echo handleProcedureAction($db,'ct_cotizacion',[
+   (int) $_POST['customer_id'],
+   (int) $_SESSION['identity']->usuario_id,
+   $_POST['total'],
+   $_POST['observation'],
+   $_POST['date']
+  ]);
+ 
 }
 
 // actualizar cotizaciones
@@ -822,6 +812,37 @@ if ($_POST['action'] == "actualizar_cotizaciones") {
 // Agregar detalle de cotizacion
 
 
+if ($_POST['action'] == "crear_detalle_cotizacion") {
+
+  $quote_id = $_POST['id'];
+  $user_id = $_SESSION['identity']->usuario_id;
+  $description = $_POST['description'];
+  $discount = (!empty($_POST['discount'])) ? $_POST['discount'] : 0;
+  $quantity = (!empty($_POST['quantity'])) ? $_POST['quantity'] : 0;
+  $taxes = (!empty($_POST['taxes'])) ? $_POST['taxes'] : 0;
+  $price = $_POST['price'];
+
+  $db = Database::connect();
+
+   // Desactivar trigger
+  $db->query("DROP TRIGGER IF EXISTS agregar_item_cotizacion");
+
+  $query = "INSERT INTO detalle_cotizaciones values 
+  (null,$quote_id,$user_id,'$description','$quantity','$price','$taxes','$discount',curdate());";
+
+  if ($db->query($query) === TRUE) {
+    echo "ready";
+  } else {
+    echo "Ha ocurrido un error";
+  }
+
+  
+  // Activar trigger
+  Help::CREATE_TRIGGER_agregar_item_cotizacion();
+}
+
+
+
 if ($_POST['action'] == "agregar_detalle_cotizacion") {
 
   $quote_id = $_POST['id'];
@@ -834,12 +855,15 @@ if ($_POST['action'] == "agregar_detalle_cotizacion") {
 
   $db = Database::connect();
 
-  $query = "INSERT INTO detalle_cotizaciones values (null,$quote_id,$user_id,'$description','$quantity','$price','$taxes','$discount',curdate());";
+ $query = "INSERT INTO detalle_cotizaciones values 
+  (null,$quote_id,$user_id,'$description','$quantity','$price','$taxes','$discount',curdate());";
+  
   if ($db->query($query) === TRUE) {
     echo "ready";
   } else {
     echo "Ha ocurrido un error";
   }
+
 }
 
 // Eliminar cotizacion
@@ -868,12 +892,16 @@ if ($_POST['action'] == "total_cotizacion") {
 
   $db = Database::connect();
 
-  $id = $_POST['id'];
+  $id = $_POST['invoice_id'];
 
-  $query = "SELECT sum(d.cantidad * d.impuesto) as taxes, sum(d.descuento) as descuentos, sum(d.cantidad * d.precio) as precios,
-  c.total FROM detalle_cotizaciones d 
-  INNER JOIN cotizaciones c ON c.cotizacion_id = d.cotizacion_id
-   WHERE c.cotizacion_id = '$id'";
+  $query = "SELECT 
+  SUM(d.cantidad * d.impuesto) AS taxes,
+  SUM(d.descuento) AS descuentos,
+  SUM(d.cantidad * d.precio) AS precios,
+  SUM((d.cantidad * d.precio) + (d.cantidad * d.impuesto) - d.descuento) AS total_factura
+FROM detalle_cotizaciones d 
+INNER JOIN cotizaciones c ON c.cotizacion_id = d.cotizacion_id
+WHERE c.cotizacion_id = '$id'";
 
   jsonQueryResult($db, $query);
 }
@@ -886,6 +914,7 @@ if ($_POST['action'] === "registrar_detalle_orden_venta") {
 
   $order_id = $_POST['order_id'];
   $invoice_id = $_POST['invoice_id'];
+  $date = $_POST['date'];
 
   $db = Database::connect();
 
@@ -893,9 +922,17 @@ if ($_POST['action'] === "registrar_detalle_orden_venta") {
   $sql = "UPDATE detalle_ventas_con_productos
         SET factura_venta_id = $invoice_id
         WHERE comanda_id = $order_id;
+
+        UPDATE detalle_ventas_con_piezas_
+        SET factura_venta_id = $invoice_id
+        WHERE comanda_id = $order_id;
+
+        UPDATE detalle_ventas_con_servicios
+        SET factura_venta_id = $invoice_id
+        WHERE comanda_id = $order_id;
         
         UPDATE detalle_facturas_ventas
-        SET factura_venta_id = $invoice_id
+        SET factura_venta_id = $invoice_id, fecha = '$date'
         WHERE comanda_id = $order_id;";
 
   $db->multi_query($sql);

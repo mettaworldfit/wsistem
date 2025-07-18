@@ -64,8 +64,8 @@ $(document).ready(function () {
     $('#pay').on('keyup', (e) => {
         e.preventDefault();
 
-        const pay = parseInt($('#pay').val());
-        const pending = parseInt($('#pending').val().replace(/,/g, ""));
+        const pay = parseFloat($('#pay').val());
+        const pending = parseFloat($('#pending').val().replace(/,/g, ""));
 
         const show = pay <= pending;
         $('#add_payment, #add_payment_print').toggle(show);

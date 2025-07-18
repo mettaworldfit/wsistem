@@ -6,8 +6,6 @@
     </div>
 </div>
 
-
-
 <div class="generalContainer">
     <table id="invoicesrp" class="table-custom table ">
         <thead>

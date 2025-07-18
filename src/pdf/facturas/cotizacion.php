@@ -269,19 +269,19 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
             <tfoot id="detalle_totales">
                 <tr>
                     <td colspan="5" class="textright"><span>SUBTOTAL</span></td>
-                    <td class="textright"><span><?= number_format($subtotal, 2) ?></span></td>
+                    <td class="textright"><span><?= number_format((float)$subtotal, 2) ?></span></td>
                 </tr>
                 <tr>
                     <td colspan="5" class="textright"><span>DESCUENTO</span></td>
-                    <td class="textright"><span><?= number_format($discount, 2) ?></span></td>
+                    <td class="textright"><span><?= number_format((float)$discount, 2) ?></span></td>
                 </tr>
                 <tr>
                     <td colspan="5" class="textright"><span>ITBIS</span></td>
-                    <td class="textright"><span><?= number_format($taxes, 2) ?></span></td>
+                    <td class="textright"><span><?= number_format((float)$taxes, 2) ?></span></td>
                 </tr>
                 <tr>
                     <td colspan="5" class="textright total"><span><b>TOTAL</b></span></td>
-                    <td class="textright total"><span><?= number_format($total, 2) ?></span></td>
+                    <td class="textright total"><span><?= number_format((float)$total, 2) ?></span></td>
                 </tr>
             </tfoot>
         </table>

@@ -144,7 +144,7 @@ if ($_POST['action'] == "index_facturas_reparacion") {
                 $acciones .= '<a class="action-edit action-disable" href="#" title="Editar"><i class="fas fa-pencil-alt"></i></a>';
             }
 
-            $acciones .= ' <span onclick="deleteInvoiceRP(\'' . $facturaId . '\')" class="action-delete"><i class="fas fa-times"></i></span>';
+            $acciones .= ' <span onclick="deleteInvoiceRP(\'' . $ordenId. '\')" class="action-delete"><i class="fas fa-times"></i></span>';
 
             return [
                 'id' => 'RP-00' . $facturaId,

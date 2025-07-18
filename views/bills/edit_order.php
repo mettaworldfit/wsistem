@@ -178,7 +178,7 @@ if ($verify == "permitir") {
                                     <div class="i">
                                         <i class="fas fa-box-open"></i>
                                     </div>
-                                    <input type="number" class="form-custom-icon b-left" name="cantidad" id="or_quantity" required>
+                                    <input type="number" class="form-custom-icon b-left" name="cantidad" step="0.01" min="0" max="999.99" id="or_quantity" required>
                                 </div>
                             </div>
 
