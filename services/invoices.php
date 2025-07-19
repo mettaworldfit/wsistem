@@ -498,7 +498,6 @@ if ($_POST['action'] === "agregar_detalle_venta") {
     $piece_id,
     $service_id
   ]);
-
 }
 
 // Obtener precios del detalle temporal
@@ -570,7 +569,7 @@ if ($_POST['action'] == "factura_contado") {
 
   $db = Database::connect();
 
-  echo handleProcedureAction($db,'vt_facturaVenta',[
+  echo handleProcedureAction($db, 'vt_facturaVenta', [
     (int)$_POST['customer_id'],
     (int)$_POST['method_id'],
     $_POST['total_invoice'],
@@ -673,7 +672,7 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
   $db->query($query4);
 
   // Activar TRIGGER
-  Help::createAllTriggers();   
+  Help::createAllTriggers();
 }
 
 
@@ -773,15 +772,14 @@ if ($_POST['action'] == 'actualizar_factura') {
 if ($_POST['action'] == "registrar_cotizaciones") {
 
   $db = Database::connect();
-  
-  echo handleProcedureAction($db,'ct_cotizacion',[
-   (int) $_POST['customer_id'],
-   (int) $_SESSION['identity']->usuario_id,
-   $_POST['total'],
-   $_POST['observation'],
-   $_POST['date']
+
+  echo handleProcedureAction($db, 'ct_cotizacion', [
+    (int) $_POST['customer_id'],
+    (int) $_SESSION['identity']->usuario_id,
+    $_POST['total'],
+    $_POST['observation'],
+    $_POST['date']
   ]);
- 
 }
 
 // actualizar cotizaciones
@@ -824,7 +822,7 @@ if ($_POST['action'] == "crear_detalle_cotizacion") {
 
   $db = Database::connect();
 
-   // Desactivar trigger
+  // Desactivar trigger
   $db->query("DROP TRIGGER IF EXISTS agregar_item_cotizacion");
 
   $query = "INSERT INTO detalle_cotizaciones values 
@@ -836,7 +834,7 @@ if ($_POST['action'] == "crear_detalle_cotizacion") {
     echo "Ha ocurrido un error";
   }
 
-  
+
   // Activar trigger
   Help::CREATE_TRIGGER_agregar_item_cotizacion();
 }
@@ -855,15 +853,14 @@ if ($_POST['action'] == "agregar_detalle_cotizacion") {
 
   $db = Database::connect();
 
- $query = "INSERT INTO detalle_cotizaciones values 
+  $query = "INSERT INTO detalle_cotizaciones values 
   (null,$quote_id,$user_id,'$description','$quantity','$price','$taxes','$discount',curdate());";
-  
+
   if ($db->query($query) === TRUE) {
     echo "ready";
   } else {
     echo "Ha ocurrido un error";
   }
-
 }
 
 // Eliminar cotizacion
@@ -910,49 +907,64 @@ WHERE c.cotizacion_id = '$id'";
 
 
 if ($_POST['action'] === "registrar_detalle_orden_venta") {
-  $db = Database::connect();
 
-  $order_id = $_POST['order_id'];
-  $invoice_id = $_POST['invoice_id'];
+  $order_id = (int) $_POST['order_id'];
+  $invoice_id = (int) $_POST['invoice_id'];
   $date = $_POST['date'];
 
   $db = Database::connect();
-
-  // Dos UPDATEs en un solo batch
-  $sql = "UPDATE detalle_ventas_con_productos
-        SET factura_venta_id = $invoice_id
-        WHERE comanda_id = $order_id;
-
-        UPDATE detalle_ventas_con_piezas_
-        SET factura_venta_id = $invoice_id
-        WHERE comanda_id = $order_id;
-
-        UPDATE detalle_ventas_con_servicios
-        SET factura_venta_id = $invoice_id
-        WHERE comanda_id = $order_id;
-        
-        UPDATE detalle_facturas_ventas
-        SET factura_venta_id = $invoice_id, fecha = '$date'
-        WHERE comanda_id = $order_id;";
-
-  $db->multi_query($sql);
-
   $anyAffected = false;
 
-  // Consumir cada resultado y chequear affected_rows
-  do {
-    // almacenamos y liberamos el result set si lo hay
-    if ($res = $db->store_result()) {
-      $res->free();
+  try {
+    // 1. detalle_ventas_con_productos
+    $sql1 = "UPDATE detalle_ventas_con_productos
+             SET factura_venta_id = '$invoice_id'
+             WHERE comanda_id = '$order_id'";
+    if (!$db->query($sql1)) {
+      throw new Exception("Error en productos: " . $db->error);
     }
-    // si alguna de las dos actualizaciones afectó filas, marcamos éxito
-    if ($db->affected_rows > 0) {
-      $anyAffected = true;
-    }
-  } while ($db->more_results() && $db->next_result());
+    if ($db->affected_rows > 0) $anyAffected = true;
 
-  echo json_encode([
-    "success"      => $anyAffected,
-    "anyAffected"  => $anyAffected
-  ]);
+    // 2. detalle_ventas_con_piezas_ (verifica si ese guion bajo es correcto)
+    $sql2 = "UPDATE detalle_ventas_con_piezas_
+             SET factura_venta_id = '$invoice_id'
+             WHERE comanda_id = '$order_id'";
+    if (!$db->query($sql2)) {
+      throw new Exception("Error en piezas: " . $db->error);
+    }
+    if ($db->affected_rows > 0) $anyAffected = true;
+
+    // 3. detalle_ventas_con_servicios
+    $sql3 = "UPDATE detalle_ventas_con_servicios
+             SET factura_venta_id = '$invoice_id'
+             WHERE comanda_id = '$order_id'";
+    if (!$db->query($sql3)) {
+      throw new Exception("Error en servicios: " . $db->error);
+    }
+    if ($db->affected_rows > 0) $anyAffected = true;
+
+    // 4. detalle_facturas_ventas
+    $dateEscaped = $db->real_escape_string($date);
+
+    $sql4 = "UPDATE detalle_facturas_ventas
+             SET factura_venta_id = '$invoice_id', fecha = '$dateEscaped'
+             WHERE comanda_id = '$order_id'";
+    if (!$db->query($sql4)) {
+      throw new Exception("Error en detalle_facturas: " . $db->error);
+    }
+    if ($db->affected_rows > 0) $anyAffected = true;
+
+    // Éxito
+    echo json_encode([
+      "success" => true,
+      "anyAffected" => $anyAffected
+    ]);
+  } catch (Exception $e) {
+    // Error capturado
+    http_response_code(500);
+    echo json_encode([
+      "success" => false,
+      "error" => $e->getMessage()
+    ]);
+  }
 }

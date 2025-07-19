@@ -373,7 +373,6 @@ $(document).ready(function () {
             const action = pageURL.includes('invoices/add_order') ? 'registrar_detalle_orden_venta'
                 : 'registrar_detalle_de_venta';
 
-
             sendAjaxRequest({
                 url: "services/invoices.php",
                 data: {
@@ -604,7 +603,7 @@ $(document).ready(function () {
 
                     REGISTER_DETAIL_ON_CREDIT(res, data, receipt); // Cargar de nuevo el detalle
                     $('#buttons').hide() // Ocultar botones luego de facturar la orden
-                    
+
                     // Vaciar campos
                     $('#in-subtotal').val('0')
                     $('#in-taxes').val('0')
@@ -1005,6 +1004,7 @@ function addDetailItem() {
                 }
             },
             errorCallback: (res) => mysql_error(error),
+            verbose: true
         });
     }
 }
