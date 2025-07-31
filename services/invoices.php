@@ -906,6 +906,7 @@ WHERE c.cotizacion_id = '$id'";
 
 
 
+// Registra el detalle de la orden con la factura correspondiente
 if ($_POST['action'] === "registrar_detalle_orden_venta") {
 
   $order_id = (int) $_POST['order_id'];

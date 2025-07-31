@@ -237,6 +237,7 @@ ORDER BY DAY(fecha);";
 }
 
 
+// Buscador goblal
 if ($_POST['action'] == 'buscador') {
 
     $db = Database::connect();
@@ -247,7 +248,8 @@ if ($_POST['action'] == 'buscador') {
     $result = [];
 
     if ($keyword !== '') {
-        $clientes = $db->query("SELECT cliente_id,nombre,apellidos FROM clientes WHERE nombre LIKE '%$keyword%' LIMIT 5");
+        $clientes = $db->query("SELECT cliente_id,nombre,apellidos FROM clientes 
+        WHERE nombre LIKE '%$keyword%' LIMIT 5");
         while ($row = $clientes->fetch_assoc()) {
             $result[] = [
                 'tipo' => 'Cliente',
@@ -257,7 +259,8 @@ if ($_POST['action'] == 'buscador') {
             ];
         }
 
-        $proveedores = $db->query("SELECT proveedor_id,nombre_proveedor FROM proveedores WHERE nombre_proveedor LIKE '%$keyword%' LIMIT 5");
+        $proveedores = $db->query("SELECT proveedor_id,nombre_proveedor FROM proveedores 
+        WHERE nombre_proveedor LIKE '%$keyword%' LIMIT 5");
         while ($row = $proveedores->fetch_assoc()) {
             $result[] = [
                 'tipo' => 'Proveedor',
@@ -266,7 +269,8 @@ if ($_POST['action'] == 'buscador') {
             ];
         }
 
-        $productos = $db->query("SELECT producto_id, nombre_producto, precio_unitario FROM productos WHERE nombre_producto LIKE '%$keyword%' LIMIT 5");
+        $productos = $db->query("SELECT producto_id, nombre_producto, precio_unitario FROM productos 
+        WHERE nombre_producto LIKE '%$keyword%' OR cod_producto LIKE '%$keyword%' LIMIT 5");
         while ($row = $productos->fetch_assoc()) {
             $result[] = [
                 'tipo' => 'Producto',
@@ -276,7 +280,8 @@ if ($_POST['action'] == 'buscador') {
             ];
         }
 
-        $piezas = $db->query("SELECT pieza_id, nombre_pieza, precio_unitario FROM piezas WHERE nombre_pieza LIKE '%$keyword%' LIMIT 5");
+        $piezas = $db->query("SELECT pieza_id, nombre_pieza, precio_unitario FROM piezas 
+        WHERE nombre_pieza LIKE '%$keyword%' OR cod_pieza LIKE '%$keyword%' LIMIT 5");
         while ($row = $piezas->fetch_assoc()) {
             $result[] = [
                 'tipo' => 'Pieza',

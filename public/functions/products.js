@@ -653,7 +653,7 @@ $(document).ready(function () {
         // Rellenar campos del formulario con los datos del producto
         $("#select2-variant_id-container").empty();
         $("#product_id").val(product.IDproducto);
-        $("#code").val(product.cod_producto);
+      //  $("#code").val(product.cod_producto);
         $("#stock").val(product.cantidad);
         $("#quantity").val(1);
         $("#locate").val(product.referencia);
@@ -713,6 +713,7 @@ $(document).ready(function () {
             successCallback: (res) => {
 
                 var data = JSON.parse(res);
+                $("#code").val(data[0].cod_producto)
 
                 applyProductOptions(data); // Aplicar opciones
                 validateProductQuantity(); // Calcular precios
@@ -724,6 +725,11 @@ $(document).ready(function () {
 
     $("#code").on("keyup", function () {
         const productCode = $(this).val().trim();
+
+          if (productCode.length < 3) {
+            return;
+        }
+
         fetchProductCode(productCode || null);
     });
 

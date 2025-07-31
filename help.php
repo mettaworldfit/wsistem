@@ -1725,6 +1725,21 @@ public static function createAllTriggers()
 
       return $data->stock;
    }
+
+
+   public static function numOrderAlert()
+   {
+
+      $db = Database::connect();
+
+      $query = "SELECT COUNT(DISTINCT co.comanda_id) AS total FROM comandas co
+              INNER JOIN detalle_facturas_ventas d ON co.comanda_id = d.comanda_id;";
+
+      $result = $db->query($query);
+      $data = $result->fetch_object();
+
+      return $data->total;
+   }
 } // Exit
 
 

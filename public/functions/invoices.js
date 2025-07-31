@@ -960,12 +960,13 @@ function addDetailItem() {
         }
     }
 
-    // asignar variantes al detalle temporal
-
+    // Asignar variantes al detalle de factura
     function assignVariants(detail_id, variants) {
         const action2 = pageURL.includes("invoices/addpurchase") ? "asignar_variantes_temporales"
             : pageURL.includes("invoices/edit") ? "asignar_variantes"
-                : null;
+            : pageURL.includes("invoices/add_order") ? "asignar_variantes"
+            : null;
+
         if (!action2) return;
 
         variants.forEach(variant_id => {

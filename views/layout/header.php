@@ -244,6 +244,32 @@
           <div class="admin-right">
             <div class="content-bar-info">
 
+             <div class="num-order">
+                <a href="<?= base_url ?>" title="Ordenes de ventas">
+                  <?php
+
+                  $order = Help::numOrderAlert();
+                  $className = "";
+
+                  if ($order < 10) {
+                    $className .= "alert-notify alert-notify-xs alert-num-order";
+                  } elseif ($order > 99) {
+                    $className .= "alert-notify alert-notify-lg alert-num-order";
+                    $order = "99+";
+                  } else {
+                    $className .= "alert-notify alert-notify-md alert-num-order";
+                  }
+
+                  ?>
+
+                  <span class="<?= $className ?>">
+                    <i class="fas fa-clipboard-list"></i>
+                    <p><?= $order; ?></p>
+                  </span>
+
+                </a>
+              </div>
+
 
               <div class="out-stock">
                 <a href="<?= base_url ?>products/stock" title="Casi agotados">
@@ -253,12 +279,12 @@
                   $className = "";
 
                   if ($stock < 10) {
-                    $className .= "alert-notify alert-notify-xs";
+                    $className .= "alert-notify alert-notify-xs alert-out-stock";
                   } elseif ($stock > 99) {
-                    $className .= "alert-notify alert-notify-lg";
+                    $className .= "alert-notify alert-notify-lg alert-out-stock";
                     $stock = "99+"; // Nuevo stock
                   } else {
-                    $className .= "alert-notify alert-notify-md";
+                    $className .= "alert-notify alert-notify-md alert-out-stock";
                   }
 
                   ?>

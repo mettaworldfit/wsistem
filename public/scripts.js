@@ -369,9 +369,10 @@ $(document).ready(function () {
         }
     });
 
-    // Notificacion de cantidad minima de productos
+    // Notificaciones del admin bar
     setInterval(function () {
         $(".out-stock p").fadeTo(1200, 0.1).fadeTo(1200, 1);
+        $(".num-order p").fadeTo(1200, 0.1).fadeTo(1200, 1);
     }, 1600);
 
 

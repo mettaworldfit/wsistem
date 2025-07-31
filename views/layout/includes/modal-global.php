@@ -207,7 +207,7 @@
                     <div class="row">
                         <div class="form-group col-sm-12">
                             <label class="form-check-label" for="">Comentarios o instrucciones especiales</label>
-                            <textarea class="form-custom" name="" value="" id="observation" cols="30" rows="3"
+                            <textarea class="form-custom" name="" value="" id="observation_repair" cols="30" rows="3"
                                 maxlength="254" placeholder="Observaciones"></textarea>
                         </div>
                     </div>

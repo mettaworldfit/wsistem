@@ -1,5 +1,5 @@
 function addOrdenRepair() {
-
+    
     sendAjaxRequest({
         url: "services/workshop.php",
         data: {
@@ -7,7 +7,7 @@ function addOrdenRepair() {
             customer_id: $('#or_customer_id').val(),
             device: $('#device').val(),
             serie: $('#serie').val(),
-            observation: $('#observation').val(),
+            observation: $('#observation_repair').val(),
             imei: $('#imei').val()
         },
         successCallback: (res) => {

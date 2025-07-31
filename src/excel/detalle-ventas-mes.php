@@ -53,12 +53,12 @@ FROM (
     INNER JOIN (
       SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
       FROM detalle_facturas_ventas
-      WHERE MONTH(fecha) = 07 AND YEAR(fecha) = 2025
+      WHERE MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'
       GROUP BY factura_venta_id
     ) ft ON ft.factura_venta_id = f.factura_venta_id
     INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
     INNER JOIN productos p ON p.producto_id = dp.producto_id
-    WHERE MONTH(d.fecha) = 07 AND YEAR(d.fecha) = 2025
+    WHERE MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year'
     GROUP BY p.nombre_producto
 
     UNION ALL
@@ -80,12 +80,12 @@ FROM (
     INNER JOIN (
       SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
       FROM detalle_facturas_ventas
-      WHERE MONTH(fecha) = 07 AND YEAR(fecha) = 2025
+      WHERE MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'
       GROUP BY factura_venta_id
     ) ft ON ft.factura_venta_id = f.factura_venta_id
     INNER JOIN detalle_ventas_con_piezas_ dp ON dp.detalle_venta_id = d.detalle_venta_id
     INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
-    WHERE MONTH(d.fecha) = 07 AND YEAR(d.fecha) = 2025
+    WHERE MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year'
     GROUP BY p.nombre_pieza
 
     UNION ALL
@@ -107,12 +107,12 @@ FROM (
     INNER JOIN (
       SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
       FROM detalle_ordenRP
-      WHERE MONTH(fecha) = 07 AND YEAR(fecha) = 2025
+      WHERE MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'
       GROUP BY orden_rp_id
     ) ft ON ft.orden_rp_id = frp.orden_rp_id
     INNER JOIN detalle_ordenRP_con_piezas dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
     INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
-    WHERE MONTH(d.fecha) = 07 AND YEAR(d.fecha) = 2025
+    WHERE MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year'
     GROUP BY p.nombre_pieza
 
     UNION ALL
@@ -134,12 +134,12 @@ FROM (
     INNER JOIN (
       SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
       FROM detalle_facturas_ventas
-      WHERE MONTH(fecha) = 07 AND YEAR(fecha) = 2025
+      WHERE MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'
       GROUP BY factura_venta_id
     ) ft ON ft.factura_venta_id = f.factura_venta_id
     INNER JOIN detalle_ventas_con_servicios ds ON ds.detalle_venta_id = d.detalle_venta_id
     INNER JOIN servicios s ON s.servicio_id = ds.servicio_id
-    WHERE MONTH(d.fecha) = 07 AND YEAR(d.fecha) = 2025
+    WHERE MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year'
     GROUP BY s.nombre_servicio
 
     UNION ALL
@@ -161,12 +161,12 @@ FROM (
     INNER JOIN (
       SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
       FROM detalle_ordenRP
-      WHERE MONTH(fecha) = 07 AND YEAR(fecha) = 2025
+      WHERE MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'
       GROUP BY orden_rp_id
     ) ft ON ft.orden_rp_id = frp.orden_rp_id
     INNER JOIN detalle_ordenRP_con_servicios dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
     INNER JOIN servicios s ON s.servicio_id = dp.servicio_id
-    WHERE MONTH(d.fecha) = 07 AND YEAR(d.fecha) = 2025
+    WHERE MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year'
     GROUP BY s.nombre_servicio
 ) AS detalle_ventas_mes GROUP BY nombre, tipo
  ORDER BY tipo DESC;";
