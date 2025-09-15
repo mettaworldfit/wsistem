@@ -2,6 +2,8 @@
 
 function calculateInvoiceTotalRp() {
 
+    console.log("ejecutando calculateInvoiceTotalRp()")
+
     sendAjaxRequest({
         url: "services/repair.php",
         data: {
@@ -47,7 +49,7 @@ function calculateInvoiceTotalRp() {
             $('#credit-topay, #credit-pending').val(creditFmt);
 
             // Mostrar/Ocultar botones
-            const showButtons = !isNaN(total);
+            const showButtons = !isNaN(total) && total !== 0;
             $('#cash-in-finish_rp, #cash-in-finish-rp-receipt, #credit-in-finish-rp-receipt, #credit-in-finish_rp').toggle(showButtons);
             $('.pay').toggle(showButtons);
         }

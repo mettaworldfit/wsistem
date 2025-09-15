@@ -116,7 +116,7 @@
             </div>
             <div class="content">
                 <p>Estimado/a <strong><?= $CustName; ?> <?= $CustLastName; ?></strong>,</p>
-                <p>Gracias por su compra. A continuación, los detalles de su factura:</p>
+                <p>Gracias por visitar <?= $Company; ?>. A continuación, los detalles de su factura:</p>
 
                 <table class="details">
                     <tr>

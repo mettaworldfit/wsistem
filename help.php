@@ -679,6 +679,24 @@ class Help
       return $db->query($query);
    }
 
+   public static function getActiveCustomersThisMonth()
+   {
+      $sql = "SELECT COUNT(DISTINCT fv.cliente_id) AS total_active_customers
+                FROM facturas_ventas fv
+                WHERE MONTH(fv.fecha) = MONTH(CURDATE())
+                  AND YEAR(fv.fecha) = YEAR(CURDATE())";
+      
+      $db = Database::connect();
+
+      $result = $db->query($sql);
+
+      if ($result && $row = $result->fetch_assoc()) {
+         return (int)$row['total_active_customers'];
+      } else {
+         return 0;
+      }
+   }
+
    /**
     * Proveedor
      ------------------------------------*/
@@ -741,9 +759,12 @@ class Help
 
    public static function showProducts()
    {
-      $query = "SELECT *,p.producto_id as IDproducto FROM productos p 
+      $query = "SELECT *,p.producto_id as IDproducto,o.valor FROM productos p 
                LEFT JOIN productos_con_marcas pm ON p.producto_id = pm.producto_id
-               LEFT JOIN marcas m ON pm.marca_id = m.marca_id WHERE p.estado_id = 1";
+               LEFT JOIN marcas m ON pm.marca_id = m.marca_id
+                LEFT JOIN productos_con_ofertas po ON p.producto_id = po.producto_id
+               LEFT JOIN ofertas o ON o.oferta_id = po.oferta_id
+               WHERE p.estado_id = 1";
 
       $db = Database::connect();
       return $db->query($query);
@@ -1675,19 +1696,19 @@ class Help
 
 
 
-public static function createAllTriggers()
-{
-    self::CREATE_TRIGGER_restar_stock_productos();
-    self::CREATE_TRIGGER_restar_stock_piezas();
-    self::CREATE_TRIGGER_devolver_stocks_temporales();
-    self::CREATE_TRIGGER_devolver_variantes_temporales();
-    self::CREATE_TRIGGER_agregar_item_venta();
-}
+   public static function createAllTriggers()
+   {
+      self::CREATE_TRIGGER_restar_stock_productos();
+      self::CREATE_TRIGGER_restar_stock_piezas();
+      self::CREATE_TRIGGER_devolver_stocks_temporales();
+      self::CREATE_TRIGGER_devolver_variantes_temporales();
+      self::CREATE_TRIGGER_agregar_item_venta();
+   }
 
 
 
 
-    public static function CREATE_TRIGGER_agregar_item_cotizacion()
+   public static function CREATE_TRIGGER_agregar_item_cotizacion()
    {
 
       $db = Database::connect();

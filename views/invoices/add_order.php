@@ -86,7 +86,7 @@
             </button>
 
 
-            <button class="btn-custom btn-orange" type="button" id="printer_order">
+            <button class="btn-custom btn-orange" type="button" id="printOrder">
                 <i class="fas fa-receipt"></i>
                 <p>Imprimir ticket</p>
             </button>

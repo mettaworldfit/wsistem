@@ -1660,6 +1660,15 @@ table#variantList {
     text-align: center;
 }
 
+.grid-tab-detail {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 20px;
+}
+
+.tab-detail:first-child {
+    margin-right: 90px;
+}
 
 .table-custom {
     background: #fff;
@@ -2560,6 +2569,10 @@ a.button-404:hover {
     color: #a02cc0 !important;
 }
 
+.activeCustomers {
+    color: #2cc098 !important;
+}
+
 .lost-color {
     color: #db2b2b !important;
 }
@@ -2937,3 +2950,17 @@ legend.cash-closing-legend {
     background: #dbdbdb;
     border-left: 5px solid #e03535;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

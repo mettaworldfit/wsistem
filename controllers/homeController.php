@@ -60,6 +60,8 @@ class HomeController
         $dailyProfit = Help::getDailyProfit(); // Ganancias de hoy
         $monthProfit = Help::getMonthProfit(); // Ganancias del mes
 
+        $getActiveCustomersThisMonth = Help::getActiveCustomersThisMonth(); // Clientes activos de este mes
+
         require_once './views/layout/home.php';
     }
 

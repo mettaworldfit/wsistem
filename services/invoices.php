@@ -415,7 +415,7 @@ if ($_POST['action'] == "agregar_detalle_temporal") {
     (int)$_POST['discount'] ?? 0
   ];
 
-  echo handleProcedureAction($db, 'vt_crearDetalleTemporal', $params);
+echo handleProcedureAction($db, 'vt_crearDetalleTemporal', $params);
 }
 
 if ($_POST['action'] == "asignar_variantes_temporales") {
@@ -968,4 +968,43 @@ if ($_POST['action'] === "registrar_detalle_orden_venta") {
       "error" => $e->getMessage()
     ]);
   }
+}
+
+
+
+// Obtener datos del detalle de venta para imprimir
+
+if ($_POST['action'] === "obtener_detalle_orden") {
+  $db = Database::connect();
+
+  $id = $_POST['orderId'];
+
+  // Detalle
+  $q1 = "SELECT df.precio,df.descuento,
+  COALESCE(p.nombre_producto, s.nombre_servicio, pz.nombre_pieza) AS descripcion,
+  df.comanda_id,df.cantidad 
+  FROM detalle_facturas_ventas df
+  LEFT JOIN detalle_ventas_con_productos dvp ON df.detalle_venta_id = dvp.detalle_venta_id
+  LEFT JOIN productos p ON p.producto_id = dvp.producto_id
+  LEFT JOIN detalle_ventas_con_servicios dvs ON df.detalle_venta_id = dvs.detalle_venta_id
+  LEFT JOIN servicios s ON s.servicio_id = dvs.servicio_id
+  LEFT JOIN detalle_ventas_con_piezas_ dvpz ON df.detalle_venta_id = dvpz.detalle_venta_id
+  LEFT JOIN piezas pz ON pz.pieza_id = dvpz.pieza_id
+  WHERE df.comanda_id = '$id'";
+
+  // datos de la orden
+  $q2 = "SELECT concat(c.nombre,' ',IFNULL(c.apellidos,'')) as 'nombre', co.observacion,co.tipo_entrega,
+  co.direccion_entrega,co.nombre_receptor,co.telefono_receptor,co.fecha,c.telefono1,u.nombre as 'cajero'
+  FROM comandas co
+  INNER JOIN clientes c ON c.cliente_id = co.cliente_id 
+  INNER JOIN usuarios u on u.usuario_id = co.usuario_id
+  WHERE comanda_id = '$id'";
+
+   // Ejecutar las consultas
+  $result1 = $db->query($q1)->fetch_all();
+  $result2 = $db->query($q2)->fetch_assoc();
+
+  // Devolver los resultados
+  
+  echo json_encode([$result1, $result2],JSON_UNESCAPED_UNICODE);
 }

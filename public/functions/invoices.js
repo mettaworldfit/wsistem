@@ -226,7 +226,7 @@ function resetModal() {
 
 $(document).ready(function () {
 
-    // Ocultar botones por defecto (cotización, editar última factura, tipos de facturación)
+   // Ocultar botones por defecto (cotización, editar última factura, tipos de facturación)
     $('#SaveQuote, #last_invoice_edit, #credit-in-finish, #credit-in-finish-receipt, #cash-in-finish-receipt, #cash-in-finish').hide();
 
     if (
@@ -258,6 +258,7 @@ $(document).ready(function () {
                     $('#piece_code').show();
                     $('.product-piece, .discount').show();
                     $('#code').hide();
+                    $("#totalPrice").val("0.00");
 
                     // Requerimientos
                     $('#rp_service, #product').attr('required', false);
@@ -274,6 +275,7 @@ $(document).ready(function () {
                     $('#piece_code').hide();
                     $('.product-piece, .discount').show();
                     $('#code').show();
+                     $("#totalPrice").val("0.00");
 
                     // Requerimientos
                     $('#rp_service').attr('required', false);
@@ -288,9 +290,11 @@ $(document).ready(function () {
                     // Mostrar campos relacionados con servicios
                     $('.service').show();
                     $('.product, .piece, .product-piece').hide();
-                    $('.discount, #cost-field').hide();
+                    $('.discount').hide();
+                    // $('.discount, #cost-field').hide();
                     $('#discount_service').show();
                     $('#add_item_free').hide();
+                     $("#totalPrice").val("0.00");
 
                     // Requerimientos
                     $('#rp_service').attr('required', true);
@@ -629,7 +633,7 @@ $(document).ready(function () {
 
         function REGISTER_DETAIL_ON_CREDIT(invoice_id, data, receipt) {
 
-              const action = pageURL.includes('invoices/add_order') ? 'registrar_detalle_orden_venta'
+            const action = pageURL.includes('invoices/add_order') ? 'registrar_detalle_orden_venta'
                 : 'registrar_detalle_de_venta';
 
             $.ajax({
@@ -682,7 +686,6 @@ $(document).ready(function () {
         } else if (type == "credit") {
             file = "factura_credito.php"
         }
-        console.log(data)
 
         $.ajax({
             type: "post",
@@ -700,6 +703,84 @@ $(document).ready(function () {
     }
 
 
+/**
+ * Evento para imprimir la orden de venta.
+ * Escucha el click en el botón con id "printOrder", obtiene los datos de la orden
+ * y envía la información al servidor de impresión.
+ */
+$('#printOrder').on('click', (e) => {
+    e.preventDefault();
+
+    /**
+     * Objeto con los totales de la orden.
+     * Los valores numéricos se obtienen desde el DOM y se les eliminan las comas.
+     * @type {{subtotal: string, discount: string, taxes: string, total: string, orderId: string}}
+     */
+    const totals = {
+        subtotal: $('#in-subtotal').val().replace(/,/g, ""),
+        discount: $('#in-discount').val().replace(/,/g, ""),
+        taxes: $('#in-taxes').val().replace(/,/g, ""),
+        total: $('#in-total').val().replace(/,/g, ""),
+        orderId: $('#order_id').val()
+    };
+
+    console.log('Obteniendo datos .....');
+
+    // Solicita los detalles de la orden de venta al servidor
+    sendAjaxRequest({
+        url: "services/invoices.php",
+        data: {
+            action: "obtener_detalle_orden",
+            orderId: totals.orderId
+        },
+        successCallback: (res) => {
+            const detail = JSON.parse(res)[0]; // Detalle de los productos/piezas/servicios
+            const data = JSON.parse(res)[1];   // Información general de la orden
+
+            console.log('Datos del detalle', detail);
+            console.log('Datos de la orden', data);
+            console.log(totals);
+
+            // Envía los datos a la impresora
+            printOrder(detail, data, totals);
+        }
+    });
+
+    /**
+     * Envía la orden de venta al servidor de impresión.
+     * @param {Object} detail - Lista de ítems de la orden.
+     * @param {Object} orderData - Información general de la orden.
+     * @param {Object} orderTotal - Totales de la orden (subtotal, descuento, impuestos, total).
+     */
+    function printOrder(detail, orderData, orderTotal) {
+        console.log('imprimiendo.....');
+
+          mdtoast('imprimiendo ticket...', {
+                    interaction: true,
+                    interactionTimeout: 1500,
+                    position: "bottom right"
+           });
+
+        $.ajax({
+            type: "post",
+            url: PRINTER_SERVER + "orden_venta.php",
+            data: {
+                detail: detail,
+                data: orderData,
+                totals: orderTotal
+            },
+            /**
+             * Callback de éxito que muestra la respuesta del servidor de impresión.
+             * @param {string} res - Respuesta del servidor (estado de impresión).
+             */
+            success: function (res) {
+                console.log("respuesta:", res);
+            }
+        });
+    }
+});
+
+
     // Evento para agregar ítem manual sin precio
     $("#add_item_free").on("click", () => {
         const tipo = $('input[name=tipo]:checked').val();
@@ -714,7 +795,6 @@ $(document).ready(function () {
         // Variables comunes
         let product_id = 0, piece_id = 0, service_id = 0, cost = 0, quantity = 1, discount = 0;
         let description = "", variant_id = [], total_variant = 0;
-
 
         // Configuración según tipo
         if (tipo === 'servicio') {
@@ -938,7 +1018,7 @@ function addDetailItem() {
 
     } else if (tipo === 'producto') {
         discount = $('#discount').val().replace(/,/g, "") || 0;
-        product_id = $('#product').val();
+        product_id = $('#product').val() || $('#product_id').val();
         quantity = $('#quantity').val();
         cost = $('#product_cost').val();
         description = $('#select2-product-container').attr('title');
@@ -955,7 +1035,7 @@ function addDetailItem() {
                 $('.empty-variant, .verify-quantity').css("border", "1px solid red");
             }
         } else {
-            addItem();
+           addItem();
             resetModal();
         }
     }
@@ -964,8 +1044,8 @@ function addDetailItem() {
     function assignVariants(detail_id, variants) {
         const action2 = pageURL.includes("invoices/addpurchase") ? "asignar_variantes_temporales"
             : pageURL.includes("invoices/edit") ? "asignar_variantes"
-            : pageURL.includes("invoices/add_order") ? "asignar_variantes"
-            : null;
+                : pageURL.includes("invoices/add_order") ? "asignar_variantes"
+                    : null;
 
         if (!action2) return;
 
@@ -979,7 +1059,7 @@ function addDetailItem() {
     }
 
     function addItem() {
-        
+  console.log("action:",action)
         sendAjaxRequest({
             url: "services/invoices.php",
             data: {
@@ -997,14 +1077,13 @@ function addDetailItem() {
                 cost: cost
             },
             successCallback: (res) => {
-                console.log(res)
                 calculateTotalInvoice()
                 reloadInvoiceDetail()
                 if (total_variant > 0) {
                     assignVariants(res, variant_id); // Asignar variantes al detalle temporal
                 }
             },
-            errorCallback: (res) => mysql_error(error),
+            errorCallback: (res) => mysql_error(res),
             verbose: true
         });
     }
@@ -1346,10 +1425,10 @@ function RegisterDetail(id, onDb = false, data) {
 
 
     function register(id, description, quantity, price, tax_value, discount) {
-         
+
         const action = pageURL.includes('invoices/quote')
-        ? "crear_detalle_cotizacion"
-        : "agregar_detalle_cotizacion";
+            ? "crear_detalle_cotizacion"
+            : "agregar_detalle_cotizacion";
 
         $.ajax({
             type: "post",

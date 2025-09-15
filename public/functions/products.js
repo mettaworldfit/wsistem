@@ -653,7 +653,7 @@ $(document).ready(function () {
         // Rellenar campos del formulario con los datos del producto
         $("#select2-variant_id-container").empty();
         $("#product_id").val(product.IDproducto);
-      //  $("#code").val(product.cod_producto);
+        //  $("#code").val(product.cod_producto);
         $("#stock").val(product.cantidad);
         $("#quantity").val(1);
         $("#locate").val(product.referencia);
@@ -708,7 +708,7 @@ $(document).ready(function () {
             url: "services/products.php",
             data: {
                 product_id: product_id,
-                action: "buscar_producto" 
+                action: "buscar_producto"
             },
             successCallback: (res) => {
 
@@ -726,7 +726,7 @@ $(document).ready(function () {
     $("#code").on("keyup", function () {
         const productCode = $(this).val().trim();
 
-          if (productCode.length < 3) {
+        if (productCode.length < 3) {
             return;
         }
 
@@ -799,6 +799,7 @@ $(document).ready(function () {
     $("#list_id").change(function () {
         const productId = $("#product_id").val()
 
+
         if ($(this).val() > 0) {
 
             sendAjaxRequest({
@@ -811,12 +812,16 @@ $(document).ready(function () {
                 successCallback: (res) => {
                     var data = JSON.parse(res);
                     $("#price_out").val(format.format(data[0].valor));
+
+                    calculateDetailModalTotalProduct($("#price_out").val().replace(/,/g, '')); // recalcular total con nuevo precio
                 }
             })
 
         } else {
             // Volver a cargar el producto
             fetchProduct(productId);
+            calculateDetailModalTotalProduct(parseFloat($("#product option:selected").data("price"))); // recalcular total con nuevo precio
+
         }
     });
 
@@ -1023,5 +1028,59 @@ $(document).ready(function () {
             }) // Loop
         }
     }
+
+
+    /**
+     * calculateDetailModalTotalProduct
+     * --------------------------
+     * Esta función calcula el total dentro del modal de agregar detalle.
+     * - Obtiene la cantidad introducida por el usuario.
+     * - Obtiene el precio unitario del producto seleccionado.
+     * - Obtiene el porcentaje de descuento (si aplica).
+     * - Calcula el subtotal (cantidad * precio).
+     * - Aplica el descuento en base al porcentaje.
+     * - Muestra el total en el campo correspondiente.
+     */
+    function calculateDetailModalTotalProduct(price_out = 0) {
+
+        var quantity = parseFloat($("#quantity").val()) || 1; // por defecto 1
+        var discountPercent = parseFloat($("#product option:selected").data("discount")) || 0;
+
+        // Convertir price_out a número
+        let priceOutValue = parseFloat(price_out) || 0;
+
+        // Usar priceOutValue si es mayor a 0, sino el precio del producto
+        let price = priceOutValue > 0
+            ? priceOutValue
+            : parseFloat($("#product option:selected").data("price")) || 0;
+
+        var subtotal = quantity * price;
+
+
+        let discountAmount = discountPercent > 0
+           ? subtotal * (discountPercent / 100) // Calcular descuento en base al porcentaje
+           : parseFloat($("#discount").val()) || 0; // Introducirlo manualmente
+
+        // Mostrar el nuevo descuento solo si es mayor a 0
+        if (discountPercent > 0) {
+            $("#discount").val(discountAmount);
+        }
+
+        // Calcular el total
+        var total = subtotal - discountAmount;
+
+        $("#totalPrice").val(total.toFixed(2));
+    }
+
+    // Cada vez que cambie producto, setea también el descuento automático
+    $("#product").on("change", function () {
+        var discount = $("#product option:selected").data("discount") || 0;
+        $("#discount").val(discount); // asignar automáticamente
+        calculateDetailModalTotalProduct();
+    });
+
+    // Detectar cambios en todos los campos
+    $("#quantity, #discount, #product").on("input change", calculateDetailModalTotalProduct);
+
 
 }); // Ready

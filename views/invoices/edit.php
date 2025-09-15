@@ -106,22 +106,31 @@
             <div class="modal-body">
                 <form action="" onsubmit="event.preventDefault(); addDetailItem();">
 
-                    <div class="col-sm-12 row">
+                    <div class="grid-tab-detail">
 
-                        <div class="radio-list">
-                            <div class="radio-item ml-3">
-                                <input type="radio" name="tipo" value="producto" id="radio1" checked>
-                                <label for="radio1">Productos</label>
+                        <div class="tab-detail">
+                            <div class="radio-list">
+                                <div class="radio-item ml-3">
+                                    <input type="radio" name="tipo" value="producto" id="radio1" checked>
+                                    <label for="radio1">Productos</label>
+                                </div>
+
+                                <div class="radio-item ml-2">
+                                    <input type="radio" name="tipo" value="pieza" id="radio2">
+                                    <label for="radio2">Piezas</label>
+                                </div>
+
+                                <div class="radio-item ml-2">
+                                    <input type="radio" name="tipo" value="servicio" id="radio3">
+                                    <label for="radio3">Servicios</label>
+                                </div>
                             </div>
+                        </div>
 
-                            <div class="radio-item ml-2">
-                                <input type="radio" name="tipo" value="pieza" id="radio2">
-                                <label for="radio2">Piezas</label>
-                            </div>
-
-                            <div class="radio-item ml-2">
-                                <input type="radio" name="tipo" value="servicio" id="radio3">
-                                <label for="radio3">Servicios</label>
+                        <div class="tab-detail">
+                            <div class="row-price">
+                                <span>DOP</span>
+                                <input type="text" class="invisible-input col-sm-12 text-left" id="totalPrice" disabled>
                             </div>
                         </div>
                     </div>
@@ -182,9 +191,7 @@
                                     <option value="" disabled selected>Buscar productos</option>
                                     <?php $products = Help::showProducts();
                                     while ($product = $products->fetch_object()): ?>
-                                        <option value="<?= $product->IDproducto ?>">
-                                            <?= ucwords($product->nombre_producto) ?>
-                                        </option>
+                                        <option value="<?= $product->IDproducto ?>" data-price="<?= $product->precio_unitario ?>" data-discount="<?= $product->valor ?>"><?= ucwords($product->nombre_producto) ?></option>
                                     <?php endwhile; ?>
                                 </select>
                                 <input type="hidden" name="" value="" id="taxes">
@@ -205,11 +212,10 @@
                                     <option value="" disabled selected>Buscar servicios</option>
                                     <?php $services = Help::showServices();
                                     while ($service = $services->fetch_object()): ?>
-                                        <option value="<?= $service->servicio_id ?>">
-                                            <?= ucwords($service->nombre_servicio) ?>
-                                        </option>
+                                        <option value="<?= $service->servicio_id ?>" data-price="<?= $service->precio ?>"><?= ucwords($service->nombre_servicio) ?></option>
                                     <?php endwhile; ?>
                                 </select>
+                                <input type="number" class="form-custom-icon b-left" name="costo" value="" id="service_cost">
                             </div>
 
                         </div>
@@ -343,16 +349,7 @@
                             </div>
                         </div>
 
-                         <div class="form-group col-sm-3 service" id="cost-field">
-                            <label class="form-check-label" for="">Costo</label>
-                            <div class="input-div">
-                                <div class="i">
-                                    <i class="fas fa-level-down-alt"></i>
-                                </div>
-                                <input type="number" class="form-custom-icon b-left" name="costo" value="" id="service_cost" style="font-weight: 600" required disabled>
-                            </div>
-                        </div>
-
+                        
                         <div class="form-group col-sm-3">
                             <label class="form-check-label" for="">Precio</label>
                             <div class="input-div">

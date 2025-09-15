@@ -46,7 +46,7 @@
               $icon = "fas fa-caret-down";
             }
             ?>
-            <p class="<?= $className ?>" title="ganancias del mes: <?= number_format($monthProfit ?? 0)?>"><?= $profit ?></p>
+            <p class="<?= $className ?>" title="ganancias del mes: <?= number_format($monthProfit ?? 0) ?>"><?= $profit ?></p>
             <i class="<?= $icon . ' ' . $className ?>"></i>
           </div>
 
@@ -66,7 +66,7 @@
             }
             ?>
 
-            <p class="<?= $className ?>" title="ganancias de hoy: <?= number_format($dailyProfit ?? 0)?>"><?= $profit ?></p>
+            <p class="<?= $className ?>" title="ganancias de hoy: <?= number_format($dailyProfit ?? 0) ?>"><?= $profit ?></p>
             <i class="<?= $icon . ' ' . $className ?>"></i>
           </div>
 
@@ -91,9 +91,36 @@
 
   <a href="<?= base_url ?>contacts/customers" class="card-grid">
     <div>
-      <p>Clientes</p>
-      <p>Total clientes</p>
+      <div class="profit-container">
+        <div class="profit-date">
+          <p>Clientes</p>
+          <p>Total cliente</p>
+        </div>
+
+        <div class="earnings">
+          <div>
+            <?php
+            $activeCustomer = $getActiveCustomersThisMonth;
+            $className = "";
+            $icon = "";
+
+
+            if ($activeCustomer > 0) {
+              $className .= "activeCustomers";
+              $icon .= "fas fa-caret-up";
+            } else if ($activeCustomer < 0) {
+              $className .= "lost-color";
+              $icon = "fas fa-caret-down";
+            }
+            ?>
+            <p class="<?= $className ?>" title="Clientes activos: <?= $activeCustomer ?>"><?= $activeCustomer ?></p>
+            <i class="<?= $icon . ' ' . $className ?>"></i>
+          </div>        
+
+        </div>
+      </div>
     </div>
+
     <span><?= number_format($customers) ?></span>
   </a>
 
