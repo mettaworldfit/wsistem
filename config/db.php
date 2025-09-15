@@ -4,8 +4,8 @@ class Database
 {
 
     private static $mainHost = 'localhost';
-    private static $mainUser = 'root';
-    private static $mainPass = '';
+    private static $mainUser = 'Wilmin';
+    private static $mainPass = 'Mett@1106';
     private static $mainDB   = 'central_config';
 
     public static function dbSelect($username)
