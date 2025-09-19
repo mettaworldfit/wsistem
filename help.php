@@ -762,7 +762,7 @@ class Help
       $query = "SELECT *,p.producto_id as IDproducto,o.valor FROM productos p 
                LEFT JOIN productos_con_marcas pm ON p.producto_id = pm.producto_id
                LEFT JOIN marcas m ON pm.marca_id = m.marca_id
-                LEFT JOIN productos_con_ofertas po ON p.producto_id = po.producto_id
+               LEFT JOIN productos_con_ofertas po ON p.producto_id = po.producto_id
                LEFT JOIN ofertas o ON o.oferta_id = po.oferta_id
                WHERE p.estado_id = 1";
 
@@ -1024,7 +1024,11 @@ class Help
 
    public static function showPieces()
    {
-      $query = "SELECT *FROM piezas WHERE estado_id != 2";
+      $query = "SELECT p.pieza_id, p.estado_id,p.cod_pieza,p.nombre_pieza,
+    p.precio_costo,p.precio_unitario,p.cantidad,p.cantidad_min,o.valor FROM piezas p
+      LEFT JOIN piezas_con_ofertas po ON p.pieza_id = po.pieza_id
+      LEFT JOIN ofertas o ON o.oferta_id = po.oferta_id 
+      WHERE p.estado_id != 2";
 
       $db = Database::connect();
       return $db->query($query);

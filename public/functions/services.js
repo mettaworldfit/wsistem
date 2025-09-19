@@ -86,7 +86,7 @@ $(document).ready(function () {
 
 
     // Buscar servicio por nombre
-    $("#service, #rp_service").on("change", function () {
+    $("#service").on("change", function () {
         const service_id = $(this).val();
 
         // Validar que haya un valor antes de hacer la petición
@@ -149,37 +149,41 @@ $(document).ready(function () {
         * - Muestra el total en el campo correspondiente.
         */
     function calculateDetailModalTotalService(price_out = 0) {
-        var quantity = parseFloat($("#service_quantity").val()) || 1; // por defecto 1
-        var discount = $("#discount_service").val();
-      
-      // Convertir price_out a número
-        let priceOutValue = parseFloat(price_out) || 0;
+    // Obtener cantidad (default 1)
+    var quantity = parseFloat($("#service_quantity").val()) || 1;
 
-        // Usar priceOutValue si es mayor a 0, sino el precio del producto
-        let price = priceOutValue > 0
-            ? priceOutValue
-            : parseFloat($("#service option:selected").data("price")) || $('#price_out').val();
+    // Obtener descuento (0 si vacío o NaN)
+    var discount = parseFloat($("#discount_service").val() || $("#discount").val()) || 0;
 
-        var subtotal = quantity * price;
+    // Precio externo (valor manual de price_out)
+    let priceOutValue = parseFloat(price_out) || 0;
 
-        // Calcular el total
-        var total = subtotal - discount;
+    // Determinar precio (prioridad: externo > data-price > input price_out)
+    let price = priceOutValue > 0
+        ? priceOutValue
+        : parseFloat($("#service option:selected").data("price")) || parseFloat($('#price_out').val()) || 0;
 
-        $("#totalPrice").val(total.toFixed(2));
-    }
+    // Calcular subtotal y total
+    var subtotal = quantity * price;
+    var total = subtotal - discount;
 
-    // Cada vez que cambie servicio, setea también el descuento automático
-    $("#service").on("change", function () {
-        calculateDetailModalTotalService();
-    });
-
-    // Detectar cambios en todos los campos del modal de servicios
-    $("#service_quantity, #discount_service, #service").on("input change", calculateDetailModalTotalService);
+    // Mostrar total con 2 decimales
+    $("#totalPriceService").val(total.toFixed(2));
+}
 
 
-     $("#price_out").on("keyup", function () { 
+// Cuando cambie servicio, recalcular
+$("#service").on("change", function () {
+    calculateDetailModalTotalService();
+});
 
-        calculateDetailModalTotalService($(this).val());
-     })
+// Detectar cambios en cantidad, descuentos y servicio
+$("#service_quantity, #discount_service, #discount, #service").on("input change", calculateDetailModalTotalService);
+
+// Si editan manualmente el precio
+$("#price_out").on("keyup", function () { 
+    calculateDetailModalTotalService($(this).val());
+});
+
 
 }); // Ready

@@ -20,8 +20,32 @@ function registerSalesOrder() {
 
             window.location.href = SITE_URL + 'invoices/add_order&id=' + res
         },
+        errorCallback: (res) => mysql_error(res)
+    })
+}
+
+
+// Editar orden de venta
+function editSalesOrder(orderId) {
+   
+    const data = {
+        action: "editar_orden",
+        order_id: orderId,
+        customer_id: $('#edit_customer_id').val(),
+        name: $('#edit_fullname').val(),
+        tel: $('#edit_tel').val(),
+        direction: $('#edit_direction').val(),
+        observation: $('#edit_observation').val(),
+        delivery: $('#edit_delivery').val()
+    }
+
+    sendAjaxRequest({
+        url: "services/invoices.php",
+        data: data,
+        successCallback: (res) => {
+            mysql_row_update(res)
+        },
         errorCallback: (res) => mysql_error(res),
-        verbose: true
     })
 }
 
@@ -60,8 +84,7 @@ function deleteOrder(id) {
                     action: 'eliminar_orden'
                 },
                 successCallback: () => dataTablesInstances['orders'].ajax.reload(null, false),
-                errorCallback: (res) => mysql_error("Ha ocurrido un error inesperado"),
-                verbose: true
+                errorCallback: (res) => mysql_error("Ha ocurrido un error inesperado")
 
             });
         },
@@ -121,6 +144,7 @@ function calculateTotalInvoice(bonus = 0) {
 
     // Función para cargar totales de la factura
     function loadInvoiceTotals(action, invoice_id, order_id) {
+        if (!action) return; // si no hay action, salir
 
         sendAjaxRequest({
             url: "services/invoices.php",
@@ -226,7 +250,7 @@ function resetModal() {
 
 $(document).ready(function () {
 
-   // Ocultar botones por defecto (cotización, editar última factura, tipos de facturación)
+    // Ocultar botones por defecto (cotización, editar última factura, tipos de facturación)
     $('#SaveQuote, #last_invoice_edit, #credit-in-finish, #credit-in-finish-receipt, #cash-in-finish-receipt, #cash-in-finish').hide();
 
     if (
@@ -241,7 +265,7 @@ $(document).ready(function () {
 
         // Ocultar todos los tipos inicialmente
         $('.piece, .service, #piece_code, #add_item_free').hide();
-        $('#piece, #rp_service').attr('required', false);
+        $('#piece, #service').attr('required', false);
 
         // Manejar el cambio de tipo de ítem (pieza, producto o servicio)
         $('input:radio[name=tipo]').change(function () {
@@ -258,10 +282,15 @@ $(document).ready(function () {
                     $('#piece_code').show();
                     $('.product-piece, .discount').show();
                     $('#code').hide();
-                    $("#totalPrice").val("0.00");
+
+                    // Modal total
+                    $("#totalPricePiece").show();
+                    $("#totalPricePiece").val("0.00");
+                    $("#totalPriceProduct").hide();
+                    $("#totalPriceService").hide();
 
                     // Requerimientos
-                    $('#rp_service, #product').attr('required', false);
+                    $('#service, #product').attr('required', false);
                     $('#piece').attr('required', true);
 
                     // Placeholder de Select2
@@ -275,10 +304,15 @@ $(document).ready(function () {
                     $('#piece_code').hide();
                     $('.product-piece, .discount').show();
                     $('#code').show();
-                     $("#totalPrice").val("0.00");
+
+                    // Modal total
+                    $("#totalPriceProduct").show();
+                    $("#totalPriceProduct").val("0.00");
+                    $("#totalPricePiece").hide();
+                    $("#totalPriceService").hide();
 
                     // Requerimientos
-                    $('#rp_service').attr('required', false);
+                    $('#service').attr('required', false);
                     $('#product').attr('required', true);
                     $('#piece').attr('required', false);
 
@@ -294,10 +328,15 @@ $(document).ready(function () {
                     // $('.discount, #cost-field').hide();
                     $('#discount_service').show();
                     $('#add_item_free').hide();
-                     $("#totalPrice").val("0.00");
+
+                    // Modal total
+                    $("#totalPriceService").show();
+                    $("#totalPriceService").val("0.00");
+                    $("#totalPricePiece").hide();
+                    $("#totalPriceProduct").hide();
 
                     // Requerimientos
-                    $('#rp_service').attr('required', true);
+                    $('#service').attr('required', true);
                     $('#product, #piece').attr('required', false);
                     $('#quantity').attr('required', false);
                     $('#discount, #price_out').attr('disabled', false);
@@ -703,82 +742,82 @@ $(document).ready(function () {
     }
 
 
-/**
- * Evento para imprimir la orden de venta.
- * Escucha el click en el botón con id "printOrder", obtiene los datos de la orden
- * y envía la información al servidor de impresión.
- */
-$('#printOrder').on('click', (e) => {
-    e.preventDefault();
-
     /**
-     * Objeto con los totales de la orden.
-     * Los valores numéricos se obtienen desde el DOM y se les eliminan las comas.
-     * @type {{subtotal: string, discount: string, taxes: string, total: string, orderId: string}}
+     * Evento para imprimir la orden de venta.
+     * Escucha el click en el botón con id "printOrder", obtiene los datos de la orden
+     * y envía la información al servidor de impresión.
      */
-    const totals = {
-        subtotal: $('#in-subtotal').val().replace(/,/g, ""),
-        discount: $('#in-discount').val().replace(/,/g, ""),
-        taxes: $('#in-taxes').val().replace(/,/g, ""),
-        total: $('#in-total').val().replace(/,/g, ""),
-        orderId: $('#order_id').val()
-    };
+    $('#printOrder').on('click', (e) => {
+        e.preventDefault();
 
-    console.log('Obteniendo datos .....');
+        /**
+         * Objeto con los totales de la orden.
+         * Los valores numéricos se obtienen desde el DOM y se les eliminan las comas.
+         * @type {{subtotal: string, discount: string, taxes: string, total: string, orderId: string}}
+         */
+        const totals = {
+            subtotal: $('#in-subtotal').val().replace(/,/g, ""),
+            discount: $('#in-discount').val().replace(/,/g, ""),
+            taxes: $('#in-taxes').val().replace(/,/g, ""),
+            total: $('#in-total').val().replace(/,/g, ""),
+            orderId: $('#order_id').val()
+        };
 
-    // Solicita los detalles de la orden de venta al servidor
-    sendAjaxRequest({
-        url: "services/invoices.php",
-        data: {
-            action: "obtener_detalle_orden",
-            orderId: totals.orderId
-        },
-        successCallback: (res) => {
-            const detail = JSON.parse(res)[0]; // Detalle de los productos/piezas/servicios
-            const data = JSON.parse(res)[1];   // Información general de la orden
+        console.log('Obteniendo datos .....');
 
-            console.log('Datos del detalle', detail);
-            console.log('Datos de la orden', data);
-            console.log(totals);
-
-            // Envía los datos a la impresora
-            printOrder(detail, data, totals);
-        }
-    });
-
-    /**
-     * Envía la orden de venta al servidor de impresión.
-     * @param {Object} detail - Lista de ítems de la orden.
-     * @param {Object} orderData - Información general de la orden.
-     * @param {Object} orderTotal - Totales de la orden (subtotal, descuento, impuestos, total).
-     */
-    function printOrder(detail, orderData, orderTotal) {
-        console.log('imprimiendo.....');
-
-          mdtoast('imprimiendo ticket...', {
-                    interaction: true,
-                    interactionTimeout: 1500,
-                    position: "bottom right"
-           });
-
-        $.ajax({
-            type: "post",
-            url: PRINTER_SERVER + "orden_venta.php",
+        // Solicita los detalles de la orden de venta al servidor
+        sendAjaxRequest({
+            url: "services/invoices.php",
             data: {
-                detail: detail,
-                data: orderData,
-                totals: orderTotal
+                action: "obtener_detalle_orden",
+                orderId: totals.orderId
             },
-            /**
-             * Callback de éxito que muestra la respuesta del servidor de impresión.
-             * @param {string} res - Respuesta del servidor (estado de impresión).
-             */
-            success: function (res) {
-                console.log("respuesta:", res);
+            successCallback: (res) => {
+                const detail = JSON.parse(res)[0]; // Detalle de los productos/piezas/servicios
+                const data = JSON.parse(res)[1];   // Información general de la orden
+
+                console.log('Datos del detalle', detail);
+                console.log('Datos de la orden', data);
+                console.log(totals);
+
+                // Envía los datos a la impresora
+                printOrder(detail, data, totals);
             }
         });
-    }
-});
+
+        /**
+         * Envía la orden de venta al servidor de impresión.
+         * @param {Object} detail - Lista de ítems de la orden.
+         * @param {Object} orderData - Información general de la orden.
+         * @param {Object} orderTotal - Totales de la orden (subtotal, descuento, impuestos, total).
+         */
+        function printOrder(detail, orderData, orderTotal) {
+            console.log('imprimiendo.....');
+
+            mdtoast('imprimiendo ticket...', {
+                interaction: true,
+                interactionTimeout: 1500,
+                position: "bottom right"
+            });
+
+            $.ajax({
+                type: "post",
+                url: PRINTER_SERVER + "orden_venta.php",
+                data: {
+                    detail: detail,
+                    data: orderData,
+                    totals: orderTotal
+                },
+                /**
+                 * Callback de éxito que muestra la respuesta del servidor de impresión.
+                 * @param {string} res - Respuesta del servidor (estado de impresión).
+                 */
+                success: function (res) {
+                    console.log("respuesta:", res);
+                }
+            });
+        }
+    });
 
 
     // Evento para agregar ítem manual sin precio
@@ -981,6 +1020,64 @@ $('#printOrder').on('click', (e) => {
     })
 
 
+    /**
+     * Evento que se ejecuta cuando se abre el modal de edición de orden
+     */
+    $("#modalEditComanda").on("show.bs.modal", function () {
+
+        // Función para obtener parámetro de la URL
+        function getParam(name) {
+            const url = window.location.href;
+            const regex = new RegExp("[?&]" + name + "=([^&#]*)", "i");
+            const match = url.match(regex);
+            return match ? decodeURIComponent(match[1]) : null;
+        }
+
+        const orderId = getParam("id");
+
+        if (!orderId) {
+            console.warn("No se encontró ID de la orden en la URL");
+            return; // salir si no hay ID
+        }
+
+        // Función para llenar el formulario de edición
+        function fillEditOrderForm(data) {
+
+            $("#edit_customer_id").val(data.cliente_id || "").trigger("change");
+            $("#edit_direction").val(data.direccion_entrega || "");
+            $("#edit_fullname").val(data.nombre_receptor || "");
+            $("#edit_tel").val(data.telefono_receptor || "");
+            $("#edit_delivery").val(data.tipo_entrega || "-").trigger("change");
+            $("#edit_observation").val(data.observacion || "");
+        }
+
+        // Función para cargar los datos vía AJAX
+        function loadOrderData(orderId) {
+            sendAjaxRequest({
+                url: "services/invoices.php",
+                data: {
+                    orden_id: orderId,
+                    action: "obtener_datos_orden"
+                },
+                successCallback: (res) => {
+                    let data = JSON.parse(res);
+
+                    if (Array.isArray(data) && data.length > 0) {
+                        fillEditOrderForm(data[0]);
+                    } else {
+                        console.warn("No se encontraron datos de la orden");
+                    }
+                },
+                errorCallback: (res) => mysql_error(res)
+            });
+        }
+
+        // Cargar datos de la orden
+        loadOrderData(orderId);
+    });
+
+
+
 }); // Ready
 
 
@@ -1035,7 +1132,7 @@ function addDetailItem() {
                 $('.empty-variant, .verify-quantity').css("border", "1px solid red");
             }
         } else {
-           addItem();
+            addItem();
             resetModal();
         }
     }
@@ -1059,7 +1156,7 @@ function addDetailItem() {
     }
 
     function addItem() {
-  console.log("action:",action)
+        console.log("action:", action)
         sendAjaxRequest({
             url: "services/invoices.php",
             data: {

@@ -19,7 +19,6 @@
                                     <i class="fas fa-list"></i>
                                 </div>
                                 <select class="form-custom-icon search" name="cliente" id="ov_customer_id" required>
-                                    <option value="" selected>Nínguno</option>
                                     <?php $customers = Help::showCustomers();
                                     while ($customer = $customers->fetch_object()): ?>
                                         <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre ?? '') ?>

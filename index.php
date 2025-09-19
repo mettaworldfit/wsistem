@@ -1,10 +1,15 @@
 <?php
 
 // Configurar sesión
-ini_set('session.gc_maxlifetime', 4800);
-session_start();
+// Duración en segundos (1 hora 25 minutos = 5100 segundos)
+$timeout = 5100;
 
-$timeout = 4800;
+// Ajustar configuración de sesión
+ini_set('session.gc_maxlifetime', $timeout);      // Tiempo máximo de vida en servidor
+ini_set('session.cookie_lifetime', $timeout);     // Tiempo máximo de vida en navegador
+
+// Iniciar sesión
+session_start();
 
 require_once 'config/parameters.php';
 

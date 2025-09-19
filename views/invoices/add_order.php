@@ -15,6 +15,11 @@
                 <i class="fas fa-plus"></i>
                 <p>Agregar cliente</p>
             </a>
+
+             <a href="#" class="btn-custom btn-orange" data-toggle="modal" data-target="#modalEditComanda">
+                <i class="fas fa-plus"></i>
+                <p>Editar orden</p>
+            </a>
         </div>
 
     </div>
@@ -389,22 +394,33 @@
             <div class="modal-body">
                 <form action="" onsubmit="event.preventDefault(); addDetailItem();">
 
-                    <div class="col-sm-12 row">
+                    <div class="grid-tab-detail">
 
-                        <div class="radio-list">
-                            <div class="radio-item ml-3">
-                                <input type="radio" name="tipo" value="producto" id="radio1" checked>
-                                <label for="radio1">Productos</label>
+                        <div class="tab-detail">
+                            <div class="radio-list">
+                                <div class="radio-item ml-3">
+                                    <input type="radio" name="tipo" value="producto" id="radio1" checked>
+                                    <label for="radio1">Productos</label>
+                                </div>
+
+                                <div class="radio-item ml-2">
+                                    <input type="radio" name="tipo" value="pieza" id="radio2">
+                                    <label for="radio2">Piezas</label>
+                                </div>
+
+                                <div class="radio-item ml-2">
+                                    <input type="radio" name="tipo" value="servicio" id="radio3">
+                                    <label for="radio3">Servicios</label>
+                                </div>
                             </div>
+                        </div>
 
-                            <div class="radio-item ml-2">
-                                <input type="radio" name="tipo" value="pieza" id="radio2">
-                                <label for="radio2">Piezas</label>
-                            </div>
-
-                            <div class="radio-item ml-2">
-                                <input type="radio" name="tipo" value="servicio" id="radio3">
-                                <label for="radio3">Servicios</label>
+                        <div class="tab-detail">
+                            <div class="row-price">
+                                <span>DOP</span>
+                                <input type="text" class="invisible-input col-sm-12 text-left" value="" id="totalPriceProduct" disabled>
+                                <input type="text" class="invisible-input col-sm-12 text-left" value="" id="totalPricePiece" disabled>
+                                <input type="text" class="invisible-input col-sm-12 text-left" value="" id="totalPriceService" disabled>
                             </div>
                         </div>
                     </div>
@@ -446,8 +462,7 @@
                                     <option value="" disabled selected>Buscar piezas</option>
                                     <?php $pieces = Help::showPieces();
                                     while ($piece = $pieces->fetch_object()): ?>
-                                        <option value="<?= $piece->pieza_id ?>"><?= ucwords($piece->nombre_pieza) ?>
-                                        </option>
+                                        <option value="<?= $piece->pieza_id ?>" data-price="<?= $piece->precio_unitario; ?>" data-discount="<?= $piece->valor; ?>"><?= ucwords($piece->nombre_pieza) ?></option>
                                     <?php endwhile; ?>
                                 </select>
                                 <input type="hidden" name="" value="" id="piece_id">
@@ -463,11 +478,9 @@
                                 </div>
                                 <select class="form-custom-icon search" name="producto" id="product">
                                     <option value="" disabled selected>Buscar productos</option>
-                                    <?php $products = Help::showProducts();
+                                     <?php $products = Help::showProducts();
                                     while ($product = $products->fetch_object()): ?>
-                                        <option value="<?= $product->IDproducto ?>">
-                                            <?= ucwords($product->nombre_producto) ?>
-                                        </option>
+                                        <option value="<?= $product->IDproducto ?>" data-price="<?= $product->precio_unitario ?>" data-discount="<?= $product->valor ?>"><?= ucwords($product->nombre_producto) ?></option>
                                     <?php endwhile; ?>
                                 </select>
                                 <input type="hidden" name="" value="" id="taxes">
@@ -477,7 +490,6 @@
 
                         </div>
 
-
                         <div class="form-group col-sm-12 service">
                             <label class="form-check-label" for="">Servicios</label>
                             <div class="input-div">
@@ -486,13 +498,12 @@
                                 </div>
                                 <select class="form-custom-icon search" name="servicio" id="service">
                                     <option value="" disabled selected>Buscar servicios</option>
-                                    <?php $services = Help::showServices();
+                                     <?php $services = Help::showServices();
                                     while ($service = $services->fetch_object()): ?>
-                                        <option value="<?= $service->servicio_id ?>">
-                                            <?= ucwords($service->nombre_servicio) ?>
-                                        </option>
+                                        <option value="<?= $service->servicio_id ?>" data-price="<?= $service->precio ?>"><?= ucwords($service->nombre_servicio) ?></option>
                                     <?php endwhile; ?>
                                 </select>
+                                <input type="hidden" class="form-custom-icon b-left" name="costo" value="" id="service_cost">
                             </div>
 
                         </div>
@@ -622,16 +633,6 @@
                                 </div>
                                 <input type="number" class="form-custom-icon b-left" name="descuento"
                                     id="discount_service">
-                            </div>
-                        </div>
-
-                        <div class="form-group col-sm-3 service" id="cost-field">
-                            <label class="form-check-label" for="">Costo</label>
-                            <div class="input-div">
-                                <div class="i">
-                                    <i class="fas fa-level-down-alt"></i>
-                                </div>
-                                <input type="number" class="form-custom-icon b-left" name="costo" value="" id="service_cost" style="font-weight: 600" required disabled>
                             </div>
                         </div>
 
@@ -775,6 +776,105 @@
                             <p>Registrar</p>
                         </button>
                     </div>
+                </form>
+            </div> <!-- Body -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Editar orden -->
+<div class="modal fade" id="modalEditComanda" tabindex="-1" aria-labelledby="modalEditComandaLabel" aria-hidden="true" data-bs-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditComandaLabel">Editar orden</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" onsubmit="event.preventDefault(); editSalesOrder(<?= $_GET['id'];?>)">
+                    <div class="row">
+                        <div class="form-group col-sm-8">
+                            <label class="form-check-label" for="">Cliente<span class="text-danger">*</span></label>
+                            <div class="input-div">
+                                <div class="i b-right">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <select class="form-custom-icon search" name="cliente" id="edit_customer_id" required>
+                                    <?php $customers = Help::showCustomers();
+                                    while ($customer = $customers->fetch_object()): ?>
+                                        <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre ?? '') ?>
+                                            <?= ucwords($customer->apellidos ?? '') ?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-sm-12">
+                            <label class="form-check-label" for="">Dirección de entrega</label>
+                            <textarea class="form-custom" id="edit_direction" cols="30" rows="3" maxlength="254" placeholder="Dirección completa"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Nombre del receptor</label>
+                            <div class="input-div">
+                                <div class="i">
+                                    <i class="fas fa-user-tag"></i>
+                                </div>
+                                <input class="form-custom-icon b-left" type="text" id="edit_fullname">
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Teléfono</label>
+                            <div class="input-div">
+                                <div class="i b-right">
+                                    <i class="fas fa-phone-alt"></i>
+                                </div>
+                                <input class="form-custom-icon b-left" type="text" id="edit_tel">
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Tipo de entrega</label>
+                            <div class="input-div">
+                                <div class="i b-right">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <select class="form-custom-icon search" id="edit_delivery">
+                                    <option value="-" selected>Nínguno</option>
+                                    <option value="envio">Envío</option>
+                                    <option value="retiro">Retiro</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-sm-12">
+                            <label class="form-check-label" for="">Comentarios o instrucciones especiales</label>
+                            <textarea class="form-custom" id="edit_observation" cols="30" rows="3" maxlength="254" placeholder="Observaciones"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 modal-footer">
+                        <button type="button" class="btn-custom btn-red" data-dismiss="modal">
+                            <i class="fas fa-window-close"></i>
+                            <p>Salir</p>
+                        </button>
+
+                        <button type="submit" class="btn-custom btn-green">
+                            <i class="fas fa-plus"></i>
+                            <p>Actualizar orden</p>
+                        </button>
+                    </div>
+
                 </form>
             </div> <!-- Body -->
         </div>

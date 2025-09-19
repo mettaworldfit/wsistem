@@ -658,6 +658,7 @@ $(document).ready(function () {
         $("#quantity").val(1);
         $("#locate").val(product.referencia);
         $("#price_out").val(format.format(unitPrice));
+        $("#totalPriceProduct").val(unitPrice.toFixed(2))
         $("#product_cost").val(productCost);
         $("#taxes").val(format.format(product.impuesto));
         $("#quantity").removeAttr("disabled");
@@ -668,7 +669,7 @@ $(document).ready(function () {
             const discountAmount = (unitPrice * discountRate) / 100;
             $("#discount").val(discountAmount).prop("disabled", true);
         } else {
-            $("#discount").val("").prop("disabled", false);
+            $("#discount").prop("disabled", false);
         }
 
         // Cargar lista de precios si existe un valor
@@ -1046,20 +1047,23 @@ $(document).ready(function () {
         var quantity = parseFloat($("#quantity").val()) || 1; // por defecto 1
         var discountPercent = parseFloat($("#product option:selected").data("discount")) || 0;
 
-        // Convertir price_out a número
-        let priceOutValue = parseFloat(price_out) || 0;
+        // Obtener valores de manera consistente
+        const listId = parseInt($('#list_id').val()) || 0;
+        const priceOutValue = parseFloat(price_out) || $('#list_id').val();
+        const priceOutInput = parseFloat($('#price_out').val().replace(/,/g, "")) || 0;
+        const productPrice = parseFloat($('#product option:selected').data('price')) || 0;
 
-        // Usar priceOutValue si es mayor a 0, sino el precio del producto
-        let price = priceOutValue > 0
-            ? priceOutValue
-            : parseFloat($("#product option:selected").data("price")) || 0;
+        // Determinar el precio final
+        const price = (priceOutValue > 0)
+            ? (listId > 0 ? priceOutInput : priceOutValue)
+            : productPrice;
+
 
         var subtotal = quantity * price;
 
-
         let discountAmount = discountPercent > 0
-           ? subtotal * (discountPercent / 100) // Calcular descuento en base al porcentaje
-           : parseFloat($("#discount").val()) || 0; // Introducirlo manualmente
+            ? subtotal * (discountPercent / 100) // Calcular descuento en base al porcentaje
+            : parseFloat($("#discount").val()) || 0; // Introducirlo manualmente
 
         // Mostrar el nuevo descuento solo si es mayor a 0
         if (discountPercent > 0) {
@@ -1069,7 +1073,7 @@ $(document).ready(function () {
         // Calcular el total
         var total = subtotal - discountAmount;
 
-        $("#totalPrice").val(total.toFixed(2));
+        $("#totalPriceProduct").val(total.toFixed(2));
     }
 
     // Cada vez que cambie producto, setea también el descuento automático

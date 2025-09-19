@@ -116,25 +116,35 @@
             <div class="modal-body">
                 <form action="" onsubmit="event.preventDefault(); AddDQuote(true);">
 
-                    <div class="col-sm-12 row">
+                   <div class="grid-tab-detail">
 
-                        <div class="radio-list">
-                            <div class="radio-item ml-3">
-                                <input type="radio" name="tipo" value="producto" id="radio1" checked>
-                                <label for="radio1">Productos</label>
-                            </div>
+                        <div class="tab-detail">
+                            <div class="radio-list">
+                                <div class="radio-item ml-3">
+                                    <input type="radio" name="tipo" value="producto" id="radio1" checked>
+                                    <label for="radio1">Productos</label>
+                                </div>
 
-                            <div class="radio-item ml-2">
-                                <input type="radio" name="tipo" value="pieza" id="radio2">
-                                <label for="radio2">Piezas</label>
-                            </div>
+                                <div class="radio-item ml-2">
+                                    <input type="radio" name="tipo" value="pieza" id="radio2">
+                                    <label for="radio2">Piezas</label>
+                                </div>
 
-                            <div class="radio-item ml-2">
-                                <input type="radio" name="tipo" value="servicio" id="radio3">
-                                <label for="radio3">Servicios</label>
+                                <div class="radio-item ml-2">
+                                    <input type="radio" name="tipo" value="servicio" id="radio3">
+                                    <label for="radio3">Servicios</label>
+                                </div>
                             </div>
                         </div>
 
+                        <div class="tab-detail">
+                            <div class="row-price">
+                                <span>DOP</span>
+                                <input type="text" class="invisible-input col-sm-12 text-left" value="" id="totalPriceProduct" disabled>
+                                <input type="text" class="invisible-input col-sm-12 text-left" value="" id="totalPricePiece" disabled>
+                                <input type="text" class="invisible-input col-sm-12 text-left" value="" id="totalPriceService" disabled>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Información -->
@@ -174,8 +184,7 @@
                                     <option value="" disabled selected>Buscar piezas</option>
                                     <?php $pieces = Help::showPieces();
                                     while ($piece = $pieces->fetch_object()): ?>
-                                        <option value="<?= $piece->pieza_id ?>"><?= ucwords($piece->nombre_pieza) ?>
-                                        </option>
+                                       <option value="<?= $piece->pieza_id ?>" data-price="<?= $piece->precio_unitario; ?>" data-discount="<?= $piece->valor; ?>"><?= ucwords($piece->nombre_pieza) ?></option>
                                     <?php endwhile; ?>
                                 </select>
                                 <input type="hidden" name="" value="" id="piece_id">
@@ -192,9 +201,7 @@
                                     <option value="" disabled selected>Buscar productos</option>
                                     <?php $products = Help::showProducts();
                                     while ($product = $products->fetch_object()): ?>
-                                        <option value="<?= $product->IDproducto ?>">
-                                            <?= ucwords($product->nombre_producto) ?>
-                                        </option>
+                                       <option value="<?= $product->IDproducto ?>" data-price="<?= $product->precio_unitario ?>" data-discount="<?= $product->valor ?>"><?= ucwords($product->nombre_producto) ?></option>
                                     <?php endwhile; ?>
                                 </select>
                                 <input type="hidden" name="" value="" id="taxes">
@@ -214,9 +221,7 @@
                                     <option value="" disabled selected>Buscar servicios</option>
                                     <?php $services = Help::showServices();
                                     while ($service = $services->fetch_object()): ?>
-                                        <option value="<?= $service->servicio_id ?>">
-                                            <?= ucwords($service->nombre_servicio) ?>
-                                        </option>
+                                     <option value="<?= $service->servicio_id ?>" data-price="<?= $service->precio ?>"><?= ucwords($service->nombre_servicio) ?></option>
                                     <?php endwhile; ?>
                                 </select>
                             </div>

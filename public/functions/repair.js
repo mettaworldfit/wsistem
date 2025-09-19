@@ -78,7 +78,7 @@ $(document).ready(function () {
         $('#quantity').val('')
         $('#discount').attr('disabled', true)
         $('#price_out').attr('disabled', true)
-        $('#rp_service').attr('required', false)
+        $('#service').attr('required', false)
         $('#piece').attr('required', true)
 
         $('input:radio[name=tipo]').change(function () {
@@ -92,9 +92,14 @@ $(document).ready(function () {
                 $('#stock').attr('disabled', true)
                 $('#quantity').val('')
                 $('#price_out').attr('disabled', true)
-                $('#rp_service').attr('required', false)
+                $('#service').attr('required', false)
                 $('#piece').attr('required', true)
                 $('#quantity').attr('required', true)
+
+                 // Modal total
+                    $("#totalPricePiece").show();
+                    $("#totalPricePiece").val("0.00");
+                    $("#totalPriceService").hide();
 
             } else if ($(this).val() == "servicio") {
 
@@ -105,12 +110,16 @@ $(document).ready(function () {
                 $('#quantity').val('')
                 $('#discount').attr('disabled', false)
                 $('#price_out').attr('disabled', false)
-                $('#rp_service').attr('required', true)
+                $('#service').attr('required', true)
                 $('#piece').attr('required', false)
                 $('#quantity').attr('required', false)
                 $('#price_out').val('')
                 $('#rp_add_item').show();
 
+                 // Modal total
+                    $("#totalPriceService").show();
+                    $("#totalPriceService").val("0.00");
+                    $("#totalPricePiece").hide();
             }
         });
     }
@@ -412,8 +421,8 @@ function addDetailOrdenRepair() {
 
     if (tipo === 'servicio') {
         cost = $('#service_cost').val().replace(/,/g, "")
-        service = $('#rp_service').val();
-        description = $('#select2-rp_service-container').attr('title');
+        service = $('#service').val();
+        description = $('#select2-service-container').attr('title');
     } else if (tipo === 'pieza') {
         cost = $('#piece_cost').val()
         piece_id = $('#piece').val();

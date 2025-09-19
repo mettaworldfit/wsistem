@@ -129,7 +129,9 @@
                         <div class="tab-detail">
                             <div class="row-price">
                                 <span>DOP</span>
-                                <input type="text" class="invisible-input col-sm-12 text-left" id="totalPrice" disabled>
+                                <input type="text" class="invisible-input col-sm-12 text-left" value="" id="totalPriceProduct" disabled>
+                                <input type="text" class="invisible-input col-sm-12 text-left" value="" id="totalPricePiece" disabled>
+                                <input type="text" class="invisible-input col-sm-12 text-left" value="" id="totalPriceService" disabled>
                             </div>
                         </div>
                     </div>
@@ -171,8 +173,7 @@
                                     <option value="" disabled selected>Buscar piezas</option>
                                     <?php $pieces = Help::showPieces();
                                     while ($piece = $pieces->fetch_object()): ?>
-                                        <option value="<?= $piece->pieza_id ?>"><?= ucwords($piece->nombre_pieza) ?>
-                                        </option>
+                                        <option value="<?= $piece->pieza_id; ?>" data-price="<?= $piece->precio_unitario; ?>" data-discount="<?= $piece->valor; ?>"><?= ucwords($piece->nombre_pieza) ?></option>
                                     <?php endwhile; ?>
                                 </select>
                                 <input type="hidden" name="" value="" id="piece_id">
@@ -190,8 +191,7 @@
                                     <option value="" disabled selected>Buscar productos</option>
                                     <?php $products = Help::showProducts();
                                     while ($product = $products->fetch_object()): ?>
-                                        <option value="<?= $product->IDproducto ?>" data-price="<?= $product->precio_unitario ?>" data-discount="<?= $product->valor ?>"><?= ucwords($product->nombre_producto) ?>
-                                        </option>
+                                        <option value="<?= $product->IDproducto ?>" data-price="<?= $product->precio_unitario ?>" data-discount="<?= $product->valor ?>"><?= ucwords($product->nombre_producto) ?></option>
                                     <?php endwhile; ?>
                                 </select>
                                 <input type="hidden" name="" value="" id="taxes">

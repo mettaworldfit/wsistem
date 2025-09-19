@@ -130,7 +130,9 @@
                         <div class="tab-detail">
                             <div class="row-price">
                                 <span>DOP</span>
-                                <input type="text" class="invisible-input col-sm-12 text-left" id="totalPrice" disabled>
+                                <input type="text" class="invisible-input col-sm-12 text-left" value="" id="totalPriceProduct" disabled>
+                                <input type="text" class="invisible-input col-sm-12 text-left" value="" id="totalPricePiece" disabled>
+                                <input type="text" class="invisible-input col-sm-12 text-left" value="" id="totalPriceService" disabled>
                             </div>
                         </div>
                     </div>
@@ -215,7 +217,7 @@
                                         <option value="<?= $service->servicio_id ?>" data-price="<?= $service->precio ?>"><?= ucwords($service->nombre_servicio) ?></option>
                                     <?php endwhile; ?>
                                 </select>
-                                <input type="number" class="form-custom-icon b-left" name="costo" value="" id="service_cost">
+                                <input type="hidden" class="form-custom-icon b-left" name="costo" value="" id="service_cost">
                             </div>
 
                         </div>

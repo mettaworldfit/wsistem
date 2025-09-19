@@ -17,6 +17,72 @@ function reset_input() {
 
 }
 
+// Desactivar pieza
+
+function disablePiece(pieceId) {
+    alertify.confirm(
+        "<i class='text-warning fas fa-exclamation-circle'></i> Desactivar pieza", "¿Desea desactivar esta pieza? ",
+        function () {
+            sendAjaxRequest({
+                url: "services/pieces.php",
+                data: {
+                    piece_id: pieceId,
+                    action: "desactivar_pieza",
+                },
+                successCallback: () => dataTablesInstances['pieces'].ajax.reload()
+            });
+        },
+        function () { }
+    );
+}
+
+// Activar pieza
+
+function enablePiece(pieceId) {
+    alertify.confirm("Activar pieza", "¿Desea activar esta pieza? ",
+        function () {
+            sendAjaxRequest({
+                url: "services/pieces.php",
+                data: {
+                    piece_id: pieceId,
+                    action: "activar_pieza",
+                },
+                successCallback: () => dataTablesInstances['pieces'].ajax.reload()
+            });
+
+        },
+        function () { }
+    );
+}
+
+
+
+// Eliminar pieza
+
+function deletePiece(pieceId) {
+
+    alertify.confirm("Eliminar pieza", "¿Estas seguro que deseas borrar esta pieza? ",
+        function () {
+
+            sendAjaxRequest({
+                url: "services/pieces.php",
+                data: {
+                    action: "eliminarPieza",
+                    pieza_id: pieceId,
+                },
+                successCallback: (res) => {
+                    if (res === "ready") {
+                        dataTablesInstances['pieces'].ajax.reload()
+                    } else {
+                        alertify.alert("<div class='error-info'><i class='text-danger fas fa-exclamation-circle'></i>" + " " + res + "</div>").set('basic', true);
+                    }
+                }
+            });
+        },
+        function () { }
+    );
+}
+
 $(document).ready(function () {
 
     // Inputs por defecto
@@ -28,6 +94,7 @@ $(document).ready(function () {
         if (!Array.isArray(data)) return;
 
         const piece = data[0];
+        const unitPrice = parseFloat(piece.precio_unitario) || 0;
 
         $("#add_item_free").show();
 
@@ -35,17 +102,16 @@ $(document).ready(function () {
         $('#stock').val(piece.cantidad);
         $('#locate').val(piece.referencia);
         $('#quantity').val(1).removeAttr('disabled');
-        $('#price_out').val(format.format(piece.precio_unitario));
+        $('#price_out').val(format.format(unitPrice));
+         $("#totalPricePiece").val(unitPrice.toFixed(2));
         $("#piece_cost").val(piece.precio_costo);
         $('#discount').removeAttr('disabled');
 
         // Aplicar oferta si existe
         if (piece.oferta > 0) {
-            const oferta = piece.precio_unitario * piece.oferta / 100;
+            const oferta = unitPrice * piece.oferta / 100;
             $('#discount').val(oferta).attr('disabled', true);
-        } else {
-            $('#discount').val('');
-        }
+        } 
 
         // Cargar lista de precios si tiene
         if (piece.valor_lista > 0) {
@@ -73,7 +139,7 @@ $(document).ready(function () {
 
                 var data = JSON.parse(res);
                 $('#piece_code').val(data[0].cod_pieza)
-
+                  
                 populatePieceFormFields(data)
                 validatePieceQuantity() // Calcular precios
 
@@ -135,6 +201,7 @@ $(document).ready(function () {
 
     $('#piece_list_id').change(function () {
         const pieceId = $('#piece_id').val();
+
         if ($(this).val() > 0) {
 
             sendAjaxRequest({
@@ -145,13 +212,19 @@ $(document).ready(function () {
                     action: 'elegir_precio_pieza'
                 },
                 successCallback: (res) => {
+                  
                     var data = JSON.parse(res);
                     $('#price_out').val(format.format(data[0].valor))
+
+                   calculateDetailModalTotalPiece($("#price_out").val().replace(/,/g, '')); // recalcular total con nuevo precio
+                 
                 }
             });
 
         } else {
             fetchPiece(pieceId); // Precio normal
+            calculateDetailModalTotalPiece(parseFloat($("#piece option:selected").data("price"))); // recalcular total con nuevo precio
+
         }
     });
 
@@ -293,7 +366,6 @@ $(document).ready(function () {
 
     function editPiece() {
 
-
         $.ajax({
             type: "post",
             url: SITE_URL + "services/pieces.php",
@@ -328,74 +400,75 @@ $(document).ready(function () {
             },
 
         });
-
     }
+
+
+  
+    /**
+ * calculateDetailModalTotalPiece
+ * --------------------------
+ * Esta función calcula el total dentro del modal de agregar detalle de una pieza.
+ * - Obtiene la cantidad introducida por el usuario.
+ * - Obtiene el precio unitario de la pieza seleccionada.
+ * - Obtiene el porcentaje de descuento (si aplica).
+ * - Calcula el subtotal (cantidad * precio).
+ * - Aplica el descuento en base al porcentaje o manual.
+ * - Muestra el total en el campo correspondiente.
+ */
+function calculateDetailModalTotalPiece(price_out = 0) {
+
+    var quantity = parseFloat($("#quantity").val()) || 1; // por defecto 1
+    var discountPercent = parseFloat($("#piece option:selected").data("discount")) || 0;
+
+    // Obtener valores de manera consistente
+        const listId = parseInt($('#piece_list_id').val()) || 0;
+        const priceOutValue = parseFloat(price_out) || $('#piece_list_id').val();
+        const priceOutInput = parseFloat($('#price_out').val().replace(/,/g, "")) || 0;
+        const piecePrice = parseFloat($('#piece option:selected').data('price')) || 0;
+
+        // Determinar el precio final
+        const price = (priceOutValue > 0)
+            ? (listId > 0 ? priceOutInput : priceOutValue)
+            : piecePrice;
+          
+    var subtotal = quantity * price;
+
+    let discountAmount = discountPercent > 0
+       ? subtotal * (discountPercent / 100) // Calcular descuento en base al porcentaje
+       : parseFloat($("#discount").val()) || 0; // Introducirlo manualmente
+
+    // Mostrar el nuevo descuento solo si es mayor a 0
+    if (discountPercent > 0) {
+        $("#discount").val(discountAmount);
+    }
+
+    // Calcular el total
+    var total = subtotal - discountAmount;
+
+     $("#totalPricePiece").val(total.toFixed(2));
+    
+    // Debug en consola
+    // console.log("cantidad", quantity);
+//    console.log("precio", price);
+    // console.log("descuento %", discountPercent);
+    // console.log("subtotal", subtotal);
+    // console.log("descuento aplicado", discountAmount);
+   // console.log("total", total.toFixed(2));
+
+}
+
+// Cada vez que cambie la pieza, setea también el descuento automático
+$("#piece").on("change", function () {
+    var discount = $("#piece option:selected").data("discount") || 0;
+    $("#discount").val(discount); // asignar automáticamente
+    calculateDetailModalTotalPiece();
+});
+
+// Detectar cambios en todos los campos relacionados a piezas
+$("#quantity, #discount, #piece").on("input change", calculateDetailModalTotalPiece);
+
+
 
 }); // Ready
 
 
-// Desactivar pieza
-
-function disablePiece(pieceId) {
-    alertify.confirm(
-        "<i class='text-warning fas fa-exclamation-circle'></i> Desactivar pieza", "¿Desea desactivar esta pieza? ",
-        function () {
-            sendAjaxRequest({
-                url: "services/pieces.php",
-                data: {
-                    piece_id: pieceId,
-                    action: "desactivar_pieza",
-                },
-                successCallback: () => dataTablesInstances['pieces'].ajax.reload()
-            });
-        },
-        function () { }
-    );
-}
-
-// Activar pieza
-
-function enablePiece(pieceId) {
-    alertify.confirm("Activar pieza", "¿Desea activar esta pieza? ",
-        function () {
-            sendAjaxRequest({
-                url: "services/pieces.php",
-                data: {
-                    piece_id: pieceId,
-                    action: "activar_pieza",
-                },
-                successCallback: () => dataTablesInstances['pieces'].ajax.reload()
-            });
-
-        },
-        function () { }
-    );
-}
-
-
-
-// Eliminar pieza
-
-function deletePiece(pieceId) {
-
-    alertify.confirm("Eliminar pieza", "¿Estas seguro que deseas borrar esta pieza? ",
-        function () {
-
-            sendAjaxRequest({
-                url: "services/pieces.php",
-                data: {
-                    action: "eliminarPieza",
-                    pieza_id: pieceId,
-                },
-                successCallback: (res) => {
-                    if (res === "ready") {
-                        dataTablesInstances['pieces'].ajax.reload()
-                    } else {
-                        alertify.alert("<div class='error-info'><i class='text-danger fas fa-exclamation-circle'></i>" + " " + res + "</div>").set('basic', true);
-                    }
-                }
-            });
-        },
-        function () { }
-    );
-}

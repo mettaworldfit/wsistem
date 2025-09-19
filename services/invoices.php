@@ -74,7 +74,7 @@ if ($_POST['action'] == "cargar_detalle_orden") {
 }
 
 
-
+// Crear orden de venta
 if ($_POST['action'] === "registrar_orden") {
   $db = Database::connect();
 
@@ -82,6 +82,22 @@ if ($_POST['action'] === "registrar_orden") {
     (int)$_POST['customer_id'],
     (int)$_SESSION['identity']->usuario_id,
     6, // Pendiente
+    $_POST['observation'],
+    $_POST['delivery'] ?? '-',
+    $_POST['direction'],
+    $_POST['name'],
+    $_POST['tel']
+  ]);
+}
+
+// Editar orden de venta
+if ($_POST['action'] === "editar_orden") {
+  $db = Database::connect();
+
+  echo handleProcedureAction($db, 'ov_editarOrden', [
+    (int)$_POST['order_id'],
+    (int)$_POST['customer_id'],
+    (int)$_SESSION['identity']->usuario_id,
     $_POST['observation'],
     $_POST['delivery'] ?? '-',
     $_POST['direction'],
@@ -1007,4 +1023,21 @@ if ($_POST['action'] === "obtener_detalle_orden") {
   // Devolver los resultados
   
   echo json_encode([$result1, $result2],JSON_UNESCAPED_UNICODE);
+}
+
+//Obtener datos de la orden *comanda*
+if ($_POST['action'] === "obtener_datos_orden") {
+  $db = Database::connect();
+
+  $id = $_POST['orden_id'];
+
+  $sql = "SELECT c.cliente_id,concat(c.nombre,' ',IFNULL(c.apellidos,'')) as 'nombre', 
+  co.comanda_id,co.usuario_id,co.observacion,co.tipo_entrega,co.telefono_receptor,
+  co.direccion_entrega,co.nombre_receptor,co.fecha FROM comandas co 
+  INNER JOIN clientes c ON c.cliente_id = co.cliente_id
+  WHERE co.comanda_id = '$id'";
+
+
+jsonQueryResult($db,$sql);
+
 }

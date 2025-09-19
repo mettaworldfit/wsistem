@@ -14,7 +14,6 @@
     </div>
 </div>
 
-
 <div class="generalContainer padding-10 box-shadow-low">
 
     <input type="hidden" name="" value="<?= $_GET['o'] ?>" id="orden_id">
@@ -63,10 +62,6 @@
     <br>
 
     <div class="button-container">
-
-
-
-
         <button class="btn-custom btn-green" type="button" data-toggle="modal" data-target="#update_data_invoice" id="">
             <i class="far fa-edit"></i>
             <p>Actualizar datos</p>
@@ -106,182 +101,197 @@
 </div> <!-- generalConntainer -->
 
 
-<!--Modal agregar detalle-->
+<!-- Modal: Agregar detalle de facturación -->
 <div class="modal fade" id="add_detail" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+     aria-labelledby="staticBackdropLabel" aria-hidden="true">
+
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
+
+            <!-- Header -->
             <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">Agregar detalle de facturación</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+
+            <!-- Body -->
             <div class="modal-body">
                 <form action="" onsubmit="event.preventDefault(); addDetailOrdenRepair();">
 
-                    <div class="col-sm-12 row">
+                    <!-- Selección de tipo (pieza o servicio) y vista de total -->
+                    <div class="grid-tab-detail">
 
-                        <div class="radio-list">
-                            <div class="radio-item ml-2">
-                                <input type="radio" name="tipo" value="pieza" id="radio2" checked>
-                                <label for="radio2">Piezas</label>
-                            </div>
-
-                            <div class="radio-item ml-2">
-                                <input type="radio" name="tipo" value="servicio" id="radio3">
-                                <label for="radio3">Servicios</label>
+                        <!-- Radios para elegir tipo -->
+                        <div class="tab-detail">
+                            <div class="radio-list">
+                                <div class="radio-item ml-2">
+                                    <input type="radio" name="tipo" value="pieza" id="radio2" checked>
+                                    <label for="radio2">Piezas</label>
+                                </div>
+                                <div class="radio-item ml-2">
+                                    <input type="radio" name="tipo" value="servicio" id="radio3">
+                                    <label for="radio3">Servicios</label>
+                                </div>
                             </div>
                         </div>
 
+                        <!-- Vista del total -->
+                        <div class="tab-detail">
+                            <div class="row-price">
+                                <span>DOP</span>
+                                <input type="text" class="invisible-input col-sm-12 text-left" id="totalPricePiece" disabled>
+                                <input type="text" class="invisible-input col-sm-12 text-left" id="totalPriceService" disabled>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Content -->
+                    <!-- Información principal -->
+                    <div class="modal-legend">
+                        <p>Información</p>
+                    </div>
+
                     <div class="row col-sm-12">
 
+                        <!-- Código de pieza -->
                         <div class="form-group col-sm-4 piece">
-                            <label class="form-check-label" for="">Código</label>
+                            <label for="piece_code">Código</label>
                             <div class="input-div">
-                                <div class="i">
-                                    <i class="fas fa-barcode"></i>
-                                </div>
-                                <input class="form-custom-icon b-left" type="text" name="codigo" id="piece_code">
+                                <div class="i"><i class="fas fa-barcode"></i></div>
+                                <input class="form-custom-icon b-left" type="text" id="piece_code" name="codigo">
                             </div>
                         </div>
 
+                        <!-- Selección de pieza -->
                         <div class="form-group col-sm-5 piece">
-                            <label class="form-check-label" for="">Piezas</label>
+                            <label for="piece">Piezas</label>
                             <div class="input-div">
-                                <div class="i b-right">
-                                    <i class="fas fa-list"></i>
-                                </div>
-                                <select class="form-custom-icon search" name="pieza" id="piece">
+                                <div class="i b-right"><i class="fas fa-list"></i></div>
+                                <select class="form-custom-icon search" id="piece" name="pieza">
                                     <option value="" disabled selected>Buscar piezas</option>
                                     <?php $pieces = Help::showPieces();
                                     while ($piece = $pieces->fetch_object()): ?>
-                                        <option value="<?= $piece->pieza_id ?>"><?= $piece->nombre_pieza ?></option>
+                                        <option value="<?= $piece->pieza_id ?>" data-price="<?= $piece->precio_unitario; ?>" data-discount="<?= $piece->valor; ?>"><?= ucwords($piece->nombre_pieza) ?> </option>
                                     <?php endwhile; ?>
                                 </select>
-                                <input type="hidden" name="" value="" id="piece_cost">
+                                <!-- Campos ocultos -->
+                                <input type="hidden" id="piece_id">
+                                <input type="hidden" id="piece_cost">
                             </div>
                         </div>
 
+                        <!-- Selección de servicio -->
                         <div class="form-group col-sm-12 service">
-                            <label class="form-check-label" for="">Servicios</label>
+                            <label for="service">Servicios</label>
                             <div class="input-div">
-                                <div class="i">
-                                    <i class="far fa-clipboard"></i>
-                                </div>
-                                <select class="form-custom-icon search" name="servicio" id="rp_service">
+                                <div class="i"><i class="far fa-clipboard"></i></div>
+                                <select class="form-custom-icon search" id="service" name="servicio">
                                     <option value="" disabled selected>Buscar servicios</option>
                                     <?php $services = Help::showServices();
                                     while ($service = $services->fetch_object()): ?>
-                                        <option value="<?= $service->servicio_id ?>"><?= $service->nombre_servicio ?>
-                                        </option>
+                                        <option value="<?= $service->servicio_id ?>" data-price="<?= $service->precio ?>"><?= ucwords($service->nombre_servicio) ?></option>
                                     <?php endwhile; ?>
                                 </select>
                             </div>
-
                         </div>
 
-
+                        <!-- Stock disponible (solo piezas) -->
                         <div class="form-group col-sm-3 piece">
-                            <label class="form-check-label" for="">Stock</label>
+                            <label for="stock">Cantidad inventario</label>
                             <div class="input-div">
-                                <div class="i">
-                                    <i class="fas fa-boxes"></i>
-                                </div>
-                                <input type="number" class="form-custom-icon b-left" name="stock" id="stock">
+                                <div class="i"><i class="fas fa-boxes"></i></div>
+                                <input type="number" class="form-custom-icon b-left" id="stock" name="stock">
                             </div>
                         </div>
+                    </div>
 
-
-
-                    </div> <!-- Row -->
-
-                    <div class="row col-sm-12 mt-1">
-
-                        <div class="form-group col-sm-3 piece">
-                            <label class="form-check-label" for="">Cantidad</label>
-                            <div class="input-div verify-quantity">
-                                <div class="i">
-                                    <i class="fas fa-box-open"></i>
-                                </div>
-                                <input type="number" step="0.01" min="0" max="999.99" class="form-custom-icon b-left" name="cantidad" id="quantity"
-                                    required>
+                    <!-- Listas de precios -->
+                    <div class="row">
+                        <div class="col-sm-12 piece">
+                            <div class="modal-legend">
+                                <p>Listas de precios</p>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="form-group col-sm-3 service">
-                            <label class="form-check-label" for="">Cantidad</label>
-                            <div class="input-div verify-quantity">
-                                <div class="i">
-                                    <i class="fas fa-box-open"></i>
-                                </div>
-                                <input type="number" class="form-custom-icon b-left" name="cantidad" id="service_quantity">
-                            </div>
-                        </div>
-
-                        <div class="form-group col-sm-3">
-                            <label class="form-check-label" for="">Descuento</label>
+                    <div class="row mt-1">
+                        <div class="form-group col-sm-3 ml-3 piece">
+                            <label for="piece_list_id">Lista de precios</label>
                             <div class="input-div">
-                                <div class="i">
-                                    <i class="fas fa-level-down-alt"></i>
-                                </div>
-                                <input type="number" class="form-custom-icon b-left" name="descuento" id="discount">
-                            </div>
-                        </div>
-
-                        <div class="form-group col-sm-3 service" id="cost-field">
-                            <label class="form-check-label" for="">Costo</label>
-                            <div class="input-div">
-                                <div class="i">
-                                    <i class="fas fa-level-down-alt"></i>
-                                </div>
-                                <input type="number" class="form-custom-icon b-left" name="costo" value="" id="service_cost" style="font-weight: 600" required disabled>
-                            </div>
-                        </div>
-
-                        <div class="form-group col-sm-3">
-                            <label class="form-check-label" for="">Precio</label>
-                            <div class="input-div">
-                                <div class="i">
-                                    <i class="fas fa-dollar-sign"></i>
-                                </div>
-                                <input type="text" class="form-custom-icon b-left" name="precio" id="price_out"
-                                    required>
-                            </div>
-                        </div>
-
-                        <div class="form-group col-sm-3 piece">
-                            <label class="form-check-label" for="">Lista de precios</label>
-                            <div class="input-div">
-                                <div class="i b-right">
-                                    <i class="fas fa-list"></i>
-                                </div>
-                                <select class="form-custom-icon search" name="list" id="piece_list_id">
+                                <div class="i b-right"><i class="fas fa-list"></i></div>
+                                <select class="form-custom-icon search" id="piece_list_id" name="list">
                                     <option value="0" selected>General</option>
-
                                 </select>
                             </div>
                         </div>
+                    </div>
 
-
-                    </div> <!-- Row -->
+                    <!-- Información de detalle -->
+                    <div class="modal-legend">
+                        <p>Información de detalle</p>
+                    </div>
 
                     <div class="row col-sm-12 mt-1">
 
+                        <!-- Cantidad piezas -->
+                        <div class="form-group col-sm-3 piece">
+                            <label for="quantity">Cantidad</label>
+                            <div class="input-div verify-quantity">
+                                <div class="i"><i class="fas fa-box-open"></i></div>
+                                <input type="number" step="0.01" min="0" max="999.99"
+                                       class="form-custom-icon b-left"
+                                       id="quantity" name="cantidad" required>
+                            </div>
+                        </div>
 
+                        <!-- Cantidad servicios -->
+                        <div class="form-group col-sm-3 service">
+                            <label for="service_quantity">Cantidad</label>
+                            <div class="input-div verify-quantity">
+                                <div class="i"><i class="fas fa-box-open"></i></div>
+                                <input type="number" class="form-custom-icon b-left" id="service_quantity" name="cantidad">
+                            </div>
+                        </div>
 
-                    </div> <!-- Row -->
+                        <!-- Descuento -->
+                        <div class="form-group col-sm-3">
+                            <label for="discount">Descuento</label>
+                            <div class="input-div">
+                                <div class="i"><i class="fas fa-level-down-alt"></i></div>
+                                <input type="number" class="form-custom-icon b-left" id="discount" name="descuento">
+                            </div>
+                        </div>
 
+                        <!-- Costo (solo servicios) -->
+                        <div class="form-group col-sm-3 service" id="cost-field">
+                            <label for="service_cost">Costo</label>
+                            <div class="input-div">
+                                <div class="i"><i class="fas fa-level-down-alt"></i></div>
+                                <input type="number" class="form-custom-icon b-left" id="service_cost" name="costo"
+                                       style="font-weight: 600" required disabled>
+                            </div>
+                        </div>
+
+                        <!-- Precio -->
+                        <div class="form-group col-sm-3">
+                            <label for="price_out">Precio</label>
+                            <div class="input-div">
+                                <div class="i"><i class="fas fa-dollar-sign"></i></div>
+                                <input type="text" class="form-custom-icon b-left" id="price_out" name="precio" required>
+                            </div>
+                        </div>
+                    </div> <!-- Row detalle -->
+
+                    <!-- Footer -->
                     <div class="mt-4 modal-footer">
-                        <button type="button" class="btn-custom btn-red" data-dismiss="modal" id="">
+                        <button class="btn-custom btn-red" type="button" data-dismiss="modal">
                             <i class="fas fa-window-close"></i>
                             <p>Salir</p>
                         </button>
-                        <button type="submit" class="btn-custom btn-green" id="rp_add_item">
-                            <i class="far fa-money-bill-alt"></i>
+
+                        <button class="btn-custom btn-green" type="submit" id="rp_add_item">
+                            <i class="fas fa-plus"></i>
                             <p>Agregar</p>
                         </button>
                     </div>
@@ -341,10 +351,10 @@
                                         <i class="fas fa-portrait"></i>
                                     </div>
                                     <select class="form-custom-icon search" name="" id="customer" requireds>
-                                        <option value="<?= $info->cliente_id ?>" selected><?= ucwords($info->nombre_cliente) . " " . ucwords($info->apellidos_cliente) ?></option>
+                                        <option value="<?= $info->cliente_id ?>" selected><?= ucwords($info->nombre_cliente) . " " . ucwords($info->apellidos_cliente ?? '') ?></option>
                                         <?php $customers = Help::showCustomers();
                                         while ($customer = $customers->fetch_object()): ?>
-                                            <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre) . " " . ucwords($customer->apellidos) ?></option>
+                                            <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre) . " " . ucwords($customer->apellidos ?? '') ?></option>
                                         <?php endwhile; ?>
                                     </select>
                                 </div>
