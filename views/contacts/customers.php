@@ -4,7 +4,6 @@
             <h1> Clientes</h1>
         </div>
 
-
         <div class="float-right">
             <a class="btn-custom btn-default" href="<?= base_url ?>contacts/add&type=1">
                 <i class="fas fa-plus"></i>
@@ -32,3 +31,5 @@
     </table>
 
 </div>
+
+

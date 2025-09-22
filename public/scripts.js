@@ -100,6 +100,7 @@ function initCustomDataTable({
                     },
                     dataType: 'json',
                     success: response => {
+                      
                         const json = typeof response === 'string'
                             ? JSON.parse(response)
                             : response;
@@ -792,6 +793,19 @@ $(document).ready(function () {
         ordering: false,
         info: false
     },
+    {
+        id: '#customer_history',
+        url: 'services/contacts.php',
+        action: 'historial_cliente',
+        columns: [
+            'factura_id','item','cantidad','precio','descuento','total','fecha'
+        ],
+         hiddenColumns: [1,2,4,5,6],
+        paging: false,
+        searching: false,
+        ordering: true,
+        info: false
+    }
 
     ];
 

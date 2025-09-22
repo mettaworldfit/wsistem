@@ -19,6 +19,12 @@ class ContactsController
         require_once './views/contacts/edit_customer.php';
     }
 
+     public function customer_history()
+    {
+       
+        require_once './views/contacts/customer_history.php';
+    }
+
     public function providers()
     {
      

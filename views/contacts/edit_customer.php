@@ -7,7 +7,6 @@ while ($element = $customer->fetch_object()): ?>
         </div>
     </div>
 
-
     <div class="area-data">
         <div class="col-data">
             <div class="col-legend">
@@ -33,14 +32,12 @@ while ($element = $customer->fetch_object()): ?>
 
                     <div class="form-group col-sm-5">
                         <label for="Apellidos" class="form-check-label">Apellidos</label>
-                        <input class="form-custom" type="text" name="" value="<?= ucwords($element->apellidos ?? '') ?>"
-                            id="lastname">
+                        <input class="form-custom" type="text" name="" value="<?= ucwords($element->apellidos ?? '') ?>" id="lastname">
                     </div>
 
                     <div class="form-group col-sm-6" id="cod_client">
                         <label class="form-check-label" for="">RNC o Cédula</label>
-                        <input class="form-custom" type="text" name="" value="<?= $element->cedula ?>" maxlength="11"
-                            id="identity">
+                        <input class="form-custom" type="text" name="" value="<?= $element->cedula ?>" maxlength="11" id="identity">
                     </div>
 
                     <div class="form-group col-sm-6">
