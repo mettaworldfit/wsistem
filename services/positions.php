@@ -20,12 +20,12 @@ if ($_POST['action'] == "index_posiciones") {
         'referencia'  => $row['referencia'],
         'fecha'       => $row['fecha'],
         'acciones'    => '
-      <a class="action-edit" href="' . base_url . 'positions/edit&id=' . $row['posicion_id'] . '" title="Editar">
-        <i class="fas fa-pencil-alt"></i>
+      <a class="btn-action action-info" href="' . base_url . 'positions/edit&id=' . $row['posicion_id'] . '" title="Editar">
+        '.BUTTON_EDIT.'
       </a>
 
-      <span class="action-delete" onclick="deletePosition(\'' . $row['posicion_id'] . '\')" title="Eliminar">
-        <i class="fas fa-times"></i>
+      <span class="btn-action action-danger" onclick="deletePosition(\'' . $row['posicion_id'] . '\')" title="Eliminar">
+        '.BUTTON_DELETE.'
       </span>'
       ];
     }

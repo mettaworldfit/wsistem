@@ -19,10 +19,10 @@ if ($_POST['action'] == "index_categorias") {
 
       // Acción de editar con validación de rol
       $editar = ($rol == 'administrador')
-        ? '<a class="action-edit" href="' . base_url . 'categories/edit&id=' . $row['categoria_id'] . '" title="Editar">'
-        : '<a class="action-edit action-disable" href="#" title="Editar">';
+        ? '<a class="btn-action action-info" href="' . base_url . 'categories/edit&id=' . $row['categoria_id'] . '" title="Editar">'
+        : '<a class="btn-action action-info action-disable" href="#" title="Editar">';
 
-      $editar .= '<i class="fas fa-pencil-alt"></i></a>';
+      $editar .= BUTTON_EDIT.'</a>';
 
       return [
         'id'      => $row['categoria_id'],
@@ -30,8 +30,8 @@ if ($_POST['action'] == "index_categorias") {
         'descripcion'       => $row['descripcion'],
         'fecha'             => $row['fecha'],
         'acciones'          => $editar . '
-      <span class="action-delete" onclick="deleteCategory(\'' . $row['categoria_id'] . '\')" title="Eliminar">
-        <i class="fas fa-times"></i>
+      <span class="btn-action action-danger" onclick="deleteCategory(\'' . $row['categoria_id'] . '\')" title="Eliminar">
+        '.BUTTON_DELETE.'
       </span>'
       ];
     }

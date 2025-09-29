@@ -27,10 +27,10 @@ switch ($action) {
           'descripcion' => $row['descripcion'],
           'acciones' => '
             <a href="' . base_url . 'price_lists/edit&id=' . $row['lista_id'] . '">
-              <span class="action-edit"><i class="fas fa-pencil-alt"></i></span>
+              <span class="btn-action action-info">'.BUTTON_EDIT.'</span>
             </a>
-            <span class="action-delete" onclick="deletePriceList(\'' . $row['lista_id'] . '\')" title="Eliminar">
-              <i class="fas fa-times"></i>
+            <span class="btn-action action-danger" onclick="deletePriceList(\'' . $row['lista_id'] . '\')" title="Eliminar">
+              '.BUTTON_DELETE.'
             </span>'
         ];
       }

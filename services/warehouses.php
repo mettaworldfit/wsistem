@@ -21,12 +21,12 @@ if ($_POST['action'] == "index_almacen") {
         'descripcion'    => $row['descripcion'],
         'fecha'          => $row['fecha'],
         'acciones'       => '
-      <a class="action-edit" href="' . base_url . 'warehouses/edit&id=' . $row['almacen_id'] . '" title="Editar">
-          <i class="fas fa-pencil-alt"></i>
+      <a class="action-info btn-action" href="' . base_url . 'warehouses/edit&id=' . $row['almacen_id'] . '" title="Editar">
+          '.BUTTON_EDIT.'
       </a>
 
-      <span class="action-delete" onclick="deleteWarehouse(\'' . $row['almacen_id'] . '\')" title="Eliminar">
-          <i class="fas fa-times"></i>
+      <span class="btn-action action-danger" onclick="deleteWarehouse(\'' . $row['almacen_id'] . '\')" title="Eliminar">
+          '.BUTTON_DELETE.'
       </span>
     '
       ];

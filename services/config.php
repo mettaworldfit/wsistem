@@ -25,8 +25,8 @@ if ($_POST['action'] == "index_bonos") {
         'usuario' => ucwords($row['nombre_usuario']) . ' ' . ucwords($row['apellidos_usuario']),
         'fecha' => $row['fecha'],
         'acciones' => '
-        <span class="action-delete" onclick="deleteBond(\'' . $row['bono_id'] . '\')" title="Eliminar">
-            <i class="fas fa-times"></i>
+        <span class="btn-action action-danger" onclick="deleteBond(\'' . $row['bono_id'] . '\')" title="Eliminar">
+            '.BUTTON_DELETE.'
         </span>'
       ];
     }

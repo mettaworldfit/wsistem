@@ -24,22 +24,22 @@ switch ($action) {
         // Editar
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
           $acciones .= '<a href="' . base_url . 'services/edit&id=' . $row['servicio_id'] . '">
-                  <span class="action-edit"><i class="fas fa-pencil-alt"></i></span>
+                  <span class="action-info btn-action">'.BUTTON_EDIT.'</span>
                 </a>';
         } else {
           $acciones .= '<a href="#">
-                  <span class="action-edit action-disable"><i class="fas fa-pencil-alt"></i></span>
+                  <span class="action-info btn-action action-disable">'.BUTTON_EDIT.'</span>
                 </a>';
         }
 
         // Eliminar
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
-          $acciones .= '<span class="action-delete" onclick="deleteService(\'' . $row['servicio_id'] . '\')" title="Eliminar">
-                  <i class="fas fa-times"></i>
+          $acciones .= '<span class="action-danger btn-action" onclick="deleteService(\'' . $row['servicio_id'] . '\')" title="Eliminar">
+                  '.BUTTON_DELETE.'
                 </span>';
         } else {
-          $acciones .= '<span class="action-delete action-disable" title="Eliminar">
-                  <i class="fas fa-times"></i>
+          $acciones .= '<span class="action-danger btn-action action-disable" title="Eliminar">
+                  '.BUTTON_DELETE.'
                 </span>';
         }
  

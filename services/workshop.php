@@ -87,10 +87,10 @@ switch ($action) {
             '<option class="Listo" order_id="' . $row['id'] . '" value="9">Listo</option>' .
             '</select>',
 
-          'acciones' => '<a href="' . base_url . 'invoices/addrepair&id=' . $row['id'] . '" class="action-edit" title="Agregar factura">'
-            . '<i class="fas fa-shopping-cart"></i></a>' .
-            '<span class="action-delete" onclick="deleteRepairOrder(\'' . $row['id'] . '\')" title="Eliminar">'
-            . '<i class="fas fa-times"></i></span>'
+          'acciones' => '<a href="' . base_url . 'invoices/addrepair&id=' . $row['id'] . '" class="btn-action action-info" title="Agregar factura">'
+            . BUTTON_ADD_INV.'</a>' .
+            '<span class="btn-action action-danger" onclick="deleteRepairOrder(\'' . $row['id'] . '\')" title="Eliminar">'
+            . BUTTON_DELETE.'</span>'
         ];
       }
     ]);
@@ -116,11 +116,11 @@ switch ($action) {
           'nombre_marca' => ucwords($row['nombre_marca']),
           'fecha'        => $row['fecha'],
           'acciones'     => '
-              <a class="action-edit" href="' . base_url . 'brands/edit&id=' . $row['marca_id'] . '" title="Editar">
-                  <i class="fas fa-pencil-alt"></i>
+              <a class="btn-action action-info" href="' . base_url . 'brands/edit&id=' . $row['marca_id'] . '" title="Editar">
+                  '.BUTTON_EDIT.'
               </a>
-              <span class="action-delete" onclick="deleteBrand(\'' . $row['marca_id'] . '\')" title="Eliminar">
-                  <i class="fas fa-times"></i>
+              <span class="action-danger btn-action" onclick="deleteBrand(\'' . $row['marca_id'] . '\')" title="Eliminar">
+                  '.BUTTON_DELETE.'
               </span>
           '
         ];

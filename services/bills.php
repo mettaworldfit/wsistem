@@ -40,8 +40,8 @@ if ($_POST['action'] == "index_gastos") {
         'fecha'     => $element['fecha'],
         'total'     => '<span class="text-primary">' . number_format($element['total'], 2) . '</span>',
         'pagado'    => '<span class="text-success hide-cell">' . number_format($element['pagado'], 2) . '</span>',
-        'acciones'  => '<span class="action-delete" style="font-size:16px;" onclick="deleteSpending(\''
-          . $element['orden_id'] . '\')"><i class="fas fa-times"></i></span>'
+        'acciones'  => '<span class="action-danger btn-action" onclick="deleteSpending(\''
+          . $element['orden_id'] . '\')">'.BUTTON_DELETE.'</span>'
       ];
     }
 
@@ -85,9 +85,9 @@ if ($_POST['action'] == "index_facturas_proveedores") {
         'pagado'     => '<span class="hide-cell text-success">' . number_format($row['pagado'], 2) . '</span>',
         'por_pagar'  => '<span class="text-danger">' . number_format($row['por_pagar'], 2) . '</span>',
         'estado'     => '<p class="hide-cell ' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</p>',
-        'acciones'   => '<span style="font-size: 16px;" onclick="deleteInvoiceFP(\''
-          . $row['factura_proveedor_id'] . '\', \'' . $row['orden_id'] . '\')" class="action-delete">
-                            <i class="fas fa-times"></i>
+        'acciones'   => '<span onclick="deleteInvoiceFP(\''
+          . $row['factura_proveedor_id'] . '\', \'' . $row['orden_id'] . '\')" class="action-danger btn-action">
+                            '.BUTTON_DELETE.'
                         </span>'
       ];
     }
@@ -134,9 +134,9 @@ if ($_POST['action'] == "index_ordenes_compras") {
         'acciones'   => '<a class="action-edit ' . $disabled . '" href="' . $edit_href . '">
                             <i class="fas fa-pencil-alt"></i>
                          </a>
-                         <span style="font-size:16px;" ' .
+                         <span ' .
           ($estado != 'Facturado' ? 'onclick="deleteOrderC(\'' . $orden_id . '\')"' : '') .
-          ' class="action-delete ' . $disabled . '"><i class="fas fa-times"></i></span>'
+          ' class="action-danger btn-action ' . $disabled . '">'.BUTTON_DELETE.'</span>'
       ];
     }
 
@@ -291,7 +291,7 @@ if ($_POST['action'] == "agregar_orden_a_factura") {
         <td>' . number_format($element->descuentos, 2) . '</td>
         <td class="note-width hide-cell">' . htmlspecialchars($element->observacion) . '</td>
         <td>' . number_format($importe, 2) . '</td>
-        <td><span style="font-size: 16px;" onclick="deleteDetailOrderC(' . $element->id . ')" class="action-delete"><i class="fas fa-times"></i></span></td>
+        <td><span onclick="deleteDetailOrderC(' . $element->id . ')" class="action-danger btn-action">'.BUTTON_ERASE.'</span></td>
       </tr>
     ';
   }

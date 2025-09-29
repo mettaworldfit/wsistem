@@ -77,11 +77,11 @@ label {
     font-weight: 700;
 }
 
-.alert-out-stock p{
+.alert-out-stock p {
     background: #f7b204;
 }
 
-.alert-num-order p{
+.alert-num-order p {
     background: #f73c04;
 }
 
@@ -1509,6 +1509,64 @@ button.btn-del {
     margin: 0
 }
 
+
+/* === Base minimalista === */
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;             
+  height: 16px;
+  border: none;             /* Sin bordes */
+  background: transparent;  /* Sin fondo */
+  font-size: 12pt;          /* Ícono más visible */
+  color: #374151;           /* Gris oscuro elegante */
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+  text-decoration: none;
+}
+
+/* Hover con cambio de color y sutil animación */
+.btn-action:hover {
+  color: #111827;           /* Más oscuro */
+  transform: scale(1.15);   /* Ligerísimo zoom */
+}
+
+/* === Variaciones de color === */
+
+/* Azul - info */
+.action-info {
+  color: #00adef;
+}
+.action-info:hover {
+  color: #0284c7;  /* Azul más fuerte al pasar */
+}
+
+.action-danger {
+  color: #e20303 !important;
+}
+.action-danger:hover {
+  color: #991b1b !important;
+}
+
+.action-success {
+  color: #00a13e !important;
+}
+.action-success:hover {
+  color: #14532d !important;
+}
+
+.action-warning {
+  color:#ff7200;
+}
+.action-warning:hover {
+  color: #92400e;
+}
+
+.action-disable {
+    opacity: .5
+}
+
 .action-paid {
     margin-left: 3px;
     font-size: 14px;
@@ -1535,10 +1593,6 @@ button.btn-del {
     font-size: 14px;
     color: #00b19d;
     cursor: pointer
-}
-
-.action-disable {
-    opacity: .5
 }
 
 .action-delete {
@@ -1662,7 +1716,7 @@ table#variantList {
 
 .grid-tab-detail {
     display: grid;
-    grid-template-columns: repeat(2,1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
 }
 
@@ -2950,16 +3004,3 @@ legend.cash-closing-legend {
     background: #dbdbdb;
     border-left: 5px solid #e03535;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

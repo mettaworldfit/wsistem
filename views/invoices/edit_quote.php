@@ -37,7 +37,11 @@
                 <td class="hide-cell"><?= $element->impuesto ?></td>
                 <td><?= number_format($element->descuento,2) ?></td>
                 <td><?= number_format((($element->cantidad * $element->precio) + $element->impuesto) - $element->descuento, 2) ?></td>
-                <td> <a class="text-danger pointer" style="font-size: 16px;" onclick="DeleteItemQ('<?= $element->detalle_id ?>',true)"><i class="fas fa-times"></i></a></td>
+                <td> 
+                <a class="btn-action action-danger" onclick="DeleteItemQ('<?= $element->detalle_id ?>',true)">
+                    <i class="fas fa-backspace"></i>
+                </a>
+                </td>
             </tbody>
         <?php endwhile; ?>
     </table>

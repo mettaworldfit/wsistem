@@ -23,12 +23,12 @@ if ($_POST['action'] == "index_impuestos") {
         'descripcion'   => $row['descripcion'],
         'fecha'         => $row['fecha'],
         'acciones'      => '
-      <a class="action-edit" href="' . base_url . 'taxes/edit&id=' . $row['impuesto_id'] . '" title="Editar">
-        <i class="fas fa-pencil-alt"></i>
+      <a class="btn-action action-info" href="' . base_url . 'taxes/edit&id=' . $row['impuesto_id'] . '" title="Editar">
+        '.BUTTON_EDIT.'
       </a>
 
-      <span class="action-delete" onclick="deleteTax(\'' . $row['impuesto_id'] . '\')" title="Eliminar">
-        <i class="fas fa-times"></i>
+      <span class="btn-action action-danger" onclick="deleteTax(\'' . $row['impuesto_id'] . '\')" title="Eliminar">
+        '.BUTTON_DELETE.'
       </span>'
       ];
     }

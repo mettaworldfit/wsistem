@@ -40,11 +40,11 @@ try {
             'telefono'  => formatTel($row['telefono1'] ?? ''),
             'fecha'     => $row['fecha'],
 
-            'acciones' => '<a class="action-edit" href="' . base_url . 'contacts/edit_provider&id=' . $row['proveedor_id'] . '" title="Editar">
-                     <i class="fas fa-pencil-alt"></i>
+            'acciones' => '<a class="btn-action action-info" href="' . base_url . 'contacts/edit_provider&id=' . $row['proveedor_id'] . '" title="Editar">
+                     '.BUTTON_EDIT.'
                      </a>
            
-                 <span class="action-delete" onclick="deleteProveedor(\'' . $row['proveedor_id'] . '\')"  title="Eliminar"><i class="fas fa-times"></i></span>'
+                 <span class="btn-action action-danger" onclick="deleteProveedor(\'' . $row['proveedor_id'] . '\')"  title="Eliminar">'.BUTTON_DELETE.'</span>'
 
           ];
         }
@@ -83,13 +83,15 @@ try {
             'telefono' => formatTel($row['telefono1'] ?? ''),
             'fecha' => $row['fecha'],
             'direccion' => '<span class="hide-cell">' . $row['direccion'] . '</span>',
-            'acciones' => '<a class="action-paid" href="' . base_url . 'contacts/customer_history&id=' . $row['cliente_id'] . '" title="Ficha del cliente">
-                                <i class="fas fa-id-card"></i>
-                              </a>
-                              <a class="action-edit" href="' . base_url . 'contacts/edit_customer&id=' . $row['cliente_id'] . '" title="Editar">
-                                <i class="fas fa-pencil-alt"></i>
-                              </a>
-                              <span class="action-delete" onclick="deleteCustomer(\'' . $row['cliente_id'] . '\')"  title="Eliminar"><i class="fas fa-times"></i></span>'
+            'acciones' => '<a class="btn-action action-warning" href="' . base_url . 'contacts/customer_history&id=' . $row['cliente_id'] . '" title="Ficha del cliente">
+                        '.BUTTON_CLIENT.'
+                      </a>
+                      <a class="btn-action action-info" href="' . base_url . 'contacts/edit_customer&id=' . $row['cliente_id'] . '" title="Editar">
+                        '.BUTTON_EDIT.'
+                      </a>
+                      <span class="btn-action action-danger" onclick="deleteCustomer(\'' . $row['cliente_id'] . '\')" title="Eliminar">
+                      '. BUTTON_DELETE .'
+                      </span>'
           ];
         }
       ]);

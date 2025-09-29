@@ -87,16 +87,16 @@ switch ($_POST['action']) {
         $acciones = '<span';
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
           if ($row['factura_venta_id'] > 0) {
-            $acciones .= ' onclick="deletePayment(\'' . $row['pago_id'] . '\',1,0)" class="action-delete" title="Eliminar">
-                  <i class="fas fa-times"></i>
+            $acciones .= ' onclick="deletePayment(\'' . $row['pago_id'] . '\',1,0)" class="btn-action action-danger" title="Eliminar">
+                  '.BUTTON_DELETE.'
                 </span>';
           } else {
-            $acciones .= ' onclick="deletePayment(\'' . $row['pago_id'] . '\',0,1)" class="action-delete" title="Eliminar">
-                  <i class="fas fa-times"></i>
+            $acciones .= ' onclick="deletePayment(\'' . $row['pago_id'] . '\',0,1)" class="btn-action action-danger" title="Eliminar">
+                  '.BUTTON_DELETE.'
                 </span>';
           }
         } else {
-          $acciones .= ' class="action-delete action-disable" title="Eliminar"><i class="fas fa-times"></i></span>';
+          $acciones .= ' class="btn-action action-danger action-disable" title="Eliminar">'.BUTTON_DELETE.'</span>';
         }
 
         return [

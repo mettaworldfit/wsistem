@@ -83,20 +83,20 @@ if ($_POST['action'] == 'index_cierre_caja') {
             // Generar PDF
             $acciones = '<span ';
             if ($_SESSION['identity']->nombre_rol == 'administrador') {
-                $acciones .= ' onclick="generateCashClosingPDF(\'' . $row['cierre_id'] . '\')" class="action-delete"';
+                $acciones .= ' onclick="generateCashClosingPDF(\'' . $row['cierre_id'] . '\')" class="action-danger btn-action"';
             } else {
-                $acciones .= ' class="action-delete action-disable"';
+                $acciones .= ' class="action-danger btn-action action-disable"';
             }
-            $acciones .= ' title="PDF"><i class="fas fa-file-pdf"></i></span>';
+            $acciones .= ' title="PDF">'.BUTTON_PDF.'</span>';
 
             // Eliminar
             $acciones .= '<span ';
             if ($_SESSION['identity']->nombre_rol == 'administrador') {
-                $acciones .= ' onclick="deleteCashClosing(\'' . $row['cierre_id'] . '\')" class="action-delete"';
+                $acciones .= ' onclick="deleteCashClosing(\'' . $row['cierre_id'] . '\')" class="action-danger btn-action"';
             } else {
-                $acciones .= ' class="action-delete action-disable"';
+                $acciones .= ' class="action-danger btn-action action-disable"';
             }
-            $acciones .= ' title="Eliminar"><i class="fas fa-times"></i></span>';        
+            $acciones .= ' title="Eliminar">'.BUTTON_DELETE.'</span>';        
             
             return [
                 'id' => '<span class="hide-cell">' . $row['cierre_id'] . '</span>',
@@ -254,22 +254,22 @@ if ($_POST['action'] == "index_ventas_hoy") {
 
         if ($row['tipo'] == 'FT') {
             if ($_SESSION['identity']->nombre_rol == 'administrador') {
-                $acciones .= '<a class="action-edit" href="' . base_url . 'invoices/edit&id=' . $row['id'] . '" title="editar"><i class="fas fa-pencil-alt"></i></a>';
+                $acciones .= '<a class="btn-action action-info" href="' . base_url . 'invoices/edit&id=' . $row['id'] . '" title="editar">'.BUTTON_EDIT.'</a>';
             } else {
-                $acciones .= '<a class="action-edit action-disable" href="#" title="editar"><i class="fas fa-pencil-alt"></i></a>';
+                $acciones .= '<a class="btn-action action-info action-disable" href="#" title="editar">'.BUTTON_EDIT.'</a>';
             }
         } elseif ($row['tipo'] == 'RP') {
             if ($row['estado'] != 'Anulada' && $_SESSION['identity']->nombre_rol == 'administrador') {
-                $acciones .= '<a class="action-edit" href="' . base_url . 'invoices/repair_edit&id=' . $row['orden'] . '" title="Editar"><i class="fas fa-pencil-alt"></i></a>';
+                $acciones .= '<a class="btn-action action-info" href="' . base_url . 'invoices/repair_edit&id=' . $row['orden'] . '" title="Editar">'.BUTTON_EDIT.'</a>';
             } else {
-                $acciones .= '<a class="action-edit action-disable" href="#" title="Editar"><i class="fas fa-pencil-alt"></i></a>';
+                $acciones .= '<a class="btn-action action-info action-disable" href="#" title="Editar">'.BUTTON_EDIT.'</a>';
             }
         }
 
         $acciones .= '<span ';
 
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
-            $acciones .= 'class="action-delete"';
+            $acciones .= 'class="action-danger btn-action"';
             if ($row['tipo'] == 'FT') {
                 $acciones .= ' onclick="deleteInvoice(\'' . $row['id'] . '\')"';
             } elseif ($row['tipo'] == 'RP') {
@@ -280,10 +280,10 @@ if ($_POST['action'] == "index_ventas_hoy") {
                 $acciones .= ' onclick="deletePayment(\'' . $row['id'] . '\', 0, \'' . $row['orden'] . '\')"';
             }
         } else {
-            $acciones .= 'class="action-delete action-disable"';
+            $acciones .= 'class="action-danger btn-action action-disable"';
         }
 
-        $acciones .= ' title="Eliminar"><i class="fas fa-times"></i></span>';
+        $acciones .= ' title="Eliminar">'.BUTTON_DELETE.'</span>';
 
         $data[] = [
 

@@ -23,13 +23,13 @@ if ($_POST['action'] == "index_ofertas") {
         'fecha'        => $row['fecha'],
         'acciones'     => '
           <a ' . ($_SESSION['identity']->nombre_rol == 'administrador'
-          ? 'class="action-edit" href="' . base_url . 'offers/edit&id=' . $row['oferta_id'] . '"'
-          : 'class="action-edit action-disable" href="#"') . ' title="Editar">
-            <i class="fas fa-pencil-alt"></i>
+          ? 'class="btn-action action-info" href="' . base_url . 'offers/edit&id=' . $row['oferta_id'] . '"'
+          : 'class="btn-action action-info action-disable" href="#"') . ' title="Editar">
+            '.BUTTON_EDIT.'
           </a>
 
-          <span class="action-delete" onclick="deleteOffer(\'' . $row['oferta_id'] . '\')" title="Eliminar">
-            <i class="fas fa-times"></i>
+          <span class="btn-action action-danger" onclick="deleteOffer(\'' . $row['oferta_id'] . '\')" title="Eliminar">
+            '.BUTTON_DELETE.'
           </span>'
       ];
     }

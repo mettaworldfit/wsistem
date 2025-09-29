@@ -284,7 +284,7 @@ function addVariantDb() {
                     <td>${formattedDate}</td>
                     `}
                     <td> 
-                      <span class="action-delete" onclick="deleteVariantDb('${res}')"><i class="far fa-minus-square"></i></span>
+                      <span class="action-danger btn-action" onclick="deleteVariantDb('${res}')"><i class="fas fa-backspace"></i></span>
                     </td>
                 </tr>`;
 
@@ -497,7 +497,7 @@ function renderVariantDb(storageKey = "variantes", outputSelector = "#variant_li
                 <td>${element.flavor}</td>
                 <td>${element.cost}</td>
             `}
-            <td><span class="action-delete" onClick="deleteVariantLocalStorage(${index});"><i class="far fa-minus-square"></i></span></td>
+            <td><span class="action-danger btn-action" onClick="deleteVariantLocalStorage(${index});"><i class="fas fa-backspace"></i></span></td>
         </tr>
         `;
 

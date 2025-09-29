@@ -31,29 +31,49 @@ if ($_POST['action'] == "index_usuarios") {
         INNER JOIN roles r ON r.rol_id = u.rol_id',
     'select' => 'SELECT u.nombre,u.apellidos,u.usuario_id,r.nombre_rol,s.nombre_estado,u.fecha',
     'table_rows' => function ($row) {
+
+      $acciones = '<a ';
+if ($_SESSION['identity']->nombre_rol == 'administrador') {
+  if ($row['nombre_estado'] == 'Activo') {
+    $acciones .= 'class="btn-action action-info" href="' . base_url . 'users/edit&id=' . $row['usuario_id'] . '"';
+  } else {
+    $acciones .= 'class="btn-action action-info action-disable" href="#"';
+  }
+} else {
+  $acciones .= 'class="btn-action action-info action-disable" href="#"';
+}
+$acciones .= ' title="Editar">' . BUTTON_EDIT . '</a>';
+
+// Activar o desactivar usuario
+if ($_SESSION['identity']->nombre_rol == 'administrador') {
+  if ($row['nombre_estado'] == 'Activo') {
+    $acciones .= '<span onclick="disableUser(\'' . $row['usuario_id'] . '\')" class="btn-action action-success" title="Desactivar">' . BUTTON_ACTIVE . '</span>';
+  } else {
+    $acciones .= '<span onclick="enableUser(\'' . $row['usuario_id'] . '\')" class="btn-action action-danger" title="Activar">' . BUTTON_DISABLE . '</span>';
+  }
+} else {
+  if ($row['nombre_estado'] == 'Activo') {
+    $acciones .= '<span class="btn-action action-success action-disable" title="Desactivar">' . BUTTON_ACTIVE . '</span>';
+  } else {
+    $acciones .= '<span class="btn-action action-danger action-disable" title="Activar">' . BUTTON_DISABLE . '</span>';
+  }
+}
+
+// Eliminar
+if ($_SESSION['identity']->nombre_rol == 'administrador') {
+  $acciones .= '<span onclick="deleteUser(\'' . $row['usuario_id'] . '\')" class="btn-action action-danger" title="Eliminar">' . BUTTON_DELETE . '</span>';
+} else {
+  $acciones .= '<span class="btn-action action-danger action-disable" title="Eliminar">' . BUTTON_DELETE . '</span>';
+}
+
+
       return [
         'usuario_id' => '<td class="hide-cell">' . $row['usuario_id'] . '</td>',
         'nombre' => '<td>' . ucwords($row['nombre']) . ' ' . ucwords($row['apellidos']) . '</td>',
         'rol' => '<td>' . $row['nombre_rol'] . '</td>',
         'estado' => '<td><p class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</p></td>',
         'fecha' => '<td>' . $row['fecha'] . '</td>',
-        'acciones' => '<td>
-            <a class="action-edit" href="' . base_url . 'users/edit&id=' . $row['usuario_id'] . '" title="Editar">
-                <i class="fas fa-pencil-alt"></i>
-            </a>
-    
-            <span class="' . ($row['nombre_estado'] == 'Activo' ? 'action-active' : 'action-delete') . '" 
-                onclick="' . ($row['nombre_estado'] == 'Activo'
-          ? 'disableUser(\'' . $row['usuario_id'] . '\')'
-          : 'enableUser(\'' . $row['usuario_id'] . '\')') . '" 
-                title="' . ($row['nombre_estado'] == 'Activo' ? 'Desactivar' : 'Activar') . '">
-                <i class="fas fa-lightbulb"></i>
-            </span>
-    
-            <span class="action-delete" onclick="deleteUser(\'' . $row['usuario_id'] . '\')" title="Eliminar">
-                <i class="fas fa-times"></i>
-            </span>
-        </td>'
+        'acciones' => $acciones
       ];
     }
   ]);

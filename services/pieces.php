@@ -55,17 +55,17 @@ switch ($action) {
         }
 
         $editLink = ($row['nombre_estado'] === 'Activo')
-          ? '<a class="action-edit" title="Editar" href="' . base_url . 'pieces/edit&id=' . $row['pieza_id'] . '"><i class="fas fa-pencil-alt"></i></a>'
-          : '<a class="action-edit action-disable" title="Editar" href="#"><i class="fas fa-pencil-alt"></i></a>';
+          ? '<a class="action-info btn-action" title="Editar" href="' . base_url . 'pieces/edit&id=' . $row['pieza_id'] . '">'.BUTTON_EDIT.'</a>'
+          : '<a class="action-info btn-action action-disable" title="Editar" href="#">'.BUTTON_EDIT.'</a>';
 
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
           $toggleAction = ($row['nombre_estado'] === 'Activo')
-            ? '<span class="action-active" title="Desactivar ítem" onclick="disablePiece(\'' . $row['pieza_id'] . '\')"><i class="fas fa-lightbulb"></i></span>'
-            : '<span class="action-delete" title="Activar" onclick="enablePiece(\'' . $row['pieza_id'] . '\')"><i class="fas fa-lightbulb"></i></span>';
-          $deleteAction = '<span class="action-delete" title="Eliminar" onclick="deletePiece(\'' . $row['pieza_id'] . '\')"><i class="fas fa-times"></i></span>';
+            ? '<span class="btn-action action-success" title="Desactivar" onclick="disablePiece(\'' . $row['pieza_id'] . '\')">'.BUTTON_ACTIVE.'</span>'
+            : '<span class="btn-action action-danger" title="Activar" onclick="enablePiece(\'' . $row['pieza_id'] . '\')">'.BUTTON_DISABLE.'</span>';
+          $deleteAction = '<span class="action-danger btn-action" title="Eliminar" onclick="deletePiece(\'' . $row['pieza_id'] . '\')">'.BUTTON_DELETE.'</span>';
         } else {
-          $toggleAction = '<span class="action-disable"><i class="fas fa-lightbulb"></i></span>';
-          $deleteAction = '<span class="action-delete action-disable" title="Eliminar"><i class="fas fa-times"></i></span>';
+          $toggleAction = '<span class="btn-action action-danger action-disable">'.BUTTON_DISABLE.'</span>';
+          $deleteAction = '<span class="action-danger btn-action action-disable" title="Eliminar">'.BUTTON_DELETE.'</span>';
         }
 
         $acciones = $editLink . ' ' . $toggleAction . ' ' . $deleteAction;

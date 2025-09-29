@@ -66,7 +66,9 @@ if ($_POST['action'] == "cargar_detalle_orden") {
         'descuento' => number_format($descuento, 2),
         'importe' => number_format($importe, 2),
         'acciones' => ($is_exists == 0)
-          ? '<a class="text-danger pointer" style="font-size: 16px;" onclick="deleteInvoiceDetail(\'' . $row['id'] . '\')"><i class="fas fa-times"></i></a>'
+          ? '<a class="btn-action action-danger" onclick="deleteInvoiceDetail(\'' . $row['id'] . '\')">
+          '.BUTTON_ERASE.'
+          </a>'
           : ''
       ];
     }
@@ -149,17 +151,17 @@ if ($_POST['action'] === "index_ordenes") {
                  e.nombre_estado,e.estado_id,co.observacion,co.telefono_receptor,DATE(co.fecha) as fecha,
                  co.direccion_entrega,co.tipo_entrega,co.nombre_receptor",
     'table_rows' => function ($row) {
-      $acciones  = '<a class="action-edit" href="' . base_url . 'invoices/add_order&id=' . $row['comanda_id'] . '" title="Agregar factura">';
-      $acciones .= '<i class="fas fa-shopping-cart"></i></a>';
+      $acciones  = '<a class="btn-action action-info" href="' . base_url . 'invoices/add_order&id=' . $row['comanda_id'] . '" title="Agregar factura">';
+      $acciones .= BUTTON_ADD_INV.'</a>';
 
       // Solo permitir deleteOrder si es administrador
       if ($_SESSION['identity']->nombre_rol === 'administrador') {
-        $acciones .= '<span onclick="deleteOrder(\'' . $row['comanda_id'] . '\')" class="action-delete" title="Eliminar">';
-        $acciones .= '<i class="fas fa-times"></i></span>';
+        $acciones .= '<span onclick="deleteOrder(\'' . $row['comanda_id'] . '\')" class="btn-action action-danger" title="Eliminar">';
+        $acciones .= BUTTON_DELETE.'</span>';
       } else {
         // Mostrar icono deshabilitado sin evento
-        $acciones .= '<span class="action-delete action-disable" title="Eliminar">';
-        $acciones .= '<i class="fas fa-times"></i></span>';
+        $acciones .= '<span class="btn-action action-danger action-disable" title="Eliminar">';
+        $acciones .= BUTTON_DELETE.'</span>';
       }
 
       $invoice_id = Help::hasInvoice($row['comanda_id']);
@@ -248,7 +250,9 @@ if ($_POST['action'] == "cargar_detalle_facturas") {
         'impuesto' => '<span class="hide-cell">' . number_format($cantidad * $impuesto, 2) . ' - (' . number_format($valor, 2) . '%)</span>',
         'descuento' => number_format($descuento, 2),
         'total' => number_format($importe, 2),
-        'acciones' => '<a class="text-danger pointer" style="font-size: 16px;" onclick="deleteInvoiceDetail(\'' . $row['id'] . '\')"><i class="fas fa-times"></i></a>'
+        'acciones' => '<a class="btn-action action-danger" onclick="deleteInvoiceDetail(\'' . $row['id'] . '\')">
+        '.BUTTON_ERASE.'
+        </a>'
       ];
     }
   ]);
@@ -302,9 +306,8 @@ if ($_POST['action'] == "cargar_detalle_temporal") {
           2
         ),
         'acciones' => '
-        <a class="text-danger pointer" style="font-size: 16px;"
-           onclick="deleteInvoiceDetail(\'' . $row['detalle_temporal_id'] . '\')">
-            <i class="fas fa-times"></i>
+        <a class="btn-action action-danger" onclick="deleteInvoiceDetail(\'' . $row['detalle_temporal_id'] . '\')">
+            '.BUTTON_ERASE.'
         </a>'
       ];
     }
@@ -341,11 +344,11 @@ if ($_POST['action'] == "index_cotizaciones") {
         'fecha' => $row['fecha'],
         'total' => '<span class="text-primary hide-cell">' . number_format($row['total'], 2) . '</span>',
         'acciones' => '
-                  <a class="action-edit" href="' . base_url . 'invoices/edit_quote&id=' . $row['cotizacion_id'] . '" title="editar">
-                      <i class="fas fa-pencil-alt"></i>
+                  <a class="btn-action action-info" href="' . base_url . 'invoices/edit_quote&id=' . $row['cotizacion_id'] . '" title="editar">
+                      '.BUTTON_EDIT.'
                   </a>
-                  <span onclick="deleteQuote(\'' . $row['cotizacion_id'] . '\')" class="action-delete">
-                      <i class="fas fa-times"></i>
+                  <span onclick="deleteQuote(\'' . $row['cotizacion_id'] . '\')" class="btn-action action-danger">
+                      '.BUTTON_DELETE.'
                   </span>'
       ];
     }
@@ -385,16 +388,17 @@ if ($_POST['action'] == "index_facturas_ventas") {
     'table_rows' => function ($row) {
       $acciones = '<a ';
       if ($_SESSION['identity']->nombre_rol == 'administrador') {
-        $acciones .= 'class="action-edit" href="' . base_url . 'invoices/edit&id=' . $row['factura_venta_id'] . '"';
+        $acciones .= 'class="btn-action action-info" href="' . base_url . 'invoices/edit&id=' . $row['factura_venta_id'] . '"';
       } else {
-        $acciones .= 'class="action-edit action-disable" href="#"';
+        $acciones .= 'class="btn-action action-info action-disable" href="#"';
       }
-      $acciones .= ' title="Editar"><i class="fas fa-pencil-alt"></i></a>';
+      $acciones .= ' title="Editar">'.BUTTON_EDIT.'</a>';
 
       if ($_SESSION['identity']->nombre_rol == 'administrador') {
-        $acciones .= '<span onclick="deleteInvoice(\'' . $row['factura_venta_id'] . '\')" class="action-delete" title="Eliminar"><i class="fas fa-times"></i></span>';
+        $acciones .= '<span onclick="deleteInvoice(\'' . $row['factura_venta_id'] . '\')" class="btn-action action-danger" title="Eliminar">
+        '.BUTTON_DELETE.'</span>';
       } else {
-        $acciones .= '<span class="action-delete action-disable" title="Eliminar"><i class="fas fa-times"></i></span>';
+        $acciones .= '<span class="btn-action action-danger action-disable" title="Eliminar">'.BUTTON_DELETE.'</span>';
       }
 
       return [

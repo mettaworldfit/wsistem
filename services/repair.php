@@ -38,7 +38,7 @@ if ($_POST['action'] == "cargar_facturarp") {
                         </span>',
                 'descuento'   => number_format($row['descuento'] ?? 0, 2),
                 'total'       => number_format(($row['cantidad'] * $row['precio'] - $row['descuento']), 2),
-                'acciones'    => '<a class="text-danger" style="font-size: 16px;" onclick="deleteDetail(\'' . $row['detalle_id'] . '\')"><i class="fas fa-times"></i></a>'
+                'acciones'    => '<a class="btn-action action-danger" onclick="deleteDetail(\'' . $row['detalle_id'] . '\')"><i class="fas fa-backspace"></i></a>'
             ];
         }
     ]);
@@ -79,7 +79,7 @@ if ($_POST['action'] == "cargar_ordenrp") {
                 'descuento' => number_format($row['descuento'] ?? 0, 2),
                 'total' => number_format(($row['cantidad'] * $row['precio'] - $row['descuento']), 2),
                 'acciones' => ($is_exists == 0)
-                    ? '<a class="text-danger" style="font-size: 16px;" onclick="deleteDetail(\'' . $row['detalle_id'] . '\')"><i class="fas fa-times"></i></a>'
+                    ? '<a class="btn-action action-danger" onclick="deleteDetail(\'' . $row['detalle_id'] . '\')"><i class="fas fa-backspace"></i></a>'
                     : ''
             ];
         }
@@ -139,12 +139,14 @@ if ($_POST['action'] == "index_facturas_reparacion") {
             $editable = $estado !== 'Anulada' && $esAdmin;
 
             if ($editable) {
-                $acciones .= '<a class="action-edit" href="' . base_url . 'invoices/repair_edit&o=' . $ordenId . '&f=' . $facturaId . '" title="Editar"><i class="fas fa-pencil-alt"></i></a>';
+                $acciones .= '<a class="btn-action action-info" href="' . base_url . 'invoices/repair_edit&o=' . $ordenId . '&f=' . $facturaId . '" title="Editar">
+                <i class="fas fa-edit"></i></a>';
             } else {
-                $acciones .= '<a class="action-edit action-disable" href="#" title="Editar"><i class="fas fa-pencil-alt"></i></a>';
+                $acciones .= '<a class="btn-action action-disable" href="#" title="Editar">
+                <i class="fas fa-edit"></i></a>';
             }
 
-            $acciones .= ' <span onclick="deleteInvoiceRP(\'' . $ordenId. '\')" class="action-delete"><i class="fas fa-times"></i></span>';
+            $acciones .= ' <span onclick="deleteInvoiceRP(\'' . $ordenId. '\')" class="btn-action action-danger"><i class="fas fa-minus-square"></i></span>';
 
             return [
                 'id' => 'RP-00' . $facturaId,
