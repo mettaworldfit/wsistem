@@ -300,7 +300,7 @@ switch ($action) {
         'caja',
         'entrada'
       ],
-      'searchable' => [],
+      'searchable' => ['serial','color','nombre_proveedor','sabor'],
       'base_table' => 'variantes v',
       'table_with_joins' => 'variantes v
                INNER JOIN productos p ON p.producto_id = v.producto_id

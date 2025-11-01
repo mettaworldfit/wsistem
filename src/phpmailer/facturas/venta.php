@@ -153,7 +153,7 @@
                 </div>
                 <p><a href="" style="color: white;"><?= $Dir ?></a></p>
                 <p><a href="" style="color: white;">Tel: <?= $Tel ?></a></p>
-                <p class="poweredby">Powered by <a href="8295020900">Codevrd</a></p>
+                <p class="poweredby">Powered by <a href="https://wa.me/18295020900?text=Me%20intereza%20saber%20m%C3%A1s%20sobre%20el%20sistema">Codevrd</a></p>
             </div>
         </div>
     </div>

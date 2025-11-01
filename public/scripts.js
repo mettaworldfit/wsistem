@@ -64,6 +64,7 @@ function initCustomDataTable({
         processing: false,
         language: {
             lengthMenu: "_MENU_",
+            pageLength: 100,
             zeroRecords: hideZeroRecordsMessage ? "" : "Aún no tienes datos para mostrar",
             info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
             infoEmpty: "Página no disponible",
@@ -100,7 +101,7 @@ function initCustomDataTable({
                     },
                     dataType: 'json',
                     success: response => {
-                      
+
                         const json = typeof response === 'string'
                             ? JSON.parse(response)
                             : response;
@@ -757,8 +758,8 @@ $(document).ready(function () {
         url: 'services/products.php',
         action: 'cargar_variantes',
         columns: getVariantTableColumns(),
-        paging: false,
-        searching: false,
+        paging: true,
+        searching: true,
         ordering: false,
         hideZeroRecordsMessage: true,
         info: false
@@ -776,7 +777,7 @@ $(document).ready(function () {
         url: 'services/invoices.php',
         action: 'index_ordenes',
         columns: [
-            'comanda_id','nombre','telefono','entrega','fecha','estado','orden','acciones'
+            'comanda_id', 'nombre', 'telefono', 'entrega', 'fecha', 'estado', 'orden', 'acciones'
         ],
         order: [[0, 'desc']]
     },
@@ -785,9 +786,9 @@ $(document).ready(function () {
         url: 'services/invoices.php',
         action: 'cargar_detalle_orden',
         columns: [
-            'descripcion','cantidad','precio','impuesto','descuento','importe','acciones'
+            'descripcion', 'cantidad', 'precio', 'impuesto', 'descuento', 'importe', 'acciones'
         ],
-         hiddenColumns: [3],
+        hiddenColumns: [3],
         paging: false,
         searching: false,
         ordering: false,
@@ -798,10 +799,10 @@ $(document).ready(function () {
         url: 'services/contacts.php',
         action: 'historial_cliente',
         columns: [
-            'factura_id','item','cantidad','precio','descuento','total','fecha'
+            'factura_id', 'item', 'cantidad', 'precio', 'descuento', 'total', 'fecha'
         ],
-         hiddenColumns: [1,2,4,5,6],
-        paging: false,
+        hiddenColumns: [1, 2, 4, 5, 6],
+        paging: true,
         searching: false,
         ordering: true,
         info: false
@@ -831,6 +832,22 @@ $(document).ready(function () {
             ...rest
         });
     });
+
+
+    // Hacer autofocus al abrir una modal
+
+    $('#add_detail').on('shown.bs.modal', function () {
+        $('#code').trigger('focus');
+    });
+
+    $('#modalCashOpening').on('shown.bs.modal', function () {
+        $('#cash_initial').trigger('focus');
+    });
+
+     $('#modalCashClosing').on('shown.bs.modal', function () {
+        $('#current_total').trigger('focus');
+    });
+
 
 
 }); // Ready

@@ -53,11 +53,11 @@ while ($element = $customer->fetch_object()): ?>
             <thead>
                 <tr>
                     <th>Factura</th>
-                    <th>Tipo Item</th>
                     <th>Item</th>
                     <th>Cantidad</th>
                     <th>Precio</th>
                     <th>Descuento</th>
+                    <th>Total</th>
                     <th>Fecha</th>
                 </tr>
             </thead>

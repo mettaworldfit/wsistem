@@ -27,7 +27,7 @@ function registerSalesOrder() {
 
 // Editar orden de venta
 function editSalesOrder(orderId) {
-   
+
     const data = {
         action: "editar_orden",
         order_id: orderId,
@@ -508,15 +508,32 @@ $(document).ready(function () {
             date: $('#cash-in-date').val() != null ? $('#cash-in-date').val() : $('#date').val()
         }
 
-        var width = 500;
-        var height = 500;
+        const url = SITE_URL + 'src/phpmailer/ventas.php' +
+            '?f=' + invoice +                 // Número o ID de la factura
+            '&sub=' + data.subtotal +         // Subtotal de la venta
+            '&dis=' + data.discount +         // Descuento aplicado
+            '&tax=' + data.taxes +            // Impuestos
+            '&total=' + data.total +          // Total final
+            '&method=' + data.method +        // Método de pago (efectivo, tarjeta, etc.)
+            '&date=' + data.date;             // Fecha de la venta
 
-        // Centrar la ventana
-        var x = parseInt((window.screen.width / 2) - (width / 2));
-        var y = parseInt((window.screen.height / 2) - (height / 2));
+        fetch(url)
+            .then(response => response.text()) 
+            .then(result => {
+                // Mostramos la respuesta en la consola del navegador
+                console.log("Respuesta:", result);
 
-        var url = SITE_URL + 'src/phpmailer/ventas.php?f=' + invoice + '&sub=' + data.subtotal + '&dis=' + data.discount + '&tax=' + data.taxes + '&total=' + data.total + '&method=' + data.method + '&date=' + data.date;
-        window.open(url, 'Factura', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
+             
+                if (result.includes("enviado correctamente") || result.includes("ok")) {
+                    console.log("Correo ha sido enviado correctamente.");
+                } else {
+                    console.warn("Ocurrió un problema al enviar el correo:", result);
+                }
+            })
+            .catch(error => {
+                // Si ocurre un error de conexión o ejecución, lo mostramos en consola
+                console.error("Error al enviar la factura:", error);
+            });
 
     }
 

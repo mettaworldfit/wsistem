@@ -14,10 +14,17 @@ function editProduct() {
     }
 
     // Validar que la cantidad de variantes coincida con la cantidad ingresada
-    if (tipo === "variante" && $('#variantList tbody tr').length != quantity) {
-        console.log($('#variantList tbody tr').length, quantity)
-        return alertify.error("Debes completar las variantes de este producto");
+    var table = $('#variantList').DataTable();
+    var info = table.page.info();
+
+    var totalFilas = info.recordsTotal || 0;
+    console.log("Total registros del server:", totalFilas);
+
+    if (tipo === "variante" && totalFilas != quantity) {
+        alertify.error("Debes completar las variantes de este producto");
+        return;
     }
+
 
     // Enviar datos al servidor para actualizar el producto
     sendAjaxRequest({
@@ -604,12 +611,25 @@ $(document).ready(function () {
     // Funcion para mostrar interfaz de variantes y normal
 
     function toggleVariantUI(isVariant) {
+
         if (isVariant) {
+
+            const value = $('input[name="tipovariante"]:checked').val();
+
+            // Ocultar tipos variantes
+            if (value === "dispositivo") {
+                $('#radioProduct').closest('.radio-item').hide();
+            } else {
+                $('#radioProduct').closest('.radio-item').show();
+                $('#radioDevice').closest('.radio-item').hide();
+            }
+
             $(".variant").fadeIn(400);
             $(".active").fadeOut(200);
             $('#product_history').show();
 
         } else {
+           
             $(".variant").fadeOut(400);
             $(".active").fadeIn(200);
             $('#product_history').hide();

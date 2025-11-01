@@ -7,31 +7,53 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
-$sheet->setTitle("Productos");
+$sheet->setTitle("Inventario");
 
-// Estilos globales
-$defaultFont = $spreadsheet->getDefaultStyle()->getFont();
-$defaultFont->setName('Arial')->setSize(10);
+// Fuente global
+$spreadsheet->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+
+// ============================
+// 🟩 TÍTULO PRINCIPAL
+// ============================
+$sheet->mergeCells('A1:E1');
+$sheet->setCellValue('A1', 'Inventario del sistema');
+$sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14)->getColor()->setRGB('000000');
+$sheet->getStyle('A1')->getAlignment()
+    ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+    ->setVertical(Alignment::VERTICAL_CENTER);
+
+// ============================
+// 🟦 ENCABEZADOS
+// ============================
+$headers = ['Cantidad', 'Descripción', 'Precio', 'Costo', 'Ubicación'];
+$col = 'A';
+foreach ($headers as $title) {
+    $sheet->setCellValue($col . '2', $title);
+    $sheet->getColumnDimension($col)->setAutoSize(true);
+    $col++;
+}
+
+// Altura de encabezados
+$sheet->getRowDimension('2')->setRowHeight(30); // 🔸 Altura de 30px
 
 // Estilo encabezado
 $headerStyle = [
     'font' => [
         'bold' => true,
-        'color' => ['rgb' => 'FFFFFF'],
-        'size' => 11
+        'color' => ['rgb' => '000000']
     ],
     'fill' => [
         'fillType' => Fill::FILL_SOLID,
-        'startColor' => ['rgb' => '4F81BD']
+        'startColor' => ['rgb' => 'D9D9D9']
     ],
     'alignment' => [
-        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-        'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+        'horizontal' => Alignment::HORIZONTAL_CENTER,
+        'vertical'   => Alignment::VERTICAL_CENTER,
         'wrapText'   => true
     ],
     'borders' => [
@@ -41,72 +63,51 @@ $headerStyle = [
         ]
     ]
 ];
+$sheet->getStyle('A2:E2')->applyFromArray($headerStyle);
 
-// Estilo filas alternas (zebra)
-$rowAltStyle = [
-    'fill' => [
-        'fillType' => Fill::FILL_SOLID,
-        'startColor' => ['rgb' => 'F2F2F2']
-    ]
-];
-
-// Encabezados
-$headers = ['Nombre', 'P/Compra', 'P/Unitario', 'Existencia', 'Marca', 'Categoría', 'Ubicación'];
-$col = 'A';
-foreach ($headers as $title) {
-    $sheet->setCellValue($col . '1', $title);
-    $sheet->getColumnDimension($col)->setAutoSize(true);
-    $col++;
-}
-
-// Aplicar estilo al encabezado
-$sheet->getStyle('A1:G1')->applyFromArray($headerStyle);
-
-// Consulta SQL
+// ============================
+// 🔍 CONSULTA SQL
+// ============================
 $db = Database::connect();
-$query = "SELECT *, p.producto_id as idproducto FROM productos p 
-                INNER JOIN estados_generales e ON p.estado_id = e.estado_id
-                INNER JOIN almacenes a on p.almacen_id = a.almacen_id
-                LEFT JOIN productos_con_marcas pm ON p.producto_id = pm.producto_id
-                LEFT JOIN marcas m ON pm.marca_id = m.marca_id 
-                LEFT JOIN productos_con_categorias pc ON p.producto_id = pc.producto_id
-                LEFT JOIN categorias c ON pc.categoria_id = c.categoria_id 
-                LEFT JOIN productos_con_posiciones pps ON p.producto_id = pps.producto_id
-                LEFT JOIN posiciones ps ON ps.posicion_id = pps.posicion_id
-                ORDER BY nombre_producto ASC";
+$query = "
+    SELECT 
+        p.cantidad, 
+        p.nombre_producto AS descripcion, 
+        p.precio_unitario AS precio, 
+        p.precio_costo AS costo, 
+        ps.referencia AS ubicacion
+    FROM productos p
+    LEFT JOIN productos_con_posiciones pps ON p.producto_id = pps.producto_id
+    LEFT JOIN posiciones ps ON ps.posicion_id = pps.posicion_id
+    ORDER BY p.nombre_producto ASC
+";
 $datos = $db->query($query);
 
-$row = 2;
+// ============================
+// 🧾 RELLENAR DATOS
+// ============================
+$row = 3;
 while ($result = $datos->fetch_object()) {
-    $sheet->setCellValue("A$row", $result->nombre_producto);
-    $sheet->setCellValue("B$row", $result->precio_costo);
-    $sheet->setCellValue("C$row", $result->precio_unitario);
-    $sheet->setCellValue("D$row", $result->cantidad);
-    $sheet->setCellValue("E$row", $result->nombre_marca);
-    $sheet->setCellValue("F$row", $result->nombre_categoria);
-    $sheet->setCellValue("G$row", $result->referencia);
+    $sheet->setCellValue("A$row", $result->cantidad);
+    $sheet->setCellValue("B$row", $result->descripcion);
+    $sheet->setCellValue("C$row", $result->precio);
+    $sheet->setCellValue("D$row", $result->costo);
+    $sheet->setCellValue("E$row", $result->ubicacion);
 
-    // Formato contable para precios
-    $sheet->getStyle("B$row")->getNumberFormat()->setFormatCode('"$"#,##0.00;[Red]-"$"#,##0.00');
-    $sheet->getStyle("C$row")->getNumberFormat()->setFormatCode('"$"#,##0.00;[Red]-"$"#,##0.00');
+    // Formato numérico sin símbolos ($)
+    $sheet->getStyle("C$row")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_00);
+    $sheet->getStyle("D$row")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_00);
 
-    // Cantidad como entero
-    $sheet->getStyle("D$row")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER);
-
-    // Zebra striping
-    if ($row % 2 == 0) {
-        $sheet->getStyle("A$row:G$row")->applyFromArray($rowAltStyle);
-    }
-
-    // Bordes
-    $sheet->getStyle("A$row:G$row")->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-
+    // Bordes tipo tabla
+    $sheet->getStyle("A$row:E$row")->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
     $row++;
 }
 
-// Exportar Excel
+// ============================
+// 📤 EXPORTAR
+// ============================
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment;filename="reporte-productos.xlsx"');
+header('Content-Disposition: attachment;filename="inventario-sistema.xlsx"');
 header('Cache-Control: max-age=0');
 
 $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');

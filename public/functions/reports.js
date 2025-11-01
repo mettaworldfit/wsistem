@@ -212,11 +212,33 @@ function cashClosing() {
         successCallback: (res) => {
             $('.float-right').load(window.location.href + ' .float-right > *');
             mysql_row_affected()
-            setTimeout(() => location.reload(), 900);
+
+          // sendCashClosing(res) // Enviar el cierr de caja por correo
         },
         errorCallback: (res) => mysql_error(res),
-        verbose: true
+        verbose: false
     })
+}
+
+
+// Enviar cierre de caja por correo
+
+function sendCashClosing(id) {
+    var url = SITE_URL + 'src/phpmailer/cierre_caja.php?id=' + id;
+
+    fetch(url)
+        .then(response => response.text())
+        .then(data => {
+            console.log("Respuesta:", data);
+
+            // Recargar la página después del envío
+            if (data.includes("enviado correctamente") || data.includes("ok")) {
+                    location.reload();
+            }
+        })
+        .catch(error => {
+            console.error("Error al ejecutar cierre_caja.php:", error);
+        });
 }
 
 // Eliminar cierre de caja

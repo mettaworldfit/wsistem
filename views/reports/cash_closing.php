@@ -90,18 +90,6 @@
                   <?php endwhile; ?>
                 </select>
               </div>
-
-              <div class="cash-closing-check">
-                <div class="cash-closing-radio">
-                  <input class="" type="radio" name="radioDefault" id="generatePDF" checked>
-                  <label class="" for="generatePDF"><i class="fas fa-file-pdf"></i> PDF</label>
-                </div>
-
-                <div class="cash-closing-radio">
-                  <input class="" type="radio" name="radioDefault" id="generateMail">
-                  <label class="" for="generateMail"><i class="fas fa-envelope"></i> Email</label>
-                </div>
-              </div>
             </div>
 
             <div class="grid-form-date">
@@ -128,6 +116,12 @@
             <div class="grid-summary">
 
               <legend class="summary-legend">Resumen de cierre</legend>
+
+              <div class="form-field field-plus">
+                <label class="">+ Saldo Apertura:</label>
+                        <input type="hidden" class="form-custom" id="initial_balance" value="<?= $cashOpening->saldo_inicial ?? 0.00 ?>">
+                <input type="text" class="" id="" value="<?= number_format($cashOpening->saldo_inicial ?? 0.00, 2) ?>" readonly disabled>
+              </div>
 
               <div class="form-field">
                 <label class="">+ Ingresos Efectivo:</label>
@@ -180,11 +174,8 @@
               <textarea class="form-custom" rows="3" id="notes" placeholder="Notas adicionales..."></textarea>
 
               <div class="field-cash-closing">
-                <label class="">Saldo Inicial:</label>
-                <input type="number" class="form-custom" id="initial_balance" value="<?= $cashOpening->saldo_inicial ?? 0.00 ?>">
-
                 <label class="fw-bold">Total efectivo en caja:</label>
-                <input type="number" class="form-custom fw-bold" id="current_total" value="" required>
+                <input type="number" class="form-custom form-closing fw-bold" id="current_total" value="" required>
               </div>
             </div> <!-- grid-cash-closing-->
 

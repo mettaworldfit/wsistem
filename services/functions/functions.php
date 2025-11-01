@@ -8,72 +8,99 @@
  * 
  * - 'columns' (array): Lista de nombres de columnas permitidas para ordenamiento.
  * - 'searchable' (array): Lista de columnas sobre las cuales se puede aplicar la búsqueda global.
- * - 'base_table' (string): Nombre de la tabla principal para contar todos los registros sin filtros.
- * - 'table_with_joins' (string): Tabla principal junto con cualquier JOIN necesario para la consulta con filtros.
+ * - 'base_table' (string): Nombre de la tabla principal para conteo general sin filtros ni joins.
+ * - 'table_with_joins' (string): Tabla principal junto con cualquier JOIN necesario para consultas con filtros.
  * - 'select' (string): Sentencia SELECT (sin el FROM), es decir, qué columnas seleccionar.
- * - 'base_condition' (string): Clausula WHERE de la consulta si existe.
- * - 'table_rows' (callable): Función de callback que recibe una fila de la base de datos y devuelve un arreglo con el formato requerido por DataTables.
+ * - 'base_condition' (string): Cláusula WHERE de la consulta (por ejemplo, filtro por producto_id).
+ * - 'table_rows' (callable): Callback que recibe una fila y devuelve un arreglo con el formato requerido por DataTables.
  *
  * @return void Imprime un JSON con los datos esperados por DataTables:
  *              - draw: número de iteración enviado por DataTables.
- *              - recordsTotal: total de registros sin filtrar.
- *              - recordsFiltered: total de registros luego de aplicar el filtro.
- *              - data: arreglo de datos formateado.
+ *              - recordsTotal: total de registros sin filtros.
+ *              - recordsFiltered: total de registros luego de aplicar búsqueda.
+ *              - data: arreglo con los datos formateados.
  */
-
 function handleDataTableRequest(mysqli $db, array $params)
 {
+    // Parámetros base enviados por DataTables
     $draw = intval($_POST['draw'] ?? 0);
     $start = intval($_POST['start'] ?? 0);
     $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
     if ($length <= 0) {
-        $length = 10; // Evitar -1 o valores inválidos
+        $length = 10; // Evitar valores negativos o inválidos
     }
 
+    // Configuración de búsqueda y orden
     $searchValue = $_POST['search']['value'] ?? '';
     $columns = $params['columns'];
-
     $orderColumnIndex = $_POST['order'][0]['column'] ?? 0;
     $orderColumn = $columns[$orderColumnIndex] ?? $columns[0];
     $orderDir = ($_POST['order'][0]['dir'] ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
 
-    $baseCondition = $params['base_condition'] ?? '1=1';
-    $where = "$baseCondition";
+    // Condición base (filtro general)
+    $baseCondition = trim($params['base_condition'] ?? '1=1');
+    $where = $baseCondition;
 
+    // Aplicar búsqueda global si hay texto
     if (!empty($searchValue) && !empty($params['searchable'])) {
         $searchEscaped = $db->real_escape_string($searchValue);
+
+        // Crear condiciones LIKE dinámicas para las columnas buscables
         $searchConditions = array_map(function ($col) use ($searchEscaped) {
             return "$col LIKE '%$searchEscaped%'";
         }, $params['searchable']);
 
+        // Agregar al WHERE con OR entre columnas
         $where .= " AND (" . implode(' OR ', $searchConditions) . ")";
     }
 
-    $totalResult = $db->query("SELECT COUNT(*) AS total FROM {$params['base_table']}");
+    // ===============================================================
+    // Detección inteligente del tipo de tabla para el conteo total
+    // ===============================================================
+    // Si el base_condition contiene alias (ej. "p.producto_id"), usamos los JOINs
+    // Si no, contamos directamente desde la tabla base
+    $tableForCount = (str_contains($baseCondition, '.') && $baseCondition !== '1=1')
+        ? $params['table_with_joins']
+        : $params['base_table'];
+
+    // Conteo total de registros (sin búsqueda, pero respetando el filtro si lo hay)
+    $totalQuery = "SELECT COUNT(*) AS total FROM $tableForCount WHERE $baseCondition";
+    $totalResult = $db->query($totalQuery);
     $totalRecords = $totalResult->fetch_assoc()['total'] ?? 0;
 
+    // Conteo de registros luego de aplicar búsqueda
     $filteredQuery = "SELECT COUNT(*) AS total FROM {$params['table_with_joins']} WHERE $where";
     $filteredResult = $db->query($filteredQuery);
     $filteredRecords = $filteredResult->fetch_assoc()['total'] ?? 0;
 
-    $query = "{$params['select']} FROM {$params['table_with_joins']} WHERE $where ORDER BY $orderColumn $orderDir";
+    // Consulta principal con orden y paginación
+    $query = "{$params['select']} 
+              FROM {$params['table_with_joins']} 
+              WHERE $where 
+              ORDER BY $orderColumn $orderDir";
+
     if ($length > 0) {
         $query .= " LIMIT $start, $length";
     }
 
+    // Ejecución de la consulta y formateo de resultados
     $result = $db->query($query);
     $data = [];
+
     while ($row = $result->fetch_assoc()) {
+        // Callback definido por el usuario para dar formato a cada fila
         $data[] = call_user_func($params['table_rows'], $row);
     }
 
+    // Respuesta final compatible con DataTables
     echo json_encode([
         "draw" => $draw,
-        "recordsTotal" => $totalRecords,
-        "recordsFiltered" => $filteredRecords,
-        "data" => $data
+        "recordsTotal" => $totalRecords,      // Total general (filtrado por producto si aplica)
+        "recordsFiltered" => $filteredRecords, // Total luego de búsqueda
+        "data" => $data                       // Datos finales
     ]);
 }
+
 
 /**
  * Abrevia un texto si supera la longitud máxima permitida.
@@ -82,7 +109,8 @@ function handleDataTableRequest(mysqli $db, array $params)
  * @param int $maxLength Longitud máxima antes de cortar.
  * @return string Texto abreviado con "..." si es necesario.
  */
-function shortenText($text, $maxLength = 20) {
+function shortenText($text, $maxLength = 20)
+{
     $text = trim($text);
     if (strlen($text) <= $maxLength) {
         return $text;

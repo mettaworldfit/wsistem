@@ -11,6 +11,7 @@ ini_set('session.cookie_lifetime', $timeout);     // Tiempo máximo de vida en n
 // Iniciar sesión
 session_start();
 
+
 require_once 'config/parameters.php';
 
 // Verificar si el usuario ha iniciado sesión

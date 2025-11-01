@@ -1690,12 +1690,6 @@ button.btn-del {
     background-color: #5e5e5eba !important
 }
 
-.scroll-table {
-    overflow: overlay;
-    width: 100%;
-    height: 250px
-}
-
 .scroll-table thead {
     position: sticky;
     top: 0
@@ -2911,15 +2905,6 @@ li.paginate_button.page-item {
     margin-bottom: 8px;
 }
 
-.cash-closing-radio label {
-    margin: 0;
-    padding-left: 8px;
-}
-
-.cash-closing-radio {
-    display: flex;
-}
-
 .grid-form {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -2928,8 +2913,8 @@ li.paginate_button.page-item {
 
 .grid-cash-closing,
 .grid-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    display: flex;
+    flex-direction: column;
     background: #f8f9fa;
     padding: 15px;
     border: 1px solid #ccc;
@@ -2990,6 +2975,11 @@ legend.cash-closing-legend {
     margin: 0;
 }
 
+.form-closing {
+    padding: 2px 5px;
+    font-size: 13pt;
+}
+
 .field-active {
     box-shadow: none !important;
     border: none !important;
@@ -3003,4 +2993,8 @@ legend.cash-closing-legend {
 .field-subtraction-active {
     background: #dbdbdb;
     border-left: 5px solid #e03535;
+}
+
+.field-plus {
+    border-left: 5px solid #35e054;
 }
