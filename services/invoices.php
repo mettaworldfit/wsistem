@@ -34,9 +34,9 @@ if ($_POST['action'] == "cargar_detalle_orden") {
                LEFT JOIN detalle_ventas_con_servicios dvs ON df.detalle_venta_id = dvs.detalle_venta_id
                LEFT JOIN servicios s ON s.servicio_id = dvs.servicio_id',
     'select' => 'SELECT p.nombre_producto, df.precio, pz.nombre_pieza, s.nombre_servicio, df.cantidad as cantidad_total, 
-      df.detalle_venta_id as "id", df.descuento, df.impuesto, i.valor, df.costo',
+      df.detalle_venta_id as "id", df.descuento, df.impuesto, i.valor, df.costo,p.producto_id,pz.pieza_id,s.servicio_id',
     'base_condition' => 'df.comanda_id = ' . $id,
-    'table_rows' => function ($row) use ($id) {
+    'table_rows' => function ($row) use ($id,$db) {
 
       $precio = (float)($row['precio'] ?? 0);
       $costo = (float)($row['costo'] ?? 0);
@@ -47,6 +47,27 @@ if ($_POST['action'] == "cargar_detalle_orden") {
       $importe = ($cantidad * $precio) + ($cantidad * $impuesto) - $descuento;
       $is_exists = Help::checkOrderInvoiceExists($id)->fetch_object()->is_exists;
 
+        // Verificar si el producto tiene variantes
+      $hasVariants = false;
+      if ($row['producto_id']) {
+        $sql_check_variants = "SELECT COUNT(*) AS variants_count FROM variantes WHERE producto_id = '" . $row['producto_id'] . "'";
+        $result_variants = $db->query($sql_check_variants);
+        if ($result_variants) {
+          $variant_data = $result_variants->fetch_assoc();
+          if ($variant_data['variants_count'] > 0) {
+            $hasVariants = true;
+          }
+        }
+      }
+
+      // Generar el input con el atributo disabled si el producto tiene variantes
+      $input_html = '<input type="number" class="input-update input-quantity" 
+               value="' . (intval($cantidad) == $cantidad ? number_format($cantidad, 0) : number_format($cantidad, 2)) . '" 
+               data-id="' . $row['id'] . '" 
+               data-item-id="' .($row['producto_id'] ? $row['producto_id'] : ($row['pieza_id'] ? $row['pieza_id'] : $row['servicio_id'])) . '" 
+               data-item-type="' .($row['producto_id'] ? 'producto' : ($row['pieza_id'] ? 'pieza' : 'servicio')) . '" 
+               step="0.01" ' . ($hasVariants ? 'disabled' : '') . ' />';
+
       return [
         'descripcion' => $row['nombre_producto']
           ? Help::getVariantId($row['id'])
@@ -55,7 +76,7 @@ if ($_POST['action'] == "cargar_detalle_orden") {
             ? ucwords($row['nombre_pieza'])
             : (!empty($row['nombre_servicio']) ? ucwords($row['nombre_servicio']) : '')
           ),
-        'cantidad' => $cantidad,
+        'cantidad' => $input_html,
         'precio' => '<span>
                 <a href="#">' . number_format($precio, 2) . '</a>
                 <span id="toggle" class="toggle-right toggle-md">
@@ -67,7 +88,7 @@ if ($_POST['action'] == "cargar_detalle_orden") {
         'importe' => number_format($importe, 2),
         'acciones' => ($is_exists == 0)
           ? '<a class="btn-action action-danger" onclick="deleteInvoiceDetail(\'' . $row['id'] . '\')">
-          '.BUTTON_ERASE.'
+          ' . BUTTON_ERASE . '
           </a>'
           : ''
       ];
@@ -152,16 +173,16 @@ if ($_POST['action'] === "index_ordenes") {
                  co.direccion_entrega,co.tipo_entrega,co.nombre_receptor",
     'table_rows' => function ($row) {
       $acciones  = '<a class="btn-action action-info" href="' . base_url . 'invoices/add_order&id=' . $row['comanda_id'] . '" title="Agregar factura">';
-      $acciones .= BUTTON_ADD_INV.'</a>';
+      $acciones .= BUTTON_ADD_INV . '</a>';
 
       // Solo permitir deleteOrder si es administrador
       if ($_SESSION['identity']->nombre_rol === 'administrador') {
         $acciones .= '<span onclick="deleteOrder(\'' . $row['comanda_id'] . '\')" class="btn-action action-danger" title="Eliminar">';
-        $acciones .= BUTTON_DELETE.'</span>';
+        $acciones .= BUTTON_DELETE . '</span>';
       } else {
         // Mostrar icono deshabilitado sin evento
         $acciones .= '<span class="btn-action action-danger action-disable" title="Eliminar">';
-        $acciones .= BUTTON_DELETE.'</span>';
+        $acciones .= BUTTON_DELETE . '</span>';
       }
 
       $invoice_id = Help::hasInvoice($row['comanda_id']);
@@ -251,7 +272,7 @@ if ($_POST['action'] == "cargar_detalle_facturas") {
         'descuento' => number_format($descuento, 2),
         'total' => number_format($importe, 2),
         'acciones' => '<a class="btn-action action-danger" onclick="deleteInvoiceDetail(\'' . $row['id'] . '\')">
-        '.BUTTON_ERASE.'
+        ' . BUTTON_ERASE . '
         </a>'
       ];
     }
@@ -283,12 +304,34 @@ if ($_POST['action'] == "cargar_detalle_temporal") {
     'select' => 'SELECT detalle_temporal_id,usuario_id,producto_id,pieza_id,servicio_id,descripcion,
       cantidad,precio,costo,impuesto,descuento,fecha,hora',
     'base_condition' => 'usuario_id = ' . $user_id,
-    'table_rows' => function ($row) {
+    'table_rows' => function ($row) use ($db) {
 
+      // Verificar si el producto tiene variantes
+      $hasVariants = false;
+      if ($row['producto_id']) {
+        $sql_check_variants = "SELECT COUNT(*) AS variants_count FROM variantes WHERE producto_id = '" . $row['producto_id'] . "'";
+        $result_variants = $db->query($sql_check_variants);
+        if ($result_variants) {
+          $variant_data = $result_variants->fetch_assoc();
+          if ($variant_data['variants_count'] > 0) {
+            $hasVariants = true;
+          }
+        }
+      }
+
+      // Generar el input con el atributo disabled si el producto tiene variantes
+      $input_html = '<input type="number" class="input-update input-quantity" 
+               value="' . (intval($row['cantidad']) == $row['cantidad'] ? number_format($row['cantidad'], 0) : number_format($row['cantidad'], 2)) . '" 
+               data-id="' . $row['detalle_temporal_id'] . '" 
+               data-item-id="' .
+        ($row['producto_id'] ? $row['producto_id'] : ($row['pieza_id'] ? $row['pieza_id'] : $row['servicio_id'])) . '" 
+               data-item-type="' .
+        ($row['producto_id'] ? 'producto' : ($row['pieza_id'] ? 'pieza' : 'servicio')) . '" 
+               step="0.01" ' . ($hasVariants ? 'disabled' : '') . ' />';
 
       return [
         'descripcion' => Help::loadVariantTemp($row['detalle_temporal_id']),
-        'cantidad' => $row['cantidad'],
+        'cantidad' => $input_html,
         'precio' => '<span>
                 <a href="#">
                     ' . number_format($row['precio'], 2) . '
@@ -307,7 +350,7 @@ if ($_POST['action'] == "cargar_detalle_temporal") {
         ),
         'acciones' => '
         <a class="btn-action action-danger" onclick="deleteInvoiceDetail(\'' . $row['detalle_temporal_id'] . '\')">
-            '.BUTTON_ERASE.'
+            ' . BUTTON_ERASE . '
         </a>'
       ];
     }
@@ -345,10 +388,10 @@ if ($_POST['action'] == "index_cotizaciones") {
         'total' => '<span class="text-primary hide-cell">' . number_format($row['total'], 2) . '</span>',
         'acciones' => '
                   <a class="btn-action action-info" href="' . base_url . 'invoices/edit_quote&id=' . $row['cotizacion_id'] . '" title="editar">
-                      '.BUTTON_EDIT.'
+                      ' . BUTTON_EDIT . '
                   </a>
                   <span onclick="deleteQuote(\'' . $row['cotizacion_id'] . '\')" class="btn-action action-danger">
-                      '.BUTTON_DELETE.'
+                      ' . BUTTON_DELETE . '
                   </span>'
       ];
     }
@@ -392,13 +435,13 @@ if ($_POST['action'] == "index_facturas_ventas") {
       } else {
         $acciones .= 'class="btn-action action-info action-disable" href="#"';
       }
-      $acciones .= ' title="Editar">'.BUTTON_EDIT.'</a>';
+      $acciones .= ' title="Editar">' . BUTTON_EDIT . '</a>';
 
       if ($_SESSION['identity']->nombre_rol == 'administrador') {
         $acciones .= '<span onclick="deleteInvoice(\'' . $row['factura_venta_id'] . '\')" class="btn-action action-danger" title="Eliminar">
-        '.BUTTON_DELETE.'</span>';
+        ' . BUTTON_DELETE . '</span>';
       } else {
-        $acciones .= '<span class="btn-action action-danger action-disable" title="Eliminar">'.BUTTON_DELETE.'</span>';
+        $acciones .= '<span class="btn-action action-danger action-disable" title="Eliminar">' . BUTTON_DELETE . '</span>';
       }
 
       return [
@@ -435,7 +478,7 @@ if ($_POST['action'] == "agregar_detalle_temporal") {
     (int)$_POST['discount'] ?? 0
   ];
 
-echo handleProcedureAction($db, 'vt_crearDetalleTemporal', $params);
+  echo handleProcedureAction($db, 'vt_crearDetalleTemporal', $params);
 }
 
 if ($_POST['action'] == "asignar_variantes_temporales") {
@@ -1020,13 +1063,13 @@ if ($_POST['action'] === "obtener_detalle_orden") {
   INNER JOIN usuarios u on u.usuario_id = co.usuario_id
   WHERE comanda_id = '$id'";
 
-   // Ejecutar las consultas
+  // Ejecutar las consultas
   $result1 = $db->query($q1)->fetch_all();
   $result2 = $db->query($q2)->fetch_assoc();
 
   // Devolver los resultados
-  
-  echo json_encode([$result1, $result2],JSON_UNESCAPED_UNICODE);
+
+  echo json_encode([$result1, $result2], JSON_UNESCAPED_UNICODE);
 }
 
 //Obtener datos de la orden *comanda*
@@ -1042,6 +1085,141 @@ if ($_POST['action'] === "obtener_datos_orden") {
   WHERE co.comanda_id = '$id'";
 
 
-jsonQueryResult($db,$sql);
+  jsonQueryResult($db, $sql);
+}
 
+
+// // Función para actualizar la cantidad en detalle_temporal o detalle_facturas_ventas
+function actualizarCantidadDetalle($db, $id, $quantity, $item_id, $item_type, $tabla_detalle, $tabla_id)
+{
+  // Si el item es un servicio, no verificamos stock, solo actualizamos la cantidad en detalle
+  if ($item_type === 'servicio') {
+
+    // Actualizar la cantidad
+    $sql_update = "UPDATE $tabla_detalle SET cantidad = '$quantity' WHERE $tabla_id = '$id'";
+    if ($db->query($sql_update)) {
+      return json_encode([
+        'error' => false,
+        'message' => 'Detalle actualizado con éxito (Servicio).',
+      ]);
+    } else {
+      return json_encode([
+        'error' => true,
+        'message' => 'Error al actualizar el servicio.',
+      ]);
+    }
+  }
+
+  // Verificar si el producto tiene variantes (solo si el item es producto)
+  if ($item_type === 'producto') {
+    // Verificar si el producto tiene variantes
+    $sql_check_variants = "SELECT COUNT(*) AS variants_count FROM variantes WHERE producto_id = '$item_id'";
+    $result_variants = $db->query($sql_check_variants);
+
+    if ($result_variants) {
+      $variant_data = $result_variants->fetch_assoc();
+      if ($variant_data['variants_count'] > 0) {
+        return json_encode([
+          'error' => true,
+          'message' => 'Este producto tiene variantes, no se puede modificar la cantidad.',
+        ]);
+      }
+    }
+  }
+
+  // Si es producto o pieza, verificamos el stock disponible
+  $sql_check = "";
+  if ($item_type === 'producto') {
+    $sql_check = "SELECT cantidad FROM productos WHERE producto_id = '$item_id'";
+  } elseif ($item_type === 'pieza') {
+    $sql_check = "SELECT cantidad FROM piezas WHERE pieza_id = '$item_id'";
+  }
+
+  if ($sql_check !== "") {
+    $result = $db->query($sql_check);
+
+    if ($result) {
+      $row = $result->fetch_assoc();
+      $current_stock = $row['cantidad']; // Cantidad actual en el inventario del item
+
+      // Obtener la cantidad actual en detalle para este item
+      $sql_detalle_check = "SELECT cantidad FROM $tabla_detalle WHERE $tabla_id = '$id'";
+      $detalle_result = $db->query($sql_detalle_check);
+
+      if ($detalle_result) {
+        $detalle_row = $detalle_result->fetch_assoc();
+        $current_detail_quantity = $detalle_row['cantidad']; // Cantidad en detalle
+
+        // Calcular el total disponible (stock + detalle)
+        $total_available = $current_stock + $current_detail_quantity;
+
+        // Verificar si el stock total disponible es suficiente
+        if ($total_available >= $quantity) {
+          // Actualizar la cantidad en detalle
+          $sql_update = "UPDATE $tabla_detalle SET cantidad = '$quantity' WHERE $tabla_id = '$id'";
+          if ($db->query($sql_update)) {
+            return json_encode([
+              'error' => false,
+              'message' => 'Detalle modificado con éxito.',
+            ]);
+          } else {
+            return json_encode([
+              'error' => true,
+              'message' => 'Error al actualizar la cantidad en detalle.',
+            ]);
+          }
+        } else {
+          // Si no hay suficiente stock
+          return json_encode([
+            'error' => true,
+            'message' => 'No hay suficiente stock para realizar la actualización.',
+          ]);
+        }
+      } else {
+        return json_encode([
+          'error' => true,
+          'message' => 'Error al obtener la cantidad en detalle.',
+        ]);
+      }
+    } else {
+      // Error al verificar el stock del item
+      return json_encode([
+        'error' => true,
+        'message' => 'Error al verificar el stock del item.',
+      ]);
+    }
+  }
+}
+
+
+// Acción para actualizar cantidad en detalle_temporal o detalle_facturas_ventas
+if ($_POST['action'] === "actualizar_cantidad_detalle_temporal" || $_POST['action'] === "actualizar_cantidad_orden_venta") {
+  $db = Database::connect();
+
+  // Datos recibidos del frontend
+  $id = $_POST['id']; // ID del detalle temporal
+  $quantity = $_POST['quantity']; // Nueva cantidad a actualizar
+  $item_id = $_POST['item_id']; // ID del producto, pieza o servicio
+  $item_type = $_POST['item_type']; // Tipo de item: 'producto', 'pieza', 'servicio'
+
+  // Determinar la tabla de detalle y la tabla del item según el tipo de item
+  if ($_POST['action'] === "actualizar_cantidad_detalle_temporal") {
+    $tabla_detalle = 'detalle_temporal';
+    $tabla_id = "detalle_temporal_id";
+  } else {
+    $tabla_detalle = 'detalle_facturas_ventas';
+    $tabla_id = "detalle_venta_id";
+  }
+
+  // Determinar la tabla del item según el tipo de item
+  if ($item_type === 'producto') {
+    $tabla_item = 'productos';
+  } elseif ($item_type === 'pieza') {
+    $tabla_item = 'piezas';
+  } else {
+    $tabla_item = ''; // Para servicios no necesitamos tabla de stock
+  }
+
+  // Llamar a la función de actualización
+  echo actualizarCantidadDetalle($db, $id, $quantity, $item_id, $item_type, $tabla_detalle, $tabla_id);
 }

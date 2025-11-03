@@ -827,51 +827,77 @@ ul#search_result li:hover {
     }
 }
 
-
 .nav-container {
     display: none;
-    z-index: 1;
     position: absolute;
+    overflow: auto;
     top: 60px;
-    width: 175px;
-    height: 280px;
-    color: #fff;
-    background: #303741
+    width: 39%;
+    height: 90vh;
+    background-color: #303741;
+    z-index: 999;
+    padding: 15px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    right: 0;
 }
 
 .nav-container ul {
-    font-size: 13px
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
 }
 
-@media (max-width:1340px) {
-    .nav-container ul {
-        font-size: 11px;
+img.nav-icon {
+    width: 50px;
+    margin: 0 auto;
+}
+
+@media (min-width: 1250px) {
+    .nav-container {
+        width: 38%;
     }
 
-    .nav-container {
-        width: 230px;
+    img.nav-icon {
+        width: 80px;
     }
 }
 
 .nav-container ul li {
-    height: 40px;
-    line-height: 40px;
-    border-bottom: .5px solid #636363
-}
-
-.nav-container ul li:hover {
-    background: #3d3d3d
+    width: calc(33.33% - 20px);
 }
 
 .nav-container ul li a {
-    color: #fff;
-    font-family: "Nunito-Regular", sans-serif;
-    padding-left: 10px
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    background-color: #4f5b62;
+    padding: 11px;
+    color: white;
+    font-family: 'Nunito-Regular', sans-serif;
+    font-size: 12px;
+    text-align: center;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    height: 100%;
+    width: 100%;
+}
+
+@media (min-width: 1250px) {
+    .nav-container ul li a {
+        font-size: 16px;
+    }
 }
 
 .nav-container ul li a:hover {
-    text-decoration: none;
-    color: #fff
+    background-color: #6c757d;
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .content-bar-info {
@@ -1512,55 +1538,66 @@ button.btn-del {
 
 /* === Base minimalista === */
 .btn-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;             
-  height: 16px;
-  border: none;             /* Sin bordes */
-  background: transparent;  /* Sin fondo */
-  font-size: 12pt;          /* Ícono más visible */
-  color: #374151;           /* Gris oscuro elegante */
-  cursor: pointer;
-  transition: color 0.2s ease, transform 0.2s ease;
-  text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border: none;
+    /* Sin bordes */
+    background: transparent;
+    /* Sin fondo */
+    font-size: 12pt;
+    /* Ícono más visible */
+    color: #374151;
+    /* Gris oscuro elegante */
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
+    text-decoration: none;
 }
 
 /* Hover con cambio de color y sutil animación */
 .btn-action:hover {
-  color: #111827;           /* Más oscuro */
-  transform: scale(1.15);   /* Ligerísimo zoom */
+    color: #111827;
+    /* Más oscuro */
+    transform: scale(1.15);
+    /* Ligerísimo zoom */
 }
 
 /* === Variaciones de color === */
 
 /* Azul - info */
 .action-info {
-  color: #00adef;
+    color: #00adef;
 }
+
 .action-info:hover {
-  color: #0284c7;  /* Azul más fuerte al pasar */
+    color: #0284c7;
+    /* Azul más fuerte al pasar */
 }
 
 .action-danger {
-  color: #e20303 !important;
+    color: #e20303 !important;
 }
+
 .action-danger:hover {
-  color: #991b1b !important;
+    color: #991b1b !important;
 }
 
 .action-success {
-  color: #00a13e !important;
+    color: #00a13e !important;
 }
+
 .action-success:hover {
-  color: #14532d !important;
+    color: #14532d !important;
 }
 
 .action-warning {
-  color:#ff7200;
+    color: #ff7200;
 }
+
 .action-warning:hover {
-  color: #92400e;
+    color: #92400e;
 }
 
 .action-disable {
@@ -2094,6 +2131,17 @@ input[type="date"].form-custom-icon {
 .input-div .select2-container--default .select2-selection--single {
     border: none
 }
+
+.input-update {
+    width: 50px;
+    padding: 3px 2px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid #ccc;
+    font-family: "Nunito-Regular", sans-serif;
+}
+
 
 .b-left {
     border: none;

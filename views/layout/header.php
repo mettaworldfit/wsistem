@@ -24,7 +24,7 @@
 
   <script src="<?= base_url ?>public/jquery/jquery.js"></script>
   <script src="<?= base_url ?>public/scripts.js"></script>
-  
+
   <link rel="manifest" href="<?= base_url ?>manifest.json">
   <script src="<?= base_url ?>sw.js" type="text/javascript"></script>
 
@@ -105,13 +105,33 @@
 
             <nav class="nav-container">
               <ul>
-                <li><a href="<?= base_url ?>invoices/addpurchase">Factura de venta</a></li>
-                <li data-toggle="modal" data-target="#modalComanda"><a href="#">Orden de venta</a></li>
-                <li data-toggle="modal" data-target="#orden"><a href="#">Orden de reparación</a></li>
-                <li><a href="<?= base_url ?>invoices/quote">Cotización</a></li>
-                <li><a href="<?= base_url ?>payments/add">Pagar factura</a></li>
-                <li><a href="<?= base_url ?>products/add">Agregar producto</a></li>
-                <li><a href="<?= base_url ?>services/add">Agregar servicio</a></li>
+                <li><a href="<?= base_url ?>invoices/addpurchase">
+                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/bill.png" alt="">
+                    Factura de venta</a></li>
+                <li data-toggle="modal" data-target="#modalComanda"><a href="#">
+                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/sort.png" alt="">
+                    Orden de venta</a></li>
+                <li data-toggle="modal" data-target="#orden"><a href="#">
+                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/clipboard.png" alt="">
+                    Orden de reparación</a></li>
+                <li><a href="<?= base_url ?>invoices/quote">
+                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/advice.png" alt="">
+                    Cotización</a></li>
+                <li><a href="<?= base_url ?>payments/add">
+                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/pay.png" alt="">
+                    Pagar factura</a></li>
+                <li><a href="<?= base_url ?>products/add">
+                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/expense.png" alt="">
+                    Agregar gasto</a></li>
+                <li><a href="<?= base_url ?>bills/addbills">
+                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/add-item.png" alt="">
+                    Agregar producto</a></li>
+                <li><a href="<?= base_url ?>services/add">
+                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/service.png" alt="">
+                    Agregar servicio</a></li>
+                    <li><a href="<?= base_url ?>reports/querys">
+                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/analytics.png" alt="">
+                    Consultas</a></li>
               </ul>
             </nav>
 
@@ -244,7 +264,7 @@
           <div class="admin-right">
             <div class="content-bar-info">
 
-             <div class="num-order">
+              <div class="num-order">
                 <a href="<?= base_url ?>" title="Ordenes de ventas">
                   <?php
 

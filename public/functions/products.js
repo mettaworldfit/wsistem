@@ -25,7 +25,6 @@ function editProduct() {
         return;
     }
 
-
     // Enviar datos al servidor para actualizar el producto
     sendAjaxRequest({
         url: "services/products.php", // Archivo PHP que procesa la acción
@@ -242,13 +241,17 @@ function addVariantDb() {
 
     // Validar que no se haya excedido la cantidad de variantes
 
-    const currentVariants = $('#variantList tbody tr').length;
     const totalQuantity = $("#input_quantity").val();
 
-    if (currentVariants >= totalQuantity) return;
+    // Actualizar el DataTable con la nueva variante (agregarla a la tabla antes de validar)
+    var table = $('#variantList').DataTable();
+    var info = table.page.info();
+    var totalFilas = info.recordsTotal || 0; // Total de registros en DataTable
 
-    // Guardar variante en localStorage (opcional según uso posterior)
-    localStorage.setItem('variantes', JSON.stringify(data));
+    console.log("Total registros del server:", totalFilas);
+    console.log("Total cantidad:", totalQuantity);
+
+    if (totalFilas >= totalQuantity) return;
 
     // Enviar la solicitud AJAX para agregar la variante
 
@@ -270,30 +273,32 @@ function addVariantDb() {
             if (res > 0) {
 
                 const today = new Date();
-
                 const year = today.getFullYear();
                 const month = String(today.getMonth() + 1).padStart(2, '0'); // Mes: 01–12
                 const day = String(today.getDate()).padStart(2, '0');        // Día: 01–31
 
                 const formattedDate = `${year}-${month}-${day}`;
-                document.querySelector('#variantList').innerHTML += `
+
+                // Agregar la nueva fila a DataTable
+                var newRow = `
                 <tr>
                     <td>${data.provider}</td>
-                    ${data.type === 'dispositivo' ? `
-                    <td>${data.serial}</td>
-                    <td>${data.colour}</td>
+                    <td>${data.type === 'dispositivo' ? data.serial : data.flavor}</td>
+                    <td>${data.type === 'dispositivo' ? data.colour : ''}</td>
                     <td>${format.format(data.cost)}</td>
                     <td>${data.box}</td>
                     <td>${formattedDate}</td>
-                    `: `
-                    <td>${data.flavor}</td>
-                    <td>${format.format(data.cost)}</td>
-                    <td>${formattedDate}</td>
-                    `}
-                    <td> 
-                      <span class="action-danger btn-action" onclick="deleteVariantDb('${res}')"><i class="fas fa-backspace"></i></span>
+                    <td>
+                        <span class="action-danger btn-action" onclick="deleteVariantDb('${res}')">
+                            <i class="fas fa-backspace"></i>
+                        </span>
                     </td>
-                </tr>`;
+                </tr>
+                `;
+
+                $('#variantList tbody').append(newRow);
+                $('#variantList').DataTable().draw();
+
 
                 setTimeout(function () {
                     calculateAverageProductCost(); // Recalcular el costo promedio
@@ -629,7 +634,7 @@ $(document).ready(function () {
             $('#product_history').show();
 
         } else {
-           
+
             $(".variant").fadeOut(400);
             $(".active").fadeIn(200);
             $('#product_history').hide();

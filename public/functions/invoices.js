@@ -118,8 +118,6 @@ function cashback(data) {
     });
 }
 
-
-
 // Total de la factura
 
 function calculateTotalInvoice(bonus = 0) {
@@ -249,6 +247,77 @@ function resetModal() {
 }
 
 $(document).ready(function () {
+
+    // Detectar el cambio en los inputs con la clase .input-quantity
+    $(document).on('change', '.input-quantity', function () {
+        var newQuantity = $(this).val();
+        var detail_id = $(this).data('id');  // Obtener el detalle_id del atributo data-id
+        var itemId = $(this).data('item-id');
+        var type = $(this).data('item-type');
+
+
+        // Determinar acción según la URL
+        let action;
+
+        if (pageURL.includes("invoices/addpurchase")) {
+            action = 'actualizar_cantidad_detalle_temporal';
+        } else if (pageURL.includes("invoices/add_order")) {
+            action = 'actualizar_cantidad_orden_venta';
+        }
+
+        if (newQuantity && !isNaN(newQuantity)) {
+
+            sendAjaxRequest({
+                url: "services/invoices.php",
+                data: {
+                    id: detail_id,
+                    quantity: newQuantity,
+                    item_id: itemId,
+                    item_type: type,
+                    action: action
+                },
+                successCallback: (res) => {
+
+                    try {
+                     
+                        var result = JSON.parse(res);
+
+                        if (result.error) {
+                            mdtoast(result.message, {
+                                duration: 5000,
+                                position: "bottom right",
+                                type: 'error',
+                            });
+                        } else {
+                            mdtoast("Cantidad actualizada correctamente", {
+                                interactionTimeout: 1500,
+                                type: 'success',
+                                position: "bottom right",
+                            });
+                        }
+
+                        calculateTotalInvoice();
+                        reloadInvoiceDetail();
+
+                    } catch (e) {
+                        // Si ocurre un error al parsear el JSON
+                        mdtoast("Error al procesar la respuesta del servidor.", {
+                            duration: 5000,
+                            position: "bottom right",
+                            type: 'error',
+                        });
+                        console.error("Error al parsear JSON: ", e);
+                    }
+
+                }, verbose: false
+            })
+
+
+        } else {
+            alert('Por favor, ingrese una cantidad válida');
+        }
+    });
+
 
     // Ocultar botones por defecto (cotización, editar última factura, tipos de facturación)
     $('#SaveQuote, #last_invoice_edit, #credit-in-finish, #credit-in-finish-receipt, #cash-in-finish-receipt, #cash-in-finish').hide();
@@ -518,12 +587,12 @@ $(document).ready(function () {
             '&date=' + data.date;             // Fecha de la venta
 
         fetch(url)
-            .then(response => response.text()) 
+            .then(response => response.text())
             .then(result => {
                 // Mostramos la respuesta en la consola del navegador
                 console.log("Respuesta:", result);
 
-             
+
                 if (result.includes("enviado correctamente") || result.includes("ok")) {
                     console.log("Correo ha sido enviado correctamente.");
                 } else {

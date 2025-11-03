@@ -326,3 +326,47 @@ function jsonMultiQueryResult(mysqli $db, string $query): void
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
     exit;
 }
+
+
+/**
+ * Ejecuta una consulta SQL y devuelve una respuesta en formato JSON
+ * indicando el éxito o error de la operación, así como el número de
+ * filas afectadas en el caso de las consultas `UPDATE`.
+ *
+ * @param mysqli $db Conexión activa a la base de datos.
+ * @param string $query Consulta SQL a ejecutar.
+ * 
+ * @return void Devuelve un JSON con el resultado de la operación.
+ */
+function jsonQueryRowAffected(mysqli $db, string $query): void
+{
+    // Ejecutar la consulta
+    $result = $db->query($query);
+
+    // Verificar si la consulta ha tenido éxito
+    if (!$result) {
+        echo json_encode([
+            'error' => true,
+            'message' => 'Error en la consulta SQL',
+            'sql_error' => $db->error,
+            'sql' => $query // útil para depurar
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    // Si la consulta es un UPDATE, podemos verificar si se realizó algún cambio
+    if ($db->affected_rows > 0) {
+        echo json_encode([
+            'error' => false,
+            'message' => 'Operación exitosa, filas afectadas: ' . $db->affected_rows
+        ], JSON_UNESCAPED_UNICODE);
+    } else {
+        // Si no hubo filas afectadas (por ejemplo, la cantidad no cambió)
+        echo json_encode([
+            'error' => false,
+            'message' => 'No se realizaron cambios en la base de datos.'
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    exit;
+}

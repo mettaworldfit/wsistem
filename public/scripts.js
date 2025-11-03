@@ -345,12 +345,18 @@ $(document).ready(function () {
 
     $(".loader").hide(); // Loader
 
-    // Menú2 desplegable
-
+    // Menú rapido
     $("#bar-menu").on("click", (e) => {
         e.preventDefault();
 
         $(".nav-container").slideToggle();
+    });
+
+    // Cerrar el menú si se hace clic fuera de él
+    $(document).on("click", function (event) {
+        if (!$(event.target).closest(".nav-container, #bar-menu").length) {
+            $(".nav-container").slideUp();
+        }
     });
 
     // User menú desplegable
@@ -844,7 +850,7 @@ $(document).ready(function () {
         $('#cash_initial').trigger('focus');
     });
 
-     $('#modalCashClosing').on('shown.bs.modal', function () {
+    $('#modalCashClosing').on('shown.bs.modal', function () {
         $('#current_total').trigger('focus');
     });
 
