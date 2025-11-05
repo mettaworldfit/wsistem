@@ -39,12 +39,12 @@ class ConfigController
         }
     }
 
-    public function pdf()
+    public function config_pdf()
     {
         // Verificar rol de usuario
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
 
-            require_once './views/config/pdf.php';
+            require_once './views/config/config_pdf.php';
         } else {
             // Permiso denegado
             require_once './views/layout/denied.php';

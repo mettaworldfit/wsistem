@@ -55,16 +55,24 @@ if (!empty($_REQUEST['o'])) {
     // Obtener datos de la factura desde la base de datos
     // ==============================================================
 
-	$query3 = "SELECT logo_pdf,tel,direccion,slogan,condiciones,titulo 
-	FROM configuraciones WHERE config_id = 1";
+	$query3 = "SELECT * FROM configuraciones";
 
-	$conf = $db->query($query3)->fetch_object();
+    $conf = $db->query($query3);
 
-	$Logo_pdf = $conf->logo_pdf;
-	$Tel = $conf->tel;
-	$Dir = $conf->direccion;
-	$Slogan = $conf->slogan;
-	$Policy = $conf->condiciones;
+    $config = [];
+
+    while ($row = $conf->fetch_object()) {
+        // Asignar cada valor basado en la clave
+        $config[$row->config_key] = $row->config_value;
+    }
+
+    // Asignar las configuraciones a las variables
+    $Logo_pdf = isset($config['logo']) ? $config['logo'] : '';
+    $Tel = isset($config['telefono']) ? $config['telefono'] : '';
+    $Dir = isset($config['direccion']) ? $config['direccion'] : '';
+	$Slogan = isset($config['slogan']) ? $config['slogan'] : '';
+	$Policy = isset($config['condiciones']) ? $config['condiciones'] : '';
+	$Title = isset($config['titulo']) ? $config['titulo'] : '';
 
 
 	ob_start();

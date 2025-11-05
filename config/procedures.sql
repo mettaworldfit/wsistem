@@ -16,7 +16,6 @@ insert into estados_generales values (null,'Inactivo');
 insert into estados_generales values (null,'Pagada');
 insert into estados_generales values (null,'Por Cobrar');
 insert into estados_generales values (null,'Anulada');
-
 insert into estados_generales values (null,'Pendiente');
 insert into estados_generales values (null,'Entregado');
 insert into estados_generales values (null,'En Proceso');
@@ -24,7 +23,6 @@ insert into estados_generales values (null,'Listo');
 insert into estados_generales values (null,'No se pudo');
 insert into estados_generales values (null,'Ordenado');
 insert into estados_generales values (null,'Facturado');
-
 insert into estados_generales values (null,'disponible');
 insert into estados_generales values (null,'vendido');
 
@@ -38,65 +36,16 @@ insert into metodos_de_pagos values (null,'cheque');
 insert into usuarios values (null,1,1,'Wilmin Jose','Sanchez','local','1234',curdate());
 
 insert into almacenes values (null,1,'Principal','',curdate());
-insert into almacenes values (null,1,'Los Hidalgos','',curdate());
 
 insert into lista_de_precios values (null,1,'Minimo 1','',curdate());
 insert into lista_de_precios values (null,1,'Minimo 2','',curdate());
 insert into lista_de_precios values (null,1,'Por mayor','',curdate());
 
-insert into impuestos values (null,1,'Itbis',18,'',curdate());
 
 insert into clientes values (null,1,null,'Consumidor Final',null,null,null,null,null,curdate());
                             
-insert into proveedores values (null,1,'a&b technologic',null,null,null,null,null,curdate());
-insert into proveedores values (null,1,'jam comunicaciones',null,null,null,null,null,curdate());
-insert into proveedores values (null,1,'señal celulares',null,null,null,null,null,curdate());
-insert into proveedores values (null,1,'mb comunicaciones',null,null,null,null,null,curdate());
-insert into proveedores values (null,1,'7seven cell',null,null,null,null,null,curdate());
+insert into proveedores values (null,1,'Consumidor Final',null,null,null,null,null,curdate());
 
-insert into marcas values (null,'Samsung',curdate());
-insert into marcas values (null,'Lg',curdate());
-insert into marcas values (null,'Motorola',curdate());
-insert into marcas values (null,'Alcatel',curdate());
-insert into marcas values (null,'Apple',curdate());
-insert into marcas values (null,'Altise',curdate());
-insert into marcas values (null,'Xiaomi',curdate());
-insert into marcas values (null,'Zte',curdate());
-insert into marcas values (null,'Nokia',curdate());
-insert into marcas values (null,'Vidvie',curdate());
-insert into marcas values (null,'Coolpad',curdate());
-insert into marcas values (null,'Claro',curdate());
-insert into marcas values (null,'Ipro',curdate());
-insert into marcas values (null,'Lenovo',curdate());
-insert into marcas values (null,'Kyocera',curdate());
-insert into marcas values (null,'OtuxOne',curdate());
-insert into marcas values (null,'RIO',curdate());
-insert into marcas values (null,'amazon',curdate());
-insert into marcas values (null,'asus',curdate());
-insert into marcas values (null,'vankyo',curdate());
-insert into marcas values (null,'ktec',curdate());
-insert into marcas values (null,'sandisk',curdate());
-insert into marcas values (null,'kingston',curdate());
-insert into marcas values (null,'oneplus',curdate());
-
-insert into equipos values (null,5,'Iphone 7 plus',null);
-
-insert into posiciones values (null,1,'A1','',curdate());
-insert into posiciones values (null,1,'A2','',curdate());
-insert into posiciones values (null,1,'A3','',curdate());
-insert into posiciones values (null,1,'B1','',curdate());
-insert into posiciones values (null,1,'B2','',curdate());
-insert into posiciones values (null,1,'B3','',curdate());
-insert into posiciones values (null,1,'C1','',curdate());
-insert into posiciones values (null,1,'C2','',curdate());
-insert into posiciones values (null,1,'C3','',curdate());
-
-insert into categorias values (null,1,'Celular','',curdate());
-insert into categorias values (null,1,'Protector','',curdate());
-insert into categorias values (null,1,'Bateria','',curdate());
-insert into categorias values (null,1,'Pantalla','',curdate());
-insert into categorias values (null,1,'tablet','',curdate());
-insert into categorias values (null,1,'reloj','',curdate());
 
 insert into condiciones values (null,1,'Red bloqueada',curdate()),
                                (null,1,'Pantalla rota',curdate()),
@@ -162,11 +111,8 @@ insert into motivos values (null,1,'Tarjeta de crédito empresarial',curdate());
 insert into motivos values (null,1,'Impuestos por pagar',curdate());
 insert into motivos values (null,1,'Préstamos a terceros',curdate());
 insert into motivos values (null,1,'Inversiones',curdate());
-insert into motivos values (null,1,'Compra de bateria',curdate());
-insert into motivos values (null,1,'Compra de pantalla',curdate());
-insert into motivos values (null,1,'Compra de pieza',curdate());
-insert into motivos values (null,1,'Compra de flexible',curdate());
-insert into motivos values (null,1,'Compra de celulares o equipos',curdate());
+insert into motivos values (null,1,'Gastos fijos',curdate());
+insert into motivos values (null,1,'Gastos operativos',curdate());
 
 insert into colores values (null,"negro con azul"),
 (null,"negro con rojo");
@@ -190,7 +136,26 @@ insert into colores values (null,"blanco"),
 
 insert into bono_config values (null,1,2,'15000',200,curdate());
 
-insert into configuraciones (config_id) VALUES (null);
+INSERT INTO configuraciones
+    (config_key, config_value, descripcion) 
+VALUES 
+    ('empresa_name', 'Codevrd', 'Nombre de la empresa'),
+    ('correo_servidor', 'example@host.com', 'Correo electrónico de contacto'),
+    ('password', 'XXXX XXXX XXXX XXXX', 'Contraseña del servidor de correo'),
+    ('servidor', 'localhost', 'Host del servidor'),
+    ('smtps', NULL, 'SMTP habilitado (true/false)'),
+    ('puerto', '587', 'Puerto del servidor SMTP'),
+    ('logo_url', 'public/imagen/sistem/pdf.png', 'URL del logo'),
+    ('logo', '', 'Logo del sistema'),
+    ('slogan', 'En la web, en todas partes', 'Slogan de la empresa'),
+    ('direccion', '-', 'Dirección de la empresa'),
+    ('link_facebook', NULL, 'Enlace a Facebook'),
+    ('link_whatsapp', NULL, 'Enlace a WhatsApp'),
+    ('link_instagram', NULL, 'Enlace a Instagram'),
+    ('telefono', '000-000-0000', 'Número de teléfono de contacto de la empresa'),
+    ('condiciones', '-', 'terminos y condiciones de la factura pdf'),
+    ('titulo', '-', 'Título del sitio web'),
+    ('correo_adm','','correo del administracion del sistema');
 						
 
 
@@ -596,6 +561,7 @@ BEGIN
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
 
 DELETE FROM clientes WHERE cliente_id = id;
+SELECT 'ready' AS msg;
 
 END $$
 DELIMITER ;
@@ -609,6 +575,7 @@ BEGIN
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
 
 DELETE FROM bonos WHERE bono_id = id;
+SELECT 'ready' AS msg;
 
 END $$
 DELIMITER ;
@@ -665,11 +632,12 @@ DELIMITER ;
 # -------------- Productos -----------------
 
 
+DROP PROCEDURE IF EXISTS `pr_agregarProducto`;
 DELIMITER $$
 CREATE PROCEDURE `pr_agregarProducto` (in usuario_id int, in almacen_id int, in codigo varchar(100),
-in nombre varchar(100), in costo decimal(19,2), in precio int, in cantidad int, in cantidad_min int, 
-in categoria_id int, in posicion_id int, in impuesto_id int, in oferta_id int, in marca_id int,
-in proveedor_id int, in imagen varchar(255))
+in nombre varchar(100), in costo decimal(19,2), in precio decimal(19,2), in cantidad decimal(19,2), 
+in cantidad_min decimal(19,2), in categoria_id int, in posicion_id int, in impuesto_id int, in oferta_id int, 
+in marca_id int, in proveedor_id int, in imagen varchar(255))
 BEGIN
 
  DECLARE EXIT HANDLER FOR 1062 SELECT 'Duplicate keys error encountered' AS msg;
@@ -728,11 +696,13 @@ IF (accion = "desactivar") THEN
 
 SET @estado_id = (SELECT estado_id FROM estados_generales WHERE nombre_estado = 'Inactivo');
 UPDATE productos SET estado_id = @estado_id WHERE producto_id = id;
+select "ready" AS msg;
 
 ELSEIF (accion = 'activar') THEN
 
 SET @estado_id = (SELECT estado_id FROM estados_generales WHERE nombre_estado = 'Activo');
 UPDATE productos SET estado_id = @estado_id WHERE producto_id = id;
+select "ready" AS msg;
 
 END IF ;
 
@@ -740,17 +710,17 @@ END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `pr_editarProducto`;
 DELIMITER $$
 CREATE PROCEDURE `pr_editarProducto` (in productoId int, in almacen_id int, in codigo varchar(100),
-in nombre varchar(100), in costo decimal(19,2), in precio int, in cantidad int, in cantidad_min int, 
-in categoria_id int, in posicion_id int, in impuesto_id int, in ofertaId int, in marca_id int,
-in proveedor_id int, in imagen varchar(255))
+in nombre varchar(100), in costo decimal(19,2), in precio decimal(19,2), in cantidad decimal(19,2), 
+in cantidad_min decimal(19,2), in categoria_id int, in posicion_id int, in impuesto_id int, in ofertaId int, 
+in marca_id int, in proveedor_id int, in imagen varchar(255))
 BEGIN
 
  DECLARE EXIT HANDLER FOR 1062 SELECT 'Duplicate keys error encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
-
 
  IF (codigo != '') THEN
  
@@ -824,8 +794,6 @@ END IF ;
 	ELSE 
         delete from productos_con_proveedores where producto_id = productoId;
 	END IF ;
-
-
 END $$
 DELIMITER ;
 
@@ -1026,21 +994,20 @@ DELIMITER ;
 # -------------- Piezas -----------------
 
 
+DROP PROCEDURE IF EXISTS `pz_agregarPieza`;
 DELIMITER $$
 CREATE PROCEDURE `pz_agregarPieza` (in usuario_id int, in almacen_id int, in codigo varchar(100),
-in nombre varchar(100), in costo decimal(19,2), in precio int, in cantidad int, in cantidad_min int, 
+in nombre varchar(100), in costo decimal(19,2), in precio decimal(19,2), in cantidad int, in cantidad_min int, 
 in categoria_id int, in posicion_id int, in oferta_id int, in marca_id int,
 in proveedor_id int, in imagen varchar(255))
 BEGIN
+
+ DECLARE last_id int;
 
  DECLARE EXIT HANDLER FOR 1062 SELECT 'Duplicate keys error encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
  
- BEGIN
- DECLARE last_id int;
- END ;
-
  IF (codigo != '') THEN
    INSERT INTO piezas VALUES (null,usuario_id,1,almacen_id,codigo,nombre,costo,precio,cantidad,cantidad_min,imagen,curdate());
    select last_insert_id() AS msg;
@@ -1067,14 +1034,14 @@ SET @last_id = last_insert_id();
 	INSERT INTO piezas_con_proveedores VALUES (@last_id,proveedor_id);
 	END IF ;
 
-
 END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `pz_editarPieza`;
 DELIMITER $$
 CREATE PROCEDURE `pz_editarPieza` (in id int, in almacen_id int, in codigo varchar(100),
-in nombre varchar(100), in costo int, in precio int, in cantidad int, in cantidad_min int, 
+in nombre varchar(100), in costo decimal(10,2), in precio decimal(10,2),in cantidad int, in cantidad_min int, 
 in categoria_id int, in posicion_id int, in ofertaId int, in marca_id int,
 in proveedor_id int, in imagen varchar(255))
 BEGIN
@@ -1082,7 +1049,6 @@ BEGIN
  DECLARE EXIT HANDLER FOR 1062 SELECT 'Duplicate keys error encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
-
 
  IF (codigo != '') THEN
  
@@ -1147,7 +1113,6 @@ END IF ;
         delete from piezas_con_proveedores where pieza_id = id;
 	END IF ;
 
-
 END $$
 DELIMITER ;
 
@@ -1156,12 +1121,10 @@ DELIMITER $$
 CREATE PROCEDURE `pz_cambiarEstado` (in id int, in accion varchar(50))
 BEGIN
 
+ DECLARE estado_id int;
+
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
-
-BEGIN
- declare estado_id int;
-END;
 
 IF (accion = "desactivar") THEN 
 
@@ -1195,10 +1158,11 @@ DELIMITER ;
 
 # -------------- Ventas -----------------
 
+DROP PROCEDURE IF EXISTS `vt_crearDetalleTemporal`;
 DELIMITER $$
 CREATE PROCEDURE `vt_crearDetalleTemporal` (in producto_id int, in pieza_id int, in servicio_id int, 
-in descripcion varchar(100), in usuario_id int, in cantidad int,in costo decimal(10,2), in precio int, 
-in impuesto int, in descuento int)
+in descripcion varchar(100), in usuario_id int, in cantidad decimal(10,2),in costo decimal(10,2), in precio decimal(10,2), 
+in impuesto decimal(10,2), in descuento decimal(10,2))
 BEGIN
  
  DECLARE EXIT HANDLER FOR SQLEXCEPTION 
@@ -1221,7 +1185,7 @@ ELSEIF (pieza_id > 0) THEN
   insert into detalle_temporal values (null,usuario_id,0,pieza_id,0,descripcion,cantidad,costo,precio,impuesto,descuento,curtime(),curdate());
   select last_insert_id() AS msg;
 ELSEIF (servicio_id > 0) THEN
- insert into detalle_temporal values (null,usuario_id,0,0,servicio_id,descripcion,1,costo,precio,impuesto,descuento,curtime(),curdate());
+ insert into detalle_temporal values (null,usuario_id,0,0,servicio_id,descripcion,cantidad,costo,precio,impuesto,descuento,curtime(),curdate());
  select last_insert_id() AS msg;
  END IF;
 
@@ -1259,9 +1223,76 @@ END $$
 DELIMITER ; 
 
 
+DROP PROCEDURE IF EXISTS `vt_agregarDetalleVenta`;
+DELIMITER $$
+CREATE PROCEDURE `vt_agregarDetalleVenta`(IN p_factura_id INT,IN p_comanda_id INT,IN p_usuario_id INT,
+IN p_cantidad INT,IN p_costo DECIMAL(10,2),IN p_precio int, IN p_impuesto int,
+IN p_descuento int,IN p_producto_id INT,IN p_pieza_id INT,IN p_servicio_id INT)
+BEGIN
+
+  DECLARE p_detalle_id INT;
+  DECLARE v_fecha DATE;
+
+  -- 1. Intentar obtener la fecha de la factura
+  SELECT fecha INTO v_fecha
+  FROM facturas_ventas
+  WHERE factura_venta_id = p_factura_id;
+
+  -- 2. Si no se encontró o es NULL, usar CURDATE()
+  IF v_fecha IS NULL THEN
+    SET v_fecha = CURDATE();
+  END IF;
+
+  -- 3. Insertar en detalle_facturas_ventas con la fecha determinada
+  INSERT INTO detalle_facturas_ventas (
+    factura_venta_id, comanda_id, usuario_id, cantidad, costo, precio, impuesto, descuento, fecha
+  )
+  VALUES (
+    p_factura_id, p_comanda_id, p_usuario_id, p_cantidad, p_costo, p_precio, p_impuesto, p_descuento, v_fecha
+  );
+
+  -- 4. Obtener el ID del nuevo detalle
+  SET p_detalle_id = LAST_INSERT_ID();
+
+  -- 5. Insertar en la tabla correspondiente según el tipo
+  IF p_producto_id > 0 THEN
+    INSERT INTO detalle_ventas_con_productos (
+      detalle_venta_id, producto_id, factura_venta_id, comanda_id
+    )
+    VALUES (
+      p_detalle_id, p_producto_id, p_factura_id, p_comanda_id
+    );
+
+  ELSEIF p_pieza_id > 0 THEN
+    INSERT INTO detalle_ventas_con_piezas_ (
+      detalle_venta_id, pieza_id, factura_venta_id, comanda_id
+    )
+    VALUES (
+      p_detalle_id, p_pieza_id, p_factura_id, p_comanda_id
+    );
+
+  ELSEIF p_servicio_id > 0 THEN
+    INSERT INTO detalle_ventas_con_servicios (
+      detalle_venta_id, servicio_id, factura_venta_id, comanda_id
+    )
+    VALUES (
+      p_detalle_id, p_servicio_id, p_factura_id, p_comanda_id
+    );
+  END IF;
+
+  -- 6. Retornar el ID del detalle
+  SELECT p_detalle_id AS msg;
+
+ 
+END$$
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `vt_crearDetalleVenta`;
 DELIMITER $$
 CREATE PROCEDURE `vt_crearDetalleVenta` (in producto_id int, in pieza_id int, in servicio_id int, 
-in factura_id int, in usuario_id int, in cantidad int,in costo decimal(10,2),in precio int, in impuesto int, in descuento int)
+in factura_id int, in usuario_id int, in cantidad decimal(10,2),in costo decimal(10,2),
+in precio decimal(10,2),in impuesto decimal(10,2), in descuento decimal(10,2))
 BEGIN
 
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
@@ -1323,58 +1354,76 @@ END $$
 DELIMITER ; 
 
 
+DROP PROCEDURE IF EXISTS `vt_facturaVenta`;
 DELIMITER $$
-CREATE PROCEDURE `vt_facturaVenta` (in cliente_id int, in metodo_id int, in total int, in bono int, 
+CREATE PROCEDURE `vt_facturaVenta` (in cliente_id int, in metodo_id int, in total decimal(10,2), in bono decimal(10,2), 
 in usuario_id int, in descripcion varchar(150), in fecha date)
 BEGIN
+
+ declare totalx decimal(10,2);
+ declare min_factura int;
+ declare valor_bono int;
+ declare bono_config_estado int;
 
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
  
- begin 
- declare totalx int;
- declare min_factura int;
- declare valor_bono int;
- declare bono_config_estado int;
- end;
- 
- SET @totalx = (0 - bono);
- SET @min_factura = (select min_factura from bono_config where bono_config_id = 1);
- SET @valor_bono = (select valor from bono_config where bono_config_id = 1);
- SET @bono_config_estado = (select estado_id from bono_config where bono_config_id = 1);
+ IF (bono IS NOT NULL AND bono > 0) THEN
+    SET totalx = (total - bono);
+ELSE 
+    SET totalx = total;
+END IF;
+
+-- Verificar que existe la configuración de bono
+    IF EXISTS (SELECT 1 FROM bono_config WHERE bono_config_id = 1) THEN
+        -- Cargar configuración de bono
+        SELECT min_factura, valor, estado_id
+          INTO min_factura, valor_bono, bono_config_estado
+          FROM bono_config
+         WHERE bono_config_id = 1;
+    ELSE
+        -- Si no existe la configuración, devolver error
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La configuración de bono no existe';
+    END IF;
 
  -- Crear factura
 
- insert into facturas_ventas values (null,usuario_id,cliente_id,3,metodo_id,@totalx,total,0,bono,descripcion,fecha);
+ insert into facturas_ventas values (null,usuario_id,cliente_id,3,metodo_id,totalx,total,0,bono,descripcion,fecha);
  select last_insert_id() AS msg;
  
  -- Aplicar bono
- 
- IF (total >= @min_factura AND @bono_config_estado = 1 AND cliente_id != 1) THEN 
-  insert into bonos values (null,usuario_id,cliente_id,@valor_bono,curdate());
- END IF ;
- 
- -- Eliminar bono
- 
- IF (bono > 0) THEN 
-   delete from bonos where cliente_id = cliente_id;
- END IF ;
+IF (total >= min_factura AND bono_config_estado = 1 AND cliente_id != 1) THEN
+    INSERT INTO bonos VALUES (null, usuario_id, cliente_id, valor_bono, curdate());
+END IF;
+
+-- Eliminar bono
+IF (bono > 0) THEN
+    DELETE FROM bonos WHERE cliente_id = cliente_id;
+END IF;
 
 END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS vt_facturaAcredito;
 DELIMITER $$
-CREATE PROCEDURE `vt_facturaAcredito` (in cliente_id int, in metodo_id int, in total int, in pago int, in pendiente int, in usuario_id int, in descripcion varchar(150), in fecha date)
+CREATE PROCEDURE `vt_facturaAcredito` (IN p_cliente_id INT,IN p_metodo_id INT,
+IN p_total DECIMAL(10,3),IN p_pago DECIMAL(10,2),IN p_usuario_id INT,
+IN p_descripcion VARCHAR(150),IN p_fecha DATE)
 BEGIN
+    DECLARE v_pendiente DECIMAL(10,2);
 
- DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
- DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+    -- Calcular pendiente
+    SET v_pendiente = ROUND(p_total - p_pago, 2);
 
- insert into facturas_ventas values (null,usuario_id,cliente_id,4,metodo_id,0,pago,pendiente,0,descripcion,fecha);
- select last_insert_id() AS msg;
- 
+    -- Insertar la factura
+    INSERT INTO facturas_ventas (factura_venta_id,usuario_id,cliente_id,
+	estado_id,metodo_pago_id,total,recibido,pendiente,descripcion,fecha
+    ) VALUES (NULL,p_usuario_id,p_cliente_id,4,p_metodo_id,p_total,
+	p_pago,v_pendiente,p_descripcion,p_fecha);
 
+    -- Retornar el ID generado
+    SELECT LAST_INSERT_ID() AS msg;
 END $$
 DELIMITER ;
 
@@ -1409,32 +1458,32 @@ END $$
 DELIMITER ;
 
 
-DELIMITER $$
-CREATE PROCEDURE `vt_actualizarDineroFactura` (in id int, in recibido int, in pendiente int)
-BEGIN
+-- DELIMITER $$
+-- CREATE PROCEDURE `vt_actualizarDineroFactura` (in id int, in recibido int, in pendiente int)
+-- BEGIN
 
- DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
- DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+--  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
+--  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
 
- update facturas_ventas set recibido = recibido, pendiente = pendiente where factura_venta_id = id;
- select 'ready' AS msg;
+--  update facturas_ventas set recibido = recibido, pendiente = pendiente where factura_venta_id = id;
+--  select 'ready' AS msg;
 
-END $$
-DELIMITER ;
+-- END $$
+-- DELIMITER ;
 
 # -------------- Pagos -----------------
 
 
+DROP PROCEDURE IF EXISTS `pg_crearPago`;
 DELIMITER $$
-CREATE PROCEDURE `pg_crearPago` (in usuario_id int, in cliente_id int, in recibido int, in factura_id int, in facturaRP_id int, in metodo int, in descripcion varchar(150), in fecha date)
+CREATE PROCEDURE `pg_crearPago` (in usuario_id int, in cliente_id int, in recibido decimal(10,2), 
+in factura_id int, in facturaRP_id int, in metodo int, in descripcion varchar(150), in fecha date)
 BEGIN
+
+ DECLARE last_id int;
 
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
-
- begin
- declare last_id int;
- end;
 
 insert into pagos values (null,usuario_id,cliente_id,metodo,recibido,descripcion,fecha);
 SET @last_id = (select last_insert_id() AS msg);
@@ -1448,7 +1497,7 @@ END IF;
 select last_insert_id() AS msg;
 
 END $$
-DELIMITER ; 
+DELIMITER ;
 
 
 DELIMITER $$
@@ -1457,7 +1506,6 @@ BEGIN
 
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
- 
  
  IF (factura_id > 0) THEN
    delete from pagos_a_facturas_ventas where pago_id = id;
@@ -1471,8 +1519,9 @@ END $$
 DELIMITER ; 
 
 
+DROP PROCEDURE IF EXISTS `pg_pagarFactura`;
 DELIMITER $$
-CREATE PROCEDURE `pg_pagarFactura` (in usuario_id int, in proveedor_id int, in recibido int, 
+CREATE PROCEDURE `pg_pagarFactura` (in usuario_id int, in proveedor_id int, in recibido decimal(10,2), 
 in factura_id int, in metodo int, in descripcion varchar(150))
 BEGIN
 
@@ -1574,18 +1623,18 @@ END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `rp_crearDetalleOrdenRP`;
 DELIMITER $$
 CREATE PROCEDURE `rp_crearDetalleOrdenRP` (in usuario_id int, in pieza_id int, in orden_id int, 
-in servicio_id int, in descripcion varchar(50), in cantidad int,in costo DECIMAL(10,2),in precio int, in descuento int)
+in servicio_id int, in descripcion varchar(50), in cantidad DECIMAL(10,2),in costo DECIMAL(10,2),
+in precio DECIMAL(10,2), in descuento DECIMAL(10,2))
 BEGIN
+
+ DECLARE last_id int;
 
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
  DECLARE EXIT HANDLER FOR 1062 SELECT 'Duplicate keys error encountered' AS msg;
- 
- begin
- declare last_id int;
- end;
  
     insert into detalle_ordenRP values (null,usuario_id,orden_id,descripcion,cantidad,costo,precio,descuento,curdate());
     
@@ -1635,49 +1684,62 @@ END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `rp_facturaVenta`;
 DELIMITER $$
-CREATE PROCEDURE `rp_facturaVenta` (in cliente_id int, in orden_id int, in metodo_id int, in total int, in usuario_id int,in descripcion varchar(150), in fecha date)
+CREATE PROCEDURE `rp_facturaVenta` (in _cliente_id int, in _orden_id int, in _metodo_id int, 
+in _total decimal(10,2), in _usuario_id int,in _descripcion varchar(150), in _fecha date)
 BEGIN
 
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+ 
+ update detalle_ordenRP set fecha = _fecha where orden_rp_id = _orden_id;
 
- insert into facturasRP values (null,orden_id,usuario_id,cliente_id,metodo_id,3,total,total,0,descripcion,fecha);
+ insert into facturasRP values (null,_orden_id,_usuario_id,_cliente_id,_metodo_id,3,_total,_total,0,_descripcion,_fecha);
  select last_insert_id() AS msg;
  
 END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `rp_facturaAcredito`;
 DELIMITER $$
-CREATE PROCEDURE `rp_facturaAcredito` (in cliente_id int, in orden_id int, in metodo_id int, 
-in total int, in pago int, in pendiente int, in usuario_id int,in descripcion varchar(150), in fecha date)
+CREATE PROCEDURE `rp_facturaAcredito` (in _cliente_id int, in _orden_id int, in _metodo_id int, 
+in _total decimal(10,2), in _pago decimal(10,2), in _pendiente decimal(10,2), in _usuario_id int,
+in _descripcion varchar(150), in _fecha date)
 BEGIN
 
+ DECLARE pendienteX int;
+ 
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
- 
- begin 
- declare pendienteX int;
- end;
 
 SET @pendientX = pendiente - pago;
 
- insert into facturasRP values (null,orden_id,usuario_id,cliente_id,metodo_id,4,total,pago,@pendientX,descripcion,fecha);
+ update detalle_ordenRP set fecha = _fecha where orden_rp_id = _orden_id;
+
+ insert into facturasRP values (null,_orden_id,_usuario_id,_cliente_id,_metodo_id,4,_total,_pago,@pendientX,_descripcion,_fecha);
  select last_insert_id() AS msg;
 
 END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `rp_eliminarFactura`;
 DELIMITER $$
-CREATE PROCEDURE `rp_eliminarFactura` (in id int)
+CREATE PROCEDURE `rp_eliminarFactura` (in orden_id int)
 BEGIN
 
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
 
- delete from facturasRP where facturaRP_id = id;
+ -- 1. Eliminar los detalles de la orden
+ delete from detalle_ordenRP where orden_rp_id = orden_id;
+ 
+ -- 2. Eliminar la factura 
+ delete from facturasRP where orden_rp_id = orden_id;
+ 
+  -- 1. Devolver el mensaje
  select 'ready' AS msg;
 
 END $$
@@ -1698,40 +1760,44 @@ END $$
 DELIMITER ;
 
 
-DELIMITER $$
-CREATE PROCEDURE `rp_actualizarDineroFactura` (in id int, in recibido int, in pendiente int)
-BEGIN
+-- DELIMITER $$
+-- CREATE PROCEDURE `rp_actualizarDineroFactura` (in id int, in recibido int, in pendiente int)
+-- BEGIN
 
- DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
- DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+--  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
+--  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
 
- update facturasRP set recibido = recibido, pendiente = pendiente where facturaRP_id = id;
- select 'ready' AS msg;
+--  update facturasRP set recibido = recibido, pendiente = pendiente where facturaRP_id = id;
+--  select 'ready' AS msg;
 
-END $$
-DELIMITER ;
+-- END $$
+-- DELIMITER ;
 
 # -------------- Ordenes de compras -----------------
 
 DELIMITER $$
 CREATE PROCEDURE `or_ordenCompra` (in usuario_id int, in estado_id int, in proveedor_id int, 
-in fecha date, in expiracion date, in observacion varchar(150))
+in fecha date, in expiracion date, in observacion varchar(150),in origen varchar(10))
 BEGIN
 
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
 
-insert into ordenes_compras values (null,usuario_id,proveedor_id,estado_id,observacion,fecha,expiracion);
+insert into ordenes_compras values (null,usuario_id,proveedor_id,estado_id,observacion,origen,fecha,expiracion);
 select last_insert_id() AS msg;
 
 END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `or_detalleCompra`;
 DELIMITER $$
-CREATE PROCEDURE `or_detalleCompra` (in usuario_id int, in producto_id int, in pieza_id int, in orden_id int, in precio int, in cantidad int, 
-in descuento int, in impuesto int, in observacion varchar(150))
+CREATE PROCEDURE `or_detalleCompra` (in usuario_id int, in producto_id int, in pieza_id int, 
+in orden_id int, in precio decimal(10,2), in cantidad decimal(10,2), 
+in descuento decimal(10,2), in impuesto decimal(10,2), in observacion varchar(150))
 BEGIN
+
+ declare last_id int;
 
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
@@ -1740,10 +1806,6 @@ BEGIN
   SELECT 'Duplicate keys error encountered' AS msg;
   DELETE FROM detalle_compra WHERE detalle_compra_id = @last_id;
  END;
- 
- begin
- declare last_id int;
- end ;
 
 insert into detalle_compra values (null,usuario_id,orden_id,cantidad,precio,impuesto,descuento,observacion,curdate());
 SET @last_id = (select last_insert_id() AS msg);
@@ -1804,9 +1866,10 @@ END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `or_facturaCompra`;
 DELIMITER $$
 CREATE PROCEDURE `or_facturaCompra` (in proveedor_id int, in ordenId int, in metodo_id int, 
-in total int, in usuario_id int, in fecha date, in observacion varchar(150))
+in total decimal(10,2), in usuario_id int, in fecha date, in observacion varchar(150))
 BEGIN
 
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
@@ -1820,17 +1883,17 @@ END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `or_facturaAcredito`;
 DELIMITER $$
 CREATE PROCEDURE `or_facturaAcredito` (in proveedor_id int, in ordenId int, in metodo_id int, 
-in total int, in pago int, in pendiente int, in usuario_id int, in fecha date, in observacion varchar(150))
+in total decimal(10,2), in pago decimal(10,2), in pendiente decimal(10,2), in usuario_id int, 
+in fecha date, in observacion varchar(150))
 BEGIN
+
+ DECLARE pendienteX int;
 
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
- 
- begin 
- declare pendienteX int;
- end;
 
 SET @pendientX = pendiente - pago;
 
@@ -1886,8 +1949,9 @@ END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `or_registrarGasto`;
 DELIMITER $$
-CREATE PROCEDURE `or_registrarGasto` (in proveedor_id int, in orden_id int, in total int, 
+CREATE PROCEDURE `or_registrarGasto` (in proveedor_id int, in orden_id int, in total decimal(10,2), 
 in usuario_id int, in observacion varchar(150), in fecha date)
 BEGIN
 
@@ -1901,9 +1965,10 @@ END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `or_detalleGasto`;
 DELIMITER $$
-CREATE PROCEDURE `or_detalleGasto` (in motivo_id int, in orden_id int, in cantidad int, in precio int, in impuestos int, 
-in usuario_id int, in observacion varchar(150))
+CREATE PROCEDURE `or_detalleGasto` (in motivo_id int, in orden_id int, in cantidad decimal(10,2), 
+in precio decimal(10,2), in impuestos decimal(10,2), in usuario_id int, in observacion varchar(150))
 BEGIN
 
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
@@ -2039,8 +2104,9 @@ DELIMITER ;
 #--------------- Cotizaciones ------------------
 
 
+DROP PROCEDURE IF EXISTS `ct_cotizacion`;
 DELIMITER $$
-CREATE PROCEDURE `ct_cotizacion`(in cliente_id int, in usuario_id int, in total int, 
+CREATE PROCEDURE `ct_cotizacion`(in cliente_id int, in usuario_id int, in total decimal(10,2), 
 in descripcion varchar(150), in fecha date)
 BEGIN
 
@@ -2052,6 +2118,7 @@ BEGIN
  
 END $$
 DELIMITER ;
+
 
 DELIMITER $$
 CREATE PROCEDURE `ct_eliminarCotizacion`(in id int)
@@ -2113,35 +2180,67 @@ END $$
 DELIMITER ; 
 
 
+DROP PROCEDURE IF EXISTS `cf_factElectronica`;
 DELIMITER $$
-CREATE PROCEDURE `cf_factElectronica` (in logo varchar(100),in empresa varchar(50), in email varchar(50), in password varchar(80),
-in host varchar(35),in smtps varchar(3), in port int, in link_fb varchar(100), in link_ws varchar(100), in link_ig varchar(100))
+CREATE PROCEDURE `cf_factElectronica` (
+    IN p_logo VARCHAR(100),
+    IN p_empresa VARCHAR(50),
+    IN p_email VARCHAR(50),
+    IN p_password VARCHAR(80),
+    IN p_host VARCHAR(35),
+    IN p_smtps VARCHAR(3),
+    IN p_port INT,
+    IN p_link_fb VARCHAR(100),
+    IN p_link_ws VARCHAR(100),
+    IN p_link_ig VARCHAR(100)
+)
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+        SELECT 'SQLException encountered' AS msg;
+    DECLARE EXIT HANDLER FOR SQLSTATE '23000' 
+        SELECT 'SQLSTATE 23000' AS msg;
 
- DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
- DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+    -- Actualiza cada valor según su clave
+    UPDATE configuraciones SET config_value = p_empresa  WHERE config_key = 'empresa_name';
+    UPDATE configuraciones SET config_value = p_email    WHERE config_key = 'correo_servidor';
+    UPDATE configuraciones SET config_value = p_password WHERE config_key = 'password';
+    UPDATE configuraciones SET config_value = p_host     WHERE config_key = 'servidor';
+    UPDATE configuraciones SET config_value = p_smtps    WHERE config_key = 'smtps';
+    UPDATE configuraciones SET config_value = p_port     WHERE config_key = 'puerto';
+    UPDATE configuraciones SET config_value = p_logo     WHERE config_key = 'logo_url';
+    UPDATE configuraciones SET config_value = p_link_fb  WHERE config_key = 'link_facebook';
+    UPDATE configuraciones SET config_value = p_link_ig  WHERE config_key = 'link_instagram';
+    UPDATE configuraciones SET config_value = p_link_ws  WHERE config_key = 'link_whatsapp';
 
-update configuraciones set empresa = empresa, email = email, password = password,
-host = host, smtps = smtps, puerto = port, link_fb = link_fb, link_ig = link_ig, link_ws = link_ws, logo_url = logo 
-where config_id = 1;
-select 'ready' AS msg;
-
+    SELECT 'ready' AS msg;
 END $$
-DELIMITER ; 
+DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `cf_factPDF`;
 DELIMITER $$
-CREATE PROCEDURE `cf_factPDF` (in logo varchar(50), in slogan varchar(100), in direccion varchar(100),
-in tel varchar(20), in condiciones varchar(400), in titulo varchar(200))
+CREATE PROCEDURE `cf_factPDF` (
+    IN p_logo VARCHAR(50),
+    IN p_slogan VARCHAR(100),
+    IN p_direccion VARCHAR(100),
+    IN p_tel VARCHAR(20),
+    IN p_condiciones VARCHAR(400),
+    IN p_titulo VARCHAR(200)
+)
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+        SELECT 'SQLException encountered' AS msg;
+    DECLARE EXIT HANDLER FOR SQLSTATE '23000' 
+        SELECT 'SQLSTATE 23000' AS msg;
 
- DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
- DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+    UPDATE configuraciones SET config_value = p_logo       WHERE config_key = 'logo';
+    UPDATE configuraciones SET config_value = p_slogan     WHERE config_key = 'slogan';
+    UPDATE configuraciones SET config_value = p_direccion  WHERE config_key = 'direccion';
+    UPDATE configuraciones SET config_value = p_tel        WHERE config_key = 'telefono';
+    UPDATE configuraciones SET config_value = p_condiciones WHERE config_key = 'condiciones';
+    UPDATE configuraciones SET config_value = p_titulo     WHERE config_key = 'titulo';
 
-update configuraciones set logo_pdf = logo, slogan = slogan, direccion = direccion,
-tel = tel, condiciones = condiciones, titulo = titulo where config_id = 1;
-select 'ready' AS msg;
-
+    SELECT 'ready' AS msg;
 END $$
 DELIMITER ; 
 
@@ -2215,3 +2314,114 @@ BEGIN
     
 END$$
 DELIMITER ;
+
+
+-- ordenes de ventas
+
+DELIMITER $$
+CREATE PROCEDURE `ov_actualizarEstadoOrden` (in estado_id_ int, in id int)
+BEGIN
+
+ DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
+ DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+
+update comandas set estado_id = estado_id_ where comanda_id = id;
+select 'ready' AS msg;
+
+END $$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE `ov_eliminarOrden` (IN id INT)
+BEGIN
+    DECLARE factura_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
+    DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+
+    START TRANSACTION;
+
+    -- 1) Obtén el factura_id si existe
+    SET factura_id = (SELECT factura_venta_id FROM detalle_facturas_ventas
+         WHERE comanda_id = id LIMIT 1);
+
+    -- 2) Borra todos los detalles de factura ligados a la comanda
+    DELETE FROM detalle_facturas_ventas
+	WHERE comanda_id = id;
+
+    -- 3) Si había una factura, bórrala también
+    IF factura_id IS NOT NULL THEN
+        DELETE FROM facturas_ventas
+         WHERE factura_venta_id = factura_id;
+    END IF;
+
+    -- 4) Borra la comanda
+    DELETE FROM comandas WHERE comanda_id = id;
+
+    COMMIT;
+
+    SELECT 'ready' AS msg;
+END$$
+
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE `ov_agregarOrden` (IN o_cliente_id INT,IN o_usuario_id INT,IN o_estado_id INT,
+IN o_observacion TEXT,IN o_tipo_entrega varchar(6),IN o_direccion_entrega TEXT,
+IN o_nombre_receptor VARCHAR(100),IN o_telefono_receptor VARCHAR(20))
+BEGIN
+
+    INSERT INTO comandas (
+        cliente_id,
+        usuario_id,
+        estado_id,
+        observacion,
+        tipo_entrega,
+        direccion_entrega,
+        nombre_receptor,
+        telefono_receptor,
+        fecha
+    ) VALUES (
+        o_cliente_id,
+        o_usuario_id,
+        o_estado_id,
+        o_observacion,
+        o_tipo_entrega,
+        o_direccion_entrega,
+        o_nombre_receptor,
+        o_telefono_receptor,
+        NOW()
+    );
+    
+    -- Opcional: devolver el ID insertado
+    SELECT LAST_INSERT_ID() AS msg;
+END$$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE `ov_editarOrden` (IN o_comanda_id INT,IN o_cliente_id INT,IN o_usuario_id INT,
+IN o_observacion TEXT,IN o_tipo_entrega varchar(6),IN o_direccion_entrega TEXT,
+IN o_nombre_receptor VARCHAR(100),IN o_telefono_receptor VARCHAR(20))
+BEGIN
+
+   UPDATE comandas SET 
+   cliente_id = o_cliente_id,
+   usuario_id = o_usuario_id,
+   observacion = o_observacion,
+   tipo_entrega = o_tipo_entrega,
+   direccion_entrega = o_direccion_entrega,
+   nombre_receptor = o_nombre_receptor,
+   telefono_receptor = o_telefono_receptor
+   WHERE comanda_id = o_comanda_id;
+    
+    -- Opcional: devolver el ID insertado
+    SELECT "ready" AS msg;
+END$$
+DELIMITER ;
+
+
+
+

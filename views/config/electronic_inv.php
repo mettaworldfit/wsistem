@@ -12,15 +12,14 @@
 
     <form action="" onsubmit="event.preventDefault(); ConfigElectronicInv();">
 
-        <?php $config = Help::ConfigElectronicInvoice();
-        while ($element = $config->fetch_object()): ?>
+        <?php $config = Help::ConfigElectronicInvoice(); ?>
 
             <div class="container row">
 
                 <div class="form-group col-md-8">
                     <div class="form-group d-flex">
                         <label for="compañía" class="col-sm-3 text-right ">Compañía</label>
-                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $element->empresa ?>" name="compañía" id="company">
+                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $config['empresa_name'] ?>" name="compañía" id="company">
                         <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Compañía"
                             data-content="Escribe el nombre de tu negocio."><i
                                 class="far fa-question-circle"></i></a>
@@ -28,7 +27,7 @@
 
                     <div class="form-group d-flex">
                         <label for="logo" class="col-sm-3 text-right ">Logo_url</label>
-                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $element->logo_url ?>" name="logo" id="logo">
+                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $config['logo_url'] ?>" name="logo" id="logo">
                         <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Logo URL"
                             data-content="Carga un logo con dimensiones 200x100 desde imgur.com"><i
                                 class="far fa-question-circle"></i></a>
@@ -36,7 +35,7 @@
 
                     <div class="form-group d-flex">
                         <label for="facebook" class="col-sm-3 text-right ">Facebook</label>
-                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $element->link_fb ?>" name="facebook" id="facebook">
+                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $config['link_facebook'] ?>" name="facebook" id="facebook">
                         <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Facebook"
                             data-content="Ingresa el link de tu perfil de facebook"><i
                                 class="far fa-question-circle"></i></a>
@@ -44,7 +43,7 @@
 
                     <div class="form-group d-flex">
                         <label for="instagram" class="col-sm-3 text-right ">Instagram</label>
-                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $element->link_ig ?>" name="instagram" id="instagram">
+                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $config['link_instagram'] ?>" name="instagram" id="instagram">
                         <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Instagram"
                             data-content="Ingresa el link de tu perfil de instagram"><i
                                 class="far fa-question-circle"></i></a>
@@ -52,7 +51,7 @@
 
                     <div class="form-group d-flex">
                         <label for="whatsapp" class="col-sm-3 text-right ">Whatsapp</label>
-                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $element->link_ws ?>" name="whatsapp" id="whatsapp">
+                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $config['link_whatsapp'] ?>" name="whatsapp" id="whatsapp">
                         <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Whatsapp"
                             data-content="Ingresa el link de tu perfil de whatsapp"><i
                                 class="far fa-question-circle"></i></a>
@@ -61,7 +60,7 @@
 
                     <div class="form-group d-flex">
                         <label for="email" class="col-sm-3 text-right ">Correo</label>
-                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $element->email ?>" name="email" id="email">
+                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $config['correo_servidor'] ?>" name="email" id="email">
                         <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Correo"
                             data-content="Utiliza un correo gmail o un correo con nombre de dominio"><i
                                 class="far fa-question-circle"></i></a>
@@ -69,7 +68,7 @@
 
                     <div class="form-group d-flex">
                         <label for="contraseña" class="col-sm-3 text-right ">Contraseña</label>
-                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $element->password ?>" name="contraseña" id="password" >
+                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $config['password'] ?>" name="contraseña" id="password" >
                         <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Contraseña"
                             data-content="Utiliza la contraseña de tu servidor o correo"><i
                                 class="far fa-question-circle"></i></a>
@@ -77,7 +76,7 @@
 
                     <div class="form-group d-flex">
                         <label for="host" class="col-sm-3 text-right ">Servidor<span class="text-danger">*</span></label>
-                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $element->host ?>" name="host" id="host" required>
+                        <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $config['servidor'] ?>" name="host" id="host" required>
                         <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Servidor"
                             data-content="Escribe el nombre de tu servidor SMTP, si es gmail utiliza smtp.gmail.com o el de tu proveedor de servicio SMTP"><i
                                 class="far fa-question-circle"></i></a>
@@ -87,7 +86,7 @@
                         <label for="port" class="col-sm-3 text-right ">SMTP Secure</label>
                         <select class="form-custom col-sm-12 ml-3" name="" id="smtps">
                             <option value="no">Ninguno</option>
-                            <option value="<?= $element->smtps ?>" selected><?= $element->smtps ?></option>
+                            <option value="<?= $config['smtps'] ?>" selected><?= $config['smtps'] ?></option>
                             <option value="ssl">SSL (Secure Sockets Layer)</option>
                             <option value="tls">TLS (Transport Layer Security)</option>
                         </select>
@@ -98,7 +97,7 @@
 
                     <div class="form-group d-flex">
                         <label for="port" class="col-sm-3 text-right ">Puerto</label>
-                        <input class="form-custom col-sm-4 ml-3" type="text" value="<?= $element->puerto ?>" name="port" id="port">
+                        <input class="form-custom col-sm-4 ml-3" type="text" value="<?= $config['puerto'] ?>" name="port" id="port">
                         <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Puerto"
                             data-content="Utiliza el puerto del servidor SMTP que utilizas si es gmail usa 587 o el de tu servidor SMTP"><i
                                 class="far fa-question-circle"></i></a>
@@ -118,6 +117,5 @@
                 </div>
             </div>
 
-        <?php endwhile; ?>
     </form>
 </div>

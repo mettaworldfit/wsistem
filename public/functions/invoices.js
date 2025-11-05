@@ -279,7 +279,7 @@ $(document).ready(function () {
                 successCallback: (res) => {
 
                     try {
-                     
+
                         var result = JSON.parse(res);
 
                         if (result.error) {
@@ -512,19 +512,42 @@ $(document).ready(function () {
                     reloadInvoiceDetail() // Actualizar datos
 
                     // Imprimir ticket 
-                    if (receipt == true) {
+                    if (receipt === true) {
+                        // Imprime en impresora
                         printer(invoice_id, res, data, "cash");
 
-                        // Enviar email
-                        if ($("#sendMail").is(':checked')) return SendmailCashft(invoice_id)
+                        // Enviar email (si está marcado)
+                        if ($("#sendMail").is(':checked')) {
+                            SendmailCashft(invoice_id);
+                        }
 
                     } else {
+                        // Generar PDF solo si #sendPDF está marcado
+                        if ($("#sendPDF").is(':checked')) {
+                            GeneratePDF(invoice_id);  // Imprimir/generar PDF
+                        }
 
-                        GeneratePDF(invoice_id) // Imprimir PDF
-                        // Enviar email
-                        if ($("#sendMail").is(':checked')) return SendmailCashft(invoice_id)
-
+                        // Enviar email si #sendMail está marcado
+                        if ($("#sendMail").is(':checked')) {
+                            SendmailCashft(invoice_id);  // Enviar correo
+                        }
                     }
+
+
+                    // // Imprimir ticket 
+                    // if (receipt == true) {
+                    //     printer(invoice_id, res, data, "cash");
+
+                    //     // Enviar email
+                    //     if ($("#sendMail").is(':checked')) return SendmailCashft(invoice_id)
+
+                    // } else {
+
+                    //     GeneratePDF(invoice_id) // Imprimir PDF
+                    //     // Enviar email
+                    //     if ($("#sendMail").is(':checked')) return SendmailCashft(invoice_id)
+
+                    // }
                 },
                 errorCallback: (res) => mysql_error(res)
             })
@@ -595,8 +618,21 @@ $(document).ready(function () {
 
                 if (result.includes("enviado correctamente") || result.includes("ok")) {
                     console.log("Correo ha sido enviado correctamente.");
+
+                    // Mostrar notificación de éxito en azul
+                    mdtoast("correo enviado correctamente", {
+                        interactionTimeout: 1500,
+                        type: 'success',
+                        position: "bottom right",
+                    });
                 } else {
                     console.warn("Ocurrió un problema al enviar el correo:", result);
+
+                      mdtoast("Ocurrió un problema al enviar el correo", {
+                        interactionTimeout: 1500,
+                        type: 'error',
+                        position: "bottom right",
+                    });
                 }
             })
             .catch(error => {

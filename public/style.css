@@ -1981,96 +1981,109 @@ textarea:focus {
     box-sizing: content-box
 }
 
+/* Estilo general para el control de checkbox */
 .control {
-    font-family: arial;
+    font-family: "Nunito-Regular", sans-serif;
     display: block;
     position: relative;
-    padding-left: 30px;
+    padding-left: 32px;
     margin-bottom: 4px;
     padding-top: 1px;
     cursor: pointer;
-    font-size: 14px
+    font-size: 12px; /* Tamaño base para pantallas pequeñas */
 }
 
+/* Ocultar el input del checkbox original */
 .control input {
     position: absolute;
     z-index: -1;
-    opacity: 0
+    opacity: 0;
 }
 
+/* Estilo del indicador del checkbox (el cuadrado) */
 .control_indicator {
     position: absolute;
     top: 2px;
-    left: 0;
-    height: 18px;
-    width: 18px;
+    left: 13px;
+    height: 16px;  /* Tamaño base pequeño */
+    width: 16px;
     background: #e2e2e2;
     border: 0 solid #000;
-    border-radius: 3px
+    border-radius: 3px;
+    transition: background-color 0.3s ease; /* Transiciones suaves */
 }
 
+/* Estilo cuando el checkbox es hover o está en foco */
 .control:hover input~.control_indicator,
 .control input:focus~.control_indicator {
-    background: #d7d4de
+    background: #d7d4de;
 }
 
+/* Estilo cuando el checkbox está marcado */
 .control input:checked~.control_indicator {
-    background: #6a3cc0
+    background: #6a3cc0;
 }
 
+/* Estilo cuando el checkbox está marcado y tiene foco o está en hover */
 .control:hover input:not([disabled]):checked~.control_indicator,
 .control input:checked:focus~.control_indicator {
-    background: #6a3cc0
+    background: #6a3cc0;
 }
 
+/* Estilo cuando el checkbox está deshabilitado */
 .control input:disabled~.control_indicator {
     background: #e6e6e6;
     opacity: .6;
-    pointer-events: none
+    pointer-events: none;
 }
 
+/* Estilo para el checkmark dentro del indicador */
 .control_indicator:after {
     box-sizing: unset;
     content: "";
     position: absolute;
-    display: none
+    display: none;
 }
 
+/* Estilo para el checkmark cuando el checkbox está marcado */
 .control input:checked~.control_indicator:after {
-    display: block
+    display: block;
 }
 
 .control-checkbox .control_indicator:after {
-    left: 7px;
+    left: 5px;
     top: 2px;
-    width: 3px;
+    width: 4px;
     height: 7px;
     border: solid #fff;
     border-width: 0 3px 3px 0;
-    transform: rotate(45deg)
+    transform: rotate(45deg);
 }
 
-@media (max-width:1340px) {
+/* Estilos para pantallas grandes (min-width) */
+@media (min-width: 1340px) {
     .control {
-        font-size: 12px
+        font-size: 14px; /* Aumentar el tamaño del texto para pantallas grandes */
     }
 
     .control_indicator {
         top: 2px;
-        left: 11px;
-        height: 15px;
-        width: 14px
+        left: 11px; /* Ajustar posición */
+        height: 18px;  /* Aumentar el tamaño */
+        width: 18px;  /* Aumentar el tamaño */
     }
 
     .control-checkbox .control_indicator:after {
-        left: 4px;
-        width: 5px
+        left: 5px; /* Ajustar posición del checkmark */
+        width: 3px; /* Ajuste pequeño */
     }
 }
 
+/* Estilo para el indicador de checkbox deshabilitado */
 .control-checkbox input:disabled~.control_indicator:after {
-    border-color: #7b7b7b
+    border-color: #7b7b7b; /* Color más tenue para el checkmark deshabilitado */
 }
+
 
 .form-custom-icon:focus {
     box-shadow: none !important;
@@ -3046,3 +3059,11 @@ legend.cash-closing-legend {
 .field-plus {
     border-left: 5px solid #35e054;
 }
+
+
+
+
+
+
+
+

@@ -519,6 +519,14 @@
                         </label>
                     </div>
 
+                    <div class="control-group mt-4">
+                        <label class="control control-checkbox mt-2">
+                            <i class="fas fa-file-pdf"></i> PDF
+                            <input type="checkbox" id="sendPDF" />
+                            <div class="control_indicator"></div>
+                        </label>
+                    </div>
+
                 </div> <!-- Row -->
 
                 <div class="mt-4 modal-footer">

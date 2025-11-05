@@ -199,28 +199,37 @@ INNER JOIN usuarios u ON u.usuario_id = c.usuario_id WHERE c.cierre_id = '$id'";
     // Obtener configuracion del servidor SMTP desde la base de datos
     // ==============================================================
 
-    $query3 = "SELECT empresa,email,password,host,puerto,smtps,logo_url,logo_pdf,slogan,tel,direccion,
-    link_fb,link_ws,link_ig,condiciones,titulo FROM configuraciones WHERE config_id = 1";
+    $query3 = "SELECT * FROM configuraciones";
 
-    $conf = $db->query($query3)->fetch_object();
+    $conf = $db->query($query3);
 
-    $Host = $conf->host;
-    $Pass = $conf->password;
-    $Email = $conf->email;
-    $Company = $conf->empresa;
-    $Port = $conf->puerto;
-    $SMTPS = $conf->smtps;
-    $Logo_url = $conf->logo_url;
-    $Logo_pdf = $conf->logo_pdf;
-    $Slogan = $conf->slogan;
-    $Tel = $conf->tel;
-    $Dir = $conf->direccion;
-    $Policy = $conf->condiciones;
-	$Title = $conf->titulo;
+    $config = [];
+
+    while ($row = $conf->fetch_object()) {
+        // Asignar cada valor basado en la clave
+        $config[$row->config_key] = $row->config_value;
+    }
+
+    // Asignar las configuraciones a las variables
+    $Host = isset($config['servidor']) ? $config['servidor'] : '';
+    $Pass = isset($config['password']) ? $config['password'] : '';
+    $Email = isset($config['correo_servidor']) ? $config['correo_servidor'] : '';
+    $Email_adm = isset($config['correo_adm']) ? $config['correo_adm'] : '';
+    $Company = isset($config['empresa_name']) ? $config['empresa_name'] : '';
+    $Port = isset($config['puerto']) ? $config['puerto'] : '';
+    $SMTPS = isset($config['smtps']) ? $config['smtps'] : '';
+    $Logo_url = isset($config['logo_url']) ? $config['logo_url'] : '';
+    $Logo_pdf = isset($config['logo']) ? $config['logo'] : '';
+    $Slogan = isset($config['slogan']) ? $config['slogan'] : '';
+    $Tel = isset($config['telefono']) ? $config['telefono'] : '';
+    $Dir = isset($config['direccion']) ? $config['direccion'] : '';
+    $Policy = isset($config['condiciones']) ? $config['condiciones'] : '';
+    $Title = isset($config['titulo']) ? $config['titulo'] : '';
+
     // Redes sociales
-    $Link_ws = $conf->link_ws;
-    $Link_fb = $conf->link_fb;
-    $Link_ig = $conf->link_ig;
+    $Link_ws = isset($config['link_whatsapp']) ? $config['link_whatsapp'] : '';
+    $Link_fb = isset($config['link_facebook']) ? $config['link_facebook'] : '';
+    $Link_ig = isset($config['link_instagram']) ? $config['link_instagram'] : '';
 
 
     // ===========================================
@@ -263,7 +272,7 @@ INNER JOIN usuarios u ON u.usuario_id = c.usuario_id WHERE c.cierre_id = '$id'";
         $mail->setFrom($Email, $Company);
 
         // Destinatario principal 
-        $mail->addAddress('mettaworldfit@gmail.com', $Company);
+        $mail->addAddress($Email_adm, $Company);
 
         // Segundo destinatario oculto (BCC)
         $mail->addBCC('contacto@wsistems.com', 'Administrador del Sistema');

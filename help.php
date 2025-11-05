@@ -460,10 +460,24 @@ class Help
 
       $db = Database::connect();
 
-      $query = "SELECT logo_pdf,slogan,tel,direccion,condiciones,titulo
-                FROM configuraciones WHERE config_id = 1";
+      $query = "SELECT *FROM configuraciones";
 
-      return $db->query($query);
+      // Ejecutar la consulta
+      $result = $db->query($query);
+
+      // Inicializar un array para almacenar los resultados
+      $configurations = [];
+
+      if ($result->num_rows > 0) {
+         // Recorrer cada fila de los resultados
+         while ($row = $result->fetch_object()) {
+            // Almacenar cada fila en el array usando el 'config_key' como clave
+            $configurations[$row->config_key] = $row->config_value;
+         }
+      }
+
+      // Retornar el array con todas las configuraciones
+      return $configurations;
    }
 
    public static function ConfigElectronicInvoice()
@@ -471,10 +485,25 @@ class Help
 
       $db = Database::connect();
 
-      $query = "SELECT logo_url,empresa,email,password,host,smtps,puerto,link_fb,link_ws,link_ig 
-      FROM configuraciones WHERE config_id = 1";
+      // Consulta para obtener las configuraciones
+      $query = "SELECT * FROM configuraciones";
 
-      return $db->query($query);
+      // Ejecutar la consulta
+      $result = $db->query($query);
+
+      // Inicializar un array para almacenar los resultados
+      $configurations = [];
+
+      if ($result->num_rows > 0) {
+         // Recorrer cada fila de los resultados
+         while ($row = $result->fetch_object()) {
+            // Almacenar cada fila en el array usando el 'config_key' como clave
+            $configurations[$row->config_key] = $row->config_value;
+         }
+      }
+
+      // Retornar el array con todas las configuraciones
+      return $configurations;
    }
 
    // Función para mostrar los equipos
@@ -685,7 +714,7 @@ class Help
                 FROM facturas_ventas fv
                 WHERE MONTH(fv.fecha) = MONTH(CURDATE())
                   AND YEAR(fv.fecha) = YEAR(CURDATE())";
-      
+
       $db = Database::connect();
 
       $result = $db->query($sql);

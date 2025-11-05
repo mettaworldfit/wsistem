@@ -17,13 +17,20 @@
         </ul>
     </div>
 
-
     <div class="card-config">
         <span>Facturas</span>
 
         <ul>
             <li><a href="<?= base_url ?>config/electronic_invoice">Facturación electrónica</a></li>
-            <li><a href="<?= base_url ?>config/pdf">Facturación PDF</a></li>
+            <li><a href="<?= base_url ?>config/config_pdf">Facturación PDF</a></li>
+        </ul>
+    </div>
+
+     <div class="card-config">
+        <span>Cierre de caja</span>
+
+        <ul>
+            <li><a href="<?= base_url ?>config/cash_closing">Configuración</a></li>
         </ul>
     </div>
 

@@ -5,28 +5,15 @@ IF NOT EXISTS proyecto CHARACTER SET utf8 COLLATE utf8_general_ci;
 USE proyecto;
 
 CREATE TABLE configuraciones (
-
-config_id int auto_increment NOT NULL,
-empresa varchar(50) DEFAULT 'Codevrd',
-email varchar(50) DEFAULT 'example@host.com',
-password varchar (50) DEFAULT 'XXXX XXXX XXXX XXXX',
-host varchar(35) DEFAULT 'localhost',
-smtps varchar(3) NULL, 
-puerto int DEFAULT '587',
-logo_url varchar(100) NULL,
-logo_pdf varchar(50) DEFAULT 'public/imagen/sistem/pdf.png',
-slogan varchar(100) DEFAULT 'En la web, en todas partes',
-direccion varchar(100) DEFAULT '-',
-link_fb varchar(100) NULL,
-link_ws varchar(100) NULL,
-link_ig varchar(100) NULL,
-tel varchar(20) DEFAULT '000-000-0000',
-condiciones varchar(400) DEFAULT '-',
-titulo varchar(200) DEFAULT '-',
-
-PRIMARY KEY (config_id)
-
-)ENGINE = InnoDb;
+    config_id INT AUTO_INCREMENT NOT NULL,
+    config_key VARCHAR(100) NOT NULL,   -- Clave de configuración
+    config_value TEXT NOT NULL,         -- Valor asociado a la clave
+    descripcion VARCHAR(255) NULL,      -- Descripción opcional para cada configuración
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Fecha de creación
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- Fecha de actualización
+    PRIMARY KEY (config_id)
+    
+) ENGINE = InnoDB;
 
 
 CREATE TABLE roles (
@@ -209,8 +196,8 @@ estado_id int NOT NULL,
 almacen_id int NOT NULL,
 cod_pieza varchar(20) unique NULL,
 nombre_pieza varchar(50) unique NOT NULL,
-precio_costo int NULL,
-precio_unitario int NOT NULL,
+precio_costo DECIMAL(10,2) NULL,
+precio_unitario DECIMAL(10,2) NOT NULL,
 cantidad int NOT NULL,
 cantidad_min int NOT NULL,
 imagen varchar(50) NULL,
@@ -320,9 +307,9 @@ estado_id int NOT NULL,
 almacen_id int NOT NULL,
 cod_producto varchar(20) unique NULL,
 nombre_producto varchar(100) NOT NULL,
-precio_costo int NULL,
-precio_unitario int NOT NULL,
-cantidad int NOT NULL,
+precio_costo DECIMAL(10,2) NULL,
+precio_unitario DECIMAL(10,2) NOT NULL,
+cantidad DECIMAL(10,2) NOT NULL,
 cantidad_min int NULL,
 imagen varchar(50) NULL,
 fecha date NULL,
@@ -492,10 +479,10 @@ usuario_id int NOT NULL,
 cliente_id int NOT NULL,
 estado_id int NOT NULL,
 metodo_pago_id int NOT NULL,
-total int NULL,
-recibido int NULL,
-pendiente int NULL,
-bono int NULL,
+total DECIMAL(10,2) NULL,
+recibido DECIMAL(10,2) NULL,
+pendiente DECIMAL(10,2) NULL,
+bono DECIMAL(10,2) NULL,
 descripcion varchar(150) NULL,
 fecha date NOT NULL,
 
@@ -508,21 +495,42 @@ CONSTRAINT facturas_ventas_estados_generales FOREIGN KEY (estado_id) REFERENCES 
 )ENGINE = InnoDb; 
 
 
+CREATE TABLE comandas (
+comanda_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+cliente_id INT NOT NULL,
+usuario_id INT NOT NULL,
+estado_id INT NOT NULL,
+observacion TEXT,
+tipo_entrega ENUM('envio','retiro','-') DEFAULT '-' NULL,
+direccion_entrega TEXT NULL,
+nombre_receptor VARCHAR(100),
+telefono_receptor VARCHAR(20) NULL,
+fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+  
+CONSTRAINT comandas_clientes FOREIGN KEY (cliente_id) REFERENCES clientes(cliente_id) ON UPDATE CASCADE,
+CONSTRAINT comandas_usuarios FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id) ON UPDATE CASCADE,
+CONSTRAINT comandas_estados_generales FOREIGN KEY (estado_id) REFERENCES estados_generales(estado_id) ON UPDATE CASCADE
+
+)ENGINE = InnoDb;
+
+
  CREATE TABLE detalle_facturas_ventas (
 
 detalle_venta_id int auto_increment NOT NULL,
-factura_venta_id int NOT NULL,
+factura_venta_id int NULL,
+comanda_id int NULL,
 usuario_id int NOT NULL,
-cantidad int NOT NULL,
+cantidad DECIMAL(10,2) NOT NULL,
 costo DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-precio int NOT NULL,
-impuesto int NULL,
-descuento int NULL,
+precio DECIMAL(10,2) NOT NULL,
+impuesto DECIMAL(10,2) NULL,
+descuento DECIMAL(10,2) NULL,
 fecha date NOT NULL,
 
 PRIMARY KEY (detalle_venta_id),
 CONSTRAINT detalle_facturas_ventas_usuarios FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id),
-CONSTRAINT detalle_facturas_ventas_facturas_ventas FOREIGN KEY (factura_venta_id) REFERENCES facturas_ventas(factura_venta_id)
+CONSTRAINT detalle_facturas_ventas_facturas_ventas FOREIGN KEY (factura_venta_id) REFERENCES facturas_ventas(factura_venta_id),
+CONSTRAINT detalle_facturas_ventas_comandas FOREIGN KEY (comanda_id) REFERENCES comandas(comanda_id) ON UPDATE CASCADE ON DELETE CASCADE
 
 )ENGINE = InnoDb;
 
@@ -543,11 +551,13 @@ CREATE TABLE detalle_ventas_con_productos (
 
 detalle_venta_id int NOT NULL,
 producto_id int NOT NULL,
-factura_venta_id int NOT NULL,
+factura_venta_id int NULL, 
+comanda_id int NULL, 
 
-PRIMARY KEY (detalle_venta_id,producto_id,factura_venta_id),
+PRIMARY KEY (detalle_venta_id,producto_id),
 CONSTRAINT detalle_ventas_con_productos FOREIGN KEY (producto_id) REFERENCES productos(producto_id),
 CONSTRAINT detalle_ventas_con_productos_factura FOREIGN KEY (factura_venta_id) REFERENCES facturas_ventas(factura_venta_id),
+CONSTRAINT detalle_ventas_con_productos_comandas FOREIGN KEY (comanda_id) REFERENCES comandas(comanda_id), 
 CONSTRAINT detalle_ventas_con_productos_detalle FOREIGN KEY (detalle_venta_id) REFERENCES detalle_facturas_ventas(detalle_venta_id) ON DELETE CASCADE ON UPDATE CASCADE
 
 )ENGINE = InnoDb;
@@ -557,11 +567,13 @@ CREATE TABLE detalle_ventas_con_piezas_ (
 
 detalle_venta_id int NOT NULL,
 pieza_id int NOT NULL,
-factura_venta_id int NOT NULL,
+factura_venta_id int NULL,
+comanda_id int NULL,
 
-PRIMARY KEY (detalle_venta_id,factura_venta_id,pieza_id),
+PRIMARY KEY (detalle_venta_id,pieza_id),
 CONSTRAINT detalle_ventas_con_piezas_factura FOREIGN KEY (factura_venta_id) REFERENCES facturas_ventas(factura_venta_id),
-CONSTRAINT detalle_ventas_con_piezas_piezas FOREIGN KEY (pieza_id) REFERENCES piezas(pieza_id),
+CONSTRAINT dvcp_piezas FOREIGN KEY (pieza_id) REFERENCES piezas(pieza_id),
+CONSTRAINT detalle_ventas_con_piezas_comandas FOREIGN KEY (comanda_id) REFERENCES comandas(comanda_id),
 CONSTRAINT detalle_ventas_con_piezas_detalle FOREIGN KEY (detalle_venta_id) REFERENCES detalle_facturas_ventas(detalle_venta_id) ON DELETE CASCADE ON UPDATE CASCADE
 
 )ENGINE = InnoDb;
@@ -571,11 +583,13 @@ CREATE TABLE detalle_ventas_con_servicios (
 
 detalle_venta_id int NOT NULL,
 servicio_id int NOT NULL,
-factura_venta_id int NOT NULL,
+factura_venta_id int NULL,
+comanda_id int NULL,
 
-PRIMARY KEY (detalle_venta_id,servicio_id,factura_venta_id),
+PRIMARY KEY (detalle_venta_id,servicio_id),
 CONSTRAINT detalle_ventas_con_servicios FOREIGN KEY (servicio_id) REFERENCES servicios(servicio_id),
 CONSTRAINT detalle_ventas_con_servicios_factura FOREIGN KEY (factura_venta_id) REFERENCES facturas_ventas(factura_venta_id),
+CONSTRAINT detalle_ventas_con_servicios_servicios FOREIGN KEY (comanda_id) REFERENCES comandas(comanda_id),
 CONSTRAINT detalle_ventas_con_servicios_detalle FOREIGN KEY (detalle_venta_id) REFERENCES detalle_facturas_ventas(detalle_venta_id) ON DELETE CASCADE ON UPDATE CASCADE
 
 )ENGINE = InnoDb;
@@ -589,11 +603,11 @@ producto_id int NULL,
 pieza_id int NULL,
 servicio_id int NULL,
 descripcion varchar(100) NOT NULL,
-cantidad int NOT NULL,
+cantidad DECIMAL(10,2) NOT NULL,
 costo DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-precio int NOT NULL,
-impuesto int NULL,
-descuento int NULL,
+precio DECIMAL(10,2) NOT NULL,
+impuesto DECIMAL(10,2) NULL,
+descuento DECIMAL(10,2) NULL,
 hora time NULL,
 fecha date NULL,
 
@@ -709,10 +723,10 @@ CREATE TABLE detalle_ordenRP(
 detalle_ordenRP_id int auto_increment NOT NULL,
 usuario_id int NOT NULL,
 orden_rp_id int NOT NULL,
-descripcion varchar(50),
-cantidad int NULL,
+descripcion varchar(50) NOT NULL,
+cantidad DECIMAL(10,2) NULL,
 costo DECIMAL(10,2) NOT NULL DEFAULT '0.00',
-precio int NULL,
+precio DECIMAL(10,2) NULL,
 descuento int NULL,
 fecha date NOT NULL,
 
@@ -729,7 +743,7 @@ detalle_ordenRP_id int NOT NULL,
 pieza_id int NOT NULL,
 
 PRIMARY KEY (detalle_ordenRP_id,pieza_id),
-CONSTRAINT detalle_ordenRP_con_piezas_piezas FOREIGN KEY (pieza_id) REFERENCES piezas(pieza_id) ON DELETE CASCADE ON UPDATE CASCADE,
+CONSTRAINT detalle_ordenRP_con_piezas_piezas FOREIGN KEY (pieza_id) REFERENCES piezas(pieza_id) ON UPDATE CASCADE,
 CONSTRAINT detalle_ordenRP_con_piezas_detalle_factura_rp FOREIGN KEY (detalle_ordenRP_id) REFERENCES detalle_ordenRP(detalle_ordenRP_id) ON DELETE CASCADE ON UPDATE CASCADE
 
 )ENGINE = InnoDb; 
@@ -755,9 +769,9 @@ usuario_id int NOT NULL,
 cliente_id int NOT NULL,
 metodo_pago_id int NOT NULL,
 estado_id int NOT NULL,
-total int NULL,
-recibido int NULL,
-pendiente int NULL,
+total DECIMAL(10,2) NULL,
+recibido DECIMAL(10,2) NULL,
+pendiente DECIMAL(10,2) NULL,
 descripcion varchar(150) NULL,
 fecha date NOT NULL,
 
@@ -778,6 +792,7 @@ usuario_id int NOT NULL,
 proveedor_id int NOT NULL,
 estado_id int NOT NULL,
 observacion varchar(150) NULL,
+origen ENUM('caja','fuera_caja') NOT NULL DEFAULT 'caja',
 fecha date NOT NULL,
 expiracion date NULL,
 
@@ -794,10 +809,10 @@ CREATE TABLE detalle_compra (
 detalle_compra_id int auto_increment NOT NULL,
 usuario_id int NOT NULL,
 orden_id int NOT NULL,
-cantidad int NOT NULL,
-precio int NOT NULL,
-impuestos int NULL,
-descuentos int NULL,
+cantidad DECIMAL(10,2) NOT NULL,
+precio DECIMAL(10,2) NOT NULL,
+impuestos DECIMAL(10,2) NULL,
+descuentos DECIMAL(10,2) NULL,
 observacion varchar(50) NULL,
 fecha date NOT NULL,
 
@@ -913,8 +928,8 @@ gasto_id int auto_increment NOT NULL,
 usuario_id int NOT NULL,
 proveedor_id int NOT NULL,
 orden_id int NOT NULL,
-total int NOT NULL,
-pagado int NOT NULL,
+total DECIMAL(10,2) NOT NULL,
+pagado DECIMAL(10,2) NOT NULL,
 observacion varchar(100) NULL,
 fecha date NOT NULL,
 
@@ -932,7 +947,7 @@ pago_id int auto_increment NOT NULL,
 usuario_id int NOT NULL,
 cliente_id int NOT NULL,
 metodo_pago_id int NOT NULL,
-recibido int NOT NULL,
+recibido DECIMAL(10,2) NOT NULL,
 observacion varchar(100) NULL,
 fecha date NULL,
 
@@ -993,7 +1008,7 @@ CREATE TABLE cotizaciones (
 cotizacion_id int auto_increment NOT NULL,
 usuario_id int NOT NULL,
 cliente_id int NOT NULL,
-total int NOT NULL,
+total DECIMAL(10,2) NOT NULL,
 descripcion varchar(100) NULL,
 fecha date NULL,
 
@@ -1010,10 +1025,10 @@ detalle_id int auto_increment NOT NULL,
 cotizacion_id int NOT NULL,
 usuario_id int NOT NULL,
 descripcion varchar(70) NOT NULL,
-cantidad int NOT NULL,
-precio int NOT NULL,
-impuesto int NULL,
-descuento int NULL,
+cantidad DECIMAL(10,2) NOT NULL,
+precio DECIMAL(10,2) NOT NULL,
+impuesto DECIMAL(10,2) NULL,
+descuento DECIMAL(10,2) NULL,
 fecha date NULL,
 
 PRIMARY KEY (detalle_id),

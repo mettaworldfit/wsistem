@@ -15,8 +15,6 @@
     </div>
 </div>
 
-
-
 <div class="generalContainer">
     <table id="products" class="table-custom table">
         <thead>

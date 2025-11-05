@@ -4,6 +4,31 @@
 #______________________________________________________________________
 
 DELIMITER //
+DROP TRIGGER IF EXISTS restar_stock_temporal_update //
+
+CREATE TRIGGER restar_stock_temporal_update
+AFTER UPDATE ON detalle_temporal
+FOR EACH ROW
+BEGIN
+    -- Si el producto tiene una cantidad positiva
+    IF (NEW.producto_id > 0) THEN
+        -- Restar la diferencia entre la nueva cantidad y la antigua en la tabla productos
+        UPDATE productos
+        SET cantidad = cantidad - (NEW.cantidad - OLD.cantidad)
+        WHERE producto_id = NEW.producto_id;
+    
+    -- Si el producto es una pieza
+    ELSEIF (NEW.pieza_id > 0) THEN
+        -- Restar la diferencia entre la nueva cantidad y la antigua en la tabla piezas
+        UPDATE piezas
+        SET cantidad = cantidad - (NEW.cantidad - OLD.cantidad)
+        WHERE pieza_id = NEW.pieza_id;
+    END IF;
+END //
+DELIMITER ;
+
+
+DELIMITER //
 DROP TRIGGER IF EXISTS  restar_stocks_temporales //
 
 CREATE TRIGGER restar_stocks_temporales
@@ -88,6 +113,52 @@ DELIMITER ;
 # Detalle de factura de venta
 #______________________________________________________________________
 
+
+DELIMITER //
+DROP TRIGGER IF EXISTS restar_stock_productos_update //
+
+CREATE TRIGGER restar_stock_productos_update
+AFTER UPDATE ON detalle_facturas_ventas FOR EACH ROW
+BEGIN
+    DECLARE ID INT;
+
+    -- Obtener el ID del producto
+    SET @ID = (SELECT producto_id FROM detalle_ventas_con_productos WHERE detalle_venta_id = NEW.detalle_venta_id);
+
+    -- Si existe el ID del producto
+    IF (@ID IS NOT NULL) THEN
+        -- Restamos la diferencia
+        UPDATE productos
+        SET cantidad = cantidad - (NEW.cantidad - OLD.cantidad)
+        WHERE producto_id = @ID;
+        
+	END IF;
+END //
+DELIMITER ;
+
+
+DELIMITER //
+DROP TRIGGER IF EXISTS restar_stock_piezas_update //
+
+CREATE TRIGGER restar_stock_piezas_update
+AFTER UPDATE ON detalle_facturas_ventas FOR EACH ROW
+BEGIN
+    DECLARE ID INT;
+
+    -- Obtener el ID de la pieza desde la tabla detalle_ventas_con_piezas_
+    SET @ID = (SELECT pieza_id FROM detalle_ventas_con_piezas_ WHERE detalle_venta_id = NEW.detalle_venta_id);
+
+    -- Si existe el ID de la pieza
+    IF (@ID IS NOT NULL) THEN
+        -- Restamos la diferencia entre la cantidad nueva y la antigua en la tabla piezas
+        UPDATE piezas
+        SET cantidad = cantidad - (NEW.cantidad - OLD.cantidad)
+        WHERE pieza_id = @ID;
+    END IF;
+END //
+DELIMITER ;
+
+
 DELIMITER //
 DROP TRIGGER IF EXISTS restar_stock_productos //
 
@@ -96,7 +167,7 @@ AFTER INSERT ON detalle_ventas_con_productos FOR EACH ROW
 BEGIN
 
 declare ID int;
-declare Cant int;
+declare Cant decimal(10,2);
 
 SET @ID = (SELECT producto_id FROM detalle_ventas_con_productos where detalle_venta_id = NEW.detalle_venta_id);
 SET @Cant = (SELECT cantidad FROM detalle_facturas_ventas where detalle_venta_id = NEW.detalle_venta_id);
@@ -121,9 +192,9 @@ AFTER INSERT ON detalle_ventas_con_piezas_ FOR EACH ROW
 BEGIN
 
 declare ID int;
-declare Cant int;
+declare Cant decimal(10,2);
 
-SET @ID = (SELECT producto_id FROM detalle_ventas_con_piezas_ where detalle_venta_id = NEW.detalle_venta_id);
+SET @ID = (SELECT pieza_id FROM detalle_ventas_con_piezas_ where detalle_venta_id = NEW.detalle_venta_id);
 SET @Cant = (SELECT cantidad FROM detalle_facturas_ventas where detalle_venta_id = NEW.detalle_venta_id);
 
 IF (@ID != '') THEN 
@@ -211,7 +282,7 @@ CREATE TRIGGER agregar_item_venta
 AFTER INSERT ON detalle_facturas_ventas FOR EACH ROW
 BEGIN
 
-DECLARE pendienteX INT;
+DECLARE pendienteX decimal(10,2);
 
 Update facturas_ventas
 set total = total + (NEW.cantidad * (NEW.impuesto + NEW.precio )- NEW.descuento), 
@@ -237,7 +308,7 @@ CREATE TRIGGER eliminar_item_venta
 BEFORE DELETE ON detalle_facturas_ventas FOR EACH ROW
 BEGIN
 
-DECLARE pendienteX INT;
+DECLARE pendienteX decimal(10,2);
 
 Update facturas_ventas
 set total = total - (OLD.cantidad * (OLD.impuesto + OLD.precio - OLD.descuento)), 
@@ -270,8 +341,8 @@ AFTER INSERT ON pagos_a_facturas_ventas FOR EACH ROW
 BEGIN
 
 begin
-declare pendienteX int;
-declare recibido int;
+declare pendienteX decimal(10,2);
+declare recibido decimal(10,2);
 end ;
 
 SET @recibido = (select recibido from pagos where pago_id = NEW.pago_id);
@@ -301,8 +372,8 @@ AFTER DELETE ON pagos_a_facturas_ventas FOR EACH ROW
 BEGIN
 
 begin
-declare pendienteX int;
-declare recibido int;
+declare pendienteX decimal(10,2);
+declare recibido decimal(10,2);
 end ;
 
 SET @recibido = (select recibido from pagos where pago_id = OLD.pago_id);
@@ -340,8 +411,8 @@ AFTER INSERT ON pagos_a_facturasRP FOR EACH ROW
 BEGIN
 
 begin
-declare pendienteX int;
-declare recibido int;
+declare pendienteX decimal(10,2);
+declare recibido decimal(10,2);
 end ;
 
 SET @recibido = (select recibido from pagos where pago_id = NEW.pago_id);
@@ -371,8 +442,8 @@ AFTER DELETE ON pagos_a_facturasRP FOR EACH ROW
 BEGIN
 
 begin
-declare pendienteX int;
-declare recibido int;
+declare pendienteX decimal(10,2);
+declare recibido decimal(10,2);
 end ;
 
 SET @recibido = (select recibido from pagos where pago_id = OLD.pago_id);
@@ -410,7 +481,7 @@ AFTER INSERT ON pagos_proveedores FOR EACH ROW
 BEGIN
 
 begin
-declare por_pagarX int;
+declare por_pagarX decimal(10,2);
 end ;
 
 Update facturas_proveedores
@@ -438,7 +509,7 @@ BEFORE DELETE ON pagos_proveedores FOR EACH ROW
 BEGIN
 
 begin
-declare por_pagarX int;
+declare por_pagarX decimal(10,2);
 end ;
 
 Update facturas_proveedores
@@ -472,7 +543,7 @@ AFTER INSERT ON detalle_ordenRP_con_piezas FOR EACH ROW
 BEGIN
 
 begin
-declare cantidad int;
+declare cantidad decimal(10,2);
 end;
 
 SET @cantidad = (SELECT cantidad FROM detalle_ordenRP where detalle_ordenRP_id = NEW.detalle_ordenRP_id);
@@ -486,21 +557,25 @@ DELIMITER ;
 
 
 DELIMITER //
-DROP TRIGGER IF EXISTS  devolver_stocks_piezas //
-
-CREATE TRIGGER  devolver_stocks_piezas
-AFTER DELETE ON detalle_ordenRP FOR EACH ROW
+DROP TRIGGER IF EXISTS devolver_stocks_piezas //
+CREATE TRIGGER devolver_stocks_piezas
+BEFORE DELETE ON detalle_ordenRP
+FOR EACH ROW
 BEGIN
+  DECLARE v_pieza_id INT;
 
-begin
-declare pieza_id int;
-end;
+  -- Buscar la pieza asociada al detalle eliminado
+  SELECT pieza_id INTO v_pieza_id
+  FROM detalle_ordenRP_con_piezas
+  WHERE detalle_ordenRP_id = OLD.detalle_ordenRP_id
+  LIMIT 1;
 
-SET @pieza_id = (SELECT pieza_id FROM detalle_ordenRP_con_piezas where detalle_ordenRP_id = OLD.detalle_ordenRP_id);
-
-Update piezas
-set cantidad = cantidad + OLD.cantidad
-where pieza_id = @pieza_id;
+  -- Devolver la cantidad al stock de esa pieza
+  IF v_pieza_id IS NOT NULL THEN
+    UPDATE piezas
+    SET cantidad = cantidad + OLD.cantidad
+    WHERE pieza_id = v_pieza_id;
+  END IF;
 
 END //
 DELIMITER ;
@@ -519,7 +594,7 @@ CREATE TRIGGER agregar_item_orden_reparacion
 AFTER INSERT ON detalle_ordenRP FOR EACH ROW
 BEGIN
 
-DECLARE pendienteX INT;
+DECLARE pendienteX decimal(10,2);
 
 Update facturasRP
 set total = total + (NEW.cantidad * NEW.precio) - NEW.descuento, 
@@ -545,7 +620,7 @@ CREATE TRIGGER eliminar_item_orden_reparacion
 BEFORE DELETE ON detalle_ordenRP FOR EACH ROW
 BEGIN
 
-DECLARE pendienteX INT;
+DECLARE pendienteX decimal(10,2);
 
 Update facturasRP
 set total = total - (OLD.cantidad * OLD.precio) - OLD.descuento, 
@@ -580,7 +655,7 @@ CREATE TRIGGER agregar_item_orden_compra
 AFTER INSERT ON detalle_compra FOR EACH ROW
 BEGIN
 
-DECLARE por_pagarX INT;
+DECLARE por_pagarX decimal(10,2);
 
 Update facturas_proveedores
 set total = total + (NEW.cantidad * NEW.precio) - NEW.descuentos + NEW.impuestos, 
@@ -606,7 +681,7 @@ CREATE TRIGGER eliminar_item_orden_compra
 BEFORE DELETE ON detalle_compra FOR EACH ROW
 BEGIN
 
-DECLARE por_pagarX INT;
+DECLARE por_pagarX decimal(10,2);
 
 Update facturas_proveedores
 set total = total - (OLD.cantidad * OLD.precio) - OLD.descuentos + OLD.impuestos, 
@@ -662,3 +737,13 @@ DELIMITER ;
 
 
 SHOW TRIGGERS;
+
+
+
+
+
+
+
+
+
+

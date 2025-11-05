@@ -1,6 +1,6 @@
 navigator.serviceWorker && navigator.serviceWorker.register("../sw.js"); // Activacion del service worker
 const PRINTER_SERVER = "http://localhost:81/tickets/"; // URL local de la impresora
-const SITE_URL = window.location.protocol + '//' + window.location.host + '/'; // Raiz del sistema
+const SITE_URL = window.location.protocol + '//' + window.location.host; // Raiz del sistema
 
 let pageURL = $(location).attr("pathname");
 const format = new Intl.NumberFormat('en'); // Formato 0,000
@@ -17,6 +17,59 @@ $.urlParam = function (name) {
     const results = new RegExp(`[?&]${name}=([^&#]*)`).exec(window.location.href);
     return results ? decodeURIComponent(results[1]) : null;
 };
+
+/**
+ * Agrega un comando de atajo de teclado para redirigir a una página específica.
+ * 
+ * @param {string} keyCombo La combinación de teclas para activar el comando, en formato 'Ctrl+F'.
+ * @param {string} url La URL a la que redirigir al usuario cuando se active el comando.
+ * @param {boolean} [preventDefault=true] Si se debe prevenir el comportamiento predeterminado del navegador (por ejemplo, la búsqueda).
+ */
+function addKeyboardCommand(keyCombo, url, preventDefault = true) {
+    // Obtiene la tecla que se usará junto a Ctrl (por ejemplo "s" en "ctrl+s")
+    const key = keyCombo.toLowerCase().replace('ctrl+', '');
+
+    // Escucha el evento global
+    $(document).keydown(function (e) {
+        // Ignorar si el foco está dentro de un input, textarea o select
+        if ($(e.target).is('input, textarea, select')) {
+            return;
+        }
+
+        // Verifica si se presionó Ctrl y la tecla correcta
+        if (e.ctrlKey && e.key.toLowerCase() === key) {
+            if (preventDefault) e.preventDefault(); // Evita acción del navegador
+            window.location.href = url; // Redirige a la URL indicada
+        }
+    });
+}
+
+
+/**
+ * Agrega un comando de atajo de teclado para abrir una modal específica.
+ * 
+ * @param {string} keyCombo La combinación de teclas para activar el comando, en formato 'Ctrl+F'.
+ * @param {string} modalId El ID de la modal que se desea abrir.
+ * @param {boolean} [preventDefault=true] Si se debe prevenir el comportamiento predeterminado del navegador (por ejemplo, la búsqueda).
+ */
+function addKeyboardCommandForModal(keyCombo, modalId, preventDefault = true) {
+    // Extrae la tecla (por ejemplo "n" en "ctrl+n")
+    const key = keyCombo.toLowerCase().replace('ctrl+', '');
+
+    $(document).keydown(function (e) {
+        // Evita activar el comando si el foco está en un campo editable
+        if ($(e.target).is('input, textarea, select')) {
+            return;
+        }
+
+        // Verifica si se presionó Ctrl y la tecla indicada
+        if (e.ctrlKey && e.key.toLowerCase() === key) {
+            if (preventDefault) e.preventDefault(); // Evita comportamiento del navegador
+            $('#' + modalId).modal('show'); // Muestra el modal Bootstrap
+        }
+    });
+}
+
 
 /**
  * Inicializa una tabla DataTable personalizada con carga de datos vía AJAX.
@@ -854,6 +907,55 @@ $(document).ready(function () {
         $('#current_total').trigger('focus');
     });
 
+    
+    // Agregar el comando Ctrl+M para redirigir a la página de inicio
+    addKeyboardCommand('Ctrl+M', SITE_URL + '/home/index');
 
+    // Agregar el comando Ctrl+F para redirigir a la página de facturación
+    addKeyboardCommand('Ctrl+F', SITE_URL + '/invoices/addpurchase');
+
+    // Agregar el comando Ctrl+I para redirigir a la página de órdenes de venta
+    addKeyboardCommand('Ctrl+I', SITE_URL + '/invoices/orders');
+
+    // Agregar el comando Ctrl+T para redirigir a la página de ordenes de servicio
+    addKeyboardCommand('Ctrl+T', SITE_URL + 'workshop/index');
+
+    // Agregar el comando Ctrl+D para redirigir a la página de ventas del dia
+    addKeyboardCommand('Ctrl+D', SITE_URL + '/reports/day');
+
+    // Agregar el comando Ctrl+E para redirigir a la página crear contacto
+    addKeyboardCommand('Ctrl+E', SITE_URL + '/contacts/add&type=1');
+
+    // Agregar el comando Ctrl+Q para redirigir a la página consultas
+    addKeyboardCommand('Ctrl+Q', SITE_URL + '/reports/querys');
+
+    // Agregar el comando Ctrl+G para agregar gastos
+    addKeyboardCommand('Ctrl+G', SITE_URL + 'bills/addbills');
+
+    // Agregar el comando Ctrl+S para agregar servicio
+    addKeyboardCommand('Ctrl+S', SITE_URL + '/services/add');
+
+    // Agregar el comando Ctrl+P para agregar servicio
+    addKeyboardCommand('Ctrl+P', SITE_URL + '/products/add');
+
+    // Abrir modals
+    addKeyboardCommandForModal('Ctrl+O', 'modalComanda');
+    addKeyboardCommandForModal('Ctrl+A', 'orden');
+
+    addKeyboardCommandForModal('Ctrl+1', 'cash_invoice');
+    addKeyboardCommandForModal('Ctrl+1', 'create_device');
+    addKeyboardCommandForModal('Ctrl+1', 'update_data_invoice');
+
+    addKeyboardCommandForModal('Ctrl+2', 'credit_invoice');
+    addKeyboardCommandForModal('Ctrl+2', 'create_condition');
+
+    addKeyboardCommandForModal('Ctrl+3', 'add_detail');
+    addKeyboardCommandForModal('Ctrl+0', 'create_customer');
+
+
+
+
+
+  
 
 }); // Ready

@@ -55,14 +55,20 @@ $nota = $data->observaciones;
 date_default_timezone_set('America/Santo_Domingo');
 $datetimeRD = date('Y-m-d\TH:i');
 
-$query_conf = "SELECT logo_pdf,tel,direccion,empresa,condiciones,titulo 
-	           FROM configuraciones WHERE config_id = 1";
+$query3 = "SELECT * FROM configuraciones";
 
-$conf = $db->query($query_conf)->fetch_object();
+    $conf = $db->query($query3);
 
-$Logo_pdf = $conf->logo_pdf;
-$empresa = $conf->empresa;
+    $config = [];
 
+    while ($row = $conf->fetch_object()) {
+        // Asignar cada valor basado en la clave
+        $config[$row->config_key] = $row->config_value;
+    }
+
+    // Asignar las configuraciones a las variables
+    $Logo_pdf = isset($config['logo']) ? $config['logo'] : '';
+    $empresa = isset($config['empresa_name']) ? $config['empresa_name'] : '';
 
 
 $nombreImagen = base_url . $Logo_pdf;
