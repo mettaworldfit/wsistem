@@ -451,6 +451,8 @@ class Help
       WHERE DATE(fecha_apertura) = CURDATE() AND estado = 'abierto'
       ORDER BY cierre_id DESC LIMIT 1";
 
+      
+
       return $db->query($query)->fetch_object();
    }
 
@@ -1260,12 +1262,17 @@ class Help
    public static function getOrderInfoId($id)
    {
       $query = "SELECT e.nombre_modelo,e.modelo,o.serie,o.imei,o.fecha_entrada,
-        c.nombre,c.apellidos,c.telefono1,o.fecha_salida,o.observacion,concat(u.nombre,' ',u.apellidos) as usuario, m.nombre_marca FROM ordenes_rp o
+        c.nombre,c.apellidos,c.telefono1,o.fecha_salida,o.observacion,
+        concat(u.nombre,' ',u.apellidos) as usuario, m.nombre_marca,
+        mp.nombre_metodo
+        FROM ordenes_rp o
         INNER JOIN equipos e ON e.equipo_id = o.equipo_id
-        INNER JOIN marcas m  ON e.marca_id = m.marca_id
-        INNER JOIN clientes c ON c.cliente_id = o.cliente_id
-        INNER JOIN usuarios u ON u.usuario_id = o.usuario_id
-        where o.orden_rp_id = '$id'";
+      INNER JOIN marcas m ON e.marca_id = m.marca_id
+      INNER JOIN clientes c ON c.cliente_id = o.cliente_id
+      INNER JOIN usuarios u ON u.usuario_id = o.usuario_id
+      LEFT JOIN facturasRP rp ON rp.orden_rp_id = o.orden_rp_id
+      LEFT JOIN metodos_de_pagos mp ON mp.metodo_pago_id = rp.metodo_pago_id
+        WHERE o.orden_rp_id = '$id'";
 
       $db = Database::connect();
       return $db->query($query);

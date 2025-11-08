@@ -165,8 +165,8 @@
     <div class="row col-sm-12 mt-1">
 
         <div class="form-group col-sm-8">
-            <label class="form-check-label" for="">Observación</label>
-            <textarea class="form-custom" name="" value="" id="observation" cols="30" rows="6" maxlength="150"
+            <label class="form-check-label">Observación</label>
+            <textarea class="form-custom" value="" id="observation" cols="30" rows="6" maxlength="150"
                 placeholder=""></textarea>
         </div>
     </div>

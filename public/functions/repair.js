@@ -85,7 +85,7 @@ $(document).ready(function () {
             if ($(this).val() == "pieza") {
 
                 $('.piece').show()
-                $('.service').hide() 
+                $('.service').hide()
 
                 // Default
 
@@ -96,10 +96,10 @@ $(document).ready(function () {
                 $('#piece').attr('required', true)
                 $('#quantity').attr('required', true)
 
-                 // Modal total
-                    $("#totalPricePiece").show();
-                    $("#totalPricePiece").val("0.00");
-                    $("#totalPriceService").hide();
+                // Modal total
+                $("#totalPricePiece").show();
+                $("#totalPricePiece").val("0.00");
+                $("#totalPriceService").hide();
 
             } else if ($(this).val() == "servicio") {
 
@@ -116,10 +116,10 @@ $(document).ready(function () {
                 $('#price_out').val('')
                 $('#rp_add_item').show();
 
-                 // Modal total
-                    $("#totalPriceService").show();
-                    $("#totalPriceService").val("0.00");
-                    $("#totalPricePiece").hide();
+                // Modal total
+                $("#totalPriceService").show();
+                $("#totalPriceService").val("0.00");
+                $("#totalPricePiece").hide();
             }
         });
     }
@@ -351,7 +351,7 @@ $(document).ready(function () {
 
     function printer_inv(invoice, type) {
 
-        data = {
+        const data = {
             subtotal: $('#in-subtotal').val().replace(/,/g, ""),
             discount: $('#in-discount').val().replace(/,/g, ""),
             total: $('#in-total').val().replace(/,/g, ""),
@@ -359,22 +359,39 @@ $(document).ready(function () {
             pay: $('#credit-pay_rp').val(),
             received: $('#cash-received').val().replace(/,/g, ""),
             observation: $('#observation').val(),
+            payment_method: $('#cash-in-method').select2('data')[0]?.text,
+            customer: $('#cash-in-customer').select2('data')[0]?.text || $('#credit-in-customer').select2('data')[0]?.text,
             inv_id: invoice
-        }
-        console.log(data)
+        };
+
         $.ajax({
-            type: "post",
+            type: "POST",
             url: PRINTER_SERVER + type,
             data: {
                 detail: $('#detail_order').val(),
                 device: $('#device_info').val(),
                 info: data
             },
+            dataType: "json", // 🔹 Asegura que el servidor devuelva JSON
             success: function (res) {
-                console.log(res)
+                console.log("🖨️ Respuesta del servidor:", res);
 
+                // Si el servidor devuelve un JSON con 'status' y 'message'
+                if (res.status === "success") {
+                    console.log(res.message || "Impresión completada correctamente");
+                } else if (res.status === "error") {
+                    alertify.error(res.message || "Ocurrió un error al imprimir");
+                } else {
+                    alertify.message("Respuesta recibida, verifica los datos.");
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("❌ Error en la solicitud:", error);
+                console.error("Detalles:", xhr.responseText);
+                alertify.error("No se pudo conectar con la impresora o el servidor.");
             }
         });
+
 
     }
 

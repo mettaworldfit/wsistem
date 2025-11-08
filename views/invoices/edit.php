@@ -477,16 +477,15 @@
                                 </div>
                             </div>
 
-                            <div class="form-group col-sm-4">
-                                <label class="form-check-label" for="">Fecha</label>
+                           <div class="form-group col-sm-4">
+                                <label class="form-check-label">Fecha</label>
                                 <div class="input-div">
                                     <div class="i">
                                         <i class="far fa-calendar-alt"></i>
                                     </div>
-                                    <input class="form-custom-icon b-left" type="text" name="" value="<?= $info->fecha_factura ?>" disabled>
+                                    <input class="form-custom-icon b-left" type="text" value="<?= $info->fecha_factura ?>" disabled>
                                 </div>
                             </div>
-
 
                         </div> <!-- Row -->
 

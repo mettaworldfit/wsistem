@@ -1,5 +1,5 @@
 function addOrdenRepair() {
-    
+
     sendAjaxRequest({
         url: "services/workshop.php",
         data: {
@@ -193,54 +193,48 @@ function deleteBrand(id) {
 
 $(document).ready(function () {
 
-/**
- * Evento para imprimir la orden de reparación.
- * Escucha el click en el botón con id "printer_order" y envía los datos al servidor de impresión.
- */
-$('#printer_order').on('click', (e) => {
-    e.preventDefault();
-
-    console.log('imprimiendo.....');
-
-    // Muestra notificación de impresión en pantalla
-    mdtoast('imprimiendo ticket...', {
-        interaction: true,
-        interactionTimeout: 1500,
-        position: "bottom right"
-    });
-
     /**
-     * Información general de la orden de reparación.
-     * Los valores numéricos se limpian de comas para facilitar su uso en el servidor.
-     * @type {{subtotal: string, discount: string, total: string, observation: string, order_id: string}}
+     * Evento para imprimir la orden de reparación.
+     * Escucha el click en el botón con id "printer_order" y envía los datos al servidor de impresión.
      */
-    const data = {
-        subtotal: $('#in-subtotal').val().replace(/,/g, ""),
-        discount: $('#in-discount').val().replace(/,/g, ""),
-        total: $('#in-total').val().replace(/,/g, ""),
-        observation: $('#observation').val(),
-        order_id: $('#orden_id').val()
-    };
+    $('#printer_order').on('click', (e) => {
+        e.preventDefault();
 
-    // Envía la información de la orden de reparación al servidor de impresión
-    $.ajax({
-        type: "post",
-        url: PRINTER_SERVER + "factura_ordenrp.php",
-        data: {
-            detail: $('#detail_order').val(),
-            device: $('#device_info').val(),
-            condition: $('#conditions').val(),
-            info: data
-        },
-        /**
-         * Callback de éxito que maneja la respuesta del servidor de impresión.
-         * @param {string} res - Respuesta del servidor (estado de la impresión).
-         */
-        success: function (res) {
-            console.log("respuesta:", res);
-        }
+        const data = {
+            subtotal: $('#in-subtotal').val().replace(/,/g, ""),
+            discount: $('#in-discount').val().replace(/,/g, ""),
+            total: $('#in-total').val().replace(/,/g, ""),
+            observation: $('#observation').val(),
+            order_id: $('#orden_id').val()
+        };
+
+        $.ajax({
+            type: "POST",
+            url: PRINTER_SERVER + "factura_ordenrp.php",
+            data: {
+                detail: $('#detail_order').val(),
+                device: $('#device_info').val(),
+                condition: $('#conditions').val(),
+                info: JSON.stringify(data) 
+            },
+            dataType: "json",
+            success: function (res) {
+                console.log("Respuesta del servidor:", res);
+
+                if (res.status === "success") {
+                    alertify.success(res.message);
+                    console.log("Datos devueltos:", res.data);
+                } else {
+                    alertify.error(res.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error en la solicitud:", error);
+                console.error("Respuesta completa:", xhr.responseText);
+                alertify.error("No se pudo conectar con la impresora.");
+            }
+        });
     });
-});
 
 
 

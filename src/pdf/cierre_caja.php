@@ -189,8 +189,12 @@ $dompdf->setPaper('letter', 'portrait');
 
 // Render the HTML as PDF
 $dompdf->render();
+
+// Obtener la fecha actual en formato YYYY-MM-DD
+$fecha_actual = date('Y-m-d');
+
 // Output the generated PDF to Browser
-$dompdf->stream('cotizacion.pdf', array('Attachment' => 0));
+$dompdf->stream("cierre_caja_{$fecha_actual}.pdf", array('Attachment' => 0));
 exit;
 
 } else {

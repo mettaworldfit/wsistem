@@ -628,7 +628,7 @@ $(document).ready(function () {
                 } else {
                     console.warn("Ocurrió un problema al enviar el correo:", result);
 
-                      mdtoast("Ocurrió un problema al enviar el correo", {
+                    mdtoast("Ocurrió un problema al enviar el correo", {
                         interactionTimeout: 1500,
                         type: 'error',
                         position: "bottom right",
@@ -914,30 +914,32 @@ $(document).ready(function () {
          * @param {Object} orderTotal - Totales de la orden (subtotal, descuento, impuestos, total).
          */
         function printOrder(detail, orderData, orderTotal) {
-            console.log('imprimiendo.....');
-
-            mdtoast('imprimiendo ticket...', {
-                interaction: true,
-                interactionTimeout: 1500,
-                position: "bottom right"
-            });
 
             $.ajax({
-                type: "post",
+                type: "POST",
                 url: PRINTER_SERVER + "orden_venta.php",
-                data: {
+                data: JSON.stringify({
                     detail: detail,
                     data: orderData,
                     totals: orderTotal
-                },
-                /**
-                 * Callback de éxito que muestra la respuesta del servidor de impresión.
-                 * @param {string} res - Respuesta del servidor (estado de impresión).
-                 */
+                }),
+                contentType: "application/json", // Enviamos JSON
+                dataType: "json", // Esperamos JSON de respuesta
                 success: function (res) {
-                    console.log("respuesta:", res);
+                    if (res.success) {
+                        console.log("✅ Impresión completada:", res.message);
+                        alertify.success(res.message || "Ticket impreso correctamente.");
+                    } else {
+                        console.warn("⚠️ Error en impresión:", res.message);
+                        alertify.error(res.message || "Error al imprimir el ticket.");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("❌ Error AJAX:", error);
+                    alertify.error("No se pudo conectar con el servidor de impresión.");
                 }
             });
+
         }
     });
 
@@ -1043,8 +1045,8 @@ $(document).ready(function () {
     $('#printer_inv').on('click', (e) => {
         e.preventDefault;
 
-        data = {
-            customer: $('#select2-customer-container').attr('title').trim(),
+        const data = {
+            customer: $('#select2-customer-container').attr('title')?.trim(),
             seller: $('#cash-in-seller').val(),
             payment_method: $('#select2-method-container').attr('title'),
             invoice_id: $("#invoice_id").val(),
@@ -1056,20 +1058,31 @@ $(document).ready(function () {
             pending: $('#cash-pending').val(),
             date: $('#date').val(),
             observation: $('#observation').val()
-        }
+        };
 
         $.ajax({
-            type: "post",
+            type: "POST",
             url: PRINTER_SERVER + "factura_venta.php",
             data: {
                 detail: $('#detail_inv').val(),
-                data: data,
+                data: data
             },
+            dataType: "json",
             success: function (res) {
-
-
+                if (res.status === "success") {
+                    alertify.success(res.message);
+                    console.log(res.data)
+                } else {
+                    alertify.error(res.message);
+                }
+                console.log("Respuesta del servidor:", res);
+            },
+            error: function (xhr, status, error) {
+                console.error("Error en la solicitud:", error);
+                alertify.error("No se pudo conectar con la impresora.");
             }
         });
+
 
     })
 

@@ -95,7 +95,8 @@ $(document).ready(function () {
                 method: $('#select2-method-container').attr('title'),
                 customer: $('#customer').val(),
                 date: $('#date').val(),
-                seller: $('#seller').val()
+                seller: $('#seller').val(),
+                observation: $('#observation').val()
             }
 
             add_payment(true, data);
@@ -128,7 +129,7 @@ $(document).ready(function () {
                     date: $('#date').val()
                 },
                 successCallback: (res) => {
-                    
+
                     if (receipt) {
                         printer(invoice_id, invoiceRP_id, res, data);
                     }
@@ -147,10 +148,9 @@ $(document).ready(function () {
 
         // función de imprimir
         function printer(invoice_id, invoiceRP_id, num_receipt, data) {
-            console.log('imprimiendo.....')
 
             $.ajax({
-                type: "post",
+                type: "POST",
                 url: PRINTER_SERVER + "recibo.php",
                 data: {
                     invoice_id: invoice_id,
@@ -159,10 +159,21 @@ $(document).ready(function () {
                     num_receipt: num_receipt
                 },
                 success: function (res) {
-                    console.log(res)
-
+                  
+                    if (res.status === 'success') {
+                        console.log("✅ Respuesta:", res.message);
+                        alertify.success(res.message || "Recibo impreso correctamente.");
+                    } else {
+                        console.warn("⚠️ Error:", res.message);
+                        alertify.error(res.message || "Error al imprimir el recibo.");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("❌ Error AJAX:", error);
+                    alertify.error("No se pudo conectar con el servidor de impresión.");
                 }
             });
+
 
         }
 
