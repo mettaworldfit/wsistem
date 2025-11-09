@@ -10,7 +10,7 @@ class Database
 
     public static function dbSelect($username)
     {
-       // Conectar al sistema de configuración
+        // Conectar al sistema de configuración
         $config = new mysqli(self::$mainHost, self::$mainUser, self::$mainPass, self::$mainDB);
 
         if ($config->connect_errno) {
@@ -68,4 +68,35 @@ class Database
 
         return $db;
     }
+
+
+    // Función estática para obtener todas las configuraciones
+    public static function getConfig()
+    {
+        $db = Database::connect(); 
+
+        // Consulta para obtener todas las configuraciones
+        $consulta = "SELECT config_key, config_value FROM configuraciones";
+        $resultado = $db->query($consulta);
+
+        // Verificar si la consulta tuvo resultados
+        if ($resultado) {
+            // Inicializar un array para almacenar las configuraciones
+            $configuraciones = [];
+
+            // Recorrer los resultados y guardar las configuraciones en el array
+            while ($fila = $resultado->fetch_assoc()) {
+                $configuraciones[$fila['config_key']] = $fila['config_value'];
+            }
+
+            return $configuraciones;
+        } else {
+            echo "Error en la consulta: " . $db->error;
+            return null; // Retornar null si ocurre un error
+        }
+    }
+    
 }
+
+
+

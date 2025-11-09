@@ -460,23 +460,35 @@ $(document).ready(function () {
             return;
         }
 
-        sendAjaxRequest({
-            url: "services/invoices.php",
-            data: data,
-            successCallback: (res) => {
+        let isProcessing = false;  // Establecer el flag antes de la solicitud
 
-                if (res > 0) {
-                    registerInvoiceDetails(res, data, receipt);
-                    $('#buttons').hide() // Ocultar botones luego de facturar la orden
-                    $('#cash-received').val($('#cash-topay').val())
-                    $('#cash-pending').val('0.00')
+        if (!isProcessing) {
+            isProcessing = true;  // Establecer el flag para indicar que ya se está procesando
 
-                    $('#last_invoice_edit').show()
-                    $('#last_invoice_edit').attr('href', SITE_URL + 'invoices/edit&id=' + res) // botón para editar la  última factura agregada
+            sendAjaxRequest({
+                url: "services/invoices.php",
+                data: data,
+                successCallback: (res) => {
+                    if (res > 0) {
+                        registerInvoiceDetails(res, data, receipt);
+                        $('#buttons').hide(); // Ocultar botones luego de facturar la orden
+                        $('#cash-received').val($('#cash-topay').val());
+                        $('#cash-pending').val('0.00');
+
+                        $('#last_invoice_edit').show();
+                        $('#last_invoice_edit').attr('href', SITE_URL + 'invoices/edit&id=' + res); // botón para editar la última factura agregada
+                    }
+                    // Resetear el flag después de la respuesta de la solicitud
+                    isProcessing = false;
+                },
+                errorCallback: (res) => {
+                    // Manejar el error (puedes mostrar un mensaje al usuario o algo similar)
+                    console.error('Error al crear la factura:', res);
+                    // Resetear el flag en caso de error
+                    isProcessing = false;
                 }
-            },
-            errorCallback: (res) => mysql_error(res)
-        })
+            });
+        }
 
         // Función separada para registrar detalles con el ID de la factura y manejar impresión
 
@@ -532,22 +544,6 @@ $(document).ready(function () {
                             SendmailCashft(invoice_id);  // Enviar correo
                         }
                     }
-
-
-                    // // Imprimir ticket 
-                    // if (receipt == true) {
-                    //     printer(invoice_id, res, data, "cash");
-
-                    //     // Enviar email
-                    //     if ($("#sendMail").is(':checked')) return SendmailCashft(invoice_id)
-
-                    // } else {
-
-                    //     GeneratePDF(invoice_id) // Imprimir PDF
-                    //     // Enviar email
-                    //     if ($("#sendMail").is(':checked')) return SendmailCashft(invoice_id)
-
-                    // }
                 },
                 errorCallback: (res) => mysql_error(res)
             })

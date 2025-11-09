@@ -4,8 +4,50 @@
 class Help
 {
 
-   public static function getDailyProfit()
+
+   public static function obtenerConfiguraciones()
    {
+      $db = Database::connect();
+
+      // Consulta para obtener hora_inicio y hora_final
+      $consulta = "SELECT config_key, config_value FROM configuraciones WHERE config_key IN ('hora_inicio', 'hora_final')";
+      $resultado = $db->query($consulta);
+
+      // Verificar si la consulta tuvo resultados
+      if ($resultado) {
+         // Inicializar las variables para almacenar las configuraciones
+         $configuraciones = [
+            'hora_inicio' => '00:00:00',
+            'hora_final' => '00:00:00'
+         ];
+
+         // Si hay resultados, recorrerlos y asignar las horas
+         while ($fila = $resultado->fetch_assoc()) {
+            if ($fila['config_key'] == 'hora_inicio') {
+               $configuraciones['hora_inicio'] = $fila['config_value'];  // Asignar la hora de inicio
+            } elseif ($fila['config_key'] == 'hora_final') {
+               $configuraciones['hora_final'] = $fila['config_value'];   // Asignar la hora final
+            }
+         }
+
+         // Retornar el array con las configuraciones
+         return $configuraciones;
+      } else {
+         // Mostrar un mensaje de error si la consulta falla
+         echo "Error en la consulta: " . $db->error;
+         // Si hay error, retornar los valores predeterminados
+         return [
+            'hora_inicio' => '00:00:00',
+            'hora_final' => '00:00:00'
+         ];
+      }
+   }
+
+
+   public static function getDailyProfit() {
+
+      $db = Database::connect();
+
       $query = "SELECT SUM(ganancia) AS total_ganancias FROM (
 
   -- Ganancia Productos en facturas de ventas hoy
@@ -118,7 +160,7 @@ class Help
 
 ) ganancias_dia;";
 
-      $db = Database::connect();
+   
       return $db->query($query)->fetch_object()->total_ganancias;
    }
 
@@ -278,6 +320,11 @@ class Help
    public static function getDailySalesByPaymentMethod($metodo_id)
    {
       $db = Database::connect();
+      $config = Database::getConfig();
+
+      $inicio = $config['hora_inicio'];
+      $final = $config['hora_final'];
+
       $query = "SELECT SUM(total) AS total FROM (
 
     -- Subconsulta 1: Facturas ventas
@@ -286,7 +333,9 @@ class Help
     INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
     LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE f.fecha = CURDATE() AND f.metodo_pago_id = '$metodo_id'
+    WHERE CONCAT(f.fecha, ' ', TIME(f.fecha)) >= CONCAT(CURDATE(), ' $inicio')
+    AND CONCAT(f.fecha, ' ', TIME(f.fecha)) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final') 
+    AND f.metodo_pago_id = '$metodo_id'
     GROUP BY f.factura_venta_id
 
     UNION ALL
@@ -294,10 +343,12 @@ class Help
     -- Subconsulta 2: Facturas RP
     SELECT (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, fr.fecha
     FROM facturasRP fr
-     INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = fr.metodo_pago_id
+    INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = fr.metodo_pago_id
     LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE fr.fecha = CURDATE() AND fr.metodo_pago_id = '$metodo_id'
+    WHERE CONCAT(fr.fecha, ' ', TIME(fr.fecha)) >= CONCAT(CURDATE(), ' $inicio')
+    AND CONCAT(fr.fecha, ' ', TIME(fr.fecha)) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final') 
+    AND fr.metodo_pago_id = '$metodo_id'
     GROUP BY fr.facturaRP_id
 
     UNION ALL
@@ -306,8 +357,10 @@ class Help
     SELECT p.recibido AS total, p.fecha
     FROM pagos_a_facturasRP pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
-	INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
-    WHERE p.fecha = CURDATE() AND p.metodo_pago_id = '$metodo_id'
+    INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
+    WHERE CONCAT(p.fecha, ' ', TIME(p.fecha)) >= CONCAT(CURDATE(), ' $inicio')
+    AND CONCAT(p.fecha, ' ', TIME(p.fecha)) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final') 
+    AND p.metodo_pago_id = '$metodo_id'
 
     UNION ALL
 
@@ -315,8 +368,10 @@ class Help
     SELECT p.recibido AS total, p.fecha
     FROM pagos_a_facturas_ventas pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
-     INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
-    WHERE p.fecha = CURDATE() AND p.metodo_pago_id = '$metodo_id'
+    INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
+    WHERE CONCAT(p.fecha, ' ', TIME(p.fecha)) >= CONCAT(CURDATE(), ' $inicio')
+    AND CONCAT(p.fecha, ' ', TIME(p.fecha)) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final') 
+    AND p.metodo_pago_id = '$metodo_id'
 
 ) ventas_por_tipo_pago;";
 
@@ -326,6 +381,11 @@ class Help
    public static function getPurchaseToday()
    {
       $db = Database::connect();
+      $config = Database::getConfig();
+
+      $inicio = $config['hora_inicio'];
+      $final = $config['hora_final'];
+
       $query = "SELECT SUM(total) AS total FROM (
 
     -- Subconsulta 1: Facturas ventas
@@ -333,7 +393,8 @@ class Help
     FROM facturas_ventas f
     LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE f.fecha = CURDATE()
+    WHERE CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE(), ' $inicio') 
+    AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final') 
     GROUP BY f.factura_venta_id
 
     UNION ALL
@@ -343,7 +404,8 @@ class Help
     FROM facturasRP fr
     LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE fr.fecha = CURDATE()
+    WHERE CONCAT(fr.fecha, ' ', fr.hora) >= CONCAT(CURDATE(), ' $inicio')  
+    AND CONCAT(fr.fecha, ' ', fr.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
     GROUP BY fr.facturaRP_id
 
     UNION ALL
@@ -352,7 +414,8 @@ class Help
     SELECT p.recibido AS total, p.fecha
     FROM pagos_a_facturasRP pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE p.fecha = CURDATE()
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' $inicio')  
+    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
 
     UNION ALL
 
@@ -360,36 +423,53 @@ class Help
     SELECT p.recibido AS total, p.fecha
     FROM pagos_a_facturas_ventas pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE p.fecha = CURDATE()
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' $inicio')  
+    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
 
 ) ventas_de_hoy;";
 
       return $db->query($query)->fetch_object()->total;
    }
 
+
    public static function getExpensesToday()
    {
       $db = Database::connect();
-      $query = "SELECT sum(total) as total FROM (
+      $config = Database::getConfig();
 
-            SELECT sum(g.pagado) as 'total', g.fecha FROM gastos g
-            WHERE g.fecha = curdate()
-            GROUP BY g.fecha     
-            
-              UNION ALL
-              
-            SELECT sum(f.pagado) as 'total', f.fecha FROM ordenes_compras o 
-            INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
-            WHERE o.estado_id = 12 AND f.fecha = curdate()
-            GROUP BY f.fecha    
+      $inicio = $config['hora_inicio'];
+      $final = $config['hora_final'];
 
-            UNION ALL
-            
-            SELECT sum(p.recibido) as 'total', p.fecha from pagos_proveedores p
-            WHERE p.fecha = curdate()
-            GROUP BY p.fecha          
-                                          
-        ) gastos_de_hoy";
+      $query = "SELECT SUM(total) AS total FROM (
+
+    -- Subconsulta 1: Gastos
+      SELECT SUM(g.pagado) AS total, g.fecha
+      FROM gastos g
+      WHERE CONCAT(g.fecha, ' ', g.hora) >= CONCAT(CURDATE(), ' $inicio')  
+      AND CONCAT(g.fecha, ' ', g.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
+      GROUP BY g.fecha
+
+      UNION ALL
+      
+      -- Subconsulta 2: Facturas de Proveedores
+      SELECT SUM(f.pagado) AS total, f.fecha
+      FROM ordenes_compras o
+      INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
+      WHERE o.estado_id = 12 
+      AND CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE(), ' $inicio')  
+      AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
+      GROUP BY f.fecha
+
+      UNION ALL
+
+      -- Subconsulta 3: Pagos Proveedores
+      SELECT SUM(p.recibido) AS total, p.fecha
+      FROM pagos_proveedores p
+      WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' $inicio')  
+      AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
+      GROUP BY p.fecha
+
+   ) gastos_de_hoy";
 
       return $db->query($query)->fetch_object()->total;
    }
@@ -398,27 +478,40 @@ class Help
    public static function getOriginExpensesToday($origin)
    {
       $db = Database::connect();
+      $config = Database::getConfig();
+
+      $inicio = $config['hora_inicio'];
+      $final = $config['hora_final'];
+
       $query = "SELECT SUM(total) AS total FROM (
 
-        SELECT SUM(g.pagado) AS total
-        FROM gastos g
-        INNER JOIN ordenes_gastos o ON o.orden_id = g.orden_id
-        WHERE g.fecha = CURDATE() AND o.origen = '$origin'
+      -- Subconsulta 1: Gastos
+      SELECT SUM(g.pagado) AS total
+      FROM gastos g
+      INNER JOIN ordenes_gastos o ON o.orden_id = g.orden_id
+      WHERE CONCAT(g.fecha, ' ', g.hora) >= CONCAT(CURDATE(), ' $inicio')  
+      AND CONCAT(g.fecha, ' ', g.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
+      AND o.origen = '$origin'
 
-        UNION ALL
+      UNION ALL
 
-        SELECT SUM(f.pagado) AS total
-        FROM ordenes_compras o
-        INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
-        WHERE o.estado_id = 12 AND f.fecha = CURDATE()
+      -- Subconsulta 2: Facturas de Proveedores
+      SELECT SUM(f.pagado) AS total
+      FROM ordenes_compras o
+      INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
+      WHERE o.estado_id = 12 
+      AND CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE(), ' $inicio')  
+      AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
 
-        UNION ALL
+      UNION ALL
 
-        SELECT SUM(p.recibido) AS total
-        FROM pagos_proveedores p
-        WHERE p.fecha = CURDATE()
+      -- Subconsulta 3: Pagos Proveedores
+      SELECT SUM(p.recibido) AS total
+      FROM pagos_proveedores p
+      WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' $inicio')  
+      AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
 
-    ) AS origen_gastos";
+   ) AS origen_gastos";
 
       return $db->query($query)->fetch_object()->total;
    }
@@ -446,12 +539,18 @@ class Help
    public static function getCashOpening()
    {
       $db = Database::connect();
+      $config = Database::getConfig();
 
-      $query = "SELECT fecha_apertura, saldo_inicial,cierre_id FROM cierres_caja 
-      WHERE DATE(fecha_apertura) = CURDATE() AND estado = 'abierto'
-      ORDER BY cierre_id DESC LIMIT 1";
+      $inicio = $config['hora_inicio'];
+      $final = $config['hora_final'];
 
-      
+      $query = "SELECT fecha_apertura, saldo_inicial, cierre_id
+      FROM cierres_caja
+      WHERE CONCAT(DATE(fecha_apertura), ' ', TIME(fecha_apertura)) >= CONCAT(CURDATE(), ' $inicio')  
+      AND CONCAT(DATE(fecha_apertura), ' ', TIME(fecha_apertura)) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
+      ORDER BY cierre_id DESC
+      LIMIT 1";
+
 
       return $db->query($query)->fetch_object();
    }
