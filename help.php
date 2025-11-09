@@ -548,6 +548,7 @@ class Help
       FROM cierres_caja
       WHERE CONCAT(DATE(fecha_apertura), ' ', TIME(fecha_apertura)) >= CONCAT(CURDATE(), ' $inicio')  
       AND CONCAT(DATE(fecha_apertura), ' ', TIME(fecha_apertura)) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
+       AND estado = 'abierto'
       ORDER BY cierre_id DESC
       LIMIT 1";
 
