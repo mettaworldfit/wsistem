@@ -2,6 +2,8 @@ navigator.serviceWorker && navigator.serviceWorker.register("../sw.js"); // Acti
 const PRINTER_SERVER = "http://localhost:81/tickets/"; // URL local de la impresora
 const SITE_URL = window.location.protocol + '//' + window.location.host + '/'; // Raiz del sistema
 
+// Version: 1.1.0
+
 let pageURL = $(location).attr("pathname");
 const format = new Intl.NumberFormat('en'); // Formato 0,000
 
@@ -956,6 +958,6 @@ $(document).ready(function () {
 
 
 
-//   Version 1.1
+  
 
 }); // Ready
