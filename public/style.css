@@ -424,10 +424,12 @@ span:hover #toggle {
 }
 
 .Anulada,
+.no-details,
 .Pendiente {
     color: #fff;
     background: #70869d;
-    padding: 2px 0 3px 10px;
+    padding: 2px 0 3px 0px;
+    text-align: center;
     width: 100%;
     border-radius: 2px;
     margin-bottom: 0

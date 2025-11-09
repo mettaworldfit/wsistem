@@ -44,7 +44,8 @@ class Help
    }
 
 
-   public static function getDailyProfit() {
+   public static function getDailyProfit()
+   {
 
       $db = Database::connect();
 
@@ -160,7 +161,7 @@ class Help
 
 ) ganancias_dia;";
 
-   
+
       return $db->query($query)->fetch_object()->total_ganancias;
    }
 
@@ -388,22 +389,24 @@ class Help
 
       $query = "SELECT SUM(total) AS total FROM (
 
-    -- Subconsulta 1: Facturas ventas
+    -- Subconsulta 1: Facturas ventas con detalles no vacíos
     SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
     FROM facturas_ventas f
     LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+    INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id  -- Asegurar que haya detalles
     WHERE CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE(), ' $inicio') 
     AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final') 
     GROUP BY f.factura_venta_id
 
     UNION ALL
 
-    -- Subconsulta 2: Facturas RP
+    -- Subconsulta 2: Facturas RP con detalles no vacíos
     SELECT (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, fr.fecha
     FROM facturasRP fr
     LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+    INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id  -- Asegurar que haya detalles
     WHERE CONCAT(fr.fecha, ' ', fr.hora) >= CONCAT(CURDATE(), ' $inicio')  
     AND CONCAT(fr.fecha, ' ', fr.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
     GROUP BY fr.facturaRP_id
@@ -1202,36 +1205,97 @@ class Help
     *  Facturas de ventas
     *  -------------------------------------*/
 
+   // Función estática para verificar si la factura tiene detalles
+   public static function checkIfInvoiceHasDetails($id, $tipo)
+{
+    $db = Database::connect();
+
+    // Verificar el tipo de factura y construir la consulta correspondiente
+    if ($tipo == 'FT') {
+        // Facturas de ventas
+        $sql = "
+            SELECT COUNT(*) AS count
+            FROM detalle_facturas_ventas
+            WHERE factura_venta_id = '$id'
+        ";
+    } elseif ($tipo == 'RP') {
+        // Facturas de reparación
+        $sql = "
+            SELECT COUNT(*) AS count
+            FROM detalle_ordenRP
+            WHERE orden_rp_id = '$id'
+        ";
+    } else {
+        // Si el tipo no es válido, devolver false
+        return false;
+    }
+
+    $result = $db->query($sql);
+
+    // Verificar si la consulta retornó un resultado
+    if ($result) {
+        $row = $result->fetch_assoc();  // Obtener el resultado como un arreglo asociativo
+        return $row['count'] > 0;  // Retorna true si hay detalles, false si no
+    }
+
+    // Si no hubo resultados o la consulta falló, devolver false
+    return false;
+}
+
+
+
    public static function calculateSalesToDay()
    {
       $db = Database::connect();
-      $query = "SELECT total,recibido,pendiente,fecha_factura FROM (
+      $config = Database::getConfig();
 
-       SELECT f.fecha as fecha_factura, f.total as total, f.recibido as recibido, f.pendiente as pendiente 
-       FROM facturas_ventas f 
-          
-	   UNION ALL
-           
-       SELECT f.fecha as fecha_factura, f.total as total,f.recibido as recibido, f.pendiente as pendiente
-       FROM facturasRP f 
-           
-	   UNION ALL 
-       
-       SELECT pg.fecha as fecha_factura, pg.recibido as total, pg.recibido as recibido, '0' as pendiente 
-       FROM pagos_a_facturas_ventas p 
-       INNER JOIN pagos pg ON pg.pago_id = p.pago_id
-	   INNER JOIN facturas_ventas f on f.factura_venta_id = p.factura_venta_id
-	   WHERE f.fecha <> pg.fecha  
-     
-        UNION ALL
-    
-		SELECT pg.fecha as fecha_factura, pg.recibido as total,pg.recibido as recibido, '0' as pendiente 
-		FROM pagos_a_facturasRP p 
-		INNER JOIN pagos pg ON pg.pago_id = p.pago_id
-		INNER JOIN facturasRP f on f.facturarp_id = p.facturarp_id
-		WHERE f.fecha <> pg.fecha  
-           
-	) ventas_del_dia where fecha_factura = curdate()";
+      $inicio = $config['hora_inicio'];
+      $final = $config['hora_final'];
+
+      $query = "SELECT DISTINCT total, recibido, pendiente, fecha_factura
+    FROM (
+
+    -- Subconsulta 1: Facturas de ventas con detalles no vacíos y dentro del rango de fechas
+    SELECT f.fecha as fecha_factura, f.total as total, f.recibido as recibido, f.pendiente as pendiente
+    FROM facturas_ventas f
+    INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id  -- Asegurar que haya detalles
+    WHERE CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE(), ' $inicio') 
+    AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')
+
+    UNION ALL
+
+    -- Subconsulta 2: Facturas RP con detalles no vacíos y dentro del rango de fechas
+    SELECT f.fecha as fecha_factura, f.total as total, f.recibido as recibido, f.pendiente as pendiente
+    FROM facturasRP f
+    INNER JOIN detalle_ordenRP d ON d.orden_rp_id = f.orden_rp_id  -- Asegurar que haya detalles
+    WHERE CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE(), ' $inicio')  
+    AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')
+
+    UNION ALL
+
+    -- Subconsulta 3: Pagos asociados a facturas de ventas con el rango de fechas
+    SELECT pg.fecha as fecha_factura, pg.recibido as total, pg.recibido as recibido, '0' as pendiente
+    FROM pagos_a_facturas_ventas p
+    INNER JOIN pagos pg ON pg.pago_id = p.pago_id
+    INNER JOIN facturas_ventas f ON f.factura_venta_id = p.factura_venta_id
+    INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id  -- Asegurar que haya detalles
+    WHERE f.fecha <> pg.fecha  
+    AND CONCAT(pg.fecha, ' ', pg.hora) >= CONCAT(CURDATE(), ' $inicio')  
+    AND CONCAT(pg.fecha, ' ', pg.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')
+
+    UNION ALL
+
+    -- Subconsulta 4: Pagos asociados a facturas RP con el rango de fechas
+    SELECT pg.fecha as fecha_factura, pg.recibido as total, pg.recibido as recibido, '0' as pendiente
+    FROM pagos_a_facturasRP p
+    INNER JOIN pagos pg ON pg.pago_id = p.pago_id
+    INNER JOIN facturasRP f ON f.facturarp_id = p.facturarp_id
+    INNER JOIN detalle_ordenRP d ON d.orden_rp_id = f.orden_rp_id  -- Asegurar que haya detalles
+    WHERE f.fecha <> pg.fecha  
+    AND CONCAT(pg.fecha, ' ', pg.hora) >= CONCAT(CURDATE(), ' $inicio')  
+    AND CONCAT(pg.fecha, ' ', pg.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')
+
+) ventas_del_dia WHERE fecha_factura = CURDATE()";
 
       return $db->query($query);
    }

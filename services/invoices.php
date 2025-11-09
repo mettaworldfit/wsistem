@@ -399,7 +399,6 @@ if ($_POST['action'] == "index_cotizaciones") {
 }
 
 // Mostrar index de todas las facturas
-
 if ($_POST['action'] == "index_facturas_ventas") {
   $db = Database::connect();
 
@@ -429,6 +428,10 @@ if ($_POST['action'] == "index_facturas_ventas") {
     'table_with_joins' => 'facturas_ventas f INNER JOIN clientes c ON f.cliente_id = c.cliente_id INNER JOIN estados_generales e ON f.estado_id = e.estado_id',
     'select' => 'SELECT f.factura_venta_id, c.nombre, c.apellidos, f.total, f.recibido, f.pendiente, f.bono, e.nombre_estado, f.fecha as fecha_factura',
     'table_rows' => function ($row) {
+      
+      // Comprobar si la factura tiene detalles asociados
+      $hasDetails = Help::checkIfInvoiceHasDetails($row['factura_venta_id'],'FT'); 
+      // Acciones
       $acciones = '<a ';
       if ($_SESSION['identity']->nombre_rol == 'administrador') {
         $acciones .= 'class="btn-action action-info" href="' . base_url . 'invoices/edit&id=' . $row['factura_venta_id'] . '"';
@@ -452,8 +455,8 @@ if ($_POST['action'] == "index_facturas_ventas") {
         'recibido' => '<span class="text-success hide-cell">' . number_format($row['recibido'] ?? 0, 2) . '</span>',
         'pendiente' => '<span class="text-danger hide-cell">' . number_format($row['pendiente'] ?? 0, 2) . '</span>',
         'bono' => '<span class="text-warning hide-cell">' . number_format($row['bono'] ?? 0, 2) . '</span>',
-        'nombre_estado' => '<p class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</p>',
-        'acciones' => $acciones
+        'nombre_estado' => $hasDetails ? '<p class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</p>' : '<p class="no-details">Vacio</p>',
+        'acciones' => $acciones,
       ];
     }
   ]);

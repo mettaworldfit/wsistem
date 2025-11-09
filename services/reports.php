@@ -285,6 +285,10 @@ if ($_POST['action'] == "index_ventas_hoy") {
 
         $acciones .= ' title="Eliminar">'.BUTTON_DELETE.'</span>';
 
+        // Comprobar si la factura tiene detalles asociados
+        $hasDetails = Help::checkIfInvoiceHasDetails($row['id'],$row['tipo']); 
+
+
         $data[] = [
 
             'id' => '<span>
@@ -300,7 +304,7 @@ if ($_POST['action'] == "index_ventas_hoy") {
             'total' => '<span class="text-primary">' . number_format($row['total'], 2) . '</span>',
             'recibido' => '<span class="text-success">' . number_format($row['recibido'], 2) . '</span>',
             'pendiente' => '<span class="text-danger">' . number_format($row['pendiente'], 2) . '</span>',
-            'estado' => '<p class="' . $row['estado'] . '">' . $row['estado'] . '</p>',
+            'estado' => $hasDetails ? '<p class="' . $row['estado'] . '">' . $row['estado'] . '</p>' : '<p class="no-details">Vacio</p>',
             'acciones' => $acciones
         ];
     }
