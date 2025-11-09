@@ -279,85 +279,67 @@ class Help
    }
 
 
-  public static function getDailySalesByPaymentMethod($metodo_id)
-{
-    try {
-        // Conectar a la base de datos
-        $db = Database::connect();
-        $config = Database::getConfig();
+   public static function getDailySalesByPaymentMethod($metodo_id)
+   {
+      $db = Database::connect();
+      $config = Database::getConfig();
 
-        $inicio = $config['hora_inicio'];
-        $final = $config['hora_final'];
+      $inicio = $config['hora_inicio'];
+      $final = $config['hora_final'];
 
-        // Definir la consulta SQL
-        $query = "SELECT SUM(total) AS total FROM (
+      $query = "SELECT SUM(total) AS total FROM (
 
-        -- Subconsulta 1: Facturas ventas
-        SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
-        FROM facturas_ventas f
-        INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
-        LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
-        LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-        WHERE CONCAT(f.fecha, ' ', TIME(f.fecha)) >= CONCAT(CURDATE(), ' $inicio')
-        AND CONCAT(f.fecha, ' ', TIME(f.fecha)) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final') 
-        AND f.metodo_pago_id = '$metodo_id'
-        GROUP BY f.factura_venta_id
+    -- Subconsulta 1: Facturas ventas
+    SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
+    FROM facturas_ventas f
+    INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
+    LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
+    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+    WHERE CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE(), ' ', '$inicio')
+    AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' ', '$final')
+    AND f.metodo_pago_id = '$metodo_id'
+    GROUP BY f.factura_venta_id
 
-        UNION ALL
+    UNION ALL
 
-        -- Subconsulta 2: Facturas RP
-        SELECT (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, fr.fecha
-        FROM facturasRP fr
-        INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = fr.metodo_pago_id
-        LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
-        LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-        WHERE CONCAT(fr.fecha, ' ', TIME(fr.fecha)) >= CONCAT(CURDATE(), ' $inicio')
-        AND CONCAT(fr.fecha, ' ', TIME(fr.fecha)) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final') 
-        AND fr.metodo_pago_id = '$metodo_id'
-        GROUP BY fr.facturaRP_id
+    -- Subconsulta 2: Facturas RP
+    SELECT (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, fr.fecha
+    FROM facturasRP fr
+    INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = fr.metodo_pago_id
+    LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
+    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+    WHERE CONCAT(fr.fecha, ' ', fr.hora) >= CONCAT(CURDATE(), ' ', '$inicio')
+    AND CONCAT(fr.fecha, ' ', fr.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' ', '$final')
+    AND fr.metodo_pago_id = '$metodo_id'
+    GROUP BY fr.facturaRP_id
 
-        UNION ALL
+    UNION ALL
 
-        -- Subconsulta 3: Pagos RP
-        SELECT p.recibido AS total, p.fecha
-        FROM pagos_a_facturasRP pf 
-        INNER JOIN pagos p ON pf.pago_id = p.pago_id
-        INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
-        WHERE CONCAT(p.fecha, ' ', TIME(p.fecha)) >= CONCAT(CURDATE(), ' $inicio')
-        AND CONCAT(p.fecha, ' ', TIME(p.fecha)) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final') 
-        AND p.metodo_pago_id = '$metodo_id'
+    -- Subconsulta 3: Pagos RP
+    SELECT p.recibido AS total, p.fecha
+    FROM pagos_a_facturasRP pf 
+    INNER JOIN pagos p ON pf.pago_id = p.pago_id
+    INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' ', '$inicio')
+    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' ', '$inicio')
+    AND p.metodo_pago_id = '$metodo_id'
 
-        UNION ALL
+    UNION ALL
 
-        -- Subconsulta 4: Pagos ventas
-        SELECT p.recibido AS total, p.fecha
-        FROM pagos_a_facturas_ventas pf 
-        INNER JOIN pagos p ON pf.pago_id = p.pago_id
-        INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
-        WHERE CONCAT(p.fecha, ' ', TIME(p.fecha)) >= CONCAT(CURDATE(), ' $inicio')
-        AND CONCAT(p.fecha, ' ', TIME(p.fecha)) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final') 
-        AND p.metodo_pago_id = '$metodo_id'
+    -- Subconsulta 4: Pagos ventas
+    SELECT p.recibido AS total, p.fecha
+    FROM pagos_a_facturas_ventas pf 
+    INNER JOIN pagos p ON pf.pago_id = p.pago_id
+    INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' ', '$inicio')
+    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' ', '$final')
+    AND p.metodo_pago_id = '$metodo_id'
 
-        ) ventas_por_tipo_pago;";
+) ventas_por_tipo_pago;
+";
 
-        // Ejecutar la consulta
-        $result = $db->query($query);
-
-        if (!$result) {
-            throw new Exception("Error en la consulta SQL: " . $db->error);
-        }
-
-        // Obtener el total de la consulta
-        $total = $result->fetch_object()->total;
-
-        return $total ? $total : 0; // Si no hay resultados, devolver 0
-
-    } catch (Exception $e) {
-        // Capturar cualquier error y devolver el mensaje
-        return "Error: " . $e->getMessage();
-    }
-}
-
+      return $db->query($query)->fetch_object()->total;
+   }
 
    public static function getPurchaseToday()
    {
