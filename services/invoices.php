@@ -36,7 +36,7 @@ if ($_POST['action'] == "cargar_detalle_orden") {
     'select' => 'SELECT p.nombre_producto, df.precio, pz.nombre_pieza, s.nombre_servicio, df.cantidad as cantidad_total, 
       df.detalle_venta_id as "id", df.descuento, df.impuesto, i.valor, df.costo,p.producto_id,pz.pieza_id,s.servicio_id',
     'base_condition' => 'df.comanda_id = ' . $id,
-    'table_rows' => function ($row) use ($id,$db) {
+    'table_rows' => function ($row) use ($id, $db) {
 
       $precio = (float)($row['precio'] ?? 0);
       $costo = (float)($row['costo'] ?? 0);
@@ -47,7 +47,7 @@ if ($_POST['action'] == "cargar_detalle_orden") {
       $importe = ($cantidad * $precio) + ($cantidad * $impuesto) - $descuento;
       $is_exists = Help::checkOrderInvoiceExists($id)->fetch_object()->is_exists;
 
-        // Verificar si el producto tiene variantes
+      // Verificar si el producto tiene variantes
       $hasVariants = false;
       if ($row['producto_id']) {
         $sql_check_variants = "SELECT COUNT(*) AS variants_count FROM variantes WHERE producto_id = '" . $row['producto_id'] . "'";
@@ -64,8 +64,8 @@ if ($_POST['action'] == "cargar_detalle_orden") {
       $input_html = '<input type="number" class="input-update input-quantity" 
                value="' . (intval($cantidad) == $cantidad ? number_format($cantidad, 0) : number_format($cantidad, 2)) . '" 
                data-id="' . $row['id'] . '" 
-               data-item-id="' .($row['producto_id'] ? $row['producto_id'] : ($row['pieza_id'] ? $row['pieza_id'] : $row['servicio_id'])) . '" 
-               data-item-type="' .($row['producto_id'] ? 'producto' : ($row['pieza_id'] ? 'pieza' : 'servicio')) . '" 
+               data-item-id="' . ($row['producto_id'] ? $row['producto_id'] : ($row['pieza_id'] ? $row['pieza_id'] : $row['servicio_id'])) . '" 
+               data-item-type="' . ($row['producto_id'] ? 'producto' : ($row['pieza_id'] ? 'pieza' : 'servicio')) . '" 
                step="0.01" ' . ($hasVariants ? 'disabled' : '') . ' />';
 
       return [
@@ -428,9 +428,9 @@ if ($_POST['action'] == "index_facturas_ventas") {
     'table_with_joins' => 'facturas_ventas f INNER JOIN clientes c ON f.cliente_id = c.cliente_id INNER JOIN estados_generales e ON f.estado_id = e.estado_id',
     'select' => 'SELECT f.factura_venta_id, c.nombre, c.apellidos, f.total, f.recibido, f.pendiente, f.bono, e.nombre_estado, f.fecha as fecha_factura',
     'table_rows' => function ($row) {
-      
+
       // Comprobar si la factura tiene detalles asociados
-      $hasDetails = Help::checkIfInvoiceHasDetails($row['factura_venta_id'],'FT'); 
+      $hasDetails = Help::checkIfInvoiceHasDetails($row['factura_venta_id'], 'FT');
       // Acciones
       $acciones = '<a ';
       if ($_SESSION['identity']->nombre_rol == 'administrador') {
@@ -650,10 +650,15 @@ if ($_POST['action'] == "factura_contado") {
 
 if ($_POST['action'] == "registrar_detalle_de_venta") {
 
-  /**
-   * Registrar variantes asociadas al detalle
-   */
+  function eliminarFactura($id)
+  {
+    $db = Database::connect();
 
+    $sql = "DELETE FROM facturas_ventas WHERE factura_venta_id = '$id'";
+    $db->query($sql);
+  }
+
+  // Registrar variantes asociadas al detalle
   function facturarVariantes($detail_temp_id, $detail_id)
   {
 
@@ -708,37 +713,83 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
     $taxes = $element->impuesto;
     $detail_temp_id = $element->detalle_temporal_id;
 
-    $query2 = "INSERT INTO detalle_facturas_ventas values (null,$invoice_id,null,$user_id,$quantity,$cost,$price,$taxes,$discount,'$date')";
-    if ($db->query($query2) === TRUE) {
+    // Iniciar transacción
+    $db->begin_transaction();
 
-      $detail_id = $db->insert_id; // ID 
+    try {
+      // Inserción de la factura en detalle_facturas_ventas
+      $query2 = "INSERT INTO detalle_facturas_ventas 
+                (factura_venta_id, usuario_id, cantidad, costo, precio, impuesto, descuento, fecha)
+                VALUES ($invoice_id, $user_id, $quantity, $cost, $price, $taxes, $discount, '$date')";
 
+      if ($db->query($query2) === FALSE) {
+        throw new Exception('Error al insertar la factura en detalle_facturas_ventas: ' . $db->error);
+      }
+
+      // Obtener el ID del detalle insertado
+      $detail_id = $db->insert_id; // ID de la factura insertada
+
+      // Verificar si se debe insertar en detalle_ventas_con_piezas_
       if ($piece_id > 0) {
-        $exec1 = "INSERT INTO detalle_ventas_con_piezas_ values ($detail_id,$piece_id,$invoice_id,null)";
-        $db->query($exec1);
-      } else if ($service_id > 0) {
-        $exec2 = "INSERT INTO detalle_ventas_con_servicios values ($detail_id,$service_id,$invoice_id,null)";
-        $db->query($exec2);
-      } else if ($product_id > 0) {
+        $exec1 = "INSERT INTO detalle_ventas_con_piezas_ VALUES ($detail_id, $piece_id, $invoice_id, null)";
+        if ($db->query($exec1) === FALSE) {
+          throw new Exception('Error al insertar en detalle_ventas_con_piezas_: ' . $db->error);
+        }
+      }
+      // Verificar si se debe insertar en detalle_ventas_con_servicios
+      else if ($service_id > 0) {
+        $exec2 = "INSERT INTO detalle_ventas_con_servicios VALUES ($detail_id, $service_id, $invoice_id, null)";
+        if ($db->query($exec2) === FALSE) {
+          throw new Exception('Error al insertar en detalle_ventas_con_servicios: ' . $db->error);
+        }
+      }
+      // Verificar si se debe insertar en detalle_ventas_con_productos
+      else if ($product_id > 0) {
+        $exec = "INSERT INTO detalle_ventas_con_productos VALUES ($detail_id, $product_id, $invoice_id, null)";
+        if ($db->query($exec) === FALSE) {
+          throw new Exception('Error al insertar en detalle_ventas_con_productos: ' . $db->error);
+        }
 
-        $exec = "INSERT INTO detalle_ventas_con_productos values ($detail_id,$product_id,$invoice_id,null)";
-        $db->query($exec);
-
+        // Llamar a la función para facturar variantes
         facturarVariantes($detail_temp_id, $detail_id);
       }
+
+      // Si todas las inserciones fueron exitosas, hacer commit de la transacción
+      $db->commit();
+
+
+
+      // Suponiendo que el detalle ha sido insertado correctamente y se obtiene el detalle insertado
+      $response = $db->query($query1);
+      if ($response) {
+      
+        $detalleInsertado = $response->fetch_all(MYSQLI_ASSOC);
+
+        echo json_encode([
+          'message' => 'success',
+          'data' => $detalleInsertado
+        ], JSON_UNESCAPED_UNICODE);
+      }
+
+      // Eliminar detalle temporal
+      $query4 = "DELETE FROM detalle_temporal WHERE usuario_id = '$user_id'";
+      $db->query($query4);
+
+      // Activar TRIGGER
+      Help::createAllTriggers();
+
+    } catch (Exception $e) {
+      // Si hubo algún error, hacer rollback y eliminar la factura insertada
+      $db->rollback();
+
+      eliminarFactura($invoice_id);
+
+       echo json_encode([
+          'message' => 'error',
+          'error' => $db->error
+        ], JSON_UNESCAPED_UNICODE);
     }
   }
-
-  // Obtener el detalle insertado (para devolverlo)
-  $response = $db->query($query1);
-  echo json_encode($response->fetch_all(), JSON_UNESCAPED_UNICODE); // devolver datos del detalle
-
-  // Eliminar detalle temporal
-  $query4 = "DELETE FROM detalle_temporal WHERE usuario_id = '$user_id'";
-  $db->query($query4);
-
-  // Activar TRIGGER
-  Help::createAllTriggers();
 }
 
 

@@ -78,6 +78,10 @@ if ($_POST['action'] == 'gastos_meses') {
 
 if ($_POST['action'] == 'ventas_dias') {
     $db = Database::connect();
+    $config = Database::getConfig();
+
+      $inicio = $config['hora_inicio'];
+      $final = $config['hora_final'];
 
     $query = "SELECT DAY(fecha) AS dia, SUM(total) AS total
     FROM (

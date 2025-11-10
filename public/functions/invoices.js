@@ -506,44 +506,54 @@ $(document).ready(function () {
                     date: data.date
                 },
                 successCallback: (res) => {
-                    // Calcular devolucion
+                    try {
+                        var result = JSON.parse(res);
+                        console.log(result);
 
-                    var topay = $('#cash-topay').val().replace(/,/g, "");
-                    var received = $('#calc_return').val();
-                    let calc_return;
+                        if (result.message === 'success') {
+                            // Imprimir ticket
+                            if (receipt === true) {
+                                // Imprime en impresora
+                                printer(invoice_id, res.data, data, "cash");
 
-                    if (received != '') {
+                                // Enviar email (si está marcado)
+                                if ($("#sendMail").is(':checked')) {
+                                    SendmailCashft(invoice_id);
+                                }
 
-                        calc_return = received - topay;
-                        cashback(format.format(calc_return));
+                            } else {
+                                // Generar PDF solo si #sendPDF está marcado
+                                if ($("#sendPDF").is(':checked')) {
+                                    GeneratePDF(invoice_id);  // Imprimir/generar PDF
+                                }
 
-                    } else {
-                        mysql_row_affected()
+                                // Enviar email si #sendMail está marcado
+                                if ($("#sendMail").is(':checked')) {
+                                    SendmailCashft(invoice_id);  // Enviar correo
+                                }
+                            }
+
+                            // Calcular devolución
+                            var topay = $('#cash-topay').val().replace(/,/g, "");
+                            var received = $('#calc_return').val();
+                            let calc_return;
+
+                            if (received != '') {
+                                calc_return = received - topay;
+                                cashback(format.format(calc_return));
+                            } else {
+                                mysql_row_affected();
+                            }
+
+                            reloadInvoiceDetail(); // Actualizar datos
+                        } else if (result.message === "error") {
+                            alertify.error('Ha ocurrido un error. Intenta nuevamente.');
+
+                        }
+                    } catch (e) {
+                        console.error("Error al analizar JSON: ", e);
                     }
 
-                    reloadInvoiceDetail() // Actualizar datos
-
-                    // Imprimir ticket 
-                    if (receipt === true) {
-                        // Imprime en impresora
-                        printer(invoice_id, res, data, "cash");
-
-                        // Enviar email (si está marcado)
-                        if ($("#sendMail").is(':checked')) {
-                            SendmailCashft(invoice_id);
-                        }
-
-                    } else {
-                        // Generar PDF solo si #sendPDF está marcado
-                        if ($("#sendPDF").is(':checked')) {
-                            GeneratePDF(invoice_id);  // Imprimir/generar PDF
-                        }
-
-                        // Enviar email si #sendMail está marcado
-                        if ($("#sendMail").is(':checked')) {
-                            SendmailCashft(invoice_id);  // Enviar correo
-                        }
-                    }
                 },
                 errorCallback: (res) => mysql_error(res)
             })
