@@ -450,35 +450,36 @@ FROM (
       $inicio = $config['hora_inicio'];
       $final = $config['hora_final'];
 
-      $query = "SELECT SUM(total) AS total FROM (
+      $query = "SELECT SUM(total) AS total 
+FROM (
 
-      -- Subconsulta 1: Gastos
-      SELECT SUM(g.pagado) AS total
-      FROM gastos g
-      INNER JOIN ordenes_gastos o ON o.orden_id = g.orden_id
-      WHERE CONCAT(g.fecha, ' ', g.hora) >= CONCAT(CURDATE(), ' $inicio')  
-      AND CONCAT(g.fecha, ' ', g.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
-      AND o.origen = '$origin'
+    -- Subconsulta 1: Gastos
+    SELECT SUM(g.pagado) AS total
+    FROM gastos g
+    INNER JOIN ordenes_gastos o ON o.orden_id = g.orden_id
+    WHERE CONCAT(g.fecha, ' ', g.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')  
+    AND CONCAT(g.fecha, ' ', g.hora) < CONCAT(CURDATE(), ' 06:00:00')  
+    AND o.origen = '$origin'
 
-      UNION ALL
+    UNION ALL
 
-      -- Subconsulta 2: Facturas de Proveedores
-      SELECT SUM(f.pagado) AS total
-      FROM ordenes_compras o
-      INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
-      WHERE o.estado_id = 12 
-      AND CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE(), ' $inicio')  
-      AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
+    -- Subconsulta 2: Facturas de Proveedores
+    SELECT SUM(f.pagado) AS total
+    FROM ordenes_compras o
+    INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
+    WHERE o.estado_id = 12 
+    AND CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')  
+    AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE(), ' 06:00:00')  
 
-      UNION ALL
+    UNION ALL
 
-      -- Subconsulta 3: Pagos Proveedores
-      SELECT SUM(p.recibido) AS total
-      FROM pagos_proveedores p
-      WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' $inicio')  
-      AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
+    -- Subconsulta 3: Pagos Proveedores
+    SELECT SUM(p.recibido) AS total
+    FROM pagos_proveedores p
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')  
+    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE(), ' 06:00:00')  
 
-   ) AS origen_gastos";
+) AS origen_gastos;";
 
       return $db->query($query)->fetch_object()->total;
    }
