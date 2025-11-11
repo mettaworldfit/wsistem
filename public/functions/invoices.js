@@ -460,35 +460,28 @@ $(document).ready(function () {
             return;
         }
 
-        let isProcessing = false;  // Establecer el flag antes de la solicitud
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: data,
+            successCallback: (res) => {
+                if (res > 0) {
+                    registerInvoiceDetails(res, data, receipt);
+                    $('#buttons').hide(); // Ocultar botones luego de facturar la orden
+                    $('#cash-received').val($('#cash-topay').val());
+                    $('#cash-pending').val('0.00');
 
-        if (!isProcessing) {
-            isProcessing = true;  // Establecer el flag para indicar que ya se está procesando
-
-            sendAjaxRequest({
-                url: "services/invoices.php",
-                data: data,
-                successCallback: (res) => {
-                    if (res > 0) {
-                        registerInvoiceDetails(res, data, receipt);
-                        $('#buttons').hide(); // Ocultar botones luego de facturar la orden
-                        $('#cash-received').val($('#cash-topay').val());
-                        $('#cash-pending').val('0.00');
-
-                        $('#last_invoice_edit').show();
-                        $('#last_invoice_edit').attr('href', SITE_URL + 'invoices/edit&id=' + res); // botón para editar la última factura agregada
-                    }
-                    // Resetear el flag después de la respuesta de la solicitud
-                    isProcessing = false;
-                },
-                errorCallback: (res) => {
-                    // Manejar el error (puedes mostrar un mensaje al usuario o algo similar)
-                    console.error('Error al crear la factura:', res);
-                    // Resetear el flag en caso de error
-                    isProcessing = false;
+                    $('#last_invoice_edit').show();
+                    $('#last_invoice_edit').attr('href', SITE_URL + 'invoices/edit&id=' + res); // botón para editar la última factura agregada
                 }
-            });
-        }
+
+            },
+            errorCallback: (res) => {
+
+                console.error('Error al crear la factura:', res);
+
+            }
+        });
+
 
         // Función separada para registrar detalles con el ID de la factura y manejar impresión
 
@@ -506,52 +499,46 @@ $(document).ready(function () {
                     date: data.date
                 },
                 successCallback: (res) => {
-                    try {
-                        var result = JSON.parse(res);
-                        console.log(result);
 
-                        if (result.message === 'success') {
-                            // Imprimir ticket
-                            if (receipt === true) {
-                                // Imprime en impresora
-                                printer(invoice_id, res.data, data, "cash");
+                    if (res !== 'error') {
 
-                                // Enviar email (si está marcado)
-                                if ($("#sendMail").is(':checked')) {
-                                    SendmailCashft(invoice_id);
-                                }
+                        // Imprimir ticket
+                        if (receipt === true) {
+                            // Imprime en impresora
+                            printer(invoice_id, res, data, "cash");
 
-                            } else {
-                                // Generar PDF solo si #sendPDF está marcado
-                                if ($("#sendPDF").is(':checked')) {
-                                    GeneratePDF(invoice_id);  // Imprimir/generar PDF
-                                }
-
-                                // Enviar email si #sendMail está marcado
-                                if ($("#sendMail").is(':checked')) {
-                                    SendmailCashft(invoice_id);  // Enviar correo
-                                }
+                            // Enviar email (si está marcado)
+                            if ($("#sendMail").is(':checked')) {
+                                SendmailCashft(invoice_id);
                             }
 
-                            // Calcular devolución
-                            var topay = $('#cash-topay').val().replace(/,/g, "");
-                            var received = $('#calc_return').val();
-                            let calc_return;
-
-                            if (received != '') {
-                                calc_return = received - topay;
-                                cashback(format.format(calc_return));
-                            } else {
-                                mysql_row_affected();
+                        } else {
+                            // Generar PDF solo si #sendPDF está marcado
+                            if ($("#sendPDF").is(':checked')) {
+                                GeneratePDF(invoice_id);  // Imprimir/generar PDF
                             }
 
-                            reloadInvoiceDetail(); // Actualizar datos
-                        } else if (result.message === "error") {
-                            alertify.error('Ha ocurrido un error. Intenta nuevamente.');
-
+                            // Enviar email si #sendMail está marcado
+                            if ($("#sendMail").is(':checked')) {
+                                SendmailCashft(invoice_id);  // Enviar correo
+                            }
                         }
-                    } catch (e) {
-                        console.error("Error al analizar JSON: ", e);
+
+                        // Calcular devolución
+                        var topay = $('#cash-topay').val().replace(/,/g, "");
+                        var received = $('#calc_return').val();
+                        let calc_return;
+
+                        if (received != '') {
+                            calc_return = received - topay;
+                            cashback(format.format(calc_return));
+                        } else {
+                            mysql_row_affected();
+                        }
+
+                        reloadInvoiceDetail(); // Actualizar datos
+                    } else {
+                         alertify.error('Ha ocurrido un error. Intenta nuevamente.');
                     }
 
                 },

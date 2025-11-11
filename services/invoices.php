@@ -650,13 +650,6 @@ if ($_POST['action'] == "factura_contado") {
 
 if ($_POST['action'] == "registrar_detalle_de_venta") {
 
-  function eliminarFactura($id)
-  {
-    $db = Database::connect();
-
-    $sql = "DELETE FROM facturas_ventas WHERE factura_venta_id = '$id'";
-    $db->query($sql);
-  }
 
   // Registrar variantes asociadas al detalle
   function facturarVariantes($detail_temp_id, $detail_id)
@@ -758,18 +751,9 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
       $db->commit();
 
 
-
-      // Suponiendo que el detalle ha sido insertado correctamente y se obtiene el detalle insertado
+      // Obtener el detalle insertado (para devolverlo)
       $response = $db->query($query1);
-      if ($response) {
-      
-        $detalleInsertado = $response->fetch_all(MYSQLI_ASSOC);
-
-        echo json_encode([
-          'message' => 'success',
-          'data' => $detalleInsertado
-        ], JSON_UNESCAPED_UNICODE);
-      }
+      echo json_encode($response->fetch_all(), JSON_UNESCAPED_UNICODE); // devolver datos del detalle
 
       // Eliminar detalle temporal
       $query4 = "DELETE FROM detalle_temporal WHERE usuario_id = '$user_id'";
@@ -777,17 +761,11 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
 
       // Activar TRIGGER
       Help::createAllTriggers();
-
     } catch (Exception $e) {
       // Si hubo algún error, hacer rollback y eliminar la factura insertada
       $db->rollback();
 
-      eliminarFactura($invoice_id);
-
-       echo json_encode([
-          'message' => 'error',
-          'error' => $db->error
-        ], JSON_UNESCAPED_UNICODE);
+      echo "error";
     }
   }
 }
