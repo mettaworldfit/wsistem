@@ -734,8 +734,9 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
         facturarVariantes($detail_temp_id, $detail_id);
       }
     }
+  }
 
-    // Obtener el detalle insertado (para devolverlo)
+   // Obtener el detalle insertado (para devolverlo)
     $response = $db->query($query1);
     echo json_encode($response->fetch_all(), JSON_UNESCAPED_UNICODE); // devolver datos del detalle
 
@@ -745,7 +746,6 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
 
     // Activar TRIGGER
     Help::createAllTriggers();
-  }
 }
 
 
