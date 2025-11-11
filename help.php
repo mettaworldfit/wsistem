@@ -295,8 +295,8 @@ class Help
     INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
     LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')
-    AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE(), ' 06:00:00')
+    WHERE CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE(), ' ', '$inicio')
+    AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' ', '$final')
     AND f.metodo_pago_id = '$metodo_id'
     GROUP BY f.factura_venta_id
 
@@ -308,8 +308,8 @@ class Help
     INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = fr.metodo_pago_id
     LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(fr.fecha, ' ', fr.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')
-    AND CONCAT(fr.fecha, ' ', fr.hora) < CONCAT(CURDATE(), ' 06:00:00')
+    WHERE CONCAT(fr.fecha, ' ', fr.hora) >= CONCAT(CURDATE(), ' ', '$inicio')
+    AND CONCAT(fr.fecha, ' ', fr.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' ', '$final')
     AND fr.metodo_pago_id = '$metodo_id'
     GROUP BY fr.facturaRP_id
 
@@ -320,8 +320,8 @@ class Help
     FROM pagos_a_facturasRP pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
     INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')
-    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE(), ' 06:00:00')
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' ', '$inicio')
+    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' ', '$inicio')
     AND p.metodo_pago_id = '$metodo_id'
 
     UNION ALL
@@ -331,11 +331,12 @@ class Help
     FROM pagos_a_facturas_ventas pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
     INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')
-    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE(), ' 06:00:00')
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' ', '$inicio')
+    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' ', '$final')
     AND p.metodo_pago_id = '$metodo_id'
 
-) ventas_por_tipo_pago;";
+) ventas_por_tipo_pago;
+";
 
       return $db->query($query)->fetch_object()->total;
    }
@@ -348,17 +349,16 @@ class Help
       $inicio = $config['hora_inicio'];
       $final = $config['hora_final'];
 
-      $query = "SELECT SUM(total) AS total 
-FROM (
+      $query = "SELECT SUM(total) AS total FROM (
 
     -- Subconsulta 1: Facturas ventas con detalles no vacíos
     SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
     FROM facturas_ventas f
     LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
-    WHERE CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00') 
-    AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE(), ' 06:00:00') 
+    INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id  -- Asegurar que haya detalles
+    WHERE CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE(), ' $inicio') 
+    AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE() - INTERVAL 1 DAY, ' $final') 
     GROUP BY f.factura_venta_id
 
     UNION ALL
@@ -368,9 +368,9 @@ FROM (
     FROM facturasRP fr
     LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
-    WHERE CONCAT(fr.fecha, ' ', fr.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')  
-    AND CONCAT(fr.fecha, ' ', fr.hora) < CONCAT(CURDATE(), ' 06:00:00')  
+    INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id  -- Asegurar que haya detalles
+    WHERE CONCAT(fr.fecha, ' ', fr.hora) >= CONCAT(CURDATE(), ' $inicio')  
+    AND CONCAT(fr.fecha, ' ', fr.hora) < CONCAT(CURDATE() - INTERVAL 1 DAY, ' $final')  
     GROUP BY fr.facturaRP_id
 
     UNION ALL
@@ -379,8 +379,8 @@ FROM (
     SELECT p.recibido AS total, p.fecha
     FROM pagos_a_facturasRP pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')  
-    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE(), ' 06:00:00')  
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' $inicio')  
+    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE() - INTERVAL 1 DAY, ' $final')  
 
     UNION ALL
 
@@ -388,11 +388,10 @@ FROM (
     SELECT p.recibido AS total, p.fecha
     FROM pagos_a_facturas_ventas pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')  
-    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE(), ' 06:00:00')  
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' $inicio')  
+    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE() - INTERVAL 1 DAY, ' $final')  
 
-) ventas_de_hoy;
-";
+) ventas_de_hoy;";
 
       return $db->query($query)->fetch_object()->total;
    }
@@ -406,37 +405,36 @@ FROM (
       $inicio = $config['hora_inicio'];
       $final = $config['hora_final'];
 
-      $query = "SELECT SUM(total) AS total 
-FROM (
+      $query = "SELECT SUM(total) AS total FROM (
 
     -- Subconsulta 1: Gastos
-    SELECT SUM(g.pagado) AS total, g.fecha
-    FROM gastos g
-    WHERE CONCAT(g.fecha, ' ', g.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')  
-    AND CONCAT(g.fecha, ' ', g.hora) < CONCAT(CURDATE(), ' 06:00:00')  
-    GROUP BY g.fecha
+      SELECT SUM(g.pagado) AS total, g.fecha
+      FROM gastos g
+      WHERE CONCAT(g.fecha, ' ', g.hora) >= CONCAT(CURDATE(), ' $inicio')  
+      AND CONCAT(g.fecha, ' ', g.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
+      GROUP BY g.fecha
 
-    UNION ALL
+      UNION ALL
+      
+      -- Subconsulta 2: Facturas de Proveedores
+      SELECT SUM(f.pagado) AS total, f.fecha
+      FROM ordenes_compras o
+      INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
+      WHERE o.estado_id = 12 
+      AND CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE(), ' $inicio')  
+      AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
+      GROUP BY f.fecha
 
-    -- Subconsulta 2: Facturas de Proveedores
-    SELECT SUM(f.pagado) AS total, f.fecha
-    FROM ordenes_compras o
-    INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
-    WHERE o.estado_id = 12 
-    AND CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')  
-    AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE(), ' 06:00:00')  
-    GROUP BY f.fecha
+      UNION ALL
 
-    UNION ALL
+      -- Subconsulta 3: Pagos Proveedores
+      SELECT SUM(p.recibido) AS total, p.fecha
+      FROM pagos_proveedores p
+      WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' $inicio')  
+      AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
+      GROUP BY p.fecha
 
-    -- Subconsulta 3: Pagos Proveedores
-    SELECT SUM(p.recibido) AS total, p.fecha
-    FROM pagos_proveedores p
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')  
-    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE(), ' 06:00:00')  
-    GROUP BY p.fecha
-
-) gastos_de_hoy;";
+   ) gastos_de_hoy";
 
       return $db->query($query)->fetch_object()->total;
    }
@@ -450,36 +448,35 @@ FROM (
       $inicio = $config['hora_inicio'];
       $final = $config['hora_final'];
 
-      $query = "SELECT SUM(total) AS total 
-FROM (
+      $query = "SELECT SUM(total) AS total FROM (
 
-    -- Subconsulta 1: Gastos
-    SELECT SUM(g.pagado) AS total
-    FROM gastos g
-    INNER JOIN ordenes_gastos o ON o.orden_id = g.orden_id
-    WHERE CONCAT(g.fecha, ' ', g.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')  
-    AND CONCAT(g.fecha, ' ', g.hora) < CONCAT(CURDATE(), ' 06:00:00')  
-    AND o.origen = '$origin'
+      -- Subconsulta 1: Gastos
+      SELECT SUM(g.pagado) AS total
+      FROM gastos g
+      INNER JOIN ordenes_gastos o ON o.orden_id = g.orden_id
+      WHERE CONCAT(g.fecha, ' ', g.hora) >= CONCAT(CURDATE(), ' $inicio')  
+      AND CONCAT(g.fecha, ' ', g.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
+      AND o.origen = '$origin'
 
-    UNION ALL
+      UNION ALL
 
-    -- Subconsulta 2: Facturas de Proveedores
-    SELECT SUM(f.pagado) AS total
-    FROM ordenes_compras o
-    INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
-    WHERE o.estado_id = 12 
-    AND CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')  
-    AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE(), ' 06:00:00')  
+      -- Subconsulta 2: Facturas de Proveedores
+      SELECT SUM(f.pagado) AS total
+      FROM ordenes_compras o
+      INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
+      WHERE o.estado_id = 12 
+      AND CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE(), ' $inicio')  
+      AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
 
-    UNION ALL
+      UNION ALL
 
-    -- Subconsulta 3: Pagos Proveedores
-    SELECT SUM(p.recibido) AS total
-    FROM pagos_proveedores p
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')  
-    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE(), ' 06:00:00')  
+      -- Subconsulta 3: Pagos Proveedores
+      SELECT SUM(p.recibido) AS total
+      FROM pagos_proveedores p
+      WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' $inicio')  
+      AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
 
-) AS origen_gastos;";
+   ) AS origen_gastos";
 
       return $db->query($query)->fetch_object()->total;
    }
@@ -514,12 +511,11 @@ FROM (
 
       $query = "SELECT fecha_apertura, saldo_inicial, cierre_id
       FROM cierres_caja
-      WHERE CONCAT(DATE(fecha_apertura), ' ', TIME(fecha_apertura)) >= CONCAT(CURDATE() - INTERVAL 1 DAY, ' 06:00:00')  
-      AND CONCAT(DATE(fecha_apertura), ' ', TIME(fecha_apertura)) < CONCAT(CURDATE(), ' 06:00:00')  
-      AND estado = 'abierto'
+      WHERE CONCAT(DATE(fecha_apertura), ' ', TIME(fecha_apertura)) >= CONCAT(CURDATE(), ' $inicio')  
+      AND CONCAT(DATE(fecha_apertura), ' ', TIME(fecha_apertura)) < CONCAT(CURDATE() + INTERVAL 1 DAY, ' $final')  
+       AND estado = 'abierto'
       ORDER BY cierre_id DESC
-      LIMIT 1;
-      ";
+      LIMIT 1";
 
 
       return $db->query($query)->fetch_object();
