@@ -706,67 +706,45 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
     $taxes = $element->impuesto;
     $detail_temp_id = $element->detalle_temporal_id;
 
-    // Iniciar transacción
-    $db->begin_transaction();
-
-    try {
-      // Inserción de la factura en detalle_facturas_ventas
-      $query2 = "INSERT INTO detalle_facturas_ventas 
+    $query2 = "INSERT INTO detalle_facturas_ventas 
                 (factura_venta_id, usuario_id, cantidad, costo, precio, impuesto, descuento, fecha)
                 VALUES ($invoice_id, $user_id, $quantity, $cost, $price, $taxes, $discount, '$date')";
 
-      if ($db->query($query2) === FALSE) {
-        throw new Exception('Error al insertar la factura en detalle_facturas_ventas: ' . $db->error);
-      }
+    if ($db->query($query2) === TRUE) {
 
       // Obtener el ID del detalle insertado
-      $detail_id = $db->insert_id; // ID de la factura insertada
+      $detail_id = $db->insert_id; 
 
       // Verificar si se debe insertar en detalle_ventas_con_piezas_
       if ($piece_id > 0) {
         $exec1 = "INSERT INTO detalle_ventas_con_piezas_ VALUES ($detail_id, $piece_id, $invoice_id, null)";
-        if ($db->query($exec1) === FALSE) {
-          throw new Exception('Error al insertar en detalle_ventas_con_piezas_: ' . $db->error);
-        }
+        $db->query($exec1);
       }
       // Verificar si se debe insertar en detalle_ventas_con_servicios
       else if ($service_id > 0) {
         $exec2 = "INSERT INTO detalle_ventas_con_servicios VALUES ($detail_id, $service_id, $invoice_id, null)";
-        if ($db->query($exec2) === FALSE) {
-          throw new Exception('Error al insertar en detalle_ventas_con_servicios: ' . $db->error);
-        }
+        $db->query($exec2);
       }
       // Verificar si se debe insertar en detalle_ventas_con_productos
       else if ($product_id > 0) {
         $exec = "INSERT INTO detalle_ventas_con_productos VALUES ($detail_id, $product_id, $invoice_id, null)";
-        if ($db->query($exec) === FALSE) {
-          throw new Exception('Error al insertar en detalle_ventas_con_productos: ' . $db->error);
-        }
+        $db->query($exec);
 
         // Llamar a la función para facturar variantes
         facturarVariantes($detail_temp_id, $detail_id);
       }
-
-      // Si todas las inserciones fueron exitosas, hacer commit de la transacción
-      $db->commit();
-
-
-      // Obtener el detalle insertado (para devolverlo)
-      $response = $db->query($query1);
-      echo json_encode($response->fetch_all(), JSON_UNESCAPED_UNICODE); // devolver datos del detalle
-
-      // Eliminar detalle temporal
-      $query4 = "DELETE FROM detalle_temporal WHERE usuario_id = '$user_id'";
-      $db->query($query4);
-
-      // Activar TRIGGER
-      Help::createAllTriggers();
-    } catch (Exception $e) {
-      // Si hubo algún error, hacer rollback y eliminar la factura insertada
-      $db->rollback();
-
-      echo "error";
     }
+
+    // Obtener el detalle insertado (para devolverlo)
+    $response = $db->query($query1);
+    echo json_encode($response->fetch_all(), JSON_UNESCAPED_UNICODE); // devolver datos del detalle
+
+    // Eliminar detalle temporal
+    $query4 = "DELETE FROM detalle_temporal WHERE usuario_id = '$user_id'";
+    $db->query($query4);
+
+    // Activar TRIGGER
+    Help::createAllTriggers();
   }
 }
 

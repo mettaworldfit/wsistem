@@ -282,81 +282,134 @@ class Help
    public static function getDailySalesByPaymentMethod($metodo_id)
    {
       $db = Database::connect();
-      
+      $config = Database::getConfig();
 
-      $query = "SELECT SUM(total) AS total 
-FROM (
-    -- Subconsulta 1: Facturas ventas
-    SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
-    FROM facturas_ventas f
-    INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
-    LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
-    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(f.fecha, ' ', f.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(f.fecha, ' ', f.hora) <= NOW()  -- Hasta el momento actual
-    AND f.metodo_pago_id = '$metodo_id'
-    GROUP BY f.factura_venta_id
+      // Verificamos si 'auto_cierre' existe en la configuración y si es 'false'
+      $query = '';
 
-    UNION ALL
+      if (isset($config['auto_cierre']) && $config['auto_cierre'] === 'false') {
+         // Si 'auto_cierre' es 'false', ejecutamos la primera consulta
 
-    -- Subconsulta 2: Facturas RP
-    SELECT (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, fr.fecha
-    FROM facturasRP fr
-    INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = fr.metodo_pago_id
-    LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
-    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(fr.fecha, ' ', fr.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(fr.fecha, ' ', fr.hora) <= NOW()  -- Hasta el momento actual
-    AND fr.metodo_pago_id = '$metodo_id'
-    GROUP BY fr.facturaRP_id
 
-    UNION ALL
+         $query = "SELECT SUM(total) AS total 
+         FROM (
+            -- Subconsulta 1: Facturas ventas
+            SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
+            FROM facturas_ventas f
+            INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
+            LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
+            LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+            INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
+            WHERE CONCAT(f.fecha, ' ', f.hora) >= (
+               SELECT fecha_apertura
+               FROM cierres_caja
+               WHERE estado = 'abierto'
+               ORDER BY fecha_apertura DESC
+               LIMIT 1
+            )
+            AND CONCAT(f.fecha, ' ', f.hora) <= NOW()  -- Hasta el momento actual
+            AND f.metodo_pago_id = '$metodo_id'
+            GROUP BY f.factura_venta_id
 
-    -- Subconsulta 3: Pagos RP
-    SELECT p.recibido AS total, p.fecha
-    FROM pagos_a_facturasRP pf 
-    INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
-    AND p.metodo_pago_id = '$metodo_id'
+            UNION ALL
 
-    UNION ALL
+            -- Subconsulta 2: Facturas RP
+            SELECT (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, fr.fecha
+            FROM facturasRP fr
+            INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = fr.metodo_pago_id
+            LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
+            LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+            INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
+            WHERE CONCAT(fr.fecha, ' ', fr.hora) >= (
+               SELECT fecha_apertura
+               FROM cierres_caja
+               WHERE estado = 'abierto'
+               ORDER BY fecha_apertura DESC
+               LIMIT 1
+            )
+            AND CONCAT(fr.fecha, ' ', fr.hora) <= NOW()  -- Hasta el momento actual
+            AND fr.metodo_pago_id = '$metodo_id'
+            GROUP BY fr.facturaRP_id
 
-    -- Subconsulta 4: Pagos ventas
-    SELECT p.recibido AS total, p.fecha
-    FROM pagos_a_facturas_ventas pf 
-    INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
-    AND p.metodo_pago_id = '$metodo_id'
-) ventas_por_tipo_pago;
-";
+            UNION ALL
+
+            -- Subconsulta 3: Pagos RP
+            SELECT p.recibido AS total, p.fecha
+            FROM pagos_a_facturasRP pf 
+            INNER JOIN pagos p ON pf.pago_id = p.pago_id
+            INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
+            WHERE CONCAT(p.fecha, ' ', p.hora) >= (
+               SELECT fecha_apertura
+               FROM cierres_caja
+               WHERE estado = 'abierto'
+               ORDER BY fecha_apertura DESC
+               LIMIT 1
+            )
+            AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
+            AND p.metodo_pago_id = '$metodo_id'
+
+            UNION ALL
+
+            -- Subconsulta 4: Pagos ventas
+            SELECT p.recibido AS total, p.fecha
+            FROM pagos_a_facturas_ventas pf 
+            INNER JOIN pagos p ON pf.pago_id = p.pago_id
+            INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
+            WHERE CONCAT(p.fecha, ' ', p.hora) >= (
+               SELECT fecha_apertura
+               FROM cierres_caja
+               WHERE estado = 'abierto'
+               ORDER BY fecha_apertura DESC
+               LIMIT 1
+            )
+            AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
+            AND p.metodo_pago_id = '$metodo_id'
+            ) ventas_por_tipo_pago_rango_cierre;";
+      } else {
+         $query = "SELECT SUM(total) AS total 
+            FROM (
+               -- Subconsulta 1: Facturas ventas
+               SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
+               FROM facturas_ventas f
+               INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
+               LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
+               LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+               INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
+               WHERE f.fecha = curdate() AND f.metodo_pago_id = '$metodo_id'
+               GROUP BY f.factura_venta_id
+
+               UNION ALL
+
+               -- Subconsulta 2: Facturas RP
+               SELECT (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, fr.fecha
+               FROM facturasRP fr
+               INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = fr.metodo_pago_id
+               LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
+               LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+               INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
+               WHERE fr.fecha = curdate() AND fr.metodo_pago_id = '$metodo_id'
+               GROUP BY fr.facturaRP_id
+
+               UNION ALL
+
+               -- Subconsulta 3: Pagos RP
+               SELECT p.recibido AS total, p.fecha
+               FROM pagos_a_facturasRP pf 
+               INNER JOIN pagos p ON pf.pago_id = p.pago_id
+               INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
+               WHERE p.fecha = curdate() AND p.metodo_pago_id = '$metodo_id'
+
+               UNION ALL
+
+               -- Subconsulta 4: Pagos ventas
+               SELECT p.recibido AS total, p.fecha
+               FROM pagos_a_facturas_ventas pf 
+               INNER JOIN pagos p ON pf.pago_id = p.pago_id
+               INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
+               WHERE p.fecha = curdate() AND p.metodo_pago_id = '$metodo_id'
+               
+            ) ventas_por_tipo_pago;";
+      }
 
       return $db->query($query)->fetch_object()->total;
    }
@@ -365,76 +418,124 @@ FROM (
    public static function getPurchaseToday()
    {
       $db = Database::connect();
-   
+      $config = Database::getConfig();
 
-      $query = "SELECT SUM(total) AS total
-FROM (
-    -- Subconsulta 1: Facturas ventas con detalles no vacíos (Desde la apertura del nuevo cierre de caja hasta ahora)
-    SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
-    FROM facturas_ventas f
-    LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
-    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
-    WHERE CONCAT(f.fecha, ' ', f.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(f.fecha, ' ', f.hora) <= NOW()  -- Hasta el momento actual
-    GROUP BY f.factura_venta_id
+      // Verificamos si 'auto_cierre' existe en la configuración y si es 'false'
+      $query = '';
 
-    UNION ALL
+      if (isset($config['auto_cierre']) && $config['auto_cierre'] === 'false') {
+         // Si 'auto_cierre' es 'false', ejecutamos la primera consulta
+         $query = "SELECT SUM(total) AS total
+    FROM (
+        -- Subconsulta 1: Facturas ventas con detalles no vacíos (Desde la apertura del nuevo cierre de caja hasta ahora)
+        SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
+        FROM facturas_ventas f
+        LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
+        LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+        INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
+        WHERE CONCAT(f.fecha, ' ', f.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+        )
+        AND CONCAT(f.fecha, ' ', f.hora) <= NOW()  -- Hasta el momento actual
+        GROUP BY f.factura_venta_id
 
-    -- Subconsulta 2: Facturas RP con detalles no vacíos (Desde la apertura del nuevo cierre de caja hasta ahora)
-    SELECT (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, fr.fecha
-    FROM facturasRP fr
-    LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
-    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
-    WHERE CONCAT(fr.fecha, ' ', fr.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(fr.fecha, ' ', fr.hora) <= NOW()  -- Hasta el momento actual
-    GROUP BY fr.facturaRP_id
+        UNION ALL
 
-    UNION ALL
+        -- Subconsulta 2: Facturas RP con detalles no vacíos (Desde la apertura del nuevo cierre de caja hasta ahora)
+        SELECT (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, fr.fecha
+        FROM facturasRP fr
+        LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
+        LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+        INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
+        WHERE CONCAT(fr.fecha, ' ', fr.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+        )
+        AND CONCAT(fr.fecha, ' ', fr.hora) <= NOW()  -- Hasta el momento actual
+        GROUP BY fr.facturaRP_id
 
-    -- Subconsulta 3: Pagos RP (Desde la apertura del nuevo cierre de caja hasta ahora)
-    SELECT p.recibido AS total, p.fecha
-    FROM pagos_a_facturasRP pf 
-    INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
+        UNION ALL
 
-    UNION ALL
+        -- Subconsulta 3: Pagos RP (Desde la apertura del nuevo cierre de caja hasta ahora)
+        SELECT p.recibido AS total, p.fecha
+        FROM pagos_a_facturasRP pf 
+        INNER JOIN pagos p ON pf.pago_id = p.pago_id
+        WHERE CONCAT(p.fecha, ' ', p.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+        )
+        AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
 
-    -- Subconsulta 4: Pagos ventas (Desde la apertura del nuevo cierre de caja hasta ahora)
-    SELECT p.recibido AS total, p.fecha
-    FROM pagos_a_facturas_ventas pf 
-    INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
+        UNION ALL
 
-) ventas_en_rango_cierre;";
+        -- Subconsulta 4: Pagos ventas (Desde la apertura del nuevo cierre de caja hasta ahora)
+        SELECT p.recibido AS total, p.fecha
+        FROM pagos_a_facturas_ventas pf 
+        INNER JOIN pagos p ON pf.pago_id = p.pago_id
+        WHERE CONCAT(p.fecha, ' ', p.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+        )
+        AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
 
+    ) ventas_en_rango_cierre;";
+      } else {
+         // Si 'auto_cierre' no es 'false' o no existe, usamos la consulta 'ventas_del_dia_actual'
+         $query = "SELECT SUM(total) AS total
+    FROM (
+        -- Subconsulta 1: Facturas ventas con detalles no vacíos 
+        SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
+        FROM facturas_ventas f
+        LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
+        LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+        INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
+        WHERE f.fecha = CURDATE()
+        GROUP BY f.factura_venta_id
+
+        UNION ALL
+
+        -- Subconsulta 2: Facturas RP con detalles no vacíos 
+        SELECT (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, fr.fecha
+        FROM facturasRP fr
+        LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
+        LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+        INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
+        WHERE fr.fecha = CURDATE()
+        GROUP BY fr.facturaRP_id
+
+        UNION ALL
+
+        -- Subconsulta 3: Pagos RP 
+        SELECT SUM(p.recibido) AS total, p.fecha
+        FROM pagos_a_facturasRP pf 
+        INNER JOIN pagos p ON pf.pago_id = p.pago_id
+        WHERE p.fecha = CURDATE()
+        GROUP BY p.pago_id
+
+        UNION ALL
+
+        -- Subconsulta 4: Pagos ventas 
+        SELECT SUM(p.recibido) AS total, p.fecha
+        FROM pagos_a_facturas_ventas pf 
+        INNER JOIN pagos p ON pf.pago_id = p.pago_id
+        WHERE p.fecha = CURDATE()
+        GROUP BY p.pago_id
+
+    ) ventas_del_dia_actual;";
+      }
 
       return $db->query($query)->fetch_object()->total;
    }
@@ -444,54 +545,87 @@ FROM (
    public static function getExpensesToday()
    {
       $db = Database::connect();
-   
-      $query = "SELECT SUM(total) AS total
-FROM (
-    -- Subconsulta 1: Gastos
-    SELECT SUM(g.pagado) AS total, g.fecha
-    FROM gastos g
-    WHERE CONCAT(DATE(g.fecha), ' ', g.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(DATE(g.fecha), ' ', g.hora) <= NOW()  -- Hasta el momento actual
-    GROUP BY g.fecha
+      $config = Database::getConfig();
 
-    UNION ALL
+      // Verificamos si 'auto_cierre' existe en la configuración y si es 'false'
+      $query = '';
 
-    -- Subconsulta 2: Facturas de Proveedores
-    SELECT SUM(f.pagado) AS total, f.fecha
-    FROM ordenes_compras o
-    INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
-    WHERE o.estado_id = 12
-    AND CONCAT(DATE(f.fecha), ' ', f.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(DATE(f.fecha), ' ', f.hora) <= NOW()  -- Hasta el momento actual
-    GROUP BY f.fecha
+      if (isset($config['auto_cierre']) && $config['auto_cierre'] === 'false') {
+         // Si 'auto_cierre' es 'false', ejecutamos la primera consulta
 
-    UNION ALL
+         $query = "SELECT SUM(total) AS total
+         FROM (
+            -- Subconsulta 1: Gastos
+            SELECT SUM(g.pagado) AS total, g.fecha
+            FROM gastos g
+            WHERE CONCAT(DATE(g.fecha), ' ', g.hora) >= (
+               SELECT fecha_apertura
+               FROM cierres_caja
+               WHERE estado = 'abierto'
+               ORDER BY fecha_apertura DESC
+               LIMIT 1
+            )
+            AND CONCAT(DATE(g.fecha), ' ', g.hora) <= NOW()  -- Hasta el momento actual
+            GROUP BY g.fecha
 
-    -- Subconsulta 3: Pagos Proveedores
-    SELECT SUM(p.recibido) AS total, p.fecha
-    FROM pagos_proveedores p
-    WHERE CONCAT(DATE(p.fecha), ' ', p.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(DATE(p.fecha), ' ', p.hora) <= NOW()  -- Hasta el momento actual
-    GROUP BY p.fecha
-) AS gastos_de_hoy;";
+            UNION ALL
+
+            -- Subconsulta 2: Facturas de Proveedores
+            SELECT SUM(f.pagado) AS total, f.fecha
+            FROM ordenes_compras o
+            INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
+            WHERE o.estado_id = 12
+            AND CONCAT(DATE(f.fecha), ' ', f.hora) >= (
+               SELECT fecha_apertura
+               FROM cierres_caja
+               WHERE estado = 'abierto'
+               ORDER BY fecha_apertura DESC
+               LIMIT 1
+            )
+            AND CONCAT(DATE(f.fecha), ' ', f.hora) <= NOW()  -- Hasta el momento actual
+            GROUP BY f.fecha
+
+            UNION ALL
+
+            -- Subconsulta 3: Pagos Proveedores
+            SELECT SUM(p.recibido) AS total, p.fecha
+            FROM pagos_proveedores p
+            WHERE CONCAT(DATE(p.fecha), ' ', p.hora) >= (
+               SELECT fecha_apertura
+               FROM cierres_caja
+               WHERE estado = 'abierto'
+               ORDER BY fecha_apertura DESC
+               LIMIT 1
+            )
+            AND CONCAT(DATE(p.fecha), ' ', p.hora) <= NOW()  -- Hasta el momento actual
+            GROUP BY p.fecha
+         ) AS gastos_en_rango_cierre;";
+      } else {
+
+         $query = "SELECT SUM(total) AS total
+         FROM (
+            -- Subconsulta 1: Gastos
+            SELECT SUM(g.pagado) AS total
+            FROM gastos g
+            WHERE DATE(g.fecha) = CURDATE()
+
+            UNION ALL
+
+            -- Subconsulta 2: Facturas de Proveedores
+            SELECT SUM(f.pagado) AS total
+            FROM ordenes_compras o
+            INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
+            WHERE o.estado_id = 12
+            AND DATE(f.fecha) = CURDATE()
+
+            UNION ALL
+
+            -- Subconsulta 3: Pagos Proveedores
+            SELECT SUM(p.recibido) AS total
+            FROM pagos_proveedores p
+            WHERE DATE(p.fecha) = CURDATE()
+         ) AS gastos_de_hoy;";
+      }
 
       return $db->query($query)->fetch_object()->total;
    }
@@ -500,53 +634,89 @@ FROM (
    public static function getOriginExpensesToday($origin)
    {
       $db = Database::connect();
-     
-      $query = "SELECT SUM(total) AS total
-FROM (
-    -- Subconsulta 1: Gastos
-    SELECT SUM(g.pagado) AS total
-    FROM gastos g
-    INNER JOIN ordenes_gastos o ON o.orden_id = g.orden_id
-    WHERE CONCAT(DATE(g.fecha), ' ', g.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(DATE(g.fecha), ' ', g.hora) <= NOW()  -- Hasta el momento actual
-    AND o.origen = '$origin'
+      $config = Database::getConfig();
 
-    UNION ALL
+      // Verificamos si 'auto_cierre' existe en la configuración y si es 'false'
+      $query = '';
 
-    -- Subconsulta 2: Facturas de Proveedores
-    SELECT SUM(f.pagado) AS total
-    FROM ordenes_compras o
-    INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
-    WHERE o.estado_id = 12
-    AND CONCAT(DATE(f.fecha), ' ', f.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(DATE(f.fecha), ' ', f.hora) <= NOW()  -- Hasta el momento actual
+      if (isset($config['auto_cierre']) && $config['auto_cierre'] === 'false') {
+         // Si 'auto_cierre' es 'false', ejecutamos la primera consulta
 
-    UNION ALL
 
-    -- Subconsulta 3: Pagos Proveedores
-    SELECT SUM(p.recibido) AS total
-    FROM pagos_proveedores p
-    WHERE CONCAT(DATE(p.fecha), ' ', p.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(DATE(p.fecha), ' ', p.hora) <= NOW()  -- Hasta el momento actual
-) AS origen_gastos;";
+         $query = "SELECT SUM(total) AS total
+         FROM (
+            -- Subconsulta 1: Gastos
+            SELECT SUM(g.pagado) AS total
+            FROM gastos g
+            INNER JOIN ordenes_gastos o ON o.orden_id = g.orden_id
+            WHERE CONCAT(DATE(g.fecha), ' ', g.hora) >= (
+               SELECT fecha_apertura
+               FROM cierres_caja
+               WHERE estado = 'abierto'
+               ORDER BY fecha_apertura DESC
+               LIMIT 1
+            )
+            AND CONCAT(DATE(g.fecha), ' ', g.hora) <= NOW()  -- Hasta el momento actual
+            AND o.origen = '$origin'
+
+            UNION ALL
+
+            -- Subconsulta 2: Facturas de Proveedores
+            SELECT SUM(f.pagado) AS total
+            FROM ordenes_compras o
+            INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
+            WHERE o.estado_id = 12
+            AND CONCAT(DATE(f.fecha), ' ', f.hora) >= (
+               SELECT fecha_apertura
+               FROM cierres_caja
+               WHERE estado = 'abierto'
+               ORDER BY fecha_apertura DESC
+               LIMIT 1
+            )
+            AND CONCAT(DATE(f.fecha), ' ', f.hora) <= NOW()  -- Hasta el momento actual
+
+            UNION ALL
+
+            -- Subconsulta 3: Pagos Proveedores
+            SELECT SUM(p.recibido) AS total
+            FROM pagos_proveedores p
+            WHERE CONCAT(DATE(p.fecha), ' ', p.hora) >= (
+               SELECT fecha_apertura
+               FROM cierres_caja
+               WHERE estado = 'abierto'
+               ORDER BY fecha_apertura DESC
+               LIMIT 1
+            )
+            AND CONCAT(DATE(p.fecha), ' ', p.hora) <= NOW()  -- Hasta el momento actual
+         ) AS origen_gastos_rango_cierre;";
+      } else {
+
+         $query = "SELECT SUM(total) AS total
+         FROM (
+            -- Subconsulta 1: Gastos
+            SELECT SUM(g.pagado) AS total
+            FROM gastos g
+            INNER JOIN ordenes_gastos o ON o.orden_id = g.orden_id
+            WHERE DATE(g.fecha) = CURDATE()
+            AND o.origen = '$origin'
+
+            UNION ALL
+
+            -- Subconsulta 2: Facturas de Proveedores
+            SELECT SUM(f.pagado) AS total
+            FROM ordenes_compras o
+            INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
+            WHERE o.estado_id = 12
+            AND DATE(f.fecha) = CURDATE()
+
+            UNION ALL
+
+            -- Subconsulta 3: Pagos Proveedores
+            SELECT SUM(p.recibido) AS total
+            FROM pagos_proveedores p
+            WHERE DATE(p.fecha) = CURDATE()
+         ) AS origen_gastos;";
+      }
 
       return $db->query($query)->fetch_object()->total;
    }
@@ -574,10 +744,6 @@ FROM (
    public static function getCashOpening()
    {
       $db = Database::connect();
-      $config = Database::getConfig();
-
-      $inicio = $config['hora_inicio'];
-      $final = $config['hora_final'];
 
       $query = "SELECT fecha_apertura, saldo_inicial, cierre_id
       FROM cierres_caja WHERE estado = 'abierto'
@@ -1278,92 +1444,154 @@ FROM (
       $db = Database::connect();
       $config = Database::getConfig();
 
-      $inicio = $config['hora_inicio'];
-      $final = $config['hora_final'];
+      // Verificamos si 'auto_cierre' existe en la configuración y si es 'false'
+      $query = '';
 
-      $query = "SELECT SUM(total) AS total, SUM(recibido) AS recibido, SUM(pendiente) AS pendiente, fecha_factura
-   FROM (
-    -- Subconsulta 1: Facturas ventas con detalles no vacíos (Desde la hora de inicio hasta 24 horas después)
-    SELECT 
-        (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, 
-        f.recibido AS recibido,
-        f.pendiente AS pendiente,
-        f.fecha AS fecha_factura
-    FROM facturas_ventas f
-    LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
-    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
-    WHERE CONCAT(f.fecha, ' ', f.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(f.fecha, ' ', f.hora) <= NOW()  -- Hasta el momento actual
-    GROUP BY f.factura_venta_id
+      if (isset($config['auto_cierre']) && $config['auto_cierre'] === 'false') {
+         // Si 'auto_cierre' es 'false', ejecutamos la primera consulta
 
-    UNION ALL
 
-    -- Subconsulta 2: Facturas RP con detalles no vacíos (Desde la hora de inicio hasta 24 horas después)
-    SELECT 
-        (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, 
-        fr.recibido AS recibido,
-        fr.pendiente AS pendiente,
-        fr.fecha AS fecha_factura
-    FROM facturasRP fr
-    LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
-    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
-    WHERE CONCAT(fr.fecha, ' ', fr.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(fr.fecha, ' ', fr.hora) <= NOW()  -- Hasta el momento actual
-    GROUP BY fr.facturaRP_id
+         $query = "SELECT SUM(total) AS total, SUM(recibido) AS recibido, SUM(pendiente) AS pendiente, fecha_factura
+         FROM (
+         -- Subconsulta 1: Facturas ventas con detalles no vacíos (Desde la hora de inicio hasta 24 horas después)
+         SELECT 
+            (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, 
+            f.recibido AS recibido,
+            f.pendiente AS pendiente,
+            f.fecha AS fecha_factura
+         FROM facturas_ventas f
+         LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
+         LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+         INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
+         WHERE CONCAT(f.fecha, ' ', f.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+         )
+         AND CONCAT(f.fecha, ' ', f.hora) <= NOW()  -- Hasta el momento actual
+         GROUP BY f.factura_venta_id
 
-    UNION ALL
+         UNION ALL
 
-    -- Subconsulta 3: Pagos RP (Desde la hora de inicio hasta 24 horas después)
-    SELECT 
-        p.recibido AS total, 
-        p.recibido AS recibido,
-        0 AS pendiente, 
-        p.fecha AS fecha_factura
-    FROM pagos_a_facturasRP pf 
-    INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
+         -- Subconsulta 2: Facturas RP con detalles no vacíos (Desde la hora de inicio hasta 24 horas después)
+         SELECT 
+            (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, 
+            fr.recibido AS recibido,
+            fr.pendiente AS pendiente,
+            fr.fecha AS fecha_factura
+         FROM facturasRP fr
+         LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
+         LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+         INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
+         WHERE CONCAT(fr.fecha, ' ', fr.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+         )
+         AND CONCAT(fr.fecha, ' ', fr.hora) <= NOW()  -- Hasta el momento actual
+         GROUP BY fr.facturaRP_id
 
-    UNION ALL
+         UNION ALL
 
-    -- Subconsulta 4: Pagos ventas (Desde la hora de inicio hasta 24 horas después)
-    SELECT 
-        p.recibido AS total, 
-        p.recibido AS recibido,
-        0 AS pendiente, 
-        p.fecha AS fecha_factura
-    FROM pagos_a_facturas_ventas pf 
-    INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= (
-        SELECT fecha_apertura
-        FROM cierres_caja
-        WHERE estado = 'abierto'
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    )
-    AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
+         -- Subconsulta 3: Pagos RP (Desde la hora de inicio hasta 24 horas después)
+         SELECT 
+            p.recibido AS total, 
+            p.recibido AS recibido,
+            0 AS pendiente, 
+            p.fecha AS fecha_factura
+         FROM pagos_a_facturasRP pf 
+         INNER JOIN pagos p ON pf.pago_id = p.pago_id
+         WHERE CONCAT(p.fecha, ' ', p.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+         )
+         AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
 
-) ventas_del_dia GROUP BY fecha_factura;";
+         UNION ALL
+
+         -- Subconsulta 4: Pagos ventas (Desde la hora de inicio hasta 24 horas después)
+         SELECT 
+            p.recibido AS total, 
+            p.recibido AS recibido,
+            0 AS pendiente, 
+            p.fecha AS fecha_factura
+         FROM pagos_a_facturas_ventas pf 
+         INNER JOIN pagos p ON pf.pago_id = p.pago_id
+         WHERE CONCAT(p.fecha, ' ', p.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+         )
+         AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
+
+      ) ventas_del_dia_rango_cierre GROUP BY fecha_factura;";
+
+      } else {
+
+         $query = "SELECT SUM(total) AS total,SUM(recibido) AS recibido,SUM(pendiente) AS pendiente,fecha_factura
+         FROM (
+            -- Subconsulta 1: Facturas de ventas del día
+            SELECT 
+               (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total,
+               f.recibido AS recibido,
+               f.pendiente AS pendiente,
+               f.fecha AS fecha_factura
+            FROM facturas_ventas f
+            LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
+            LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+            INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
+            WHERE DATE(f.fecha) = CURDATE()
+            GROUP BY f.factura_venta_id
+
+            UNION ALL
+
+            -- Subconsulta 2: Facturas RP del día
+            SELECT 
+               (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total,
+               fr.recibido AS recibido,
+               fr.pendiente AS pendiente,
+               fr.fecha AS fecha_factura
+            FROM facturasRP fr
+            LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
+            LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+            INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
+            WHERE DATE(fr.fecha) = CURDATE()
+            GROUP BY fr.facturaRP_id
+
+            UNION ALL
+
+            -- Subconsulta 3: Pagos RP del día
+            SELECT 
+               p.recibido AS total,
+               p.recibido AS recibido,
+               0 AS pendiente,
+               p.fecha AS fecha_factura
+            FROM pagos_a_facturasRP pf
+            INNER JOIN pagos p ON pf.pago_id = p.pago_id
+            WHERE DATE(p.fecha) = CURDATE()
+
+            UNION ALL
+
+            -- Subconsulta 4: Pagos ventas del día
+            SELECT 
+               p.recibido AS total,
+               p.recibido AS recibido,
+               0 AS pendiente,
+               p.fecha AS fecha_factura
+            FROM pagos_a_facturas_ventas pf
+            INNER JOIN pagos p ON pf.pago_id = p.pago_id
+            WHERE DATE(p.fecha) = CURDATE()
+         ) AS ventas_del_dia GROUP BY fecha_factura;";
+      }
 
       return $db->query($query);
    }
