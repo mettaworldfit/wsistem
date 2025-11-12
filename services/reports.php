@@ -159,7 +159,7 @@ if ($_POST['action'] == "index_ventas_hoy") {
         'tipo'
     ];
 
-    // Ordenamiento 
+    // Ordenamiento
     $orderColumnIndex = $_POST['order'][0]['column'] ?? 0;
     $orderColumn = $columns[$orderColumnIndex] ?? 'id';
     $orderDir = ($_POST['order'][0]['dir'] ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
@@ -169,82 +169,261 @@ if ($_POST['action'] == "index_ventas_hoy") {
     if (!empty($searchValue)) {
         $searchEscaped = $db->real_escape_string($searchValue);
         $searchQuery = " AND (
-        nombre LIKE '%$searchEscaped%' OR
-        apellidos LIKE '%$searchEscaped%' OR
-        tipo LIKE '%$searchEscaped%' OR
-        orden LIKE '%$searchEscaped%' OR
-        estado LIKE '%$searchEscaped%'
-      )";
+            nombre LIKE '%$searchEscaped%' OR
+            apellidos LIKE '%$searchEscaped%' OR
+            tipo LIKE '%$searchEscaped%' OR
+            orden LIKE '%$searchEscaped%' OR
+            estado LIKE '%$searchEscaped%'
+        )";
     }
 
+   // Contar el total de registros (sin filtros)
+$totalQuery = "SELECT COUNT(*) AS total
+    FROM (
+        -- Subconsulta 1: Facturas de Ventas
+        SELECT f.factura_venta_id AS id FROM facturas_ventas f
+        UNION ALL
+        -- Subconsulta 2: Facturas de RP
+        SELECT f.facturarp_id AS id FROM facturasRP f
+        UNION ALL
+        -- Subconsulta 3: Pagos de Facturas de Ventas
+        SELECT pg.pago_id AS id FROM pagos_a_facturas_ventas p 
+        INNER JOIN pagos pg ON pg.pago_id = p.pago_id
+        UNION ALL
+        -- Subconsulta 4: Pagos de Facturas de RP
+        SELECT pg.pago_id AS id FROM pagos_a_facturasRP p 
+        INNER JOIN pagos pg ON pg.pago_id = p.pago_id
+    ) AS all_data
+    WHERE id >= 0"; // Asegúrate de que esta condición es adecuada para tu caso
 
-    $totalQuery = "SELECT COUNT(*) AS total FROM (
-      SELECT f.fecha FROM facturas_ventas f 
-      UNION ALL
-      SELECT f.fecha FROM facturasRP f
-      UNION ALL
-      SELECT pg.fecha FROM pagos_a_facturas_ventas p INNER JOIN pagos pg ON pg.pago_id = p.pago_id
-      UNION ALL
-      SELECT pg.fecha FROM pagos_a_facturasRP p INNER JOIN pagos pg ON pg.pago_id = p.pago_id
-    ) AS all_data WHERE fecha = CURDATE()";
+$totalResult = $db->query($totalQuery);
+$totalRecords = $totalResult->fetch_assoc()['total'] ?? 0;
+
 
     $totalResult = $db->query($totalQuery);
     $totalRecords = $totalResult->fetch_assoc()['total'] ?? 0;
 
-    // Datos paginados y filtrados
+    // Contar los registros filtrados
+$filteredQuery = "SELECT COUNT(*) AS total
+    FROM (
+        -- Subconsulta 1: Facturas de Ventas
+        SELECT 
+            f.factura_venta_id AS id
+        FROM facturas_ventas f
+        INNER JOIN clientes c ON f.cliente_id = c.cliente_id
+        INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
+        INNER JOIN estados_generales s ON f.estado_id = s.estado_id
+        WHERE CONCAT(f.fecha, ' ', f.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+        )
+        AND CONCAT(f.fecha, ' ', f.hora) <= NOW()
 
-    $query = "SELECT id, tipo, orden, nombre, apellidos, total, recibido, pendiente, estado, fecha_factura, nombre_metodo FROM (
-      SELECT c.nombre, c.apellidos, f.factura_venta_id AS id, 'n/d' AS orden, f.fecha AS fecha_factura,
-             f.total, f.recibido, f.pendiente, s.nombre_estado AS estado, 'FT' AS tipo, m.nombre_metodo
-      FROM facturas_ventas f
-      INNER JOIN clientes c ON f.cliente_id = c.cliente_id
-      INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
-      INNER JOIN estados_generales s ON f.estado_id = s.estado_id
-    
-      UNION ALL
-    
-      SELECT c.nombre, c.apellidos, f.facturarp_id AS id, f.orden_rp_id AS orden, f.fecha AS fecha_factura,
-             f.total, f.recibido, f.pendiente, s.nombre_estado AS estado, 'RP' AS tipo, m.nombre_metodo
-      FROM facturasRP f
-      INNER JOIN clientes c ON f.cliente_id = c.cliente_id
-    INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
-      INNER JOIN estados_generales s ON f.estado_id = s.estado_id
-    
-      UNION ALL
-    
-      SELECT c.nombre, c.apellidos, pg.pago_id AS id, f.factura_venta_id AS orden, pg.fecha AS fecha_factura,
-             pg.recibido AS total, pg.recibido AS recibido, '0' AS pendiente, s.nombre_estado AS estado, 'PF' AS tipo, m.nombre_metodo
-      FROM pagos_a_facturas_ventas p
-      INNER JOIN pagos pg ON pg.pago_id = p.pago_id
-      INNER JOIN facturas_ventas f ON f.factura_venta_id = p.factura_venta_id
-      INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = pg.metodo_pago_id
-      INNER JOIN clientes c ON f.cliente_id = c.cliente_id
-      INNER JOIN estados_generales s ON f.estado_id = s.estado_id
-     WHERE (
-      s.nombre_estado = 'por cobrar'
-      OR (s.nombre_estado <> 'por cobrar' AND f.fecha <> pg.fecha)
-     )
-    
-      UNION ALL
-    
-      SELECT c.nombre, c.apellidos, pg.pago_id AS id, f.facturarp_id AS orden, pg.fecha AS fecha_factura,
-             pg.recibido AS total, pg.recibido AS recibido, '0' AS pendiente, s.nombre_estado AS estado, 'PR' AS tipo, m.nombre_metodo
-      FROM pagos_a_facturasRP p
-      INNER JOIN pagos pg ON pg.pago_id = p.pago_id
-      INNER JOIN facturasRP f ON f.facturarp_id = p.facturarp_id
-      INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = pg.metodo_pago_id
-      INNER JOIN clientes c ON f.cliente_id = c.cliente_id
-      INNER JOIN estados_generales s ON f.estado_id = s.estado_id
-      WHERE (
-      s.nombre_estado = 'por cobrar'
-      OR (s.nombre_estado <> 'por cobrar' AND f.fecha <> pg.fecha)
-     )
-    
-    ) ventas_del_dia 
-    WHERE fecha_factura = CURDATE() $searchQuery
+        UNION ALL
+
+        -- Subconsulta 2: Facturas de RP
+        SELECT 
+            f.facturarp_id AS id
+        FROM facturasRP f
+        INNER JOIN clientes c ON f.cliente_id = c.cliente_id
+        INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
+        INNER JOIN estados_generales s ON f.estado_id = s.estado_id
+        WHERE CONCAT(f.fecha, ' ', f.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+        )
+        AND CONCAT(f.fecha, ' ', f.hora) <= NOW()
+
+        UNION ALL
+
+        -- Subconsulta 3: Pagos de Facturas de Ventas
+        SELECT 
+            pg.pago_id AS id
+        FROM pagos_a_facturas_ventas p
+        INNER JOIN pagos pg ON pg.pago_id = p.pago_id
+        INNER JOIN facturas_ventas f ON f.factura_venta_id = p.factura_venta_id
+        INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = pg.metodo_pago_id
+        INNER JOIN clientes c ON f.cliente_id = c.cliente_id
+        INNER JOIN estados_generales s ON f.estado_id = s.estado_id
+        WHERE (
+            s.nombre_estado = 'por cobrar'
+            OR (s.nombre_estado <> 'por cobrar' AND f.fecha <> pg.fecha)
+        )
+        AND CONCAT(pg.fecha, ' ', pg.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+        )
+        AND CONCAT(pg.fecha, ' ', pg.hora) <= NOW()
+
+        UNION ALL
+
+        -- Subconsulta 4: Pagos de Facturas de RP
+        SELECT 
+            pg.pago_id AS id
+        FROM pagos_a_facturasRP p
+        INNER JOIN pagos pg ON pg.pago_id = p.pago_id
+        INNER JOIN facturasRP f ON f.facturarp_id = p.facturarp_id
+        INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = pg.metodo_pago_id
+        INNER JOIN clientes c ON f.cliente_id = c.cliente_id
+        INNER JOIN estados_generales s ON f.estado_id = s.estado_id
+        WHERE (
+            s.nombre_estado = 'por cobrar'
+            OR (s.nombre_estado <> 'por cobrar' AND f.fecha <> pg.fecha)
+        )
+        AND CONCAT(pg.fecha, ' ', pg.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+        )
+        AND CONCAT(pg.fecha, ' ', pg.hora) <= NOW()
+    ) AS ventas_del_dia
+    WHERE 1=1 $searchQuery";  // Añadir aquí el filtro de búsqueda
+
+$filteredResult = $db->query($filteredQuery);
+$filteredRecords = $filteredResult->fetch_assoc()['total'] ?? 0;
+
+
+    // Datos paginados y filtrados
+    $query = "SELECT id, tipo, orden, nombre, apellidos, total, recibido, pendiente, estado, fecha_factura, nombre_metodo 
+    FROM (
+        -- Subconsulta 1: Facturas de Ventas
+        SELECT 
+            c.nombre, 
+            c.apellidos, 
+            f.factura_venta_id AS id, 
+            'n/d' AS orden, 
+            f.fecha AS fecha_factura,
+            f.total, 
+            f.recibido, 
+            f.pendiente, 
+            s.nombre_estado AS estado, 
+            'FT' AS tipo, 
+            m.nombre_metodo
+        FROM facturas_ventas f
+        INNER JOIN clientes c ON f.cliente_id = c.cliente_id
+        INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
+        INNER JOIN estados_generales s ON f.estado_id = s.estado_id
+        WHERE CONCAT(f.fecha, ' ', f.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+        )
+        AND CONCAT(f.fecha, ' ', f.hora) <= NOW()
+
+        UNION ALL
+
+        -- Subconsulta 2: Facturas de RP
+        SELECT 
+            c.nombre, 
+            c.apellidos, 
+            f.facturarp_id AS id, 
+            f.orden_rp_id AS orden, 
+            f.fecha AS fecha_factura,
+            f.total, 
+            f.recibido, 
+            f.pendiente, 
+            s.nombre_estado AS estado, 
+            'RP' AS tipo, 
+            m.nombre_metodo
+        FROM facturasRP f
+        INNER JOIN clientes c ON f.cliente_id = c.cliente_id
+        INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
+        INNER JOIN estados_generales s ON f.estado_id = s.estado_id
+        WHERE CONCAT(f.fecha, ' ', f.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+        )
+        AND CONCAT(f.fecha, ' ', f.hora) <= NOW()
+
+        UNION ALL
+
+        -- Subconsulta 3: Pagos de Facturas de Ventas
+        SELECT 
+            c.nombre, 
+            c.apellidos, 
+            pg.pago_id AS id, 
+            f.factura_venta_id AS orden, 
+            pg.fecha AS fecha_factura,
+            pg.recibido AS total, 
+            pg.recibido AS recibido, 
+            '0' AS pendiente, 
+            s.nombre_estado AS estado, 
+            'PF' AS tipo, 
+            m.nombre_metodo
+        FROM pagos_a_facturas_ventas p
+        INNER JOIN pagos pg ON pg.pago_id = p.pago_id
+        INNER JOIN facturas_ventas f ON f.factura_venta_id = p.factura_venta_id
+        INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = pg.metodo_pago_id
+        INNER JOIN clientes c ON f.cliente_id = c.cliente_id
+        INNER JOIN estados_generales s ON f.estado_id = s.estado_id
+        WHERE (
+            s.nombre_estado = 'por cobrar'
+            OR (s.nombre_estado <> 'por cobrar' AND f.fecha <> pg.fecha)
+        )
+        AND CONCAT(pg.fecha, ' ', pg.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+        )
+        AND CONCAT(pg.fecha, ' ', pg.hora) <= NOW()
+
+        UNION ALL
+
+        -- Subconsulta 4: Pagos de Facturas de RP
+        SELECT 
+            c.nombre, 
+            c.apellidos, 
+            pg.pago_id AS id, 
+            f.facturarp_id AS orden, 
+            pg.fecha AS fecha_factura,
+            pg.recibido AS total, 
+            pg.recibido AS recibido, 
+            '0' AS pendiente, 
+            s.nombre_estado AS estado, 
+            'PR' AS tipo, 
+            m.nombre_metodo
+        FROM pagos_a_facturasRP p
+        INNER JOIN pagos pg ON pg.pago_id = p.pago_id
+        INNER JOIN facturasRP f ON f.facturarp_id = p.facturarp_id
+        INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = pg.metodo_pago_id
+        INNER JOIN clientes c ON f.cliente_id = c.cliente_id
+        INNER JOIN estados_generales s ON f.estado_id = s.estado_id
+        WHERE (
+            s.nombre_estado = 'por cobrar'
+            OR (s.nombre_estado <> 'por cobrar' AND f.fecha <> pg.fecha)
+        )
+        AND CONCAT(pg.fecha, ' ', pg.hora) >= (
+            SELECT fecha_apertura
+            FROM cierres_caja
+            WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1
+        )
+        AND CONCAT(pg.fecha, ' ', pg.hora) <= NOW()
+    ) ventas_del_dia
+    WHERE 1=1 $searchQuery
     ORDER BY $orderColumn $orderDir
     LIMIT $start, $length";
 
+    // Ejecutar la consulta
     $result = $db->query($query);
 
     // Crear arreglo de datos con formato HTML para cada celda
@@ -252,6 +431,7 @@ if ($_POST['action'] == "index_ventas_hoy") {
     while ($row = $result->fetch_assoc()) {
         $acciones = '';
 
+        // Generar botones de acción según el tipo de factura
         if ($row['tipo'] == 'FT') {
             if ($_SESSION['identity']->nombre_rol == 'administrador') {
                 $acciones .= '<a class="btn-action action-info" href="' . base_url . 'invoices/edit&id=' . $row['id'] . '" title="editar">'.BUTTON_EDIT.'</a>';
@@ -268,6 +448,7 @@ if ($_POST['action'] == "index_ventas_hoy") {
 
         $acciones .= '<span ';
 
+        // Agregar botón de eliminar según el rol
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
             $acciones .= 'class="action-danger btn-action"';
             if ($row['tipo'] == 'FT') {
@@ -288,16 +469,11 @@ if ($_POST['action'] == "index_ventas_hoy") {
         // Comprobar si la factura tiene detalles asociados
         $hasDetails = Help::checkIfInvoiceHasDetails($row['id'],$row['tipo']); 
 
-
         $data[] = [
-
             'id' => '<span>
-                <a href="#">
-                    ' . $row['tipo'] . '-00' . $row['id'] . '
-                </a>
+                <a href="#">' . $row['tipo'] . '-00' . $row['id'] . '</a>
                 <span id="toggle" class="toggle-right toggle-md">
-                ' . 'Método: ' . $row['nombre_metodo'] . '
-                </span>
+                ' . 'Método: ' . $row['nombre_metodo'] . '</span>
             </span>',
             'nombre' => ucwords($row['nombre'] . ' ' . $row['apellidos']),
             'fecha' => $row['fecha_factura'],
@@ -313,11 +489,12 @@ if ($_POST['action'] == "index_ventas_hoy") {
     echo json_encode([
         "draw" => $draw,
         "recordsTotal" => $totalRecords,
-        "recordsFiltered" => $totalRecords,
+        "recordsFiltered" => $filteredRecords,  // Ahora se cuenta correctamente los filtrados
         "data" => $data
     ]);
     exit();
 }
+
 
 
 if ($_POST['action'] == "productos_vendidos") {

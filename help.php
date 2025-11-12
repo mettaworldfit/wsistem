@@ -282,10 +282,7 @@ class Help
    public static function getDailySalesByPaymentMethod($metodo_id)
    {
       $db = Database::connect();
-      $config = Database::getConfig();
-
-      $inicio = $config['hora_inicio'];
-      $final = $config['hora_final'];
+      
 
       $query = "SELECT SUM(total) AS total 
 FROM (
@@ -295,8 +292,14 @@ FROM (
     INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
     LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE(), ' ', '$inicio')
-    AND CONCAT(f.fecha, ' ', f.hora) < DATE_ADD(CONCAT(CURDATE(), ' ', '$inicio'), INTERVAL 1 DAY)
+    WHERE CONCAT(f.fecha, ' ', f.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(f.fecha, ' ', f.hora) <= NOW()  -- Hasta el momento actual
     AND f.metodo_pago_id = '$metodo_id'
     GROUP BY f.factura_venta_id
 
@@ -308,8 +311,14 @@ FROM (
     INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = fr.metodo_pago_id
     LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(fr.fecha, ' ', fr.hora) >= CONCAT(CURDATE(), ' ', '$inicio')
-    AND CONCAT(fr.fecha, ' ', fr.hora) < DATE_ADD(CONCAT(CURDATE(), ' ', '$inicio'), INTERVAL 1 DAY)
+    WHERE CONCAT(fr.fecha, ' ', fr.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(fr.fecha, ' ', fr.hora) <= NOW()  -- Hasta el momento actual
     AND fr.metodo_pago_id = '$metodo_id'
     GROUP BY fr.facturaRP_id
 
@@ -320,8 +329,14 @@ FROM (
     FROM pagos_a_facturasRP pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
     INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' ', '$inicio')
-    AND CONCAT(p.fecha, ' ', p.hora) < DATE_ADD(CONCAT(CURDATE(), ' ', '$inicio'), INTERVAL 1 DAY)
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
     AND p.metodo_pago_id = '$metodo_id'
 
     UNION ALL
@@ -331,10 +346,17 @@ FROM (
     FROM pagos_a_facturas_ventas pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
     INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' ', '$inicio')
-    AND CONCAT(p.fecha, ' ', p.hora) < DATE_ADD(CONCAT(CURDATE(), ' ', '$inicio'), INTERVAL 1 DAY)
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
     AND p.metodo_pago_id = '$metodo_id'
-) ventas_por_tipo_pago;";
+) ventas_por_tipo_pago;
+";
 
       return $db->query($query)->fetch_object()->total;
    }
@@ -343,51 +365,75 @@ FROM (
    public static function getPurchaseToday()
    {
       $db = Database::connect();
-      $config = Database::getConfig();
+   
 
-      $inicio = $config['hora_inicio'];
-
-      $query = "SELECT SUM(total) AS total FROM (
-    -- Subconsulta 1: Facturas ventas con detalles no vacíos (Desde la hora de inicio hasta 24 horas después)
+      $query = "SELECT SUM(total) AS total
+FROM (
+    -- Subconsulta 1: Facturas ventas con detalles no vacíos (Desde la apertura del nuevo cierre de caja hasta ahora)
     SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
     FROM facturas_ventas f
     LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
     INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
-    WHERE CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE(), ' ', '$inicio') 
-    AND CONCAT(f.fecha, ' ', f.hora) < DATE_ADD(CONCAT(CURDATE(), ' ', '$inicio'), INTERVAL 1 DAY)
+    WHERE CONCAT(f.fecha, ' ', f.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(f.fecha, ' ', f.hora) <= NOW()  -- Hasta el momento actual
     GROUP BY f.factura_venta_id
 
     UNION ALL
 
-    -- Subconsulta 2: Facturas RP con detalles no vacíos (Desde la hora de inicio hasta 24 horas después)
+    -- Subconsulta 2: Facturas RP con detalles no vacíos (Desde la apertura del nuevo cierre de caja hasta ahora)
     SELECT (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total, fr.fecha
     FROM facturasRP fr
     LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
     INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
-    WHERE CONCAT(fr.fecha, ' ', fr.hora) >= CONCAT(CURDATE(), ' ', '$inicio')  
-    AND CONCAT(fr.fecha, ' ', fr.hora) < DATE_ADD(CONCAT(CURDATE(), ' ', '$inicio'), INTERVAL 1 DAY)
+    WHERE CONCAT(fr.fecha, ' ', fr.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(fr.fecha, ' ', fr.hora) <= NOW()  -- Hasta el momento actual
     GROUP BY fr.facturaRP_id
 
     UNION ALL
 
-    -- Subconsulta 3: Pagos RP (Desde la hora de inicio hasta 24 horas después)
+    -- Subconsulta 3: Pagos RP (Desde la apertura del nuevo cierre de caja hasta ahora)
     SELECT p.recibido AS total, p.fecha
     FROM pagos_a_facturasRP pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' ', '$inicio')  
-    AND CONCAT(p.fecha, ' ', p.hora) < DATE_ADD(CONCAT(CURDATE(), ' ', '$inicio'), INTERVAL 1 DAY)
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
 
     UNION ALL
 
-    -- Subconsulta 4: Pagos ventas (Desde la hora de inicio hasta 24 horas después)
+    -- Subconsulta 4: Pagos ventas (Desde la apertura del nuevo cierre de caja hasta ahora)
     SELECT p.recibido AS total, p.fecha
     FROM pagos_a_facturas_ventas pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' ', '$inicio')  
-    AND CONCAT(p.fecha, ' ', p.hora) < DATE_ADD(CONCAT(CURDATE(), ' ', '$inicio'), INTERVAL 1 DAY)
-) ventas_en_24_horas;";
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
+
+) ventas_en_rango_cierre;";
 
 
       return $db->query($query)->fetch_object()->total;
@@ -398,18 +444,20 @@ FROM (
    public static function getExpensesToday()
    {
       $db = Database::connect();
-      $config = Database::getConfig();
-
-      $inicio = $config['hora_inicio'];
-      $final = $config['hora_final'];
-
+   
       $query = "SELECT SUM(total) AS total
-      FROM (
+FROM (
     -- Subconsulta 1: Gastos
     SELECT SUM(g.pagado) AS total, g.fecha
     FROM gastos g
-    WHERE CONCAT(DATE(g.fecha), ' ', g.hora) >= CONCAT(CURDATE(), ' ', '$inicio')  
-    AND CONCAT(DATE(g.fecha), ' ', g.hora) < DATE_ADD(CONCAT(CURDATE(), ' ', '$inicio'), INTERVAL 1 DAY)  
+    WHERE CONCAT(DATE(g.fecha), ' ', g.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(DATE(g.fecha), ' ', g.hora) <= NOW()  -- Hasta el momento actual
     GROUP BY g.fecha
 
     UNION ALL
@@ -419,8 +467,14 @@ FROM (
     FROM ordenes_compras o
     INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
     WHERE o.estado_id = 12
-    AND CONCAT(DATE(f.fecha), ' ', f.hora) >= CONCAT(CURDATE(), ' ', '$inicio')  
-    AND CONCAT(DATE(f.fecha), ' ', f.hora) < DATE_ADD(CONCAT(CURDATE(), ' ', '$inicio'), INTERVAL 1 DAY)  
+    AND CONCAT(DATE(f.fecha), ' ', f.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(DATE(f.fecha), ' ', f.hora) <= NOW()  -- Hasta el momento actual
     GROUP BY f.fecha
 
     UNION ALL
@@ -428,8 +482,14 @@ FROM (
     -- Subconsulta 3: Pagos Proveedores
     SELECT SUM(p.recibido) AS total, p.fecha
     FROM pagos_proveedores p
-    WHERE CONCAT(DATE(p.fecha), ' ', p.hora) >= CONCAT(CURDATE(), ' ', '$inicio')  
-    AND CONCAT(DATE(p.fecha), ' ', p.hora) < DATE_ADD(CONCAT(CURDATE(), ' ', '$inicio'), INTERVAL 1 DAY)  
+    WHERE CONCAT(DATE(p.fecha), ' ', p.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(DATE(p.fecha), ' ', p.hora) <= NOW()  -- Hasta el momento actual
     GROUP BY p.fecha
 ) AS gastos_de_hoy;";
 
@@ -440,19 +500,21 @@ FROM (
    public static function getOriginExpensesToday($origin)
    {
       $db = Database::connect();
-      $config = Database::getConfig();
-
-      $inicio = $config['hora_inicio'];
-      $final = $config['hora_final'];
-
+     
       $query = "SELECT SUM(total) AS total
 FROM (
     -- Subconsulta 1: Gastos
     SELECT SUM(g.pagado) AS total
     FROM gastos g
     INNER JOIN ordenes_gastos o ON o.orden_id = g.orden_id
-    WHERE CONCAT(DATE(g.fecha), ' ', g.hora) >= CONCAT(CURDATE(), ' ', '$inicio')  
-    AND CONCAT(DATE(g.fecha), ' ', g.hora) < DATE_ADD(CONCAT(CURDATE(), ' ', '$inicio'), INTERVAL 1 DAY)  
+    WHERE CONCAT(DATE(g.fecha), ' ', g.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(DATE(g.fecha), ' ', g.hora) <= NOW()  -- Hasta el momento actual
     AND o.origen = '$origin'
 
     UNION ALL
@@ -462,16 +524,28 @@ FROM (
     FROM ordenes_compras o
     INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
     WHERE o.estado_id = 12
-    AND CONCAT(DATE(f.fecha), ' ', f.hora) >= CONCAT(CURDATE(), ' ', '$inicio')  
-    AND CONCAT(DATE(f.fecha), ' ', f.hora) < DATE_ADD(CONCAT(CURDATE(), ' ', '$inicio'), INTERVAL 1 DAY)
+    AND CONCAT(DATE(f.fecha), ' ', f.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(DATE(f.fecha), ' ', f.hora) <= NOW()  -- Hasta el momento actual
 
     UNION ALL
 
     -- Subconsulta 3: Pagos Proveedores
     SELECT SUM(p.recibido) AS total
     FROM pagos_proveedores p
-    WHERE CONCAT(DATE(p.fecha), ' ', p.hora) >= CONCAT(CURDATE(), ' ', '$inicio')  
-    AND CONCAT(DATE(p.fecha), ' ', p.hora) < DATE_ADD(CONCAT(CURDATE(), ' ', '$inicio'), INTERVAL 1 DAY)
+    WHERE CONCAT(DATE(p.fecha), ' ', p.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(DATE(p.fecha), ' ', p.hora) <= NOW()  -- Hasta el momento actual
 ) AS origen_gastos;";
 
       return $db->query($query)->fetch_object()->total;
@@ -506,10 +580,7 @@ FROM (
       $final = $config['hora_final'];
 
       $query = "SELECT fecha_apertura, saldo_inicial, cierre_id
-      FROM cierres_caja
-      WHERE CONCAT(DATE(fecha_apertura), ' ', TIME(fecha_apertura)) >= CONCAT(CURDATE(), ' ', '$inicio')  
-      AND CONCAT(DATE(fecha_apertura), ' ', TIME(fecha_apertura)) < DATE_ADD(CONCAT(CURDATE(), ' ', '$inicio'), INTERVAL 1 DAY)
-      AND estado = 'abierto'
+      FROM cierres_caja WHERE estado = 'abierto'
       ORDER BY cierre_id DESC
       LIMIT 1";
 
@@ -1222,8 +1293,14 @@ FROM (
     LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
     INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
-    WHERE CONCAT(f.fecha, ' ', f.hora) >= CONCAT(CURDATE(), ' ', '$inicio') 
-    AND CONCAT(f.fecha, ' ', f.hora) < CONCAT(CURDATE(), ' ', '$inicio') + INTERVAL 1 DAY
+    WHERE CONCAT(f.fecha, ' ', f.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(f.fecha, ' ', f.hora) <= NOW()  -- Hasta el momento actual
     GROUP BY f.factura_venta_id
 
     UNION ALL
@@ -1238,8 +1315,14 @@ FROM (
     LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
     INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
-    WHERE CONCAT(fr.fecha, ' ', fr.hora) >= CONCAT(CURDATE(), ' ', '$inicio')  
-    AND CONCAT(fr.fecha, ' ', fr.hora) < CONCAT(CURDATE(), ' ', '$inicio') + INTERVAL 1 DAY
+    WHERE CONCAT(fr.fecha, ' ', fr.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(fr.fecha, ' ', fr.hora) <= NOW()  -- Hasta el momento actual
     GROUP BY fr.facturaRP_id
 
     UNION ALL
@@ -1252,8 +1335,14 @@ FROM (
         p.fecha AS fecha_factura
     FROM pagos_a_facturasRP pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' ', '$inicio')  
-    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE(), ' ', '$inicio') + INTERVAL 1 DAY
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
 
     UNION ALL
 
@@ -1265,8 +1354,15 @@ FROM (
         p.fecha AS fecha_factura
     FROM pagos_a_facturas_ventas pf 
     INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= CONCAT(CURDATE(), ' ', '$inicio')  
-    AND CONCAT(p.fecha, ' ', p.hora) < CONCAT(CURDATE(), ' ', '$inicio') + INTERVAL 1 DAY
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+    )
+    AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
+
 ) ventas_del_dia GROUP BY fecha_factura;";
 
       return $db->query($query);
