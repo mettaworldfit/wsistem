@@ -10,11 +10,6 @@
                 <p>Reporte</p>
             </a>
         </div>
-
-        <div class="float-right">
-            <input type="date" class="form-custom form-control-sm" name="" id="date_query">
-        </div>
-
     </div>
 </div>
 

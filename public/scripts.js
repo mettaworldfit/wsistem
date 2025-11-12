@@ -909,6 +909,10 @@ $(document).ready(function () {
         $('#current_total').trigger('focus');
     });
 
+     $('#credit_invoice').on('shown.bs.modal', function () {
+        $('#credit-pay').trigger('focus');
+    });
+
     
     // Agregar el comando Ctrl+M para redirigir a la página de inicio
     addKeyboardCommand('Ctrl+M', SITE_URL + '/home/index');

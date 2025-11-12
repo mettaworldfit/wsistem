@@ -455,7 +455,7 @@ if ($_POST['action'] == "index_facturas_ventas") {
         'recibido' => '<span class="text-success hide-cell">' . number_format($row['recibido'] ?? 0, 2) . '</span>',
         'pendiente' => '<span class="text-danger hide-cell">' . number_format($row['pendiente'] ?? 0, 2) . '</span>',
         'bono' => '<span class="text-warning hide-cell">' . number_format($row['bono'] ?? 0, 2) . '</span>',
-        'nombre_estado' => $hasDetails ? '<p class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</p>' : '<p class="no-details">Vacio</p>',
+        'nombre_estado' => $hasDetails ? '<p class="' . $row['nombre_estado'] . '">' . $row['nombre_estado'] . '</p>' : '<p class="no-details">N/D</p>',
         'acciones' => $acciones,
       ];
     }
