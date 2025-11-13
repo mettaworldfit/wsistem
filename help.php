@@ -300,14 +300,14 @@ class Help
             LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
             LEFT JOIN pagos p ON pf.pago_id = p.pago_id
             INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
-            WHERE CONCAT(f.fecha, ' ', f.hora) >= (
-               SELECT DATE(fecha_apertura)
-               FROM cierres_caja
-               WHERE estado = 'abierto'
-               ORDER BY fecha_apertura DESC
-               LIMIT 1
-            )
-            AND CONCAT(f.fecha, ' ', f.hora) <= NOW()  -- Hasta el momento actual
+            WHERE CONCAT(f.fecha, ' ', f.hora) BETWEEN (
+            SELECT fecha_apertura
+            FROM cierres_caja WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1) AND COALESCE((SELECT DATE(fecha_cierre)
+            FROM cierres_caja
+            WHERE estado = 'abierto' ORDER BY fecha_apertura DESC
+            LIMIT 1),NOW())
             AND f.metodo_pago_id = '$metodo_id'
             GROUP BY f.factura_venta_id
 
@@ -320,14 +320,14 @@ class Help
             LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
             LEFT JOIN pagos p ON pf.pago_id = p.pago_id
             INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
-            WHERE CONCAT(fr.fecha, ' ', fr.hora) >= (
-               SELECT DATE(fecha_apertura)
-               FROM cierres_caja
-               WHERE estado = 'abierto'
-               ORDER BY fecha_apertura DESC
-               LIMIT 1
-            )
-            AND CONCAT(fr.fecha, ' ', fr.hora) <= NOW()  -- Hasta el momento actual
+             WHERE CONCAT(fr.fecha,' ',fr.hora) BETWEEN (
+            SELECT fecha_apertura
+            FROM cierres_caja WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1) AND COALESCE((SELECT DATE(fecha_cierre)
+            FROM cierres_caja
+            WHERE estado = 'abierto' ORDER BY fecha_apertura DESC
+            LIMIT 1),NOW())
             AND fr.metodo_pago_id = '$metodo_id'
             GROUP BY fr.facturaRP_id
 
@@ -338,14 +338,14 @@ class Help
             FROM pagos_a_facturasRP pf 
             INNER JOIN pagos p ON pf.pago_id = p.pago_id
             INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
-            WHERE CONCAT(p.fecha, ' ', p.hora) >= (
-               SELECT DATE(fecha_apertura)
-               FROM cierres_caja
-               WHERE estado = 'abierto'
-               ORDER BY fecha_apertura DESC
-               LIMIT 1
-            )
-            AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
+            WHERE CONCAT(p.fecha, ' ', p.hora) BETWEEN (
+            SELECT fecha_apertura
+            FROM cierres_caja WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1) AND COALESCE((SELECT DATE(fecha_cierre)
+            FROM cierres_caja
+            WHERE estado = 'abierto' ORDER BY fecha_apertura DESC
+            LIMIT 1),NOW())  
             AND p.metodo_pago_id = '$metodo_id'
 
             UNION ALL
@@ -355,14 +355,14 @@ class Help
             FROM pagos_a_facturas_ventas pf 
             INNER JOIN pagos p ON pf.pago_id = p.pago_id
             INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = p.metodo_pago_id
-            WHERE CONCAT(p.fecha, ' ', p.hora) >= (
-               SELECT DATE(fecha_apertura)
-               FROM cierres_caja
-               WHERE estado = 'abierto'
-               ORDER BY fecha_apertura DESC
-               LIMIT 1
-            )
-            AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
+            WHERE CONCAT(p.fecha, ' ', p.hora) BETWEEN (
+            SELECT fecha_apertura
+            FROM cierres_caja WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1) AND COALESCE((SELECT DATE(fecha_cierre)
+            FROM cierres_caja
+            WHERE estado = 'abierto' ORDER BY fecha_apertura DESC
+            LIMIT 1),NOW())  
             AND p.metodo_pago_id = '$metodo_id'
             ) ventas_por_tipo_pago_rango_cierre;";
       } else {
@@ -433,14 +433,20 @@ class Help
         LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
         LEFT JOIN pagos p ON pf.pago_id = p.pago_id
         INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
-        WHERE CONCAT(f.fecha, ' ', f.hora) >= (
-            SELECT DATE(fecha_apertura)
-            FROM cierres_caja
-            WHERE estado = 'abierto'
-            ORDER BY fecha_apertura DESC
-            LIMIT 1
-        )
-        AND CONCAT(f.fecha, ' ', f.hora) <= NOW()  -- Hasta el momento actual
+        WHERE CONCAT(f.fecha, ' ', f.hora) BETWEEN (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+        ) AND COALESCE(
+        (SELECT fecha_cierre
+         FROM cierres_caja
+         WHERE estado = 'abierto'
+         ORDER BY fecha_apertura DESC
+         LIMIT 1),
+        NOW()
+        ) 
         GROUP BY f.factura_venta_id
 
         UNION ALL
@@ -451,14 +457,20 @@ class Help
         LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
         LEFT JOIN pagos p ON pf.pago_id = p.pago_id
         INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
-        WHERE CONCAT(fr.fecha, ' ', fr.hora) >= (
-            SELECT DATE(fecha_apertura)
-            FROM cierres_caja
-            WHERE estado = 'abierto'
-            ORDER BY fecha_apertura DESC
-            LIMIT 1
-        )
-        AND CONCAT(fr.fecha, ' ', fr.hora) <= NOW()  -- Hasta el momento actual
+        WHERE CONCAT(fr.fecha, ' ', fr.hora) BETWEEN (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+        ) AND COALESCE(
+        (SELECT fecha_cierre
+         FROM cierres_caja
+         WHERE estado = 'abierto'
+         ORDER BY fecha_apertura DESC
+         LIMIT 1),
+        NOW()
+        ) 
         GROUP BY fr.facturaRP_id
 
         UNION ALL
@@ -467,14 +479,20 @@ class Help
         SELECT p.recibido AS total, p.fecha
         FROM pagos_a_facturasRP pf 
         INNER JOIN pagos p ON pf.pago_id = p.pago_id
-        WHERE CONCAT(p.fecha, ' ', p.hora) >= (
-            SELECT DATE(fecha_apertura)
-            FROM cierres_caja
-            WHERE estado = 'abierto'
-            ORDER BY fecha_apertura DESC
-            LIMIT 1
-        )
-        AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
+        WHERE CONCAT(p.fecha, ' ', p.hora) BETWEEN (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+        ) AND COALESCE(
+        (SELECT fecha_cierre
+         FROM cierres_caja
+         WHERE estado = 'abierto'
+         ORDER BY fecha_apertura DESC
+         LIMIT 1),
+        NOW()
+        ) 
 
         UNION ALL
 
@@ -482,14 +500,20 @@ class Help
         SELECT p.recibido AS total, p.fecha
         FROM pagos_a_facturas_ventas pf 
         INNER JOIN pagos p ON pf.pago_id = p.pago_id
-        WHERE CONCAT(p.fecha, ' ', p.hora) >= (
-            SELECT DATE(fecha_apertura)
-            FROM cierres_caja
-            WHERE estado = 'abierto'
-            ORDER BY fecha_apertura DESC
-            LIMIT 1
-        )
-        AND CONCAT(p.fecha, ' ', p.hora) <= NOW()  -- Hasta el momento actual
+        WHERE CONCAT(p.fecha, ' ', p.hora) BETWEEN (
+        SELECT fecha_apertura
+        FROM cierres_caja
+        WHERE estado = 'abierto'
+        ORDER BY fecha_apertura DESC
+        LIMIT 1
+        ) AND COALESCE(
+        (SELECT fecha_cierre
+         FROM cierres_caja
+         WHERE estado = 'abierto'
+         ORDER BY fecha_apertura DESC
+         LIMIT 1),
+        NOW()
+        ) 
 
     ) ventas_en_rango_cierre;";
 
@@ -560,14 +584,14 @@ class Help
             -- Subconsulta 1: Gastos
             SELECT SUM(g.pagado) AS total, g.fecha
             FROM gastos g
-            WHERE CONCAT(DATE(g.fecha), ' ', g.hora) >= (
-               SELECT DATE(fecha_apertura)
-               FROM cierres_caja
-               WHERE estado = 'abierto'
-               ORDER BY fecha_apertura DESC
-               LIMIT 1
-            )
-            AND CONCAT(DATE(g.fecha), ' ', g.hora) <= NOW()  -- Hasta el momento actual
+            WHERE CONCAT(g.fecha, ' ', g.hora) BETWEEN (
+            SELECT fecha_apertura
+            FROM cierres_caja WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1) AND COALESCE((SELECT DATE(fecha_cierre)
+            FROM cierres_caja
+            WHERE estado = 'abierto' ORDER BY fecha_apertura DESC
+            LIMIT 1),NOW())  
             GROUP BY g.fecha
 
             UNION ALL
@@ -577,14 +601,14 @@ class Help
             FROM ordenes_compras o
             INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
             WHERE o.estado_id = 12
-            AND CONCAT(DATE(f.fecha), ' ', f.hora) >= (
-               SELECT DATE(fecha_apertura)
-               FROM cierres_caja
-               WHERE estado = 'abierto'
-               ORDER BY fecha_apertura DESC
-               LIMIT 1
-            )
-            AND CONCAT(DATE(f.fecha), ' ', f.hora) <= NOW()  -- Hasta el momento actual
+            AND CONCAT(f.fecha, ' ', f.hora) BETWEEN (
+            SELECT fecha_apertura
+            FROM cierres_caja WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1) AND COALESCE((SELECT DATE(fecha_cierre)
+            FROM cierres_caja
+            WHERE estado = 'abierto' ORDER BY fecha_apertura DESC
+            LIMIT 1),NOW())  
             GROUP BY f.fecha
 
             UNION ALL
@@ -592,16 +616,18 @@ class Help
             -- Subconsulta 3: Pagos Proveedores
             SELECT SUM(p.recibido) AS total, p.fecha
             FROM pagos_proveedores p
-            WHERE CONCAT(DATE(p.fecha), ' ', p.hora) >= (
-               SELECT DATE(fecha_apertura)
-               FROM cierres_caja
-               WHERE estado = 'abierto'
-               ORDER BY fecha_apertura DESC
-               LIMIT 1
-            )
-            AND CONCAT(DATE(p.fecha), ' ', p.hora) <= NOW()  -- Hasta el momento actual
+            WHERE CONCAT(p.fecha, ' ',p.hora) BETWEEN (
+            SELECT fecha_apertura
+            FROM cierres_caja WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1) AND COALESCE((SELECT DATE(fecha_cierre)
+            FROM cierres_caja
+            WHERE estado = 'abierto' ORDER BY fecha_apertura DESC
+            LIMIT 1),NOW())  
             GROUP BY p.fecha
+            
          ) AS gastos_en_rango_cierre;";
+
       } else {
 
          $query = "SELECT SUM(total) AS total
@@ -651,14 +677,14 @@ class Help
             SELECT SUM(g.pagado) AS total
             FROM gastos g
             INNER JOIN ordenes_gastos o ON o.orden_id = g.orden_id
-            WHERE CONCAT(DATE(g.fecha), ' ', g.hora) >= (
-               SELECT DATE(fecha_apertura)
-               FROM cierres_caja
-               WHERE estado = 'abierto'
-               ORDER BY fecha_apertura DESC
-               LIMIT 1
-            )
-            AND CONCAT(DATE(g.fecha), ' ', g.hora) <= NOW()  -- Hasta el momento actual
+            WHERE CONCAT(g.fecha, ' ', g.hora) BETWEEN (
+            SELECT fecha_apertura
+            FROM cierres_caja WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1) AND COALESCE((SELECT DATE(fecha_cierre)
+            FROM cierres_caja
+            WHERE estado = 'abierto' ORDER BY fecha_apertura DESC
+            LIMIT 1),NOW())  
             AND o.origen = '$origin'
 
             UNION ALL
@@ -668,29 +694,29 @@ class Help
             FROM ordenes_compras o
             INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
             WHERE o.estado_id = 12
-            AND CONCAT(DATE(f.fecha), ' ', f.hora) >= (
-               SELECT DATE(fecha_apertura)
-               FROM cierres_caja
-               WHERE estado = 'abierto'
-               ORDER BY fecha_apertura DESC
-               LIMIT 1
-            )
-            AND CONCAT(DATE(f.fecha), ' ', f.hora) <= NOW()  -- Hasta el momento actual
+            AND CONCAT(f.fecha, ' ', f.hora) BETWEEN (
+            SELECT fecha_apertura
+            FROM cierres_caja WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1) AND COALESCE((SELECT DATE(fecha_cierre)
+            FROM cierres_caja
+            WHERE estado = 'abierto' ORDER BY fecha_apertura DESC
+            LIMIT 1),NOW())  
 
             UNION ALL
 
             -- Subconsulta 3: Pagos Proveedores
             SELECT SUM(p.recibido) AS total
             FROM pagos_proveedores p
-            WHERE CONCAT(DATE(p.fecha), ' ', p.hora) >= (
-               SELECT DATE(fecha_apertura)
-               FROM cierres_caja
-               WHERE estado = 'abierto'
-               ORDER BY fecha_apertura DESC
-               LIMIT 1
-            )
-            AND CONCAT(DATE(p.fecha), ' ', p.hora) <= NOW()  -- Hasta el momento actual
-         ) AS origen_gastos_rango_cierre;";
+            WHERE CONCAT(p.fecha, ' ', p.hora) BETWEEN (
+            SELECT fecha_apertura
+            FROM cierres_caja WHERE estado = 'abierto'
+            ORDER BY fecha_apertura DESC
+            LIMIT 1) AND COALESCE((SELECT DATE(fecha_cierre)
+            FROM cierres_caja
+            WHERE estado = 'abierto' ORDER BY fecha_apertura DESC
+            LIMIT 1),NOW())  
+               ) AS origen_gastos_rango_cierre;";
       } else {
 
          $query = "SELECT SUM(total) AS total
@@ -746,11 +772,25 @@ class Help
    public static function getCashOpening()
    {
       $db = Database::connect();
+      $config = Database::getConfig();
 
+      // Verificamos si 'auto_cierre' existe en la configuración y si es 'false'
+      $query = '';
+
+      if (isset($config['auto_cierre']) && $config['auto_cierre'] === 'false') {
+         // Si 'auto_cierre' es 'false', ejecutamos la primera consulta
       $query = "SELECT fecha_apertura, saldo_inicial, cierre_id
       FROM cierres_caja WHERE estado = 'abierto'
       ORDER BY cierre_id DESC
       LIMIT 1";
+
+      } else {
+
+      $query = "SELECT fecha_apertura, saldo_inicial, cierre_id
+      FROM cierres_caja WHERE estado = 'abierto' AND DATE(fecha_apertura) = CURDATE()
+      ORDER BY cierre_id DESC
+      LIMIT 1";
+      }
 
 
       return $db->query($query)->fetch_object();
@@ -1459,8 +1499,9 @@ class Help
          SELECT f.total AS total,f.recibido AS recibido,f.pendiente AS pendiente,f.fecha AS fecha_factura
          FROM facturas_ventas f
          INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
-         WHERE CONCAT(f.fecha, ' ', f.hora) >= (SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto'
-         ORDER BY fecha_apertura DESC LIMIT 1) AND CONCAT(f.fecha, ' ', f.hora) <= NOW()
+         WHERE CONCAT(f.fecha, ' ', f.hora) BETWEEN (
+         SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1) 
+         AND COALESCE((SELECT DATE(fecha_cierre) FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1),NOW())  
          GROUP BY f.factura_venta_id
 
          UNION ALL
@@ -1469,9 +1510,9 @@ class Help
          SELECT fr.total AS total, fr.recibido AS recibido,  fr.pendiente AS pendiente,fr.fecha AS fecha_factura
          FROM facturasRP fr
          INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
-         WHERE CONCAT(fr.fecha, ' ', fr.hora) >= (SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto'
-         ORDER BY fecha_apertura DESC LIMIT 1)
-         AND CONCAT(fr.fecha, ' ', fr.hora) <= NOW()
+           WHERE CONCAT(fr.fecha, ' ', fr.hora) BETWEEN (
+         SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1) 
+         AND COALESCE((SELECT DATE(fecha_cierre) FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1),NOW())  
          GROUP BY fr.facturaRP_id
 
          ) ventas_del_dia_rango_cierre GROUP BY fecha_factura;";
