@@ -2,7 +2,7 @@ navigator.serviceWorker && navigator.serviceWorker.register("../sw.js"); // Acti
 const PRINTER_SERVER = "http://localhost:81/tickets/"; // URL local de la impresora
 const SITE_URL = window.location.protocol + '//' + window.location.host + '/'; // Raiz del sistema
 
-// Version: 1.1.1
+// Version: 1.1.2
 
 let pageURL = $(location).attr("pathname");
 const format = new Intl.NumberFormat('en'); // Formato 0,000
@@ -909,11 +909,39 @@ $(document).ready(function () {
         $('#current_total').trigger('focus');
     });
 
-     $('#credit_invoice').on('shown.bs.modal', function () {
+    $('#credit_invoice').on('shown.bs.modal', function () {
         $('#credit-pay').trigger('focus');
     });
 
-    
+
+
+    $(function () {
+
+        // Función para obtener la fecha local formateada yyyy-mm-dd
+        function getFechaLocal() {
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        // CASH MODAL
+        $(document).on('shown.bs.modal', '#cash_invoice', function () {
+            const fecha = getFechaLocal();
+            console.log("Abriendo CASH modal:", fecha);
+            $('#cash-in-date').val(fecha);
+        });
+
+        // CREDIT MODAL
+        $(document).on('shown.bs.modal', '#credit_invoice', function () {
+            const fecha = getFechaLocal();
+            console.log("Abriendo CREDIT modal:", fecha);
+            $('#credit-in-date').val(fecha);
+        });
+
+    });
+
     // Agregar el comando Ctrl+M para redirigir a la página de inicio
     addKeyboardCommand('Ctrl+M', SITE_URL + '/home/index');
 
@@ -962,6 +990,6 @@ $(document).ready(function () {
 
 
 
-  
+
 
 }); // Ready

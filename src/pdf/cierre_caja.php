@@ -21,7 +21,7 @@ $id = $_REQUEST['id'];
 
 $query = "SELECT c.cierre_id,concat(u.nombre,' ',IFNULL(u.apellidos,'')) as cajero, c.total_esperado,
 c.total_real,c.diferencia,c.saldo_inicial,c.ingresos_efectivo,c.ingresos_tarjeta,
-c.ingresos_transferencia,c.egresos_caja,c.egresos_fuera,c.retiros,c.reembolsos,c.ingresos_cheque,
+c.ingresos_transferencia,c.egresos_caja,c.egresos_fuera,c.retiros,c.reembolsos,efectivo_caja,c.ingresos_cheque,
 c.fecha_apertura,c.fecha_cierre,c.observaciones,c.estado FROM cierres_caja c
 INNER JOIN usuarios u ON u.usuario_id = c.usuario_id WHERE c.cierre_id = '$id'";
 
@@ -29,7 +29,6 @@ $result = $db->query($query);
 $data = $result->fetch_object();
 
 // Variables de ejemplo
-$nombrePuntoVenta = "POS HERNAN";
 $fechaCierre = $data->fecha_cierre;
 $fechaApertura = $data->fecha_apertura;
 $cajero = $data->cajero;
@@ -37,6 +36,7 @@ $cierreNumero = $data->cierre_id;
 
 $montoInicial = $data->saldo_inicial;
 $total_esperado = $data->total_esperado;
+$efectivo_caja = $data->efectivo_caja;
 $totalCierre = $data->total_real;
 
 $efectivo = $data->ingresos_efectivo;
@@ -55,16 +55,7 @@ $nota = $data->observaciones;
 date_default_timezone_set('America/Santo_Domingo');
 $datetimeRD = date('Y-m-d\TH:i');
 
-$query3 = "SELECT * FROM configuraciones";
-
-    $conf = $db->query($query3);
-
-    $config = [];
-
-    while ($row = $conf->fetch_object()) {
-        // Asignar cada valor basado en la clave
-        $config[$row->config_key] = $row->config_value;
-    }
+$config = Database::getConfig();
 
     // Asignar las configuraciones a las variables
     $Logo_pdf = isset($config['logo']) ? $config['logo'] : '';
@@ -124,9 +115,9 @@ $html = "
       <td><strong>Total del Cierre</strong></td>
       <td class='right bold'>\$" . number_format($totalCierre, 2) . "</td>
     </tr>
-     <tr>
+    <tr>
       <td>Total efectivo en caja</td>
-      <td class='right'>\$" . number_format($total_esperado, 2) . "</td>
+      <td class='right'>\$" . number_format($efectivo_caja, 2) . "</td>
     </tr>
     <tr>
       <td>Diferencia</td>

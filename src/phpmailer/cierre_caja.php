@@ -4,7 +4,7 @@ session_start();
 
 if (!isset($_SESSION['identity'])) {
 
-    header('location: ../');
+  header('location: ../');
 }
 
 require '../../vendor/autoload.php';
@@ -19,57 +19,57 @@ use PHPMailer\PHPMailer\Exception;
 
 if (!empty($_REQUEST['id'])) {
 
-    $db = Database::connect();
+  $db = Database::connect();
 
-    $id = $_REQUEST['id'];
+  $id = $_REQUEST['id'];
 
-    $query = "SELECT c.cierre_id,concat(u.nombre,' ',IFNULL(u.apellidos,'')) as cajero, c.total_esperado,
+  $query = "SELECT c.cierre_id,concat(u.nombre,' ',IFNULL(u.apellidos,'')) as cajero, c.total_esperado,
 c.total_real,c.diferencia,c.saldo_inicial,c.ingresos_efectivo,c.ingresos_tarjeta,
 c.ingresos_transferencia,c.egresos_caja,c.egresos_fuera,c.retiros,c.reembolsos,c.ingresos_cheque,
 c.fecha_apertura,c.fecha_cierre,c.observaciones,c.estado FROM cierres_caja c
 INNER JOIN usuarios u ON u.usuario_id = c.usuario_id WHERE c.cierre_id = '$id'";
 
-    $result = $db->query($query);
-    $data = $result->fetch_object();
+  $result = $db->query($query);
+  $data = $result->fetch_object();
 
-    // Variables
-    $fechaCierre = $data->fecha_cierre;
-    $fechaApertura = $data->fecha_apertura;
-    $cajero = $data->cajero;
-    $cierreNumero = $data->cierre_id;
+  // Variables
+  $fechaCierre = $data->fecha_cierre;
+  $fechaApertura = $data->fecha_apertura;
+  $cajero = $data->cajero;
+  $cierreNumero = $data->cierre_id;
 
-    $montoInicial = $data->saldo_inicial;
-    $total_esperado = $data->total_esperado;
-    $totalCierre = $data->total_real;
+  $montoInicial = $data->saldo_inicial;
+  $total_esperado = $data->total_esperado;
+  $totalCierre = $data->total_real;
 
-    $efectivo = $data->ingresos_efectivo;
-    $transferencia = $data->ingresos_transferencia;
-    $tarjeta = $data->ingresos_tarjeta;
-    $cheque = $data->ingresos_cheque;
+  $efectivo = $data->ingresos_efectivo;
+  $transferencia = $data->ingresos_transferencia;
+  $tarjeta = $data->ingresos_tarjeta;
+  $cheque = $data->ingresos_cheque;
 
-    $diferencia = $data->diferencia;
+  $diferencia = $data->diferencia;
 
-    $gastos_caja = $data->egresos_caja;
-    $gastos_fuera = $data->egresos_fuera;
-    $reembolsos = $data->reembolsos;
-    $retiros = $data->retiros;
-    $nota = $data->observaciones;
+  $gastos_caja = $data->egresos_caja;
+  $gastos_fuera = $data->egresos_fuera;
+  $reembolsos = $data->reembolsos;
+  $retiros = $data->retiros;
+  $nota = $data->observaciones;
 
-    date_default_timezone_set('America/Santo_Domingo');
-    $datetimeRD = date('Y-m-d\TH:i');
+  date_default_timezone_set('America/Santo_Domingo');
+  $datetimeRD = date('Y-m-d\TH:i');
 
-    $query_conf = "SELECT logo_pdf,tel,direccion,empresa,condiciones,titulo 
+  $query_conf = "SELECT logo_pdf,tel,direccion,empresa,condiciones,titulo 
 	           FROM configuraciones WHERE config_id = 1";
 
-    $conf = $db->query($query_conf)->fetch_object();
+  $conf = $db->query($query_conf)->fetch_object();
 
-    $Logo_pdf = $conf->logo_pdf;
-    $empresa = $conf->empresa;
+  $Logo_pdf = $conf->logo_pdf;
+  $empresa = $conf->empresa;
 
-    $nombreImagen = base_url . $Logo_pdf;
-    $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nombreImagen));
+  $nombreImagen = base_url . $Logo_pdf;
+  $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nombreImagen));
 
-    $html = "
+  $html = "
 <!DOCTYPE html>
 <html lang='es'>
 <head>
@@ -174,130 +174,129 @@ INNER JOIN usuarios u ON u.usuario_id = c.usuario_id WHERE c.cierre_id = '$id'";
 ";
 
 
-    // ==================================
-    // Generación del PDF con dompdf
-    // ==================================    
+  // ==================================
+  // Generación del PDF con dompdf
+  // ==================================    
 
-    $options = new Options();
-    $options->set('isRemoteEnabled', TRUE);
+  $options = new Options();
+  $options->set('isRemoteEnabled', TRUE);
 
-    $dompdf = new Dompdf($options); // Instanciar dompdf
+  $dompdf = new Dompdf($options); // Instanciar dompdf
 
-    // Cargar plantilla HTML
-    $dompdf->loadHtml($html);
+  // Cargar plantilla HTML
+  $dompdf->loadHtml($html);
 
-    // Configurar el tamaño de papel y la orientación (opcional)
-    $dompdf->setPaper('letter', 'portrait');
-    // Renderizar el HTML como PDF
-    $dompdf->render();
+  // Configurar el tamaño de papel y la orientación (opcional)
+  $dompdf->setPaper('letter', 'portrait');
+  // Renderizar el HTML como PDF
+  $dompdf->render();
 
-    // Obtener el contenido del PDF en una variable
-    $pdfOutput = $dompdf->output();
+  // Obtener el contenido del PDF en una variable
+  $pdfOutput = $dompdf->output();
 
 
-      // ==============================================================
-    // Obtener configuracion del servidor SMTP desde la base de datos
-    // ==============================================================
+  // ==============================================================
+  // Obtener configuracion del servidor SMTP desde la base de datos
+  // ==============================================================
 
-    $query3 = "SELECT * FROM configuraciones";
+  $config = Database::getConfig();
 
-    $conf = $db->query($query3);
+  // Asignar las configuraciones a las variables
+  $Host = isset($config['servidor']) ? $config['servidor'] : '';
+  $Pass = isset($config['password']) ? $config['password'] : '';
+  $Email = isset($config['correo_servidor']) ? $config['correo_servidor'] : '';
+  $Email_adm = isset($config['correo_adm']) ? $config['correo_adm'] : '';
+  $Company = isset($config['empresa_name']) ? $config['empresa_name'] : '';
+  $Port = isset($config['puerto']) ? $config['puerto'] : '';
+  $SMTPS = isset($config['smtps']) ? $config['smtps'] : '';
+  $Logo_url = isset($config['logo_url']) ? $config['logo_url'] : '';
+  $Logo_pdf = isset($config['logo']) ? $config['logo'] : '';
+  $Slogan = isset($config['slogan']) ? $config['slogan'] : '';
+  $Tel = isset($config['telefono']) ? $config['telefono'] : '';
+  $Dir = isset($config['direccion']) ? $config['direccion'] : '';
+  $Policy = isset($config['condiciones']) ? $config['condiciones'] : '';
+  $Title = isset($config['titulo']) ? $config['titulo'] : '';
 
-    $config = [];
+  // Redes sociales
+  $Link_ws = isset($config['link_whatsapp']) ? $config['link_whatsapp'] : '';
+  $Link_fb = isset($config['link_facebook']) ? $config['link_facebook'] : '';
+  $Link_ig = isset($config['link_instagram']) ? $config['link_instagram'] : '';
 
-    while ($row = $conf->fetch_object()) {
-        // Asignar cada valor basado en la clave
-        $config[$row->config_key] = $row->config_value;
+
+  // ===========================================
+  // Envío del PDF mediante PHPMailer
+  // ===========================================
+
+  $mail = new PHPMailer(true); // Instancia de PHPMailer
+  $mail->SMTPOptions = array(
+    'ssl' => array(
+      'verify_peer' => false,
+      'verify_peer_name' => false,
+      'allow_self_signed' => true
+    )
+  );
+
+  try {
+
+    $mail->isSMTP();
+    $mail->CharSet = 'UTF-8';
+
+    // CAMBIA ESTA VARIABLE SEGÚN TU CONFIGURACIÓN
+
+    $smtpHost = $Host; // o 'smtp.gmail.com', etc.
+    $mail->Host = $smtpHost;
+
+    // Puerto recomendado para localhost (sin TLS)
+    $mail->Port = ($smtpHost === 'localhost') ? 25 : $Port;
+
+    // Si no es localhost, activamos TLS y autenticación
+    if ($smtpHost !== 'localhost') {
+      $mail->SMTPAuth = true;
+      $mail->SMTPSecure = $SMTPS;
+      $mail->Username = $Email;
+      $mail->Password = $Pass;
+    } else {
+      $mail->SMTPAuth = false;
     }
 
-    // Asignar las configuraciones a las variables
-    $Host = isset($config['servidor']) ? $config['servidor'] : '';
-    $Pass = isset($config['password']) ? $config['password'] : '';
-    $Email = isset($config['correo_servidor']) ? $config['correo_servidor'] : '';
-    $Email_adm = isset($config['correo_adm']) ? $config['correo_adm'] : '';
-    $Company = isset($config['empresa_name']) ? $config['empresa_name'] : '';
-    $Port = isset($config['puerto']) ? $config['puerto'] : '';
-    $SMTPS = isset($config['smtps']) ? $config['smtps'] : '';
-    $Logo_url = isset($config['logo_url']) ? $config['logo_url'] : '';
-    $Logo_pdf = isset($config['logo']) ? $config['logo'] : '';
-    $Slogan = isset($config['slogan']) ? $config['slogan'] : '';
-    $Tel = isset($config['telefono']) ? $config['telefono'] : '';
-    $Dir = isset($config['direccion']) ? $config['direccion'] : '';
-    $Policy = isset($config['condiciones']) ? $config['condiciones'] : '';
-    $Title = isset($config['titulo']) ? $config['titulo'] : '';
+    // Remitente
+    $mail->setFrom($Email, $Company);
 
-    // Redes sociales
-    $Link_ws = isset($config['link_whatsapp']) ? $config['link_whatsapp'] : '';
-    $Link_fb = isset($config['link_facebook']) ? $config['link_facebook'] : '';
-    $Link_ig = isset($config['link_instagram']) ? $config['link_instagram'] : '';
+    // Destinatario principal 
+    $Email_adm = trim($Email_adm ?? '');
 
-
-    // ===========================================
-    // Envío del PDF mediante PHPMailer
-    // ===========================================
-
-    $mail = new PHPMailer(true); // Instancia de PHPMailer
-    $mail->SMTPOptions = array(
-        'ssl' => array(
-            'verify_peer' => false,
-            'verify_peer_name' => false,
-            'allow_self_signed' => true
-        )
-    );
-
-    try {
-
-        $mail->isSMTP();
-        $mail->CharSet = 'UTF-8';
-
-        // CAMBIA ESTA VARIABLE SEGÚN TU CONFIGURACIÓN
-
-        $smtpHost = $Host; // o 'smtp.gmail.com', etc.
-        $mail->Host = $smtpHost;
-
-        // Puerto recomendado para localhost (sin TLS)
-        $mail->Port = ($smtpHost === 'localhost') ? 25 : $Port;
-
-        // Si no es localhost, activamos TLS y autenticación
-        if ($smtpHost !== 'localhost') {
-            $mail->SMTPAuth = true;
-            $mail->SMTPSecure = $SMTPS;
-            $mail->Username = $Email;
-            $mail->Password = $Pass;
-        } else {
-            $mail->SMTPAuth = false;
-        }
-
-        // Remitente
-        $mail->setFrom($Email, $Company);
-
-        // Destinatario principal 
-        $mail->addAddress($Email_adm, $Company);
-
-        // Segundo destinatario oculto (BCC)
-        $mail->addBCC('contacto@wsistems.com', 'Administrador del Sistema');
-
-        // Contenido del correo
-        $mail->isHTML(true); // Establecer el formato de correo 
-        $mail->Subject = 'Reporte cierre de caja - '. $Company;
-        $mail->Body    = 'Este correo contiene un PDF';
-
-        // Adjuntar el PDF directamente desde la variable
-        $mail->addStringAttachment($pdfOutput, 'cierre.pdf');
-
-        ob_start();
-        include('facturas/cierre_caja.php');
-        $html = ob_get_clean();
-
-        // Asigna el contenido HTML al cuerpo del correo
-        $mail->Body = $html;
-
-        $mail->send(); // Enviar correo
-
-        echo 'El correo ha sido enviado correctamente';
-    } catch (Exception $e) {
-        echo "El correo no pudo ser enviado. Error: {$mail->ErrorInfo}";
+    if (!empty($Email_adm)) {
+      // Si tiene un email válido → lo usa
+      $mail->addAddress($Email_adm, $Company);
+    } else {
+      // Si NO existe o está vacío → usa un correo seguro o el correo del sistema
+      $mail->addAddress("no-responder@tudominio.com", $Company);
     }
+
+    // Segundo destinatario oculto (BCC)
+    $mail->addBCC('contacto@wsistems.com', 'Administrador del Sistema');
+
+    // Contenido del correo
+    $mail->isHTML(true); // Establecer el formato de correo 
+    $mail->Subject = 'Reporte cierre de caja - ' . $Company;
+    $mail->Body    = 'Este correo contiene un PDF';
+
+    // Adjuntar el PDF directamente desde la variable
+    $mail->addStringAttachment($pdfOutput, 'cierre.pdf');
+
+    ob_start();
+    include('facturas/cierre_caja.php');
+    $html = ob_get_clean();
+
+    // Asigna el contenido HTML al cuerpo del correo
+    $mail->Body = $html;
+
+    $mail->send(); // Enviar correo
+
+    echo 'El correo ha sido enviado correctamente';
+  } catch (Exception $e) {
+    echo "El correo no pudo ser enviado. Error: {$mail->ErrorInfo}";
+  }
 } else {
-    echo "No es posible generar la factura.";
+  echo "No es posible generar la factura.";
 }

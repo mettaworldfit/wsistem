@@ -213,7 +213,7 @@ function cashClosing() {
             $('.float-right').load(window.location.href + ' .float-right > *');
             mysql_row_affected()
 
-          // sendCashClosing(res) // Enviar el cierr de caja por correo
+           sendCashClosing(res) // Enviar el cierr de caja por correo
         },
         errorCallback: (res) => mysql_error(res),
         verbose: false
