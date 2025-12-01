@@ -1,6 +1,6 @@
 navigator.serviceWorker && navigator.serviceWorker.register("../sw.js"); // Activacion del service worker
 const PRINTER_SERVER = "http://localhost:81/tickets/"; // URL local de la impresora
-const SITE_URL = window.location.protocol + '//' + window.location.host + '/'; // Raiz del sistema
+const SITE_URL = window.location.protocol + '//' + window.location.host + '/' + 'proyecto/'; // Raiz del sistema
 
 // Version: 1.1.2
 
@@ -917,30 +917,38 @@ $(document).ready(function () {
 
     $(function () {
 
-        // Función para obtener la fecha local formateada yyyy-mm-dd
-        function getFechaLocal() {
-            const now = new Date();
-            const yyyy = now.getFullYear();
-            const mm = String(now.getMonth() + 1).padStart(2, '0');
-            const dd = String(now.getDate()).padStart(2, '0');
-            return `${yyyy}-${mm}-${dd}`;
+        // Función que obtiene la fecha desde el servidor vía AJAX
+        function getFechaServidor(callback) {
+            sendAjaxRequest({
+                url: "services/config.php",
+                data: {
+                    action: 'fecha_actual'
+                },
+                successCallback: (res) => {
+                    callback(res);
+                    console.log(res)
+                }
+            });
         }
 
         // CASH MODAL
         $(document).on('shown.bs.modal', '#cash_invoice', function () {
-            const fecha = getFechaLocal();
-            console.log("Abriendo CASH modal:", fecha);
-            $('#cash-in-date').val(fecha);
+            getFechaServidor(function (fecha) {
+                console.log("Fecha del servidor (CASH):", fecha);
+                $('#cash-in-date').val(fecha);
+            });
         });
 
         // CREDIT MODAL
         $(document).on('shown.bs.modal', '#credit_invoice', function () {
-            const fecha = getFechaLocal();
-            console.log("Abriendo CREDIT modal:", fecha);
-            $('#credit-in-date').val(fecha);
+            getFechaServidor(function (fecha) {
+                console.log("Fecha del servidor (CREDIT):", fecha);
+                $('#credit-in-date').val(fecha);
+            });
         });
 
     });
+
 
     // Agregar el comando Ctrl+M para redirigir a la página de inicio
     addKeyboardCommand('Ctrl+M', SITE_URL + '/home/index');

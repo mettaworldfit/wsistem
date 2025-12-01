@@ -109,3 +109,10 @@ if ($_POST['action'] == 'ajustes_factura_pdf') {
     echo "Error : " . $data->msg;
   }
 }
+
+if ($_POST['action'] == 'fecha_actual') {
+
+   // Devuelve la fecha del servidor en formato YYYY-MM-DD
+    echo date('Y-m-d');
+    exit;
+}

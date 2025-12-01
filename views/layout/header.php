@@ -137,7 +137,7 @@
                     <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/service.png" alt="">
                     Agregar servicio</a></li>
 
-                    <li><a href="<?= base_url ?>reports/querys">
+                <li><a href="<?= base_url ?>reports/querys">
                     <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/analytics.png" alt="">
                     Consultas</a></li>
               </ul>
