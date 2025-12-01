@@ -5,8 +5,8 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=0.9, user-scalable=si, shrink-to-fit=no">
-  <meta name="title" content="Sistema de Control de Inventario">
-  <meta name="description" content="Obtenga el control de su negocio desde cualquier lugar, vea estadísticas de ventas, stock, etc, “wsistems” es un Sistema de Ventas Web que te ayudará a obtener todos estos beneficios, desarrollado para tener el control total de un negocio en forma ordenada, sencilla y efectiva, posee los módulos necesarios con diferentes funciones que te permitirá administrar tu negocio." />
+  <meta name="title" content="wsistems | Plataforma de Control de inventario, Ventas y Gestión Empresarial">
+  <meta name="description" content="Administra tu negocio desde cualquier lugar. Visualiza ventas, inventario, estadísticas y reportes en tiempo real. WSistems es un sistema de gestión completo, moderno y fácil de usar, diseñado para ofrecerte control total y una operación más ordenada y eficiente." />
   <meta name="author" content="codevrd">
   <meta http-equiv="cache-control" content="no-cache">
   <meta http-equiv="expires" content="86400">
@@ -14,8 +14,8 @@
 
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="application-name" content="cubic cloud">
-  <meta name="apple-mobile-web-app-title" content="cubic cloud">
+  <meta name="application-name" content="wsistems">
+  <meta name="apple-mobile-web-app-title" content="wsistems">
   <meta name="theme-color" content="#000000">
   <meta name="msapplication-navbutton-color" content="#000000">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -23,7 +23,7 @@
   <link rel="shortcut icon" href="<?= base_url ?>public/imagen/sistem/icon.ico" type="image/x-icon">
 
   <script src="<?= base_url ?>public/jquery/jquery.js"></script>
-  <script src="<?= base_url ?>public/scripts.js"></script>
+  <script src="<?= base_url ?>public/scripts.js?v=<?= APP_VERSION ?>"></script>
 
   <link rel="manifest" href="<?= base_url ?>manifest.json">
   <script src="<?= base_url ?>sw.js" type="text/javascript"></script>
@@ -33,11 +33,11 @@
 
   <?php if (isset($_SESSION['admin']) || isset($_SESSION['identity'])) { ?>
 
-    <link rel="stylesheet" href="<?= base_url ?>public/style.css" type="text/css">
+    <link rel="stylesheet" href="<?= base_url ?>public/style.css?v=<?= APP_VERSION ?>" type="text/css">
 
   <?php } else { ?>
 
-    <link rel="stylesheet" href="<?= base_url ?>public/login.css" type="text/css">
+    <link rel="stylesheet" href="<?= base_url ?>public/login.css?v=<?= APP_VERSION ?>" type="text/css">
 
     <!-- Jquery Vegas -->
     <link rel="stylesheet" href="<?= base_url ?>public/jquery-vegas/vegas.min.css" type="text/css">
@@ -189,7 +189,6 @@
                         href="<?= base_url ?>bills/add_payment"><i class="fas fa-plus-circle"></i></a></li>
                     <li class="page"><a href="<?= base_url ?>bills/orders">Órdenes de compras</a> <a
                         href="<?= base_url ?>bills/add_order"><i class="fas fa-plus-circle"></i></a></li>
-
                   </ul>
                 </li>
 
@@ -225,7 +224,6 @@
                         href="<?= base_url ?>positions/add"><i class="fas fa-plus-circle"></i></a></li>
                     <li class="page"><a href="<?= base_url ?>offers/index">Ofertas</a> <a
                         href="<?= base_url ?>offers/add"><i class="fas fa-plus-circle"></i></a></li>
-
                   </ul>
                 </li>
 

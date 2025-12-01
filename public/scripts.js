@@ -1,8 +1,14 @@
 navigator.serviceWorker && navigator.serviceWorker.register("../sw.js"); // Activacion del service worker
 const PRINTER_SERVER = "http://localhost:81/tickets/"; // URL local de la impresora
-const SITE_URL = window.location.protocol + '//' + window.location.host + '/' + 'proyecto/'; // Raiz del sistema
 
-// Version: 1.1.2
+let basePath = '/';
+
+if (window.location.hostname === 'localhost') {
+    const pathParts = window.location.pathname.split('/');
+    basePath = '/' + pathParts[1] + '/'; // Detecta el nombre
+}
+
+const SITE_URL = window.location.protocol + '//' + window.location.host + basePath;
 
 let pageURL = $(location).attr("pathname");
 const format = new Intl.NumberFormat('en'); // Formato 0,000
@@ -314,60 +320,78 @@ $(document).ready(function () {
 
 
     // Menú Accordeon
+$(function () {
+    // Función de Acordeón
+    var Accordion = function (el, multiple) {
+        this.el = el || {};
+        this.multiple = multiple || false;
 
-    $(function () {
-        var Accordion = function (el, multiple) {
-            this.el = el || {};
-            this.multiple = multiple || false;
+        // Variables privadas
+        var links = this.el.find(".link");
 
-            // Variables privadas
-            var links = this.el.find(".link");
+        // Evento de clic para abrir y cerrar los submenús
+        links.on("click", {
+            el: this.el,
+            multiple: this.multiple,
+        }, this.dropdown);
+    };
 
-            // Evento
-            links.on("click", {
-                el: this.el,
-                multiple: this.multiple,
-            },
-                this.dropdown
-            );
-        };
+    Accordion.prototype.dropdown = function (e) {
+        var $el = e.data.el;
+        var $this = $(this), 
+            $next = $this.next();
 
-        Accordion.prototype.dropdown = function (e) {
-            var $el = e.data.el;
-            ($this = $(this)), ($next = $this.next());
+        $next.slideToggle();
+        $this.parent().toggleClass("open");
 
-            $next.slideToggle();
-            $this.parent().toggleClass("open");
+        // Si no es un menú múltiple, cierra los otros submenús
+        if (!e.data.multiple) {
+            $el.find(".submenu").not($next).slideUp().parent().removeClass("open");
+        }
+    };
 
-            if (!e.data.multiple) {
-                $el.find(".submenu").not($next).slideUp().parent().removeClass("open");
-            }
-        };
+    // Inicializar el acordeón en ambos menús
+    new Accordion($("#accordion"), false);
+    new Accordion($("#accordion-movil"), false);
 
-        new Accordion($("#accordion"), false);
-        new Accordion($("#accordion-movil"), false);
+    // Mantener el menú abierto según la URL
+    const menuMap = [
+        { keywords: ["invoices/index", "invoices/edit", "invoices/addpurchase", "invoices/index_repair", "invoices/repair_edit", "payments/index", "payments/add", "invoices/quotes", "invoices/quote", "invoices/edit_quote", "invoices/orders", "invoices/add_order"], dropdown: "dropdown-1" },
+        { keywords: ["bills"], dropdown: "dropdown-2" },
+        { keywords: ["workshop"], dropdown: "dropdown-3" },
+        { keywords: ["products", "inventory_control", "services/index", "services/add", "price_list", "categories", "taxes", "offers", "pieces", "warehouses", "positions", "brands"], dropdown: "dropdown-4" },
+        { keywords: ["contacts"], dropdown: "dropdown-5" },
+        { keywords: ["reports"], dropdown: "dropdown-6" },
+    ];
 
+    menuMap.forEach(({ keywords, dropdown }) => {
+        if (keywords.some(keyword => pageURL.includes(keyword))) {
+            $(`.${dropdown} ul.submenu`).css("display", "block");
+            $(`.accordion .${dropdown}`).addClass("open");
+        }
     });
 
-    // Mantener el menu de accordion abierto
-
-    $(function () {
-        const menuMap = [
-            { keywords: ["invoices/index", "invoices/edit", "invoices/addpurchase", "invoices/index_repair", "invoices/repair_edit", "payments/index", "payments/add", "invoices/quotes", "invoices/quote", "invoices/edit_quote", "invoices/orders", "invoices/add_order"], dropdown: "dropdown-1" },
-            { keywords: ["bills"], dropdown: "dropdown-2" },
-            { keywords: ["workshop"], dropdown: "dropdown-3" },
-            { keywords: ["products", "inventory_control", "services/index", "services/add", "price_list", "categories", "taxes", "offers", "pieces", "warehouses", "positions", "brands"], dropdown: "dropdown-4" },
-            { keywords: ["contacts"], dropdown: "dropdown-5" },
-            { keywords: ["reports"], dropdown: "dropdown-6" },
-        ];
-
-        menuMap.forEach(({ keywords, dropdown }) => {
-            if (keywords.some(keyword => pageURL.includes(keyword))) {
-                $(`.${dropdown} ul.submenu`).css("display", "block");
-                $(`.accordion .${dropdown}`).addClass("open");
-            }
-        });
+    // Cerrar el menú cuando se haga clic fuera de él
+    $(document).click(function (event) {
+        // Verificar si el clic no es dentro del menú o del botón de toggle
+        if (!$(event.target).closest('#accordion-movil').length && 
+            !$(event.target).closest('#menuToggle').length && 
+            !$(event.target).closest('.menu-movil').length) {
+            
+            // Cierra el menú y desmarca el checkbox
+            $('#accordion-movil').removeClass('open');
+            $('#menuToggle input').prop('checked', false);
+        }
     });
+
+    // Prevenir que el clic dentro del menú o del botón de toggle lo cierre
+    $('#accordion-movil').click(function (event) {
+        event.stopPropagation();
+    });
+    $('#menuToggle').click(function (event) {
+        event.stopPropagation();
+    });
+});
 
 
 

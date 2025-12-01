@@ -145,8 +145,8 @@ VALUES
     ('servidor', 'localhost', 'Host del servidor'),
     ('smtps', NULL, 'SMTP habilitado (true/false)'),
     ('puerto', '587', 'Puerto del servidor SMTP'),
-    ('logo_url', 'public/imagen/sistem/pdf.png', 'URL del logo'),
-    ('logo', '', 'Logo del sistema'),
+    ('logo_url', '', 'URL del logo para la factura por correo'),
+    ('logo', 'public/imagen/sistem/pdf.png', 'Logo del sistema'),
     ('slogan', 'En la web, en todas partes', 'Slogan de la empresa'),
     ('direccion', '-', 'Dirección de la empresa'),
     ('link_facebook', NULL, 'Enlace a Facebook'),
@@ -155,8 +155,8 @@ VALUES
     ('telefono', '000-000-0000', 'Número de teléfono de contacto de la empresa'),
     ('condiciones', '-', 'terminos y condiciones de la factura pdf'),
     ('titulo', '-', 'Título del sitio web'),
-    ('correo_adm','','correo del administracion del sistema');
-						
+    ('correo_adm','','correo del administracion del sistema'),
+	('auto_cierre', 'true', 'Cierre continuo que cierra automaticamente a la 12:00 am');
 
 
 # Store Procedures
@@ -1283,7 +1283,6 @@ BEGIN
   -- 6. Retornar el ID del detalle
   SELECT p_detalle_id AS msg;
 
- 
 END$$
 DELIMITER ;
 
@@ -1303,11 +1302,14 @@ BEGIN
   DELETE FROM detalle_facturas_ventas WHERE detalle_venta_id = @last_id;
  END;
   
- begin
- declare last_id int;
- end;
+ BEGIN
+ DECLARE last_id INT;
+ END;
 
-    insert into detalle_facturas_ventas values (null,factura_id,usuario_id,cantidad,costo,precio,impuesto,descuento,curdate());
+    INSERT INTO detalle_facturas_ventas 
+    (factura_venta_id, comanda_id, usuario_id, cantidad, costo, precio, impuesto, descuento, fecha) 
+	VALUES (factura_id,usuario_id,cantidad,costo,precio,impuesto,descuento,curdate());
+    
     select last_insert_id() AS msg;
     SET @last_id = (select last_insert_id() AS msg);
  
@@ -1388,7 +1390,9 @@ END IF;
 
  -- Crear factura
 
- insert into facturas_ventas values (null,usuario_id,cliente_id,3,metodo_id,totalx,total,0,bono,descripcion,fecha);
+ INSERT INTO facturas_ventas (usuario_id, cliente_id, estado_id, metodo_pago_id, total, recibido, pendiente, bono, descripcion, fecha)
+ VALUES (usuario_id, cliente_id, 3, metodo_id, totalx, total, 0, bono, descripcion, fecha);
+
  select last_insert_id() AS msg;
  
  -- Aplicar bono
@@ -1485,7 +1489,9 @@ BEGIN
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
 
-insert into pagos values (null,usuario_id,cliente_id,metodo,recibido,descripcion,fecha);
+INSERT INTO pagos (usuario_id, cliente_id, metodo_pago_id, recibido, observacion, fecha)
+VALUES (usuario_id, cliente_id, metodo, recibido, descripcion, fecha);
+
 SET @last_id = (select last_insert_id() AS msg);
 
 IF (factura_id > 0) THEN
@@ -1528,7 +1534,8 @@ BEGIN
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
 
-insert into pagos_proveedores values (null,factura_id,usuario_id,proveedor_id,metodo,recibido,descripcion,curdate());
+INSERT INTO pagos_proveedores (factura_proveedor_id,usuario_id,proveedor_id,metodo_pago_id,recibido,observacion,fecha) 
+VALUES (factura_id,usuario_id,proveedor_id,metodo,recibido,descripcion,curdate());
 select 'ready' AS msg;
 
 END $$
@@ -1636,7 +1643,9 @@ BEGIN
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
  DECLARE EXIT HANDLER FOR 1062 SELECT 'Duplicate keys error encountered' AS msg;
  
-    insert into detalle_ordenRP values (null,usuario_id,orden_id,descripcion,cantidad,costo,precio,descuento,curdate());
+    INSERT INTO detalle_ordenRP 
+    (usuario_id,orden_rp_id,descripcion,cantidad,costo,precio,descuento,fecha) 
+    VALUES (usuario_id,orden_id,descripcion,cantidad,costo,precio,descuento,curdate());
     
     SET @last_id = (select last_insert_id() AS msg);
      
@@ -1695,7 +1704,9 @@ BEGIN
  
  update detalle_ordenRP set fecha = _fecha where orden_rp_id = _orden_id;
 
- insert into facturasRP values (null,_orden_id,_usuario_id,_cliente_id,_metodo_id,3,_total,_total,0,_descripcion,_fecha);
+ INSERT INTO facturasRP (orden_rp_id, usuario_id, cliente_id, metodo_pago_id, estado_id, total, recibido, pendiente, descripcion, fecha)
+ VALUES (_orden_id, _usuario_id, _cliente_id, _metodo_id, 3, _total, _total, 0, _descripcion, _fecha);
+
  select last_insert_id() AS msg;
  
 END $$
@@ -1718,7 +1729,10 @@ SET @pendientX = pendiente - pago;
 
  update detalle_ordenRP set fecha = _fecha where orden_rp_id = _orden_id;
 
- insert into facturasRP values (null,_orden_id,_usuario_id,_cliente_id,_metodo_id,4,_total,_pago,@pendientX,_descripcion,_fecha);
+
+ INSERT INTO facturasRP (orden_rp_id, usuario_id, cliente_id, metodo_pago_id, estado_id, total, recibido, pendiente, descripcion, fecha)
+ VALUES (_orden_id, _usuario_id, _cliente_id, _metodo_id, 4, _total, _pago, @pendientX, _descripcion, _fecha);
+
  select last_insert_id() AS msg;
 
 END $$
@@ -1875,8 +1889,13 @@ BEGIN
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
 
- insert into facturas_proveedores values (null,usuario_id,proveedor_id,ordenId,metodo_id,3,total,total,0,observacion,fecha);
- update ordenes_compras set estado_id = 12 where orden_id = ordenId;
+  -- Crear factura de proveedor
+ INSERT INTO facturas_proveedores (usuario_id,proveedor_id,orden_id,metodo_pago_id,estado_id,total,pagado,por_pagar,observacion,fecha)
+ VALUES (usuario_id,proveedor_id,ordenId,metodo_id,3,total,total,0,observacion,fecha);
+ 
+ -- Actualizar estado de la orden de compra
+ UPDATE ordenes_compras SET estado_id = 12 WHERE orden_id = ordenId;
+ 
  select last_insert_id() AS msg;
  
 END $$
@@ -1958,7 +1977,10 @@ BEGIN
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
 
- insert into gastos values (null,usuario_id,proveedor_id,orden_id,total,total,observacion,fecha);
+ 
+ INSERT INTO gastos (usuario_id, proveedor_id, orden_id, total, pagado, observacion, fecha)
+ VALUES (usuario_id, proveedor_id, orden_id, total, total, observacion, fecha);
+
  select 'ready' AS msg;
  
 END $$
@@ -2262,23 +2284,28 @@ END$$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `c_cierreCaja`;
 DELIMITER $$
 CREATE PROCEDURE `c_cierreCaja` (IN _usuario_id INT,IN _fecha_cierre DATETIME,IN _saldo_inicial DECIMAL(10,2),
 IN _ingresos_efectivo DECIMAL(10,2),IN _ingresos_tarjeta DECIMAL(10,2),IN _ingresos_transferencia DECIMAL(10,2),
 IN _ingresos_cheque DECIMAL(10,2),IN _egresos_caja DECIMAL(10,2),IN _egresos_fuera DECIMAL(10,2),IN _retiros DECIMAL(10,2),
 IN _reembolsos DECIMAL(10,2),IN _total_real DECIMAL(10,2),IN _efectivo_caja DECIMAL(10,2),IN _observaciones TEXT)
 BEGIN
-    DECLARE _total_esperado DECIMAL(10,2);
+	DECLARE _total_esperado DECIMAL(10,2);
     DECLARE _cierre_id INT;
-	DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
-    
+
+    DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+
     -- Calcular el total esperado
     SET _total_esperado = _saldo_inicial + _ingresos_efectivo - _egresos_caja - _retiros - _reembolsos;
 
-    -- Obtener el ID del último registro de apertura de hoy
-    SELECT cierre_id INTO _cierre_id FROM cierres_caja
-    WHERE DATE(fecha_apertura) = CURDATE() AND estado = 'abierto'
-    ORDER BY cierre_id DESC LIMIT 1;
+    -- Obtener el ID del último registro de apertura de hoy con las horas de inicio y fin
+    SELECT cierre_id
+    INTO _cierre_id
+    FROM cierres_caja
+    WHERE estado = 'abierto'  -- Corregir el error de sintaxis (se agregó espacio después de WHERE)
+    ORDER BY cierre_id DESC
+    LIMIT 1;
 
     -- Actualizar el registro existente
     UPDATE cierres_caja SET
@@ -2292,6 +2319,7 @@ BEGIN
         egresos_fuera = _egresos_fuera,
         retiros = _retiros,
         reembolsos = _reembolsos,
+        efectivo_caja = _efectivo_caja,
         total_esperado = _total_esperado,
         total_real = _total_real,
         diferencia = _efectivo_caja - _total_esperado,
@@ -2299,10 +2327,11 @@ BEGIN
         estado = 'cerrado'
     WHERE cierre_id = _cierre_id;
 
-    -- Retornar el ID del nuevo cierre
-	SELECT _cierre_id AS msg;
+    -- Retornar el ID del cierre actualizado
+    SELECT _cierre_id AS msg;
 END$$
 DELIMITER ;
+
 
 DELIMITER $$
 CREATE PROCEDURE `c_eliminarCierre` (IN _cierre_id INT)

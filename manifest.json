@@ -1,7 +1,7 @@
 {
     "name": "wsistem",
-    "short_name": "Wsistem",
-    "description": "Obtenga el control de su negocio desde cualquier lugar, vea estadísticas de ventas, stock, etc",
+    "short_name": "wsistem",
+    "description": "Administra tu negocio desde cualquier lugar. Visualiza ventas, inventario, estadísticas y reportes en tiempo real. WSistems es un sistema de gestión completo, moderno y fácil de usar, diseñado para ofrecerte control total y una operación más ordenada y eficiente.",
     "start_url": "home/index",
     "display_override": [
         "window-controls-overlay"

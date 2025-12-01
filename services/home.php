@@ -88,176 +88,72 @@ if ($_POST['action'] == 'ventas_dias') {
     $query = "SELECT 
     DAY(c.fecha_apertura) AS dia,
     ROUND(SUM(ventas.total), 2) AS total
-    FROM cierres_caja c
-    LEFT JOIN (
-        -- Subconsulta 1: Facturas ventas
-        SELECT 
-            f.factura_venta_id AS id,
-            (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total,
-            CONCAT(f.fecha, ' ', f.hora) AS fecha_evento
-        FROM facturas_ventas f
-        INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
-        INNER JOIN estados_generales e ON e.estado_id = f.estado_id
-        LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
-        LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-        GROUP BY f.factura_venta_id
-
-        UNION ALL
-
-        -- Subconsulta 2: Facturas RP
-        SELECT 
-            fr.facturarp_id AS id,
-            (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total,
-            CONCAT(fr.fecha, ' ', fr.hora) AS fecha_evento
-        FROM facturasRP fr
-        INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
-        INNER JOIN estados_generales e ON e.estado_id = fr.estado_id
-        LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = fr.facturaRP_id
-        LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-        GROUP BY fr.facturarp_id
-
-        UNION ALL
-
-        -- Subconsulta 3: Pagos a facturas RP
-        SELECT 
-            p.pago_id AS id,
-            SUM(p.recibido) AS total,
-            CONCAT(p.fecha, ' ', p.hora) AS fecha_evento
-        FROM pagos_a_facturasRP pf 
-        INNER JOIN pagos p ON pf.pago_id = p.pago_id
-        GROUP BY p.pago_id
-
-        UNION ALL
-
-        -- Subconsulta 4: Pagos a facturas ventas
-        SELECT 
-            p.pago_id AS id,
-            SUM(p.recibido) AS total,
-            CONCAT(p.fecha, ' ', p.hora) AS fecha_evento
-        FROM pagos_a_facturas_ventas pf 
-        INNER JOIN pagos p ON pf.pago_id = p.pago_id
-        GROUP BY p.pago_id
-    ) AS ventas
-    ON ventas.fecha_evento BETWEEN c.fecha_apertura 
-        AND IFNULL(c.fecha_cierre, NOW())
-    WHERE 
-        c.estado = 'cerrado'
-        OR c.cierre_id = (
-            SELECT MAX(c2.cierre_id)
-            FROM cierres_caja c2
-            WHERE c2.estado = 'abierto'
-        )
-    GROUP BY DAY(c.fecha_apertura)
-    ORDER BY c.cierre_id;
-
-
+FROM cierres_caja c
+LEFT JOIN (
+    -- Subconsulta 1: Facturas ventas
     SELECT 
-        DAY(c.fecha_apertura) AS dia,
-        ROUND(SUM(gan.ganancia), 0) AS total
-    FROM cierres_caja c
-    LEFT JOIN (
-        -- Subconsulta 1: Ganancia Productos en facturas de ventas
-        SELECT 
-            (f.recibido / NULLIF(ft.total_facturado, 0)) * 
-            ((d.precio * d.cantidad - d.descuento) - 
-            COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)) AS ganancia,
-            CONCAT(d.fecha, ' ', d.hora) AS fecha_evento
-        FROM detalle_facturas_ventas d
-        INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
-        INNER JOIN (
-            SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
-            FROM detalle_facturas_ventas
-            GROUP BY factura_venta_id
-        ) ft ON ft.factura_venta_id = f.factura_venta_id
-        INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
-        INNER JOIN productos p ON p.producto_id = dp.producto_id
+        f.factura_venta_id AS id,
+        (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total,
+        CONCAT(f.fecha, ' ', f.hora) AS fecha_evento
+    FROM facturas_ventas f
+    INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
+    INNER JOIN estados_generales e ON e.estado_id = f.estado_id
+    LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
+    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+    GROUP BY f.factura_venta_id
 
-        UNION ALL
+    UNION ALL
 
-        -- Subconsulta 2: Ganancia Piezas en facturas de ventas
-        SELECT 
-            (f.recibido / NULLIF(ft.total_facturado, 0)) * 
-            ((d.precio * d.cantidad - d.descuento) - 
-            COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)) AS ganancia,
-            CONCAT(d.fecha, ' ', d.hora) AS fecha_evento
-        FROM detalle_facturas_ventas d
-        INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
-        INNER JOIN (
-            SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
-            FROM detalle_facturas_ventas
-            GROUP BY factura_venta_id
-        ) ft ON ft.factura_venta_id = f.factura_venta_id
-        INNER JOIN detalle_ventas_con_piezas_ dp ON dp.detalle_venta_id = d.detalle_venta_id
-        INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
+    -- Subconsulta 2: Facturas RP
+    SELECT 
+        fr.facturarp_id AS id,
+        (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total,
+        CONCAT(fr.fecha, ' ', fr.hora) AS fecha_evento
+    FROM facturasRP fr
+    INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
+    INNER JOIN estados_generales e ON e.estado_id = fr.estado_id
+    LEFT JOIN pagos_a_facturasRP pf ON pf.facturarp_id = fr.facturarp_id
+    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+    GROUP BY fr.facturarp_id
 
-        UNION ALL
+    UNION ALL
 
-        -- Subconsulta 3: Ganancia Piezas en órdenes de reparación
-        SELECT 
-            (frp.recibido / NULLIF(ft.total_facturado, 0)) * 
-            ((d.precio * d.cantidad - d.descuento) - 
-            COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)) AS ganancia,
-            CONCAT(d.fecha, ' ', d.hora) AS fecha_evento
-        FROM detalle_ordenRP d
-        INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
-        INNER JOIN (
-            SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
-            FROM detalle_ordenRP
-            GROUP BY orden_rp_id
-        ) ft ON ft.orden_rp_id = frp.orden_rp_id
-        INNER JOIN detalle_ordenRP_con_piezas dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
-        INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
+    -- Subconsulta 3: Pagos RP
+    SELECT 
+        p.pago_id AS id,
+        SUM(p.recibido) AS total,
+        CONCAT(p.fecha, ' ', p.hora) AS fecha_evento
+    FROM pagos_a_facturasRP pf 
+    INNER JOIN pagos p ON pf.pago_id = p.pago_id
+    GROUP BY p.pago_id
 
-        UNION ALL
+    UNION ALL
 
-        -- Subconsulta 4: Ganancia Servicios en facturas de ventas
-        SELECT 
-            (f.recibido / NULLIF(ft.total_facturado, 0)) * 
-            ((d.precio * d.cantidad - d.descuento) - 
-            COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)) AS ganancia,
-            CONCAT(d.fecha, ' ', d.hora) AS fecha_evento
-        FROM detalle_facturas_ventas d
-        INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
-        INNER JOIN (
-            SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
-            FROM detalle_facturas_ventas
-            GROUP BY factura_venta_id
-        ) ft ON ft.factura_venta_id = f.factura_venta_id
-        INNER JOIN detalle_ventas_con_servicios ds ON ds.detalle_venta_id = d.detalle_venta_id
-        INNER JOIN servicios s ON s.servicio_id = ds.servicio_id
-
-        UNION ALL
-
-        -- Subconsulta 5: Ganancia Servicios en órdenes de reparación
-        SELECT 
-            (frp.recibido / NULLIF(ft.total_facturado, 0)) * 
-            ((d.precio * d.cantidad - d.descuento) - 
-            COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)) AS ganancia,
-            CONCAT(d.fecha, ' ', d.hora) AS fecha_evento
-        FROM detalle_ordenRP d
-        INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
-        INNER JOIN (
-            SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
-            FROM detalle_ordenRP
-            GROUP BY orden_rp_id
-        ) ft ON ft.orden_rp_id = frp.orden_rp_id
-        INNER JOIN detalle_ordenRP_con_servicios dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
-        INNER JOIN servicios s ON s.servicio_id = dp.servicio_id
-    ) AS gan
-    ON gan.fecha_evento BETWEEN c.fecha_apertura AND IFNULL(c.fecha_cierre, NOW())
-    WHERE 
-        c.estado = 'cerrado'
-        OR c.cierre_id = (
-            SELECT MAX(c2.cierre_id)
-            FROM cierres_caja c2
-            WHERE c2.estado = 'abierto'
-        )
-    GROUP BY DAY(c.fecha_apertura)
-    ORDER BY c.cierre_id;";
+    -- Subconsulta 4: Pagos ventas
+    SELECT 
+        p.pago_id AS id,
+        SUM(p.recibido) AS total,
+        CONCAT(p.fecha, ' ', p.hora) AS fecha_evento
+    FROM pagos_a_facturas_ventas pf 
+    INNER JOIN pagos p ON pf.pago_id = p.pago_id
+    GROUP BY p.pago_id
+) AS ventas
+ON ventas.fecha_evento BETWEEN c.fecha_apertura 
+    AND IFNULL(c.fecha_cierre, NOW())
+WHERE 
+    c.estado = 'cerrado'
+    OR c.cierre_id = (
+        SELECT MAX(c2.cierre_id)
+        FROM cierres_caja c2
+        WHERE c2.estado = 'abierto'
+    )
+GROUP BY DAY(c.fecha_apertura)
+ORDER BY ANY_VALUE(c.cierre_id);
+";
 
   } else {
 
-    $query ="SELECT DAY(fecha) AS dia, SUM(total) AS total
+    $query = "SELECT DAY(fecha) AS dia, SUM(total) AS total
         FROM (
             -- Facturas ventas
             SELECT (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total, f.fecha
@@ -410,7 +306,6 @@ if ($_POST['action'] == 'ventas_dias') {
     ) AS ganancias_mes
     GROUP BY DAY(fecha)
     ORDER BY DAY(fecha);";
-    
   }
 
   jsonMultiQueryResult($db, $query);

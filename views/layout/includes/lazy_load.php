@@ -1,4 +1,27 @@
 <?php
+
+// Version 
+
+function versioned_js($path)
+{
+    // Detectar si estamos en producción (ajusta el dominio real)
+    $is_production = ($_SERVER['HTTP_HOST'] === 'tudominio.com');
+
+    // Si NO estamos en producción → devolver tal cual (sin versión)
+    if (!$is_production) {
+        return $path;
+    }
+
+     // Si contiene el dominio local, sí versiona
+    if (strpos($path, 'http') === 0 && strpos($path, $_SERVER['HTTP_HOST']) === false) {
+        return $path;
+    }
+
+    // En producción y archivo local → agregar versión
+    return $path . '?v=' . APP_VERSION;
+}
+
+
 $uri = $_SERVER["REQUEST_URI"];
 
 // Scripts globales
@@ -160,11 +183,9 @@ if (empty($matchedScripts)) {
 
 // Imprimir scripts globales
 foreach ($globalScripts as $src) {
-    echo '<script src="' . $src . '" type="text/javascript"></script>' . PHP_EOL;
+    echo '<script src="' . versioned_js($src) . '" type="text/javascript"></script>' . PHP_EOL;
 }
 
-// Imprimir scripts específicos
 foreach ($matchedScripts as $src) {
-    echo '<script src="' . $src . '" type="text/javascript"></script>' . PHP_EOL;
+    echo '<script src="' . versioned_js($src) . '" type="text/javascript"></script>' . PHP_EOL;
 }
-?>
