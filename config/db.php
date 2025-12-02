@@ -22,8 +22,8 @@ class Database
         } else {
             // ENTORNO DE PRODUCCIÓN
             self::$mainHost = 'localhost';
-            self::$mainUser = 'Mett@1106';
-            self::$mainPass = 'Wilmin';
+            self::$mainUser = 'Wilmin';
+            self::$mainPass = 'Mett@1106';
         }
     }
 
