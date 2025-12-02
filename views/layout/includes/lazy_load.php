@@ -5,7 +5,7 @@
 function versioned_js($path)
 {
     // Detectar si estamos en producción (ajusta el dominio real)
-    $is_production = ($_SERVER['HTTP_HOST'] === 'tudominio.com');
+    $is_production = ($_SERVER['HTTP_HOST'] !== 'localhost');
 
     // Si NO estamos en producción → devolver tal cual (sin versión)
     if (!$is_production) {
