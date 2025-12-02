@@ -830,17 +830,22 @@ ul#search_result li:hover {
 }
 
 .nav-container {
-    display: none;
-    position: absolute;
-    overflow: auto;
+    position: fixed;
     top: 60px;
+    right: -39%; 
     width: 39%;
     height: 90vh;
     background-color: #303741;
     z-index: 999;
     padding: 15px 0;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    right: 0;
+    overflow: auto;
+    transition: right 0.6s ease-in-out; 
+}
+
+
+.nav-container.open {
+    right: 0; 
 }
 
 .nav-container ul {

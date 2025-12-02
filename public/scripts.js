@@ -10,6 +10,8 @@ if (window.location.hostname === 'localhost') {
 
 const SITE_URL = window.location.protocol + '//' + window.location.host + basePath;
 
+console.log(SITE_URL);
+
 let pageURL = $(location).attr("pathname");
 const format = new Intl.NumberFormat('en'); // Formato 0,000
 
@@ -320,78 +322,78 @@ $(document).ready(function () {
 
 
     // Menú Accordeon
-$(function () {
-    // Función de Acordeón
-    var Accordion = function (el, multiple) {
-        this.el = el || {};
-        this.multiple = multiple || false;
+    $(function () {
+        // Función de Acordeón
+        var Accordion = function (el, multiple) {
+            this.el = el || {};
+            this.multiple = multiple || false;
 
-        // Variables privadas
-        var links = this.el.find(".link");
+            // Variables privadas
+            var links = this.el.find(".link");
 
-        // Evento de clic para abrir y cerrar los submenús
-        links.on("click", {
-            el: this.el,
-            multiple: this.multiple,
-        }, this.dropdown);
-    };
+            // Evento de clic para abrir y cerrar los submenús
+            links.on("click", {
+                el: this.el,
+                multiple: this.multiple,
+            }, this.dropdown);
+        };
 
-    Accordion.prototype.dropdown = function (e) {
-        var $el = e.data.el;
-        var $this = $(this), 
-            $next = $this.next();
+        Accordion.prototype.dropdown = function (e) {
+            var $el = e.data.el;
+            var $this = $(this),
+                $next = $this.next();
 
-        $next.slideToggle();
-        $this.parent().toggleClass("open");
+            $next.slideToggle();
+            $this.parent().toggleClass("open");
 
-        // Si no es un menú múltiple, cierra los otros submenús
-        if (!e.data.multiple) {
-            $el.find(".submenu").not($next).slideUp().parent().removeClass("open");
-        }
-    };
+            // Si no es un menú múltiple, cierra los otros submenús
+            if (!e.data.multiple) {
+                $el.find(".submenu").not($next).slideUp().parent().removeClass("open");
+            }
+        };
 
-    // Inicializar el acordeón en ambos menús
-    new Accordion($("#accordion"), false);
-    new Accordion($("#accordion-movil"), false);
+        // Inicializar el acordeón en ambos menús
+        new Accordion($("#accordion"), false);
+        new Accordion($("#accordion-movil"), false);
 
-    // Mantener el menú abierto según la URL
-    const menuMap = [
-        { keywords: ["invoices/index", "invoices/edit", "invoices/addpurchase", "invoices/index_repair", "invoices/repair_edit", "payments/index", "payments/add", "invoices/quotes", "invoices/quote", "invoices/edit_quote", "invoices/orders", "invoices/add_order"], dropdown: "dropdown-1" },
-        { keywords: ["bills"], dropdown: "dropdown-2" },
-        { keywords: ["workshop"], dropdown: "dropdown-3" },
-        { keywords: ["products", "inventory_control", "services/index", "services/add", "price_list", "categories", "taxes", "offers", "pieces", "warehouses", "positions", "brands"], dropdown: "dropdown-4" },
-        { keywords: ["contacts"], dropdown: "dropdown-5" },
-        { keywords: ["reports"], dropdown: "dropdown-6" },
-    ];
+        // Mantener el menú abierto según la URL
+        const menuMap = [
+            { keywords: ["invoices/index", "invoices/edit", "invoices/addpurchase", "invoices/index_repair", "invoices/repair_edit", "payments/index", "payments/add", "invoices/quotes", "invoices/quote", "invoices/edit_quote", "invoices/orders", "invoices/add_order"], dropdown: "dropdown-1" },
+            { keywords: ["bills"], dropdown: "dropdown-2" },
+            { keywords: ["workshop"], dropdown: "dropdown-3" },
+            { keywords: ["products", "inventory_control", "services/index", "services/add", "price_list", "categories", "taxes", "offers", "pieces", "warehouses", "positions", "brands"], dropdown: "dropdown-4" },
+            { keywords: ["contacts"], dropdown: "dropdown-5" },
+            { keywords: ["reports"], dropdown: "dropdown-6" },
+        ];
 
-    menuMap.forEach(({ keywords, dropdown }) => {
-        if (keywords.some(keyword => pageURL.includes(keyword))) {
-            $(`.${dropdown} ul.submenu`).css("display", "block");
-            $(`.accordion .${dropdown}`).addClass("open");
-        }
+        menuMap.forEach(({ keywords, dropdown }) => {
+            if (keywords.some(keyword => pageURL.includes(keyword))) {
+                $(`.${dropdown} ul.submenu`).css("display", "block");
+                $(`.accordion .${dropdown}`).addClass("open");
+            }
+        });
+
+        // Cerrar el menú cuando se haga clic fuera de él
+        $(document).click(function (event) {
+            // Verificar si el clic no es dentro del menú o del botón de toggle
+            if (!$(event.target).closest('#accordion-movil').length &&
+                !$(event.target).closest('#menuToggle').length &&
+                !$(event.target).closest('.menu-movil').length) {
+
+                // Cierra el menú y desmarca el checkbox
+                $('#accordion-movil').removeClass('open');
+                $('#menuToggle input').prop('checked', false);
+            }
+        });
+
+        // Prevenir que el clic dentro del menú o del botón de toggle lo cierre
+        $('#accordion-movil').click(function (event) {
+            event.stopPropagation();
+        });
+        $('#menuToggle').click(function (event) {
+            event.stopPropagation();
+        });
     });
-
-    // Cerrar el menú cuando se haga clic fuera de él
-    $(document).click(function (event) {
-        // Verificar si el clic no es dentro del menú o del botón de toggle
-        if (!$(event.target).closest('#accordion-movil').length && 
-            !$(event.target).closest('#menuToggle').length && 
-            !$(event.target).closest('.menu-movil').length) {
-            
-            // Cierra el menú y desmarca el checkbox
-            $('#accordion-movil').removeClass('open');
-            $('#menuToggle input').prop('checked', false);
-        }
-    });
-
-    // Prevenir que el clic dentro del menú o del botón de toggle lo cierre
-    $('#accordion-movil').click(function (event) {
-        event.stopPropagation();
-    });
-    $('#menuToggle').click(function (event) {
-        event.stopPropagation();
-    });
-});
 
 
 
@@ -422,21 +424,22 @@ $(function () {
         $('[data-toggle="popover"]').popover();
     });
 
-    $(".loader").hide(); // Loader
 
-    // Menú rapido
+
+    // Menú rápido (desliza desde el lado derecho)
     $("#bar-menu").on("click", (e) => {
         e.preventDefault();
 
-        $(".nav-container").slideToggle();
+        $(".nav-container").toggleClass("open");
     });
 
     // Cerrar el menú si se hace clic fuera de él
     $(document).on("click", function (event) {
         if (!$(event.target).closest(".nav-container, #bar-menu").length) {
-            $(".nav-container").slideUp();
+            $(".nav-container").removeClass("open");
         }
     });
+
 
     // User menú desplegable
 

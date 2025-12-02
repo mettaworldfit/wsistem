@@ -10,8 +10,8 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Font;
 
 if (!isset($_GET['month'], $_GET['year'])) {
-    echo "Parámetros inválidos.";
-    exit;
+  echo "Parámetros inválidos.";
+  exit;
 }
 
 // Parámetros de mes y año
@@ -24,9 +24,10 @@ $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
 if ($month < 1 || $month > 12 || $year < 2000) {
-    echo "Mes o año no válido.";
-    exit;
+  echo "Mes o año no válido.";
+  exit;
 }
+
 
 $query = "SELECT 
   nombre, 
@@ -177,6 +178,20 @@ $result = $db->query($query);
 $headers = ['Nombre', 'Tipo', 'Cantidad total', 'Costo total', 'Precio Total', 'Ganancia recibida'];
 $sheet->fromArray($headers, NULL, 'A1');
 
+// Bordes exteriores gruesos en la fila de totales
+$sheet->getStyle("A1:F1")
+  ->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+$sheet->getStyle("A1:F1")
+  ->getBorders()->getBottom()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+$sheet->getStyle("A1:F1")
+  ->getBorders()->getLeft()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+$sheet->getStyle("A1:F1")
+  ->getBorders()->getRight()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+
+// Establecer color negro para los bordes
+$sheet->getStyle("A1:F1")
+  ->getBorders()->getAllBorders()->getColor()->setRGB('000000');
+
 // Estilo encabezado
 $sheet->getStyle('A1:F1')->getFont()->setBold(true);
 $sheet->getStyle('A1:F1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
@@ -186,18 +201,18 @@ $totalCosto = $totalTotal = $totalGanancia = 0;
 $row = 2;
 
 while ($r = $result->fetch_assoc()) {
-    $sheet->setCellValue("A{$row}", $r['nombre']);
-    $sheet->setCellValue("B{$row}", $r['tipo']);
-    $sheet->setCellValue("C{$row}", $r['cantidad']);
-    $sheet->setCellValue("D{$row}", $r['costo']);
-    $sheet->setCellValue("E{$row}", $r['total']);
-    $sheet->setCellValue("F{$row}", $r['ganancia']);
+  $sheet->setCellValue("A{$row}", $r['nombre']);
+  $sheet->setCellValue("B{$row}", $r['tipo']);
+  $sheet->setCellValue("C{$row}", $r['cantidad']);
+  $sheet->setCellValue("D{$row}", $r['costo']);
+  $sheet->setCellValue("E{$row}", $r['total']);
+  $sheet->setCellValue("F{$row}", $r['ganancia']);
 
-    $totalCosto += $r['costo'];
-    $totalTotal += $r['total'];
-    $totalGanancia += $r['ganancia'];
+  $totalCosto += $r['costo'];
+  $totalTotal += $r['total'];
+  $totalGanancia += $r['ganancia'];
 
-    $row++;
+  $row++;
 }
 
 // Fila de totales
@@ -208,27 +223,170 @@ $sheet->setCellValue("D{$row}", $totalCosto);
 $sheet->setCellValue("E{$row}", $totalTotal);
 $sheet->setCellValue("F{$row}", $totalGanancia);
 
+// Bordes exteriores gruesos en la fila
+$sheet->getStyle("A{$row}:F{$row}")
+  ->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+$sheet->getStyle("A{$row}:F{$row}")
+  ->getBorders()->getBottom()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+$sheet->getStyle("A{$row}:F{$row}")
+  ->getBorders()->getLeft()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+$sheet->getStyle("A{$row}:F{$row}")
+  ->getBorders()->getRight()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+
+// Establecer color negro para los bordes
+$sheet->getStyle("A{$row}:F{$row}")
+  ->getBorders()->getAllBorders()->getColor()->setRGB('000000');
+
 // Formato contable
 foreach (['D', 'E', 'F'] as $col) {
-    $sheet->getStyle("{$col}2:{$col}{$row}")
-          ->getNumberFormat()
-          ->setFormatCode('"$"* #,##0.00_);[Red]("$"* #,##0.00)');
+  $sheet->getStyle("{$col}2:{$col}{$row}")
+    ->getNumberFormat()
+    ->setFormatCode('"$"* #,##0.00_);[Red]("$"* #,##0.00)');
 }
 
 // Centrar columna C ("Cantidad")
 $sheet->getStyle("C2:C{$row}")
-    ->getAlignment()
-    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+  ->getAlignment()
+  ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
 
 
 // Ajustar ancho automáticamente
 foreach (range('A', 'F') as $col) {
-    $sheet->getColumnDimension($col)->setAutoSize(true);
+  $sheet->getColumnDimension($col)->setAutoSize(true);
+}
+
+
+/**====================================================
+ * GASTOS
+ =====================================================*/ 
+
+
+// Agregar un espacio de 4 filas
+$row += 4;
+
+// Consulta para los gastos
+$queryGastos = "SELECT 
+    m.descripcion, 
+    d.observacion, 
+    d.cantidad, 
+    d.precio,
+    (d.cantidad * d.precio) + d.impuestos AS total,
+    d.fecha
+FROM detalle_gasto d
+INNER JOIN ordenes_gastos o ON o.orden_id = d.orden_id
+INNER JOIN gastos g ON g.orden_id = o.orden_id
+INNER JOIN motivos m ON m.motivo_id = d.motivo_id
+WHERE d.fecha BETWEEN '{$year}-{$month}-01' AND '{$year}-{$month}-30';";
+
+$resultGastos = $db->query($queryGastos);
+
+// Encabezado para los gastos
+$sheet->setCellValue("A{$row}", "GASTOS");
+$sheet->mergeCells("A{$row}:F{$row}");
+$sheet->getStyle("A{$row}:F{$row}")->getFont()->setBold(true);
+$row++;
+
+// Establecer encabezado para los gastos
+$headersGastos = ['Descripción', 'Observación', 'Cantidad', 'Precio Unitario', 'Total'];
+$sheet->fromArray($headersGastos, NULL, "A{$row}");
+
+// Aplicar negrita
+$sheet->getStyle("A{$row}:E{$row}")->getFont()->setBold(true);
+
+// Bordes exteriores gruesos en la fila
+$sheet->getStyle("A{$row}:E{$row}")
+  ->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+$sheet->getStyle("A{$row}:E{$row}")
+  ->getBorders()->getBottom()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+$sheet->getStyle("A{$row}:E{$row}")
+  ->getBorders()->getLeft()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+$sheet->getStyle("A{$row}:E{$row}")
+  ->getBorders()->getRight()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+
+// Establecer color negro para los bordes
+$sheet->getStyle("A{$row}:E{$row}")
+  ->getBorders()->getAllBorders()->getColor()->setRGB('000000');
+
+$row++;
+
+// Variables para los totales
+$totalPrecio = 0;
+$totalTotal = 0;
+
+
+while ($r = $resultGastos->fetch_assoc()) {
+
+  $sheet->setCellValue("A{$row}", $r['descripcion']);
+  $sheet->setCellValue("B{$row}", $r['observacion']);
+  $sheet->setCellValue("C{$row}", $r['cantidad']);
+  $sheet->setCellValue("D{$row}", $r['precio']);
+  $sheet->setCellValue("E{$row}", $r['total']);
+
+  // Acumular los totales
+  $totalPrecio += $r['precio'];
+  $totalTotal += $r['total'];
+
+  $row++;
+}
+
+// Formato contable para los totales
+$sheet->getStyle("D{$row}:E{$row}")
+  ->getNumberFormat()
+  ->setFormatCode('"$"* #,##0.00_);[Red]("$"* #,##0.00)');
+
+// Centrar columna C ("Cantidad")
+$sheet->getStyle("C2:C{$row}")
+  ->getAlignment()
+  ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+
+// Agregar fila de totales
+$sheet->setCellValue("A{$row}", "TOTALES");
+$sheet->mergeCells("A{$row}:B{$row}");
+$sheet->getStyle("A{$row}:F{$row}")->getFont()->setBold(true);
+
+// Mostrar totales
+$sheet->setCellValue("D{$row}", $totalPrecio);
+$sheet->setCellValue("E{$row}", $totalTotal);
+
+// Formato contable para los totales
+$sheet->getStyle("D{$row}:E{$row}")
+  ->getNumberFormat()
+  ->setFormatCode('"$"* #,##0.00_);[Red]("$"* #,##0.00)');
+
+// Bordes exteriores gruesos en la fila de totales
+$sheet->getStyle("A{$row}:E{$row}")
+  ->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+$sheet->getStyle("A{$row}:E{$row}")
+  ->getBorders()->getBottom()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+$sheet->getStyle("A{$row}:E{$row}")
+  ->getBorders()->getLeft()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+$sheet->getStyle("A{$row}:E{$row}")
+  ->getBorders()->getRight()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+
+// Establecer color negro para los bordes
+$sheet->getStyle("A{$row}:E{$row}")
+  ->getBorders()->getAllBorders()->getColor()->setRGB('000000');
+
+// Establecer color negro para los bordes exteriores de la fila de totales
+$sheet->getStyle("A{$row}:E{$row}")
+  ->getBorders()->getTop()->getColor()->setRGB('000000');
+$sheet->getStyle("A{$row}:E{$row}")
+  ->getBorders()->getBottom()->getColor()->setRGB('000000');
+$sheet->getStyle("A{$row}:E{$row}")
+  ->getBorders()->getLeft()->getColor()->setRGB('000000');
+$sheet->getStyle("A{$row}:E{$row}")
+  ->getBorders()->getRight()->getColor()->setRGB('000000');
+
+// Ajustar el ancho de las columnas para los gastos
+foreach (range('A', 'E') as $col) {
+  $sheet->getColumnDimension($col)->setAutoSize(true);
 }
 
 // Descargar archivo
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment;filename="detalle-ventas '.$month.'-'.$year.'.xlsx"');
+header('Content-Disposition: attachment;filename="detalle-ventas-y-gastos ' . $month . '-' . $year . '.xlsx"');
 header('Cache-Control: max-age=0');
 
 $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
