@@ -277,7 +277,7 @@ FROM detalle_gasto d
 INNER JOIN ordenes_gastos o ON o.orden_id = d.orden_id
 INNER JOIN gastos g ON g.orden_id = o.orden_id
 INNER JOIN motivos m ON m.motivo_id = d.motivo_id
-WHERE d.fecha BETWEEN '{$year}-{$month}-01' AND '{$year}-{$month}-30';";
+WHERE MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year'";
 
 $resultGastos = $db->query($queryGastos);
 

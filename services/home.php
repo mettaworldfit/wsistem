@@ -141,15 +141,16 @@ LEFT JOIN (
 ON ventas.fecha_evento BETWEEN c.fecha_apertura 
     AND IFNULL(c.fecha_cierre, NOW())
 WHERE 
-    c.estado = 'cerrado'
+    (c.estado = 'cerrado'
     OR c.cierre_id = (
         SELECT MAX(c2.cierre_id)
         FROM cierres_caja c2
         WHERE c2.estado = 'abierto'
-    )
+    ))
+    AND YEAR(c.fecha_apertura) = YEAR(CURDATE())  
+    AND MONTH(c.fecha_apertura) = MONTH(CURDATE())  
 GROUP BY DAY(c.fecha_apertura)
-ORDER BY ANY_VALUE(c.cierre_id);
-";
+ORDER BY ANY_VALUE(c.cierre_id);";
 
   } else {
 

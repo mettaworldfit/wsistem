@@ -10,7 +10,6 @@ if (window.location.hostname === 'localhost') {
 
 const SITE_URL = window.location.protocol + '//' + window.location.host + basePath;
 
-console.log(SITE_URL);
 
 let pageURL = $(location).attr("pathname");
 const format = new Intl.NumberFormat('en'); // Formato 0,000
