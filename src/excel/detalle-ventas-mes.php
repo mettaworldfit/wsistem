@@ -174,8 +174,9 @@ FROM (
 
 $result = $db->query($query);
 
+
 // Encabezados
-$headers = ['Nombre', 'Tipo', 'Cantidad total', 'Costo total', 'Precio Total', 'Ganancia recibida'];
+$headers = ['Nombre', 'Tipo', 'Cantidad total', 'Costo total', 'Ganancias', 'Total vendido'];
 $sheet->fromArray($headers, NULL, 'A1');
 
 // Bordes exteriores gruesos en la fila de totales
@@ -205,8 +206,8 @@ while ($r = $result->fetch_assoc()) {
   $sheet->setCellValue("B{$row}", $r['tipo']);
   $sheet->setCellValue("C{$row}", $r['cantidad']);
   $sheet->setCellValue("D{$row}", $r['costo']);
-  $sheet->setCellValue("E{$row}", $r['total']);
-  $sheet->setCellValue("F{$row}", $r['ganancia']);
+  $sheet->setCellValue("E{$row}", $r['ganancia']);
+  $sheet->setCellValue("F{$row}", $r['total']);
 
   $totalCosto += $r['costo'];
   $totalTotal += $r['total'];
@@ -220,8 +221,8 @@ $sheet->setCellValue("A{$row}", 'TOTALES');
 $sheet->mergeCells("A{$row}:C{$row}");
 $sheet->getStyle("A{$row}:F{$row}")->getFont()->setBold(true);
 $sheet->setCellValue("D{$row}", $totalCosto);
-$sheet->setCellValue("E{$row}", $totalTotal);
-$sheet->setCellValue("F{$row}", $totalGanancia);
+$sheet->setCellValue("E{$row}",$totalGanancia);
+$sheet->setCellValue("F{$row}", $totalTotal);
 
 // Bordes exteriores gruesos en la fila
 $sheet->getStyle("A{$row}:F{$row}")
@@ -288,7 +289,7 @@ $sheet->getStyle("A{$row}:F{$row}")->getFont()->setBold(true);
 $row++;
 
 // Establecer encabezado para los gastos
-$headersGastos = ['Descripción', 'Observación', 'Cantidad', 'Precio Unitario', 'Total'];
+$headersGastos = ['Descripción', 'Observación', 'Cantidad', 'Precio Unitario', 'Total gastado'];
 $sheet->fromArray($headersGastos, NULL, "A{$row}");
 
 // Aplicar negrita
