@@ -143,13 +143,6 @@
               </ul>
             </nav>
 
-            <div class="explorer">
-              <i class="fas fa-search"></i>
-              <input type="text" class="form-custom" name="" placeholder="Clientes / proveedores / productos / piezas / facturas / ordenes" id="keyword">
-              <ul id="search_result"></ul>
-            </div>
-
-
             <!-- menú movil -->
             <div id="menuToggle">
               <input type="checkbox" />
@@ -158,6 +151,26 @@
               <span></span>
 
               <ul id="accordion-movil" class="accordion menu-movil">
+
+                <div class="user-section">
+                  <div class="user-info">
+                    <div class="user-icon">
+                      <i class="fas fa-user"></i>
+                    </div>
+
+                    <div class="user-details">
+                      <span class="username"><?= $_SESSION['identity']->nombre ?></span>
+                    </div>
+                  </div>
+
+                  <div class="user-actions">
+                    <a href="<?= base_url ?>users/edit&id=<?= $_SESSION['identity']->usuario_id ?>">Perfil</a>
+                    <a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+                  </div>
+                </div>
+
+
+
                 <li>
                   <div class="link"><a href="<?= base_url ?>home/index"><i class="mr-3 fas fa-home"></i>Inicio</a></div>
                 </li>
@@ -263,9 +276,14 @@
               </ul>
             </div>
 
+            <!-- buscador -->
+            <div class="explorer">
+              <i class="fas fa-search"></i>
+              <input type="text" class="form-custom" name="" placeholder="Clientes / proveedores / productos / piezas / facturas / ordenes" id="keyword">
+              <ul id="search_result"></ul>
+            </div>
 
-          </div>
-
+          </div> <!-- admin-left -->
 
           <div class="admin-right">
             <div class="content-bar-info">
