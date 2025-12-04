@@ -101,7 +101,7 @@
 
         <section class="content-bar">
           <div class="admin-left">
-            <span id="bar-menu"><i class="fas fa-bars"></i></span>
+  
 
             <nav class="nav-container">
               <ul>
@@ -283,13 +283,16 @@
               <ul id="search_result"></ul>
             </div>
 
+            <!-- Easy Menu -->
+            <span id="bar-menu" data-title="Menu"><i class="fas fa-th"></i></span>
+
           </div> <!-- admin-left -->
 
           <div class="admin-right">
             <div class="content-bar-info">
 
               <div class="num-order">
-                <a href="<?= base_url ?>" title="Ordenes de ventas">
+                <a href="<?= base_url ?>" data-title="Ordenes de ventas">
                   <?php
 
                   $order = Help::numOrderAlert();
@@ -316,7 +319,7 @@
 
 
               <div class="out-stock">
-                <a href="<?= base_url ?>products/stock" title="Casi agotados">
+                <a href="<?= base_url ?>products/stock" data-title="Casi agotados">
                   <?php
 
                   $stock = Help::minStockProductAlert();

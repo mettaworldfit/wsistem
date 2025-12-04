@@ -1,5 +1,5 @@
 @font-face {
-    font-family: 'Cabin-Regular';
+    font-family: 'Cabin';
     src: url(./fonts/Cabin-Regular.ttf);
 }
 
@@ -14,28 +14,8 @@
 }
 
 @font-face {
-    font-family: 'Cabin-Semi';
-    src: url(./fonts/Cabin-SemiBold.ttf);
-}
-
-@font-face {
-    font-family: 'Nunito-Regular';
+    font-family: 'Nunito';
     src: url(./fonts/Nunito-Regular.ttf);
-}
-
-@font-face {
-    font-family: 'Quicksand-Light';
-    src: url(./fonts/Quicksand-Light.ttf);
-}
-
-@font-face {
-    font-family: 'Quicksand-Regular';
-    src: url(./fonts/Quicksand-Regular.ttf);
-}
-
-@font-face {
-    font-family: 'Barlow-Regular';
-    src: url(./fonts/Barlow-Regular.ttf);
 }
 
 :root {
@@ -43,8 +23,9 @@
     --color-primary: #6a3cc0;
     --text-color: #334155;
 
-    --font-primary: "Inter", sans-serif;
+    --font-primary: "Nunito", sans-serif;
     --font-secondary: "Roboto", sans-serif;
+    --font-title: "Cabin", sans-serif;
 }
 
 * {
@@ -55,7 +36,7 @@
 
 body {
     background: var(--background) !important;
-    font-family: "Nunito-Regular", sans-serif;
+    font-family: var(--font-primary);
 }
 
 a {
@@ -70,7 +51,7 @@ label {
     display: inline-block;
     margin-bottom: .7rem;
     font-size: 14px;
-    font-family: "Cabin-Semi", sans-serif;
+    font-family: var(--font-title);
     font-weight: 600;
     color: var(--text-color);
 }
@@ -80,6 +61,303 @@ label {
         font-size: 12px;
     }
 }
+
+p,
+a,
+input,
+select {
+    font-family: var(--font-primary);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-title);
+}
+
+
+/*=======================
+ INPUTS
+=======================*/
+
+input:disabled {
+    background: var(--background);
+    color: var(--text-color);
+}
+
+/* Estilo general para el control de checkbox */
+.control {
+    font-family: var(--font-primary);
+    display: block;
+    position: relative;
+    padding-left: 32px;
+    margin-bottom: 4px;
+    padding-top: 1px;
+    cursor: pointer;
+    font-size: 12px;
+    /* Tamaño base para pantallas pequeñas */
+}
+
+/* Ocultar el input del checkbox original */
+.control input {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+}
+
+/* Estilo del indicador del checkbox (el cuadrado) */
+.control_indicator {
+    position: absolute;
+    top: 2px;
+    left: 13px;
+    height: 16px;
+    /* Tamaño base pequeño */
+    width: 16px;
+    background: #e2e2e2;
+    border: 0 solid #000;
+    border-radius: 3px;
+    transition: background-color 0.3s ease;
+    /* Transiciones suaves */
+}
+
+/* Estilo cuando el checkbox es hover o está en foco */
+.control:hover input~.control_indicator,
+.control input:focus~.control_indicator {
+    background: #d7d4de;
+}
+
+/* Estilo cuando el checkbox está marcado */
+.control input:checked~.control_indicator {
+    background: var(--color-primary);
+}
+
+/* Estilo cuando el checkbox está marcado y tiene foco o está en hover */
+.control:hover input:not([disabled]):checked~.control_indicator,
+.control input:checked:focus~.control_indicator {
+    background: var(--color-primary);
+}
+
+/* Estilo cuando el checkbox está deshabilitado */
+.control input:disabled~.control_indicator {
+    background: #e6e6e6;
+    opacity: .6;
+    pointer-events: none;
+}
+
+/* Estilo para el checkmark dentro del indicador */
+.control_indicator:after {
+    box-sizing: unset;
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Estilo para el checkmark cuando el checkbox está marcado */
+.control input:checked~.control_indicator:after {
+    display: block;
+}
+
+.control-checkbox .control_indicator:after {
+    left: 5px;
+    top: 2px;
+    width: 4px;
+    height: 7px;
+    border: solid #fff;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+/* Estilos para pantallas grandes (min-width) */
+@media (min-width: 1340px) {
+    .control {
+        font-size: 14px;
+        /* Aumentar el tamaño del texto para pantallas grandes */
+    }
+
+    .control_indicator {
+        top: 2px;
+        left: 11px;
+        /* Ajustar posición */
+        height: 18px;
+        /* Aumentar el tamaño */
+        width: 18px;
+        /* Aumentar el tamaño */
+    }
+
+    .control-checkbox .control_indicator:after {
+        left: 5px;
+        /* Ajustar posición del checkmark */
+        width: 3px;
+        /* Ajuste pequeño */
+    }
+}
+
+/* Estilo para el indicador de checkbox deshabilitado */
+.control-checkbox input:disabled~.control_indicator:after {
+    border-color: #7b7b7b;
+}
+
+
+.form-custom-icon:focus {
+    box-shadow: none !important;
+    border: none !important;
+    border-left: 1px solid #ced4da !important
+}
+
+.b-left {
+    border: none;
+    border-left: 1px solid #ced4da
+}
+
+.b-right {
+    border: none;
+    border-right: 1px solid #ced4da
+}
+
+.form-custom-icon {
+    font-size: 11px;
+    font-family: var(--font-primary);
+    color: var(--text-color);
+    font-weight: 600;
+    padding: 5px 0 5px 7px;
+    margin: 2px 0;
+    width: 100%
+}
+
+@media (min-width:1350px) {
+    .form-custom-icon {
+        padding: 5px 0 5px 7px;
+        font-size: 14px
+    }
+}
+
+input[type="date"].form-custom-icon {
+    border: none !important
+}
+
+.input-div {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ced4da;
+    border-radius: 2px
+}
+
+.input-div .i {
+    padding: 0 7px;
+    color: var(--text-color);
+}
+
+.input-div .i-10 {
+    padding: 0 7px;
+    width: 10%;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.input-div .select2-container--default .select2-selection--single {
+    border: none
+}
+
+.input-update {
+    width: 50px;
+    padding: 3px 2px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid #ccc;
+    font-family: var(--font-primary);
+}
+
+.b-left {
+    border: none;
+    border-left: 1px solid #ced4da
+}
+
+.form-custom {
+    border: 1px solid #ced4da;
+    border-radius: 2px;
+    /* padding: 2px 0 2px 5px; */
+    padding: 5px 0 5px 5px;
+    margin: 2px 0;
+    font-size: 9pt;
+    color: var(--text-color);
+    width: 100%
+}
+
+@media (min-width: 1340px) {
+    .form-custom {
+        padding: 6px 0 6px 5px;
+        font-size: 11pt
+    }
+
+    .input-div {
+        padding: 4px;
+    }
+}
+
+/*==========================================
+  UTILIDADES
+============================================ */
+
+[data-title] {
+    position: relative;
+    cursor: pointer;
+}
+
+/* Caja del tooltip */
+[data-title]:after {
+    content: attr(data-title);
+    background-color: #1e2735;  
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;                
+    font-family: var(--font-primary);
+    position: absolute;
+    padding: 12px 14px;               
+    border-radius: 8px;             
+    min-height: 22px;
+    line-height: 3px;
+    bottom: -31px;               
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s ease, transform .2s ease;
+    transform-origin: top;
+    z-index: 20;
+}
+
+/* Triángulo */
+[data-title]:before {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid #1e2735;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s ease;
+    z-index: 19;
+}
+
+/* Mostrar ambos */
+[data-title]:hover:after,
+[data-title]:hover:before {
+    opacity: 1;
+    visibility: visible;
+}
+
 
 .pointer {
     cursor: pointer !important
@@ -107,22 +385,6 @@ p.list_db {
     text-align: justify
 }
 
-p,
-a,
-input,
-select {
-    font-family: "Nunito-Regular", sans-serif;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    font-family: "Cabin-Regular", sans-serif;
-}
-
 .btn-custom {
     display: flex;
     justify-content: center;
@@ -132,7 +394,7 @@ h6 {
     height: 31px;
     line-height: 31px;
     margin-top: 5px;
-    font-family: "Nunito-regular", sans-serif;
+    font-family: var(--font-primary);
     font-size: 8pt;
     border-radius: 3px;
     text-decoration: none !important
@@ -226,10 +488,9 @@ h6 {
 }
 
 .select2-container {
-    font-family: "Nunito-regular", sans-serif;
+    font-family: var(--font-primary);
     font-size: 13px;
 }
-
 
 
 img.logo {
@@ -302,7 +563,7 @@ span.condition {
 }
 
 .action-toggle a:hover {
-    color: #6a3cc0
+    color: var(--color-primary)
 }
 
 #toggle {
@@ -440,63 +701,6 @@ span:hover #toggle {
     background: #00b19d
 }
 
-.form-check-label {
-    margin-bottom: 0.5em !important;
-    font-weight: 400 !important;
-    font-size: 14px
-}
-
-span.select2-container--default {
-    font-size: 14px
-}
-
-@media (min-width: 576px) {
-    .modal-dialog {
-        max-width: 750px !important;
-    }
-}
-
-@media (min-width: 1325px) {
-    .modal-dialog {
-        max-width: 1100px !important;
-    }
-
-    .modal-cashClosing {
-        min-width: 830px !important;
-        margin: 1.75rem auto;
-    }
-}
-
-@media (max-width:1340px) {
-    .form-check-label {
-        font-size: 12px
-    }
-
-    span.select2-container--default {
-        font-size: 11px
-    }
-}
-
-.form-custom {
-    border: 1px solid #ced4da;
-    border-radius: 2px;
-    padding: 2px 0 2px 5px;
-    margin: 2px 0;
-    font-size: 9pt;
-    width: 100%
-}
-
-@media (min-width: 1340px) {
-    .form-custom {
-        padding: 6px 0 6px 5px;
-        font-size: 11pt
-    }
-}
-
-.select2-container--default .select2-selection--single {
-    border-radius: 2px !important
-}
-
 .enabled {
     background: green !important;
     color: white !important;
@@ -518,6 +722,10 @@ span.select2-container--default {
     border-radius: 4px;
     padding: 3px 0 3px 5px
 }
+
+/*======================================================
+ GRAFICOS DASHBOARD
+ ======================================================= */
 
 .charts {
     display: flex;
@@ -564,6 +772,10 @@ span.select2-container--default {
         width: 100%
     }
 }
+
+/*==============================================
+ CONTENEDORES
+================================================ */
 
 .general-title {
     background: #92c7ff !important;
@@ -719,11 +931,11 @@ section.content-bar {
 /* Buscador */
 
 .explorer input {
-    height: 31px;
+    height: 36px;
     font-size: 9pt;
     padding-left: 30px;
-    border-radius: 20px;
-    background: var(--background);
+    border-radius: 5px;
+    background: #fff;
 }
 
 @media (min-width: 1250px) {
@@ -761,7 +973,7 @@ ul#search_result {
 
 ul#search_result li {
     background: white;
-    font-family: "Cabin-Regular", sans-serif;
+    font-family: var(--font-title);
     border-bottom: 0.5px solid #ccc;
     font-size: 12px;
     height: 40px;
@@ -898,15 +1110,16 @@ img.nav-icon {
 }
 
 .content-bar-info {
-    margin-right: 15px;
-    padding-left: 5px;
-    display: flex;
-    justify-content: center
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 38px);
+    justify-content: end;
 }
 
 @media (min-width:724px) {
     .content-bar-info {
-        width: 400px
+        width: 400px;
+        max-width: 45%;
     }
 }
 
@@ -950,15 +1163,15 @@ img.nav-icon {
 .out-stock span:nth-child(1) {
     color: var(--text-color);
     font-size: 14pt;
-    margin-right: 20px;
-    padding-right: 5px
+    /* margin-right: 20px;
+    padding-right: 5px */
 }
 
 .num-order span:nth-child(1) {
     color: var(--text-color);
     font-size: 14pt;
-    margin-right: 10px;
-    padding-right: 5px
+    /* margin-right: 10px;
+    padding-right: 5px */
 }
 
 @media (max-width:1340px) {
@@ -996,7 +1209,7 @@ img.nav-icon {
 .nav-user ul li,
 .nav-user a {
     color: #fff;
-    font-family: "Nunito-Regular", sans-serif;
+    font-family: var(--font-primary);
     font-size: 13px;
     padding-left: 5px;
     text-decoration: none;
@@ -1030,7 +1243,7 @@ span.alert-notify-xs p {
     width: 14px;
     height: 14px;
     line-height: 14px;
-    margin: 8px 0 0 12px;
+    margin: 9px 0 0 11px;
     padding-left: 5px;
     font-size: 8px;
 }
@@ -1053,13 +1266,20 @@ span.alert-notify-lg p {
     font-size: 7px;
 }
 
-@media (max-width:1340px) {
+@media (min-width:1340px) {
+
+    span.alert-notify-xs p {
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    margin: 15px 0 0 11px;
+}
 
     span.alert-notify-md p {
         width: 17px;
         height: 17px;
         line-height: 17px;
-        margin: 3px 0 0 12px;
+        margin: 14px 0 0 12px;
         font-size: 9px;
     }
 
@@ -1141,7 +1361,7 @@ span.alert-notify-lg p {
 }
 
 .info p {
-    font-family: "Nunito-Regular", sans-serif;
+    font-family: var(--font-primary);
     color: var(--text-color);
     font-size: 12px;
 }
@@ -1153,7 +1373,7 @@ span.alert-notify-lg p {
 }
 
 .info span {
-    font-family: "Nunito-Regular", sans-serif;
+    font-family: var(--font-primary);
 }
 
 .navigation {
@@ -1282,14 +1502,14 @@ span.alert-notify-lg p {
 
 .accordion .link a {
     color: #fff;
-    font-family: "Nunito-Regular", sans-serif;
+    font-family: var(--font-primary);
 }
 
 .accordion .link {
     cursor: pointer;
     padding: 15px 10px 15px 22px;
     border-bottom: .5px solid #636363;
-    font-family: "Nunito-Regular", sans-serif;
+    font-family: var(--font-primary);
     color: #fff;
     font-size: 11px;
     position: relative;
@@ -1320,11 +1540,11 @@ span.alert-notify-lg p {
 }
 
 .accordion li.open .link {
-    color: #6a3cc0
+    color: var(--color-primary)
 }
 
 .accordion li.open i {
-    color: #6a3cc0
+    color: var(--color-primary)
 }
 
 .fa-chevron-down {
@@ -1389,7 +1609,7 @@ span.alert-notify-lg p {
 }
 
 .submenu a {
-    font-family: "Nunito-Regular", sans-serif;
+    font-family: var(--font-primary);
     display: block;
     width: 89%;
     text-decoration: none;
@@ -1644,18 +1864,18 @@ span.alert-notify-lg p {
 }
 
 .section-wrapper h1 {
-    font-size: 18pt;
+    font-size: 15pt;
     color: var(--text-color)
 }
 
-@media (max-width:1350px) {
+@media (min-width:1350px) {
 
     .section-wrapper {
         margin: 31px 0px 10px 0px;
     }
 
     .section-wrapper h1 {
-        font-size: 15pt
+        font-size: 18pt
     }
 }
 
@@ -1699,12 +1919,14 @@ span.alert-notify-lg p {
 
 .title-info {
     font-size: 13px;
-    font-weight: 300
+    font-weight: 300;
+    color: var(--text-color);
 }
 
 .info-sm {
     font-weight: 300;
     font-size: 13px;
+    color: var(--text-color);
     margin: 0
 }
 
@@ -1928,7 +2150,12 @@ table#variantList {
     margin-right: 90px;
 }
 
+/*===================================
+  TABLE CUSTOM
+====================================*/
+
 .table-custom {
+    width: 100% !important;
     background: #fff;
     border-radius: 4px;
     border-collapse: collapse
@@ -1942,7 +2169,7 @@ table#variantList {
     font-size: 8pt;
     color: #fff;
     font-weight: lighter;
-    font-family: "Barlow-Regular", sans-serif !important;
+    font-family: var(--font-primary) !important;
     background: #303741;
     border: none !important;
 }
@@ -1951,7 +2178,7 @@ table#variantList {
     height: 1.5em;
     line-height: 1.5em;
     font-size: 8pt;
-    font-family: "Barlow-Regular", sans-serif !important;
+    font-family: var(--font-primary) !important;
     font-weight: 600;
     background-color: #fff;
     color: var(--text-color)
@@ -2075,8 +2302,8 @@ input[type="date"]:focus,
 input[type="number"]:focus,
 input[type="password"]:focus input[type="date"]:focus,
 textarea:focus {
-    box-shadow: 0 0 5px -2px #6a3cc0;
-    border: 1px solid #6a3cc0
+    box-shadow: 0 0 5px -2px var(--color-primary);
+    border: 1px solid var(--color-primary)
 }
 
 @keyframes ldio-f9ntw0vxf94 {
@@ -2102,7 +2329,7 @@ textarea:focus {
     position: absolute;
     width: 11px;
     height: 76px;
-    background: #6a3cc0;
+    background: var(--color-primary);
     left: 50px;
     top: 50px;
     transform: translate(-50%, -50%)
@@ -2154,195 +2381,7 @@ textarea:focus {
     box-sizing: content-box
 }
 
-/* Estilo general para el control de checkbox */
-.control {
-    font-family: "Nunito-Regular", sans-serif;
-    display: block;
-    position: relative;
-    padding-left: 32px;
-    margin-bottom: 4px;
-    padding-top: 1px;
-    cursor: pointer;
-    font-size: 12px;
-    /* Tamaño base para pantallas pequeñas */
-}
 
-/* Ocultar el input del checkbox original */
-.control input {
-    position: absolute;
-    z-index: -1;
-    opacity: 0;
-}
-
-/* Estilo del indicador del checkbox (el cuadrado) */
-.control_indicator {
-    position: absolute;
-    top: 2px;
-    left: 13px;
-    height: 16px;
-    /* Tamaño base pequeño */
-    width: 16px;
-    background: #e2e2e2;
-    border: 0 solid #000;
-    border-radius: 3px;
-    transition: background-color 0.3s ease;
-    /* Transiciones suaves */
-}
-
-/* Estilo cuando el checkbox es hover o está en foco */
-.control:hover input~.control_indicator,
-.control input:focus~.control_indicator {
-    background: #d7d4de;
-}
-
-/* Estilo cuando el checkbox está marcado */
-.control input:checked~.control_indicator {
-    background: #6a3cc0;
-}
-
-/* Estilo cuando el checkbox está marcado y tiene foco o está en hover */
-.control:hover input:not([disabled]):checked~.control_indicator,
-.control input:checked:focus~.control_indicator {
-    background: #6a3cc0;
-}
-
-/* Estilo cuando el checkbox está deshabilitado */
-.control input:disabled~.control_indicator {
-    background: #e6e6e6;
-    opacity: .6;
-    pointer-events: none;
-}
-
-/* Estilo para el checkmark dentro del indicador */
-.control_indicator:after {
-    box-sizing: unset;
-    content: "";
-    position: absolute;
-    display: none;
-}
-
-/* Estilo para el checkmark cuando el checkbox está marcado */
-.control input:checked~.control_indicator:after {
-    display: block;
-}
-
-.control-checkbox .control_indicator:after {
-    left: 5px;
-    top: 2px;
-    width: 4px;
-    height: 7px;
-    border: solid #fff;
-    border-width: 0 3px 3px 0;
-    transform: rotate(45deg);
-}
-
-/* Estilos para pantallas grandes (min-width) */
-@media (min-width: 1340px) {
-    .control {
-        font-size: 14px;
-        /* Aumentar el tamaño del texto para pantallas grandes */
-    }
-
-    .control_indicator {
-        top: 2px;
-        left: 11px;
-        /* Ajustar posición */
-        height: 18px;
-        /* Aumentar el tamaño */
-        width: 18px;
-        /* Aumentar el tamaño */
-    }
-
-    .control-checkbox .control_indicator:after {
-        left: 5px;
-        /* Ajustar posición del checkmark */
-        width: 3px;
-        /* Ajuste pequeño */
-    }
-}
-
-/* Estilo para el indicador de checkbox deshabilitado */
-.control-checkbox input:disabled~.control_indicator:after {
-    border-color: #7b7b7b;
-    /* Color más tenue para el checkmark deshabilitado */
-}
-
-
-.form-custom-icon:focus {
-    box-shadow: none !important;
-    border: none !important;
-    border-left: 1px solid #ced4da !important
-}
-
-.b-left {
-    border: none;
-    border-left: 1px solid #ced4da
-}
-
-.b-right {
-    border: none;
-    border-right: 1px solid #ced4da
-}
-
-.form-custom-icon {
-    padding: 2px 0 2px 2px;
-    margin: 2px 0;
-    font-size: 14px;
-    width: 100%
-}
-
-@media (max-width:1340px) {
-    .form-custom-icon {
-        padding: 2.5px 0 2.5px 2px;
-        font-size: 12px
-    }
-
-    .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
-        font-size: 12px !important
-    }
-}
-
-input[type="date"].form-custom-icon {
-    border: none !important
-}
-
-.input-div {
-    display: flex;
-    align-items: center;
-    border: 1px solid #ced4da;
-    border-radius: 2px
-}
-
-.input-div .i {
-    padding: 0 7px
-}
-
-.input-div .i-10 {
-    padding: 0 7px;
-    width: 10%;
-    font-weight: 600;
-    font-size: 14px
-}
-
-.input-div .select2-container--default .select2-selection--single {
-    border: none
-}
-
-.input-update {
-    width: 50px;
-    padding: 3px 2px;
-    text-align: center;
-    font-size: 11px;
-    font-weight: 600;
-    border: 1px solid #ccc;
-    font-family: "Nunito-Regular", sans-serif;
-}
-
-
-.b-left {
-    border: none;
-    border-left: 1px solid #ced4da
-}
 
 .price-container {
     display: flex;
@@ -2356,8 +2395,9 @@ input[type="date"].form-custom-icon {
 
 .price-content span {
     border-bottom: 1px solid #ccc;
+    color: var(--text-color);
     padding: 5px 0;
-    font-size: 10px
+    font-size: 10px;
 }
 
 @media (min-width:724px) {
@@ -2366,9 +2406,9 @@ input[type="date"].form-custom-icon {
     }
 }
 
-@media (min-width:1325px) {
+@media (min-width:1350px) {
     .price-content span {
-        font-size: 11pt
+        font-size: 12pt
     }
 }
 
@@ -2381,8 +2421,8 @@ input[type="date"].form-custom-icon {
     font-weight: 700;
     text-transform: uppercase;
     padding: 5px 0 5px 10px;
-    background: #f3f3f3;
-    margin-top: 10px
+    background: var(--background);
+    margin-top: 10px;
 }
 
 .modal-legend p {
@@ -2400,20 +2440,27 @@ input[type="date"].form-custom-icon {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 12pt;
-    font-family: "Nunito-regular", sans-serif;
+    font-family: var(--font-primary);
 }
 
-@media (max-width:1340px) {
+.head-content,
+.head-content h6 {
+    font-size: 10pt;
+    color: var(--text-color);
+}
+
+.modal-title {
+    font-size: 14pt !important;
+    color: var(--text-color) !important;
+}
+
+@media (min-width:1350px) {
 
     .head-content,
     .head-content h6 {
-        font-size: 10pt
+        font-size: 12pt
     }
 
-    .modal-title {
-        font-size: 14pt !important
-    }
 }
 
 .container-area {
@@ -2472,7 +2519,7 @@ input[type="date"].form-custom-icon {
 }
 
 .col-legend h3 {
-    color: #495057;
+    color: var(--text-color);
     font-size: 16px;
     font-weight: 700;
     text-transform: uppercase;
@@ -2508,8 +2555,15 @@ input[type="date"].form-custom-icon {
     display: flex;
     overflow: hidden;
     font-size: 1.5em;
+    font-family: var(--font-primary);
     font-weight: 700;
-    color: #797979
+    color: var(--text-color);
+}
+
+@media (min-width:1350px) {
+    .row-price {
+        font-size: 2em;
+    }
 }
 
 .radio-list {
@@ -2542,7 +2596,7 @@ input[type="date"].form-custom-icon {
 }
 
 .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
-    background-color: #6a3cc0 !important;
+    background-color: var(--color-primary) !important;
     color: #fff
 }
 
@@ -2570,13 +2624,13 @@ input[type="date"].form-custom-icon {
 .radio-item label:after {
     height: 16px;
     width: 16px;
-    border: 2px solid #6a3cc0;
+    border: 2px solid var(--color-primary);
     left: 16px;
     top: calc(50% - 9px)
 }
 
 .radio-item label:before {
-    background: #6a3cc0;
+    background: var(--color-primary);
     height: 8px;
     width: 8px;
     left: 20px;
@@ -2592,8 +2646,8 @@ input[type="date"].form-custom-icon {
 }
 
 .radio-item [type="radio"]:checked~label {
-    border-color: #6a3cc0;
-    border: 1px solid #6a3cc0
+    border-color: var(--color-primary);
+    border: 1px solid var(--color-primary)
 }
 
 .radio-item [type="radio"]:checked~label:before {
@@ -2619,7 +2673,7 @@ input[type="date"].form-custom-icon {
     padding: 10px 25px;
     border-radius: 4px;
     border: none;
-    background: #6a3cc0;
+    background: var(--color-primary);
     color: #fff
 }
 
@@ -2853,7 +2907,7 @@ a.button-404:hover {
     width: 40px;
     height: 40px;
     border: 5px solid #ccc;
-    border-top-color: #6a3cc0;
+    border-top-color: var(--color-primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     display: inline-block;
@@ -2885,12 +2939,12 @@ li.paginate_button.page-item {
 
 .page-item.active .page-link {
     color: #fff !important;
-    background-color: #6a3cc0 !important;
-    border-color: #6a3cc0 !important
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important
 }
 
 .page-link {
-    color: #6a3cc0 !important
+    color: var(--color-primary) !important
 }
 
 /* botones de agregar listas y variantes */
@@ -2913,7 +2967,7 @@ li.paginate_button.page-item {
     width: 98%;
     font-size: 13px;
     font-weight: 600;
-    color: #6a3cc0;
+    color: var(--color-primary);
     margin-top: 15px
 }
 
@@ -2929,7 +2983,7 @@ li.paginate_button.page-item {
 .add_list_to_product a {
     margin-left: 2px;
     text-decoration: none !important;
-    color: #6a3cc0;
+    color: var(--color-primary);
     font-size: 13px
 }
 
@@ -2966,12 +3020,14 @@ li.paginate_button.page-item {
     color: #fff
 }
 
-/* Modal Cashback */
+/*==========================================
+ MODAL CASHBACK
+============================================ */
 
 .cashback-modal {
     text-align: center;
     padding: 10px;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: var(--font-primary);
 }
 
 .cashback-header {
@@ -3027,7 +3083,9 @@ li.paginate_button.page-item {
     }
 }
 
-/* Cierre de caja modal */
+/*======================================================================
+  CIERRE DE CAJA MODAL
+======================================================================== */
 
 .grid-date-container {
     display: grid;
@@ -3211,4 +3269,60 @@ button.btn-del {
     margin: 10px 10px 0 10px;
     display: flex;
     justify-content: flex-end
+}
+
+
+
+/*================================================
+  BOOSTSTRAP, SELECT2 CUSTOM
+================================================== */
+
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    font-size: 12px !important
+}
+
+.select2-container--default .select2-selection--single {
+    border-radius: 2px !important
+}
+
+.form-check-label {
+    margin-bottom: 0.5em !important;
+    font-weight: 400 !important;
+    font-size: 14px
+}
+
+span.select2-container--default {
+    font-size: 14px
+}
+
+@media (min-width: 576px) {
+    .modal-dialog {
+        max-width: 750px !important;
+    }
+}
+
+@media (min-width: 1325px) {
+    .modal-dialog {
+        max-width: 1100px !important;
+    }
+
+    .modal-cashClosing {
+        min-width: 830px !important;
+        margin: 1.75rem auto;
+    }
+}
+
+@media (max-width:1340px) {
+    .form-check-label {
+        font-size: 12px
+    }
+}
+
+span.select2-container--default {
+    font-size: 11px;
+    padding: 2px 0 2px 0px;
+}
+
+.select2-container .select2-selection--multiple {
+    min-height: 0px !important;
 }

@@ -1,4 +1,4 @@
-<div class="section-wrapper mt-2">
+<div class="section-wrapper">
   <div class="align-content clearfix">
     <div class="float-left">
       <h1><i class="far fa-chart-bar"></i> Panel de control</h1>
@@ -46,7 +46,7 @@
               $icon = "fas fa-caret-down";
             }
             ?>
-            <p class="<?= $className ?>" title="ganancias del mes: <?= number_format($monthProfit ?? 0) ?>"><?= $profit ?></p>
+            <p class="<?= $className ?>" data-title="ganancias del mes: <?= number_format($monthProfit ?? 0) ?>"><?= $profit ?></p>
             <i class="<?= $icon . ' ' . $className ?>"></i>
           </div>
 
@@ -66,7 +66,7 @@
             }
             ?>
 
-            <p class="<?= $className ?>" title="ganancias de hoy: <?= number_format($dailyProfit ?? 0) ?>"><?= $profit ?></p>
+            <p class="<?= $className ?>" data-title="ganancias de hoy: <?= number_format($dailyProfit ?? 0) ?>"><?= $profit ?></p>
             <i class="<?= $icon . ' ' . $className ?>"></i>
           </div>
 
@@ -74,7 +74,7 @@
       </div>
     </div>
 
-    <span title="<?= number_format(floatval($totalPurchase), 2) ?>">
+    <span data-title="<?= number_format(floatval($totalPurchase), 2) ?>">
       $<?= number_format_short(floatval($totalPurchase)) ?>
     </span>
   </a>
@@ -84,7 +84,7 @@
       <p>Gastos</p>
       <p><?= date("d/m/Y"); ?></p>
     </div>
-    <span title="<?= number_format(floatval($totalExpenses), 2) ?>">
+    <span data-title="<?= number_format(floatval($totalExpenses), 2) ?>">
       $<?= number_format_short(floatval($totalExpenses)) ?>
     </span>
   </a>
@@ -113,7 +113,7 @@
               $icon = "fas fa-caret-down";
             }
             ?>
-            <p class="<?= $className ?>" title="Clientes activos: <?= $activeCustomer ?>"><?= $activeCustomer ?></p>
+            <p class="<?= $className ?>" data-title="Clientes activos: <?= $activeCustomer ?>"><?= $activeCustomer ?></p>
             <i class="<?= $icon . ' ' . $className ?>"></i>
           </div>        
 
