@@ -36,8 +36,9 @@
 
     <div class="row col-sm-12">
         <div class="form-group col-sm-8">
-            <textarea class="form-custom" name="" value="" id="observation" cols="30" rows="6" maxlength="150"
-                placeholder="Observaciones"><?= $note; ?></textarea>
+            <textarea class="form-custom" name="observation" id="comment" cols="30" rows="6" maxlength="150"
+                placeholder="Observaciones"><?= isset($note) ? htmlspecialchars($note) : ''; ?>
+            </textarea>
         </div>
 
         <!-- Precio total -->

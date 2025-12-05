@@ -1,20 +1,46 @@
 @font-face {
-    font-family: 'Quicksand-Regular';
-    src: url(./fonts/Quicksand-Regular.ttf)
+    font-family: 'Cabin';
+    src: url(./fonts/Cabin-Regular.ttf);
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url(./fonts/Inter-VariableFont_opsz\,wght.ttf);
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url(./fonts/Roboto-VariableFont_wdth\,wght.ttf);
+}
+
+@font-face {
+    font-family: 'Nunito';
+    src: url(./fonts/Nunito-Regular.ttf);
 }
 
 * {
     box-sizing: border-box
 }
 
+:root {
+
+    --color-primary: #6a3cc0;
+    --color-hover: #5221ac;
+    --background-sidebar: #0c0832;
+
+    --font-primary: "Nunito", sans-serif;
+    --font-secondary: "Roboto", sans-serif;
+    --font-title: "Cabin", sans-serif;
+}
+
 label {
-    font-family: "Quicksand-Regular", sans-serif;
-    font-weight: 600
+    font-family: var(--font-title);
+    font-weight: 400
 }
 
 p,
 input {
-    font-family: "Quicksand-Regular", sans-serif;
+    font-family: var(--font-title);
     font-weight: 600
 }
 
@@ -24,16 +50,34 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: "Quicksand-Regular", sans-serif
+    font-family: var(--font-title)
 }
 
 body {
-    font-family: "Quicksand-Regular", sans-serif
+    font-family: var(--font-title)
 }
+
+.powered-by {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.powered-by a {
+  color: var(--color-primary); 
+  text-decoration: none;
+}
+
+.powered-by a:hover {
+  text-decoration: underline;
+  color: var(--color-primary);
+}
+
 
 aside.sidebar {
     float: right;
-    background: #0c0832;
+    background: var(--background-sidebar);
     height: 100vh;
     text-align: center
 }
@@ -57,12 +101,13 @@ aside.sidebar {
 }
 
 .user-access {
-    height: 100vh
+    height: 100vh;
+    padding: 40px 70px 70px 70px;
 }
 
 @media (min-width:600px) {
     .user-access {
-        padding: 70px
+        padding: 15px 70px 70px 70px;
     }
 }
 
@@ -109,7 +154,7 @@ aside.sidebar-right {
 .caption span {
     font-size: 3em;
     font-weight: 700;
-    color: #6a3cc0
+    color: var(--color-primary)
 }
 
 .caption p {
@@ -135,7 +180,7 @@ img.login-logo {
 
 .login-title {
     font-size: 16pt;
-    font-family: "Quicksand-Regular", sans-serif;
+    font-family: var(--font-title);
     font-weight: 600;
     color: #fff
 }
@@ -143,7 +188,7 @@ img.login-logo {
 span.missing,
 span.expired {
     color: red;
-    font-family: "Quicksand-Regular", sans-serif;
+    font-family: var(--font-title);
     font-size: 13px
 }
 
@@ -152,8 +197,6 @@ span.missing-key {
     text-decoration: underline;
     font-size: 15px
 }
-
-
 
 input[type="text"],
 input[type="password"],
@@ -173,9 +216,8 @@ input[type="text"]:hover .i {
 button[type="submit"] {
     margin-top: 5px;
     color: #fff;
-    font-family: "Quicksand-Regular", sans-serif;
-    font-weight: 600;
-    background: #9607bf;
+    font-family: var(--font-title);
+    background: var(--color-primary);
     width: 320px;
     height: 45px;
     border: 0;
@@ -187,7 +229,7 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-    background-color: #601ae2
+    background-color: var(--color-hover)
 }
 
 .input-div {
@@ -211,7 +253,7 @@ button[type="submit"]:hover {
     top: 50%;
     transform: translateY(-50%);
     pointer-events: none;
-    font-family: "Quicksand-Regular", sans-serif;
+    font-family: var(--font-title);
     transition: .6s
 }
 
@@ -234,14 +276,55 @@ button[type=submit]:focus {
 }
 
 button[type=submit]:focus {
-    box-shadow: 0 0 5px -2px #6a3cc0;
-    border: 1px solid #6a3cc0
+    box-shadow: 0 0 5px -2px var(--color-primary);
+    border: 1px solid var(--color-primary)
 }
 
 input,
 select {
-    color: #9607bf!important;
-    -webkit-text-fill-color: #9607bf!important;
-    -webkit-background-clip: text!important;
-    background-clip: text!important
+    color: var(--color-primary) !important;
+    -webkit-text-fill-color: var(--color-primary) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important
+}
+
+/* Contenedor social-media */
+.social-grid {
+    width: 22%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    place-items: center;
+    margin: 0 auto;
+}
+
+@media (min-width: 764px) {
+    .social-grid {
+        width: 31%;
+    }
+}
+
+/* Estilos generales para los iconos */
+.social-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 37px;
+    height: 37px;
+    font-size: 20px;
+    border-radius: 50%;
+    background-color: #334155;
+    color: white;
+    transition: transform 0.3s ease-out;
+    text-decoration: none;
+}
+
+/* Efecto hover */
+.social-icon:hover {
+    transform: scale(1.05);
+    color: var(--color-primary);
+}
+
+/* Iconos */
+.social-icon i {
+    font-size: 25px;
 }

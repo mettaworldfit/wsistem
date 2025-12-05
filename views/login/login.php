@@ -1,5 +1,4 @@
 <aside class="sidebar">
-
   <div class="user-access">
 
     <div class="logo-content">
@@ -47,20 +46,25 @@
       <span class="missing">No se ha podido iniciar sesión <i class="fas fa-key"></i></span>
     </form>
 
-    <br>
+    <div class="social-grid">
+      <a href="https://instagram.com/codevrd" class="social-icon" target="_blank">
+        <i class="fab fa-instagram"></i>
+      </a>
+      
+        <a href="https://wa.me/18295020900?text=Quiero%20saber%20cómo%20puedo%20adquirir%20el%20sistema%20de%20administración" class="social-icon" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    </div>
 
+    <div class="powered-by">
+      <span>Powered by <a href="https://instagram.com/codevrd" target="_blank">Codevrd</a></span>
+    </div>
 
   </div>
-
-  </div>
-
 </aside>
 
+
 <aside class="sidebar-right">
-
   <div class="sidebar-right-content">
-
-
   </div>
-
 </aside>

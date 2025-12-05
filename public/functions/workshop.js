@@ -204,7 +204,7 @@ $(document).ready(function () {
             subtotal: $('#in-subtotal').val().replace(/,/g, ""),
             discount: $('#in-discount').val().replace(/,/g, ""),
             total: $('#in-total').val().replace(/,/g, ""),
-            observation: $('#observation').val(),
+            observation: $('#comment').val(),
             order_id: $('#orden_id').val()
         };
 
