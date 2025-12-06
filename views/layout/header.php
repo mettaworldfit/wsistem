@@ -165,7 +165,7 @@
 
                   <div class="user-actions">
                     <a href="<?= base_url ?>users/edit&id=<?= $_SESSION['identity']->usuario_id ?>">Perfil</a>
-                    <a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+                    <a href="#" id="logout-movil"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
                   </div>
                 </div>
 

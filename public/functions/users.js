@@ -1,7 +1,7 @@
 function deleteUser(user_id) {
 
     alertify.confirm("Eliminar usuario", "¿Estas seguro que deseas borrar este usuario? ",
-        function () {
+        function() {
 
             sendAjaxRequest({
                 url: "services/users.php",
@@ -13,7 +13,7 @@ function deleteUser(user_id) {
                 errorCallback: (res) => mysql_error(res)
             })
         },
-        function () {
+        function() {
 
         });
 }
@@ -72,7 +72,7 @@ function updateUser(userId) {
 
 function disableUser(userId) {
     alertify.confirm("<i class='text-warning fas fa-exclamation-circle'></i> Desactivar usuario", "¿Desea desactivar este usuario? ",
-        function () {
+        function() {
 
             sendAjaxRequest({
                 url: "services/users.php",
@@ -87,7 +87,7 @@ function disableUser(userId) {
                 }
             });
         },
-        function () { }
+        function() {}
     );
 }
 
@@ -95,7 +95,7 @@ function disableUser(userId) {
 
 function enableUser(userId) {
     alertify.confirm("Activar usuario", "¿Desea activar este usuario? ",
-        function () {
+        function() {
 
             sendAjaxRequest({
                 url: "services/users.php",
@@ -111,12 +111,12 @@ function enableUser(userId) {
                 }
             });
         },
-        function () {
+        function() {
 
         });
 }
 
-$(document).ready(function () {
+$(document).ready(function() {
 
     $('.load, .missing').hide();
 
@@ -147,7 +147,7 @@ $(document).ready(function () {
 
     // Cerrar sesión
 
-    $('#logout').on('click', (e) => {
+    $('#logout, #logout-movil').on('click', (e) => {
         e.preventDefault();
 
         sendAjaxRequest({
