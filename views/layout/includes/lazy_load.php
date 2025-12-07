@@ -26,6 +26,7 @@ $uri = $_SERVER["REQUEST_URI"];
 
 // Scripts globales
 $globalScripts = [
+    base_url . 'public/functions/pos.js',
     base_url . 'public/functions/users.js',
     base_url . 'public/functions/invoices.js',
     base_url . 'public/functions/workshop.js',

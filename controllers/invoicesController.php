@@ -4,6 +4,12 @@ require_once './help.php';
 class InvoicesController
 {
 
+    public function pos()
+    {
+
+        require_once './views/invoices/pos.php';
+    }
+
     public function addpurchase()
     {
 

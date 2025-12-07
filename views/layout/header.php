@@ -82,18 +82,22 @@
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css" />
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
 
+
+  <link rel="stylesheet" href="https://unpkg.com/isotope-layout@3.0.6/dist/isotope.pkgd.min.css">
+<script src="https://unpkg.com/isotope-layout@3.0.6/dist/isotope.pkgd.min.js"></script>
+
+
 </head>
 
 <body>
 
   <?php if (isset($_SESSION['admin']) || isset($_SESSION['identity'])): ?>
 
-    <section class="contenido">
+    <!-- <section class="contenido"> -->
 
-      <!-- Manú -->
-
+     <!-- ================ HEADER ==================== -->
+  
       <header class="admin-bar clearfix">
-
         <div class="container-logo">
           <!-- Logo -->
           <!-- <img src="<?= base_url ?>public/imagen/sistem/" alt="" class="logo"> -->
@@ -101,8 +105,8 @@
 
         <section class="content-bar">
           <div class="admin-left">
-  
 
+            <!-- Menu rapido -->
             <nav class="nav-container">
               <ul>
                 <li><a href="<?= base_url ?>invoices/addpurchase">
@@ -143,7 +147,7 @@
               </ul>
             </nav>
 
-            <!-- menú movil -->
+
             <div id="menuToggle">
               <input type="checkbox" />
               <span></span>
@@ -152,6 +156,7 @@
 
               <ul id="accordion-movil" class="accordion menu-movil">
 
+                <!-- user-section -->
                 <div class="user-section">
                   <div class="user-info">
                     <div class="user-icon">
@@ -170,7 +175,7 @@
                 </div>
 
 
-
+                <!-- menu-movil -->
                 <li>
                   <div class="link"><a href="<?= base_url ?>home/index"><i class="mr-3 fas fa-home"></i>Inicio</a></div>
                 </li>
@@ -283,10 +288,10 @@
               <ul id="search_result"></ul>
             </div>
 
-            <!-- Easy Menu -->
+            <!-- Menu rapido icon -->
             <span id="bar-menu" data-title="Menu"><i class="fas fa-th"></i></span>
-
           </div> <!-- admin-left -->
+
 
           <div class="admin-right">
             <div class="content-bar-info">
@@ -294,58 +299,49 @@
               <div class="num-order">
                 <a href="<?= base_url ?>" data-title="Ordenes de ventas">
                   <?php
+                      $order = Help::numOrderAlert();
+                      $className = "";
 
-                  $order = Help::numOrderAlert();
-                  $className = "";
-
-                  if ($order < 10) {
-                    $className .= "alert-notify alert-notify-xs alert-num-order";
-                  } elseif ($order > 99) {
-                    $className .= "alert-notify alert-notify-lg alert-num-order";
-                    $order = "99+";
-                  } else {
-                    $className .= "alert-notify alert-notify-md alert-num-order";
-                  }
-
+                      if ($order < 10) {
+                        $className .= "alert-notify alert-notify-xs alert-num-order";
+                      } elseif ($order > 99) {
+                        $className .= "alert-notify alert-notify-lg alert-num-order";
+                        $order = "99+";
+                      } else {
+                        $className .= "alert-notify alert-notify-md alert-num-order";
+                      }
                   ?>
-
                   <span class="<?= $className ?>">
                     <i class="fas fa-clipboard-list"></i>
                     <p><?= $order; ?></p>
                   </span>
-
                 </a>
               </div>
 
-
+              <!-- fuera de stock -->
               <div class="out-stock">
                 <a href="<?= base_url ?>products/stock" data-title="Casi agotados">
                   <?php
+                      $stock = Help::minStockProductAlert();
+                      $className = "";
 
-                  $stock = Help::minStockProductAlert();
-                  $className = "";
-
-                  if ($stock < 10) {
-                    $className .= "alert-notify alert-notify-xs alert-out-stock";
-                  } elseif ($stock > 99) {
-                    $className .= "alert-notify alert-notify-lg alert-out-stock";
-                    $stock = "99+"; // Nuevo stock
-                  } else {
-                    $className .= "alert-notify alert-notify-md alert-out-stock";
-                  }
-
+                      if ($stock < 10) {
+                        $className .= "alert-notify alert-notify-xs alert-out-stock";
+                      } elseif ($stock > 99) {
+                        $className .= "alert-notify alert-notify-lg alert-out-stock";
+                        $stock = "99+"; // Nuevo stock
+                      } else {
+                        $className .= "alert-notify alert-notify-md alert-out-stock";
+                      }
                   ?>
-
                   <span class="<?= $className ?>">
                     <i class="fas fa-inbox"></i>
                     <p><?= $stock; ?></p>
                   </span>
-
                 </a>
-              </div>
+              </div> 
 
-
-
+              <!-- session de usuario -->
               <div class="user">
                 <span><i class="fas fa-user-circle"></i></span>
                 <span><?= $_SESSION['identity']->nombre ?></span>
@@ -359,13 +355,12 @@
                 <li id="logout"><a href="#">Cerrar sesión</a></li>
               </ul>
             </nav>
-          </div>
-
-        </section>
-
+          </div> <!-- admin-right -->
+        </section> <!-- content-bar -->
       </header>
 
-      <!-- Nav-sidebar -->
+
+    <!-- ================ SIDEBAR (APP-MENU) ==================== -->
 
       <aside class="sidebar clearfix">
         <nav class="app-menu">
@@ -475,11 +470,15 @@
               </li>
             <?php endif; ?>
           </ul>
-        </nav>
+
+        </nav> <!-- app-menu -->
       </aside>
+
+
+        <!-- ================ CONTENIDO ==================== -->
 
       <div class="main wrap">
         <main>
 
-          <?php require_once 'includes/modal-global.php'; ?>
-        <?php endif; ?>
+        <?php require_once 'includes/modal-global.php'; ?>  <!-- Modals goblales -->
+        <?php endif; ?><!-- verificar sesion activa -->
