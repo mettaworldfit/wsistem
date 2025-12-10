@@ -741,6 +741,68 @@ SHOW TRIGGERS;
 
 
 
+-- ===================== CAMBIOS POR APLICAR =========================
+
+
+
+DROP PROCEDURE IF EXISTS `vt_crearDetalleTemporalPOS`;
+DELIMITER $$
+CREATE PROCEDURE `vt_crearDetalleTemporalPOS` (in _producto_id int,in descripcion varchar(100), 
+in _usuario_id int, in _cantidad decimal(10,2),in costo decimal(10,2), in precio decimal(10,2))
+BEGIN
+ 
+DECLARE stockDisponible DECIMAL(10,2);
+ DECLARE cantidadExistente DECIMAL(10,2);
+
+    -- Obtener la cantidad actual de detalle_temporal
+    SELECT cantidad INTO cantidadExistente
+    FROM detalle_temporal
+    WHERE producto_id = _producto_id AND usuario_id = _usuario_id
+    LIMIT 1;
+    
+     SELECT cantidad INTO stockDisponible
+    FROM productos WHERE producto_id = _producto_id LIMIT 1;
+
+ -- Verificar que la cantidad no exceda el stock disponible
+    IF _cantidad > stockDisponible THEN
+        SELECT 'Error: No hay suficiente stock disponible.' AS msg;
+    ELSE
+    
+IF EXISTS (SELECT 1 FROM detalle_temporal WHERE producto_id = _producto_id AND usuario_id = _usuario_id) THEN
+
+UPDATE detalle_temporal SET 
+cantidad = cantidadExistente + _cantidad 
+WHERE producto_id = _producto_id AND usuario_id = _usuario_id;
+
+SELECT 'Detalle incrementado' AS msg;
+
+ELSE 
+
+    -- Si el producto no existe, insertar el nuevo detalle
+        INSERT INTO detalle_temporal (usuario_id, producto_id, pieza_id, servicio_id, descripcion, cantidad, costo, precio, hora, fecha)
+        VALUES (_usuario_id, _producto_id, 0, 0, descripcion, _cantidad, costo, precio, CURTIME(), CURDATE());
+
+        SELECT LAST_INSERT_ID() AS msg;
+
+END IF;
+END IF;
+
+
+END $$
+DELIMITER ; 
+
+
+
+INSERT INTO detalle_temporal 
+(usuario_id, producto_id, pieza_id, servicio_id, descripcion, cantidad, costo, precio, hora, fecha)
+VALUES
+(usuario_id,producto_id,0,0,descripcion,cantidad,costo,precio, CURTIME(), CURDATE());
+
+
+
+CALL vt_crearDetalleTemporalPOS(1077, 'ACEITUNAS GOYA RELLENAS DE PIMIENTOS', 1, 1, 97.85, 120.00);
+
+select * from detalle_temporal;
 
 
 
