@@ -111,32 +111,32 @@
                 <div class="content-inputs-item">
                     <div class="input-row-one">
                         <div>
-                            <label class="form-check-label" for="">Precio base</label>
-                            <input class="form-custom" type="text" name="" id="">
+                            <label class="form-check-label">Precio base</label>
+                            <input class="form-custom" type="number" name="precio" id="base_price">
                         </div>
                         <span>+</span>
                         <div>
-                            <label class="form-check-label" for="">Impuesto</label>
-                            <select class="form-custom search" name="" id="">
+                            <label class="form-check-label">Impuesto</label>
+                            <select class="form-custom search" name="impuesto" id="">
                                 <option value="">Itbis</option>
                             </select>
                         </div>
                         <span>=</span>
                         <div>
-                            <label class="form-check-label" for="">Precio final</label>
-                            <input class="form-custom" type="text" name="" id="">
+                            <label class="form-check-label">Precio final</label>
+                            <input class="form-custom" type="number" name="precio_final" id="final_price">
                         </div>
                     </div>
 
                     <div class="input-row-two">
                         <div>
-                            <label class="form-check-label" for="">Cantidad</label>
-                            <input class="form-custom" type="text" name="" id="">
+                            <label class="form-check-label" for="cantidad">Cantidad</label>
+                            <input class="form-custom" type="number" name="cantidad" id="quantity">
                         </div>
 
                         <div>
-                            <label class="form-check-label" for="">Descuento</label>
-                            <input class="form-custom" type="text" name="" id="">
+                            <label class="form-check-label" for="descuento">Descuento</label>
+                            <input class="form-custom" type="number" name="descuento" id="discount">
                         </div>
                     </div>
                 </div>
@@ -149,24 +149,23 @@
                     <div class="price-content-pos">
                         <div>
                             <span>Subtotal</span>
-                            <span>$0.00</span>
+                            <span class="item-subtotal">$0.00</span>
                         </div>
 
-                        <div>
+                        <div id="row-discount">
                             <span>Descuento -</span>
-                            <span>$0.00</span>
+                            <span class="item-discount">$0.00</span>
                         </div>
 
-                        <div>
+                        <div id="row-tax">
                             <span>Impuestos +</span>
-                            <span>$0.00</span>
+                            <span class="item-taxes">$0.00</span>
                         </div>
 
                         <div class="summary-pos-window">
                             <span>Total</span>
-                            <span>$0.00</span>
+                            <span class="item-total">$0.00</span>
                         </div>
-
                     </div>
                 </div>
 
@@ -195,33 +194,26 @@
 
         <!-- Resumen -->
         <div class="pos-section-summary">
+            <div class="price-content-pos">
+                <div>
+                    <span>Subtotal</span>
+                    <span class="pos-subtotal">$0.00</span>
+                </div>
+
+                <div>
+                    <span>Descuento -</span>
+                    <span class="pos-discount">$0.00</span>
+                </div>
+
+                <div>
+                    <span>Impuestos +</span>
+                    <span class="pos-taxes">$0.00</span>
+                </div>
+            </div>
             <button action="button" class="pos-button-cash">
                 <p>Facturar</p>
-                <span><input type="text" class="invisible-input pos-total" value="" id="in-total" disabled></span>
+                <span class="pos-total">$0.00</span>
             </button>
         </div>
     </div>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- Paginación -->
-<!-- <div id="pagination">
-    <button id="prev-btn">Anterior</button>
-    <span id="page-number">Página: 1</span>
-    <div id="page-numbers" class="page-numbers">
-     
-    </div>
-    <button id="next-btn">Siguiente</button>
-</div> -->

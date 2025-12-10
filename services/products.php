@@ -523,10 +523,10 @@ foreach ($data as &$row) {
     // Generar las acciones para cada producto
     $row['acciones'] = '
     <div class="pos-actions">
-        <a class="btn-action action-info" href="#" title="editar" id="item-edit">
+        <a class="btn-action action-info" href="#" data-edit="'. $row['detalle_temporal_id'] .'" title="editar" id="item-edit">
             ' . BUTTON_EDIT . '
         </a>
-        <a class="btn-action action-danger" data-delete="' . $row['detalle_temporal_id'] . '" id="item-delete">
+        <a class="btn-action action-danger" data-delete="'. $row['detalle_temporal_id'] .'" id="item-delete">
             ' . BUTTON_DELETE . '
         </a>
     </div>';

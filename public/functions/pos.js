@@ -1,4 +1,4 @@
-$(document).ready(function () {
+$(document).ready(function() {
 
     // Verifica la URL
     if (window.location.href.includes('invoices/pos')) {
@@ -34,12 +34,12 @@ $(document).ready(function () {
             url: 'services/products',
             data: {
                 action: 'pos',
-                draw: currentPage,         // Número de solicitud (lo mismo que DataTables)
-                start: start,              // Índice del primer registro (inicio)
-                length: pageSize,          // Cantidad de productos por página
-                search: search,            // Término de búsqueda
-                orderColumn: 0,            // Índice de la columna de ordenación (por ejemplo, 0 = nombre)
-                orderDir: 'asc'            // Dirección de ordenación ('asc' o 'desc')
+                draw: currentPage, // Número de solicitud (lo mismo que DataTables)
+                start: start, // Índice del primer registro (inicio)
+                length: pageSize, // Cantidad de productos por página
+                search: search, // Término de búsqueda
+                orderColumn: 0, // Índice de la columna de ordenación (por ejemplo, 0 = nombre)
+                orderDir: 'asc' // Dirección de ordenación ('asc' o 'desc')
             },
             successCallback: (response) => {
                 try {
@@ -80,7 +80,7 @@ $(document).ready(function () {
     loadProductsPOS();
 
     // Manejar el evento de búsqueda 
-    $('#search-input').on('input', function () {
+    $('#search-input').on('input', function() {
         const searchValue = $(this).val().trim();
         currentPage = 1; // Volver a la primera página con el nuevo término de búsqueda
         loadProductsPOS(searchValue, currentPage); // Recargar la página 1 con el término de búsqueda
@@ -147,7 +147,7 @@ $(document).ready(function () {
     ===============================================================*/
 
     // Agregar detalle
-    $('#product-grid').on('click', '.product-card', function () {
+    $('#product-grid').on('click', '.product-card', function() {
 
         var price_list = $('#list_price').val();
         var productId = $(this).data('product');
@@ -182,7 +182,7 @@ $(document).ready(function () {
     });
 
     // eliminar producto
-    $('#pos-detail-item').on('click', '#item-delete', function (e) {
+    $('#pos-detail-item').on('click', '#item-delete', function(e) {
         e.preventDefault();
 
         const detalleId = $(this).data('delete');
@@ -194,9 +194,9 @@ $(document).ready(function () {
                 id: detalleId
             },
             successCallback: () => {
-                loadDetailPOS();  // Recargar los detalles
+                loadDetailPOS(); // Recargar los detalles
                 loadProductsPOS()
-                calculateTotalInvoice();  // Recalcular el total de la factura
+                calculateTotalInvoice(); // Recalcular el total de la factura
             },
             errorCallback: (res) => {
                 console.error('Error al eliminar detalle:', res);
@@ -206,7 +206,7 @@ $(document).ready(function () {
     });
 
     // Cambiar precio
-    $("#list_price").change(function () {
+    $("#list_price").change(function() {
         const list_id = $(this).val();
         updateToListPrice(list_id);
 
@@ -222,8 +222,8 @@ $(document).ready(function () {
             },
             successCallback: (res) => {
 
-                loadDetailPOS();  // Recargar los detalles
-                calculateTotalInvoice();  // Recalcular el total de la factura
+                loadDetailPOS(); // Recargar los detalles
+                calculateTotalInvoice(); // Recalcular el total de la factura
             },
             errorCallback: (res) => {
                 console.error(res)
@@ -234,21 +234,71 @@ $(document).ready(function () {
 
     // Editar item
 
-    $('#pos-detail-item').on('click', '#item-edit', function (e) {
+    $('#pos-detail-item').on('click', '#item-edit', function(e) {
         e.preventDefault();
+
+        var detailId = $(this).data('edit');
 
         // Mostrar ventana
         $('.pos-product-edit').css('display', 'block').css('right', '0');
 
         // Mostrar la ventana con el fondo oscuro
-        $('.pos-product-edit').css('display', 'block').css('right', '0');  // Mostrar ventana deslizante desde la derecha
-        $('.overlay').css('display', 'block');  // Mostrar la capa de fondo negro con transparencia
+        $('.pos-product-edit').css('display', 'block').css('right', '0'); // Mostrar ventana deslizante desde la derecha
+        $('.overlay').css('display', 'block'); // Mostrar la capa de fondo negro con transparencia
+
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: {
+                action: "datos_detalle_id",
+                detail_id: detailId
+            },
+            successCallback: (res) => {
+                try {
+                    const data = JSON.parse(res)[0];
+
+                    // Asignar valores base
+                    $('#quantity').val(data.cantidad);
+                    $('#base_price').val(data.precio);
+                    $('#discount').val(data.descuento || '');
+
+                    // Convertir valores numéricos
+                    const quantity = parseFloat(data.cantidad) || 0;
+                    const base_price = parseFloat(data.precio) || 0;
+                    const base_discount = parseFloat(data.descuento) || 0;
+
+                    // Cálculos
+                    const subtotalValue = quantity * base_price;
+                    const totalValue = subtotalValue - base_discount;
+
+                    // Formatear
+                    const subtotal = format.format(subtotalValue);
+                    const discount = format.format(base_discount);
+                    const total = format.format(totalValue);
+
+                    // Guardar total sin comas
+                    // const totalRaw = total.replace(/,/g, "");
+
+                    // Insertar valores en los span del HTML
+                    $('.item-subtotal').text('$' + subtotal);
+                    $('.item-discount').text('$' + discount);
+                    $('.item-total').text('$' + total);
+
+
+                } catch (e) {
+                    console.error('Error al cargar datos del detalle_id', e)
+                }
+            },
+            errorCallback: (res) => {
+                console.error(res)
+            },
+            verbose: true
+        });
     });
 
     // Cerrar la ventana y la capa de fondo
-    $('.overlay').click(function () {
-        $('.pos-product-edit').css('right', '-100%');  // Ocultar la ventana deslizante
-        $('.overlay').fadeOut(300);  // Ocultar la capa de fondo negro
+    $('.overlay').click(function() {
+        $('.pos-product-edit').css('right', '-100%'); // Ocultar la ventana deslizante
+        $('.overlay').fadeOut(300); // Ocultar la capa de fondo negro
     });
 
 }); // Ready

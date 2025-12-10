@@ -1254,3 +1254,18 @@ if ($_POST['action'] == "agregar_detalle_pos") {
 
   echo handleProcedureAction($db, 'vt_crearDetalleTemporalPOS', $params);
 }
+
+// Obtener datos del detalle por id
+if ($_POST['action'] == "datos_detalle_id") {
+
+  $db = Database::connect();
+
+  $id = $_POST['detail_id'];
+
+  $sql = "SELECT cantidad,descuento,precio FROM detalle_temporal 
+          WHERE detalle_temporal_id = '$id'";
+
+
+  jsonQueryResult($db, $sql);
+  
+}
