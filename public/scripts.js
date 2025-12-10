@@ -14,6 +14,20 @@ const SITE_URL = window.location.protocol + '//' + window.location.host + basePa
 let pageURL = $(location).attr("pathname");
 const format = new Intl.NumberFormat('en'); // Formato 0,000
 
+/**
+    * 
+    * @param {any} response - respuesta del mensaje
+    * @param {string} type - tipo de notificacion
+    * @param {int} duration  - duracion de la notificacion
+    */
+function notifyAlert(response, type = "success", duration = 5000) {
+    mdtoast(response, {
+        duration: duration,
+        position: "bottom right",
+        type: type,
+    });
+}
+
 // Variable global para acceder a las instancias DataTable desde cualquier parte
 const dataTablesInstances = {};
 
@@ -1019,10 +1033,6 @@ $(document).ready(function () {
 
     addKeyboardCommandForModal('Ctrl+3', 'add_detail');
     addKeyboardCommandForModal('Ctrl+0', 'create_customer');
-
-
-
-
 
 
 

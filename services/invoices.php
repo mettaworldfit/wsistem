@@ -469,15 +469,15 @@ if ($_POST['action'] == "agregar_detalle_temporal") {
   $db = Database::connect();
 
   $params = [
-    (int)$_POST['product_id'],
-    (int)$_POST['piece_id'],
-    (int)$_POST['service_id'],
+    (int)$_POST['product_id'] ?? 0,
+    (int)$_POST['piece_id'] ?? 0,
+    (int)$_POST['service_id'] ?? 0,
     $_POST['description'],
     (int)$_SESSION['identity']->usuario_id,
     $_POST['quantity'],
     $_POST['cost'] ?? 0,
     $_POST['price'],
-    $_POST['taxes'],
+    $_POST['taxes'] ?? 0,
     (int)$_POST['discount'] ?? 0
   ];
 
@@ -1232,4 +1232,25 @@ if ($_POST['action'] === "actualizar_cantidad_detalle_temporal" || $_POST['actio
 
   // Llamar a la función de actualización
   echo actualizarCantidadDetalle($db, $id, $quantity, $item_id, $item_type, $tabla_detalle, $tabla_id);
+}
+
+
+if ($_POST['action'] == "agregar_detalle_pos") {
+
+  $db = Database::connect();
+
+  $params = [
+    (int)$_POST['product_id'] ?? 0,
+    // (int)$_POST['piece_id'] ?? 0,
+    // (int)$_POST['service_id'] ?? 0,
+    $_POST['description'],
+    (int)$_SESSION['identity']->usuario_id,
+    $_POST['quantity'],
+    $_POST['cost'] ?? 0,
+    $_POST['price']
+    // $_POST['taxes'] ?? 0,
+    // (int)$_POST['discount'] ?? 0
+  ];
+
+  echo handleProcedureAction($db, 'vt_crearDetalleTemporalPOS', $params);
 }

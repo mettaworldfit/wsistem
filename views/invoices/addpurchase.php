@@ -438,12 +438,12 @@
                 <div class="row col-sm-12">
 
                     <div class="form-group col-sm-4">
-                        <label class="form-check-label" for="">Cliente</label>
+                        <label class="form-check-label">Cliente</label>
                         <div class="input-div">
                             <div class="i b-right">
                                 <i class="fas fa-portrait"></i>
                             </div>
-                            <select class="form-custom-icon search" name="" id="cash-in-customer" requireds>
+                            <select class="form-custom-icon search" name="" id="cash-in-customer" required>
                                 <?php $customers = Help::showCustomers();
                                 while ($customer = $customers->fetch_object()): ?>
                                     <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre) . " " . ucwords($customer->apellidos ?? '') ?></option>
@@ -454,7 +454,7 @@
                     </div>
 
                     <div class="form-group col-sm-4">
-                        <label class="form-check-label" for="">Método</label>
+                        <label class="form-check-label">Método</label>
                         <div class="input-div">
                             <div class="i b-right">
                                 <i class="fas fa-list"></i>

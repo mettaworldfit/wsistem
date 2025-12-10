@@ -1,4 +1,4 @@
-const CACHE_STATIC_NAME = "static-v1";
+const CACHE_STATIC_NAME = "static-v2";
 const CACHE_DYNAMIC_NAME = "dynamic-v1";
 const CACHE_INMUTABLE_NAME = "inmutable-v2";
 const CACHE_DYNAMIC_LIMIT = 20;
@@ -31,11 +31,10 @@ self.addEventListener("install", (e) => {
                 "public/imagen/img/img1.jpg",
                 "public/imagen/img/img2.jpg",
                 "public/imagen/img/img3.jpg",
+                "public/imagen/sistem/no-imagen.png",
                 "public/login.css",
                 "public/jquery/jquery.js",
                 "public/fonts/Cabin-Regular.ttf",
-                "public/fonts/Cabin-SemiBold.ttf",
-                "public/fonts/Quicksand-Light.ttf",
                 "public/fonts/Nunito-Regular.ttf",
                 "public/fonts/Barlow-Regular.ttf",
                 "public/fonts/Quicksand-Regular.ttf",

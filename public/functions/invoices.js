@@ -75,7 +75,7 @@ function updateOrderStatus(selectElement) { // recibimos por parametro el elemen
 function deleteOrder(id) {
 
     alertify.confirm("Eliminar orden", "¿Estas seguro que deseas eliminar esta orden? ",
-        function() {
+        function () {
 
             sendAjaxRequest({
                 url: "services/invoices.php",
@@ -88,7 +88,7 @@ function deleteOrder(id) {
 
             });
         },
-        function() {
+        function () {
 
         });
 }
@@ -119,12 +119,11 @@ function cashback(data) {
 }
 
 // Total de la factura
-
 function calculateTotalInvoice(bonus = 0) {
     // Determinar acción según la URL
     let action, invoice_id, order_id;
 
-    if (pageURL.includes("invoices/addpurchase")) {
+    if (pageURL.includes("invoices/addpurchase") || pageURL.includes("invoices/pos")) {
         action = 'precios_detalle_temp';
     } else if (pageURL.includes("invoices/edit_quote")) {
         action = 'total_cotizacion';
@@ -150,11 +149,12 @@ function calculateTotalInvoice(bonus = 0) {
             successCallback: (res) => {
                 const data = JSON.parse(res)[0];
 
-                const discount = format.format(data.descuentos);
-                const taxes = format.format(data.taxes);
+                const discount = format.format(data.descuentos || 0);
+                const taxes = format.format(data.taxes || 0);
                 const subtotal = format.format(data.precios);
 
-                const totalValue = parseFloat(data.precios) + parseFloat(data.taxes) - parseFloat(data.descuentos);
+            
+                const totalValue = parseFloat(data.precios) + parseFloat(data.taxes || 0) - parseFloat(data.descuentos || 0);
                 const total = isNaN(totalValue) ? '0.00' : format.format(totalValue);
                 const totalRaw = total.replace(/,/g, "");
 
@@ -181,7 +181,7 @@ function calculateTotalInvoice(bonus = 0) {
 
                 // Botones y validaciones
                 toggleElementsByTotal(totalValue);
-            }
+            },verbose: false
         })
 
 
@@ -220,8 +220,8 @@ function reloadInvoiceDetail() {
     // Actualizar detalle según la página
     const tableKey = pageURL.includes('invoices/addpurchase') ? 'detailTemp' :
         pageURL.includes('invoices/edit') ? 'editInvoice' :
-        pageURL.includes('invoices/add_order') ? 'addorder' :
-        null;
+            pageURL.includes('invoices/add_order') ? 'addorder' :
+                null;
 
     if (tableKey) {
         dataTablesInstances[tableKey].ajax.reload();
@@ -246,10 +246,10 @@ function resetModal() {
     $("#variant_id").prop("disabled", true);
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
 
     // Detectar el cambio en los inputs con la clase .input-quantity
-    $(document).on('change', '.input-quantity', function() {
+    $(document).on('change', '.input-quantity', function () {
         var newQuantity = $(this).val();
         var detail_id = $(this).data('id'); // Obtener el detalle_id del atributo data-id
         var itemId = $(this).data('item-id');
@@ -263,6 +263,8 @@ $(document).ready(function() {
             action = 'actualizar_cantidad_detalle_temporal';
         } else if (pageURL.includes("invoices/add_order")) {
             action = 'actualizar_cantidad_orden_venta';
+        } else if (pageURL.includes("invoices/pos")) {
+            action = 'actualizar_cantidad_detalle_temporal';
         }
 
         if (newQuantity && !isNaN(newQuantity)) {
@@ -283,17 +285,10 @@ $(document).ready(function() {
                         var result = JSON.parse(res);
 
                         if (result.error) {
-                            mdtoast(result.message, {
-                                duration: 5000,
-                                position: "bottom right",
-                                type: 'error',
-                            });
+                               notifyAlert(result.message,'error');
                         } else {
-                            mdtoast("Cantidad actualizada correctamente", {
-                                interactionTimeout: 1500,
-                                type: 'success',
-                                position: "bottom right",
-                            });
+                           
+                            notifyAlert("Cantidad actualizada correctamente",'success',1500);
                         }
 
                         calculateTotalInvoice();
@@ -328,7 +323,8 @@ $(document).ready(function() {
         pageURL.includes("invoices/edit") ||
         pageURL.includes("invoices/edit_quote") ||
         pageURL.includes("invoices/quote") ||
-        pageURL.includes("invoices/add_order")
+        pageURL.includes("invoices/add_order") ||
+        pageURL.includes("invoices/pos")
     ) {
         // Calcular total actual de la factura
         calculateTotalInvoice();
@@ -338,7 +334,7 @@ $(document).ready(function() {
         $('#piece, #service').attr('required', false);
 
         // Manejar el cambio de tipo de ítem (pieza, producto o servicio)
-        $('input:radio[name=tipo]').change(function() {
+        $('input:radio[name=tipo]').change(function () {
             const tipo = $(this).val();
 
             // Limpiar campos comunes
@@ -348,7 +344,7 @@ $(document).ready(function() {
                 case "pieza":
                     // Mostrar campos relacionados con piezas
                     $('.piece').show();
-                    $('.product, .service', ).hide();
+                    $('.product, .service',).hide();
                     $('#piece_code').show();
                     $('.product-piece, .discount').show();
                     $('#code').hide();
@@ -422,13 +418,13 @@ $(document).ready(function() {
     }
 
     // Botón: Crear factura al contado sin ticket
-    $('#cash-in-finish').on('click', function(e) {
+    $('#cash-in-finish').on('click', function (e) {
         e.preventDefault();
         createCashInvoice(false);
     });
 
     // Botón: Crear factura al contado con ticket
-    $('#cash-in-finish-receipt').on('click', function(e) {
+    $('#cash-in-finish-receipt').on('click', function (e) {
         e.preventDefault();
         createCashInvoice(true);
     });
@@ -640,7 +636,7 @@ $(document).ready(function() {
 
     // Consultar si el cliente a crédito tiene un bono
 
-    $("#include_bond").click(function() {
+    $("#include_bond").click(function () {
         if ($("#include_bond").is(':checked')) {
 
             // Aplicar bono
@@ -748,7 +744,7 @@ $(document).ready(function() {
                 pay: $('#credit-pay').val(),
                 date: $('#credit-in-date').val()
             },
-            success: function(res) {
+            success: function (res) {
                 if (res > 0) {
 
 
@@ -768,7 +764,7 @@ $(document).ready(function() {
 
                 } else {
                     mysql_error(res)
-                        // Ocultar los botones de facturar en ambos modal para evitar insertar datos vacios
+                    // Ocultar los botones de facturar en ambos modal para evitar insertar datos vacios
                     $('#credit-in-finish').hide()
                     $('#credit-in-finish-receipt').hide()
                     $('#cash-in-finish').hide()
@@ -792,7 +788,7 @@ $(document).ready(function() {
                     order_id: $('#order_id').val(),
                     date: $('#credit-in-date').val()
                 },
-                success: function(res) {
+                success: function (res) {
 
                     if (res != "") {
 
@@ -842,7 +838,7 @@ $(document).ready(function() {
                 data: data,
                 id: invoice_id
             },
-            success: function(res) {
+            success: function (res) {
                 console.log(res)
             }
         });
@@ -911,7 +907,7 @@ $(document).ready(function() {
                 }),
                 contentType: "application/json", // Enviamos JSON
                 dataType: "json", // Esperamos JSON de respuesta
-                success: function(res) {
+                success: function (res) {
                     if (res.success) {
                         console.log("✅ Impresión completada:", res.message);
                         alertify.success(res.message || "Ticket impreso correctamente.");
@@ -920,7 +916,7 @@ $(document).ready(function() {
                         alertify.error(res.message || "Error al imprimir el ticket.");
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error("❌ Error AJAX:", error);
                     alertify.error("No se pudo conectar con el servidor de impresión.");
                 }
@@ -1068,7 +1064,7 @@ $(document).ready(function() {
                 data: data
             },
             dataType: "json",
-            success: function(res) {
+            success: function (res) {
                 if (res.status === "success") {
                     alertify.success(res.message);
                     console.log(res.data)
@@ -1077,7 +1073,7 @@ $(document).ready(function() {
                 }
                 console.log("Respuesta del servidor:", res);
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error("Error en la solicitud:", error);
                 alertify.error("No se pudo conectar con la impresora.");
             }
@@ -1091,7 +1087,7 @@ $(document).ready(function() {
 
     if (pageURL.includes("invoices/quote")) {
 
-        $(function() {
+        $(function () {
 
             // Verificar
             if (localStorage.getItem("detalle_cotizacion")) {
@@ -1158,7 +1154,7 @@ $(document).ready(function() {
     /**
      * Evento que se ejecuta cuando se abre el modal de edición de orden
      */
-    $("#modalEditComanda").on("show.bs.modal", function() {
+    $("#modalEditComanda").on("show.bs.modal", function () {
 
         // Función para obtener parámetro de la URL
         function getParam(name) {
@@ -1221,10 +1217,14 @@ $(document).ready(function() {
 function addDetailItem() {
     // Verificar a cual detalle insertar el producto
 
-    let action = pageURL.includes("invoices/addpurchase") ? "agregar_detalle_temporal" :
-        pageURL.includes("invoices/edit") ? "agregar_detalle_venta" :
-        pageURL.includes("invoices/add_order") ? "agregar_detalle_venta" :
-        null;
+    let action = null;
+
+    if (pageURL.includes("invoices/addpurchase")) {
+        action = "agregar_detalle_temporal";
+    } else if (pageURL.includes("invoices/edit") || pageURL.includes("invoices/add_order")) {
+        action = "agregar_detalle_venta";
+    }
+
     if (!action) return;
 
     const tipo = $('input:radio[name=tipo]:checked').val();
@@ -1279,8 +1279,8 @@ function addDetailItem() {
     function assignVariants(detail_id, variants) {
         const action2 = pageURL.includes("invoices/addpurchase") ? "asignar_variantes_temporales" :
             pageURL.includes("invoices/edit") ? "asignar_variantes" :
-            pageURL.includes("invoices/add_order") ? "asignar_variantes" :
-            null;
+                pageURL.includes("invoices/add_order") ? "asignar_variantes" :
+                    null;
 
         if (!action2) return;
 
@@ -1294,7 +1294,6 @@ function addDetailItem() {
     }
 
     function addItem() {
-        console.log("action:", action)
         sendAjaxRequest({
             url: "services/invoices.php",
             data: {
@@ -1318,8 +1317,7 @@ function addDetailItem() {
                     assignVariants(res, variant_id); // Asignar variantes al detalle temporal
                 }
             },
-            errorCallback: (res) => mysql_error(res),
-            verbose: true
+            errorCallback: (res) => mysql_error(res)
         });
     }
 }
@@ -1351,6 +1349,8 @@ function deleteInvoiceDetail(id) {
                 dataTablesInstances['editInvoice'].ajax.reload();
             } else if (pageURL.includes('invoices/add_order')) {
                 dataTablesInstances['addorder'].ajax.reload();
+            } else if (pageURL.includes('invoices/pos')) {
+                loadDetailPOS();
             }
 
 
@@ -1365,7 +1365,7 @@ function deleteInvoiceDetail(id) {
 function deleteInvoice(id) {
 
     alertify.confirm("Eliminar factura", "¿Estas seguro que deseas eliminar esta factura? ",
-        function() {
+        function () {
 
             $.ajax({
                 url: SITE_URL + "services/invoices.php",
@@ -1374,12 +1374,12 @@ function deleteInvoice(id) {
                     action: "eliminar_factura",
                     id: id
                 },
-                success: function(res) {
+                success: function (res) {
 
                     if (res == "ready") {
 
                         (pageURL.includes("invoices/index")) ?
-                        dataTablesInstances['invoices'].ajax.reload(null, false): dataTablesInstances['today'].ajax.reload(null, false);
+                            dataTablesInstances['invoices'].ajax.reload(null, false) : dataTablesInstances['today'].ajax.reload(null, false);
 
                     } else {
                         mysql_error(res)
@@ -1387,7 +1387,7 @@ function deleteInvoice(id) {
                 }
             });
         },
-        function() {
+        function () {
 
         });
 }
@@ -1406,7 +1406,7 @@ function Update_info_purchase() {
             method: $('#method').val(),
             id: $('#invoice_id').val()
         },
-        success: function(res) {
+        success: function (res) {
             if (res == "ready") {
 
                 mysql_row_update()
@@ -1677,7 +1677,7 @@ function RegisterDetail(id, onDb = false, data) {
                 taxes: tax_value,
                 discount: discount,
             },
-            success: function(res) {
+            success: function (res) {
 
                 if (res == "ready") {
 
@@ -1707,7 +1707,7 @@ function RegisterDetail(id, onDb = false, data) {
 
 function deleteQuote(id) {
     alertify.confirm("Eliminar cotización", "¿Estas seguro que deseas eliminar esta cotización? ",
-        function() {
+        function () {
             sendAjaxRequest({
                 url: "services/invoices.php",
                 data: {
@@ -1718,7 +1718,7 @@ function deleteQuote(id) {
                 errorCallback: (res) => mysql_error(error)
             });
         },
-        function() {
+        function () {
 
         });
 }

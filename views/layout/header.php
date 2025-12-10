@@ -83,10 +83,7 @@
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
 
 
-  <link rel="stylesheet" href="https://unpkg.com/isotope-layout@3.0.6/dist/isotope.pkgd.min.css">
-<script src="https://unpkg.com/isotope-layout@3.0.6/dist/isotope.pkgd.min.js"></script>
-
-
+ 
 </head>
 
 <body>

@@ -6,6 +6,7 @@ require_once 'functions/functions.php';
 session_start();
 
 $db = Database::connect();
+$user_id = $_SESSION['identity']->usuario_id;
 $action = $_POST['action'] ?? '';
 
 /**
@@ -154,28 +155,28 @@ switch ($action) {
         } else {
           $acciones .= 'class="btn-action action-info action-disable" href="#"';
         }
-        $acciones .= ' title="Editar">'.BUTTON_EDIT.'</a>';
+        $acciones .= ' title="Editar">' . BUTTON_EDIT . '</a>';
 
         // Activar o desactivar producto
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
           if ($row['nombre_estado'] == 'Activo') {
-            $acciones .= '<span onclick="disableProduct(\'' . $row['idproducto'] . '\')" class="btn-action action-success" title="Desactivar ítem">'.BUTTON_ACTIVE.'</span>';
+            $acciones .= '<span onclick="disableProduct(\'' . $row['idproducto'] . '\')" class="btn-action action-success" title="Desactivar ítem">' . BUTTON_ACTIVE . '</span>';
           } else {
-            $acciones .= '<span onclick="enableProduct(\'' . $row['idproducto'] . '\')" class="btn-action action-danger" title="Activar">'.BUTTON_DISABLE.'</span>';
+            $acciones .= '<span onclick="enableProduct(\'' . $row['idproducto'] . '\')" class="btn-action action-danger" title="Activar">' . BUTTON_DISABLE . '</span>';
           }
         } else {
           if ($row['nombre_estado'] == 'Activo') {
-            $acciones .= '<span class="btn-action action-success action-disable" title="Desactivar">'.BUTTON_ACTIVE.'</span>';
+            $acciones .= '<span class="btn-action action-success action-disable" title="Desactivar">' . BUTTON_ACTIVE . '</span>';
           } else {
-            $acciones .= '<span class="btn-action action-danger action-disable" title="Activar">'.BUTTON_DISABLE.'</span>';
+            $acciones .= '<span class="btn-action action-danger action-disable" title="Activar">' . BUTTON_DISABLE . '</span>';
           }
         }
 
         // Eliminar
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
-          $acciones .= '<span onclick="deleteProduct(\'' . $row['idproducto'] . '\')" class="btn-action action-danger" title="Eliminar">'.BUTTON_DELETE.'</span>';
+          $acciones .= '<span onclick="deleteProduct(\'' . $row['idproducto'] . '\')" class="btn-action action-danger" title="Eliminar">' . BUTTON_DELETE . '</span>';
         } else {
-          $acciones .= '<span class="btn-action action-danger action-disable" title="Eliminar">'.BUTTON_DELETE.'</span>';
+          $acciones .= '<span class="btn-action action-danger action-disable" title="Eliminar">' . BUTTON_DELETE . '</span>';
         }
 
         return [
@@ -236,28 +237,28 @@ switch ($action) {
         } else {
           $acciones .= 'class="btn-action action-info action-disable" href="#"';
         }
-        $acciones .= ' title="Editar">'.BUTTON_EDIT.'</a>';
+        $acciones .= ' title="Editar">' . BUTTON_EDIT . '</a>';
 
         // Activar o desactivar producto
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
           if ($row['nombre_estado'] == 'Activo') {
-            $acciones .= '<span onclick="disableProduct(\'' . $row['idproducto'] . '\')" class="btn-action action-success" title="Desactivar">'.BUTTON_ACTIVE.'</span>';
+            $acciones .= '<span onclick="disableProduct(\'' . $row['idproducto'] . '\')" class="btn-action action-success" title="Desactivar">' . BUTTON_ACTIVE . '</span>';
           } else {
-            $acciones .= '<span onclick="enableProduct(\'' . $row['idproducto'] . '\')" class="btn-action action-danger" title="Activar">'.BUTTON_DISABLE.'</span>';
+            $acciones .= '<span onclick="enableProduct(\'' . $row['idproducto'] . '\')" class="btn-action action-danger" title="Activar">' . BUTTON_DISABLE . '</span>';
           }
         } else {
           if ($row['nombre_estado'] == 'Activo') {
-            $acciones .= '<span class="btn-action action-success action-disable" title="Desactivar">'.BUTTON_ACTIVE.'</span>';
+            $acciones .= '<span class="btn-action action-success action-disable" title="Desactivar">' . BUTTON_ACTIVE . '</span>';
           } else {
-            $acciones .= '<span class="btn-action action-danger action-disable" title="Activar">'.BUTTON_DISABLE.'</span>';
+            $acciones .= '<span class="btn-action action-danger action-disable" title="Activar">' . BUTTON_DISABLE . '</span>';
           }
         }
 
         // Eliminar
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
-          $acciones .= '<span onclick="deleteProduct(\'' . $row['idproducto'] . '\')" class="btn-action action-danger" title="Eliminar">'.BUTTON_DELETE.'</span>';
+          $acciones .= '<span onclick="deleteProduct(\'' . $row['idproducto'] . '\')" class="btn-action action-danger" title="Eliminar">' . BUTTON_DELETE . '</span>';
         } else {
-          $acciones .= '<span class="btn-action action-danger action-disable" title="Eliminar">'.BUTTON_DELETE.'</span>';
+          $acciones .= '<span class="btn-action action-danger action-disable" title="Eliminar">' . BUTTON_DELETE . '</span>';
         }
 
         $cantidad = '<span ';
@@ -271,6 +272,7 @@ switch ($action) {
         $cantidad .= $row['cantidad'] . '</span>';
 
         return [
+          'imagen' => '<img src="' . base_url . '/public/imagen/sistem/chino_com.png" alt="">',
           'codigo' => '<span class="hide-cell">' . $row['cod_producto'] . '</span>',
           'nombre' => $row['nombre_producto'],
           'categoria' => '<span class="hide-cell">' . $row['nombre_categoria'] . '</span>',
@@ -300,7 +302,7 @@ switch ($action) {
         'caja',
         'entrada'
       ],
-      'searchable' => ['serial','color','nombre_proveedor','sabor'],
+      'searchable' => ['serial', 'color', 'nombre_proveedor', 'sabor'],
       'base_table' => 'variantes v',
       'table_with_joins' => 'variantes v
                INNER JOIN productos p ON p.producto_id = v.producto_id
@@ -314,7 +316,7 @@ switch ($action) {
       'table_rows' => function ($row) {
         // Si el usuario es administrador, añade la celda con la acción
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
-          $button = '<td><span class="action-danger btn-action" onclick="deleteVariantDb(\'' . $row['var_id'] . '\', \'' . $row['costo_unitario'] . '\')">'.BUTTON_ERASE.'</span></td>';
+          $button = '<td><span class="action-danger btn-action" onclick="deleteVariantDb(\'' . $row['var_id'] . '\', \'' . $row['costo_unitario'] . '\')">' . BUTTON_ERASE . '</span></td>';
         }
 
         return [
@@ -430,5 +432,113 @@ switch ($action) {
   // Caso: Eliminar una variante
   case 'eliminar_variante':
     echo handleProcedureAction($db, 'pr_eliminarVariante', [$_POST['id']]);
+    break;
+
+  case 'pos':
+
+    // Recibir parámetros de la solicitud
+    $draw = isset($_POST['draw']) ? (int) $_POST['draw'] : 1;  // Número de solicitud (para seguimiento)
+    $start = isset($_POST['start']) ? (int) $_POST['start'] : 0; // Índice de inicio
+    $length = isset($_POST['length']) ? (int) $_POST['length'] : 10; // Cantidad de productos por página
+    $search = isset($_POST['search']) ? $_POST['search'] : ''; // Término de búsqueda
+
+    // Columnas para ordenamiento
+    $columns = ['nombre_producto', 'cod_producto', 'precio_unitario'];  // Ajusta las columnas según tu base de datos
+    $orderColumn = isset($_POST['orderColumn']) ? (int) $_POST['orderColumn'] : 0;
+    $orderDir = isset($_POST['orderDir']) ? $_POST['orderDir'] : 'asc';
+    $orderBy = $columns[$orderColumn];
+
+    // Consulta para obtener los productos con paginación y búsqueda
+    $query = "SELECT * FROM productos WHERE nombre_producto LIKE ? OR cod_producto LIKE ? ORDER BY $orderBy $orderDir LIMIT ?, ?";
+    $stmt = $db->prepare($query);
+    $searchTerm = "%" . $search . "%";
+    $stmt->bind_param('ssii', $searchTerm, $searchTerm, $start, $length);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $data = $result->fetch_all(MYSQLI_ASSOC);
+
+    // Contar el total de productos filtrados por búsqueda
+    $totalQuery = "SELECT COUNT(*) as total FROM productos WHERE nombre_producto LIKE ? OR cod_producto LIKE ?";
+    $stmtTotal = $db->prepare($totalQuery);
+    $stmtTotal->bind_param('ss', $searchTerm, $searchTerm);
+    $stmtTotal->execute();
+    $totalResult = $stmtTotal->get_result();
+    $totalData = $totalResult->fetch_assoc();
+    $totalRecords = $totalData['total'];  // Total de registros filtrados
+
+    // Responder con los datos en formato JSON
+    echo json_encode([
+      "draw" => $draw,                          // El número de solicitud de la tabla
+      "recordsTotal" => $totalRecords,                    // Total de productos en la base de datos (sin filtros)
+      "recordsFiltered" => $totalRecords,       // Total de productos filtrados
+      "data" => $data                           // Los registros de productos solicitados
+    ]);
+
+    break;
+
+  case 'detalle_punto_de_venta':
+ 
+// Consulta para obtener los productos con paginación
+$query = "SELECT detalle_temporal_id, usuario_id, producto_id, pieza_id, servicio_id, descripcion,
+    cantidad, precio, costo, impuesto, descuento, fecha, hora 
+    FROM detalle_temporal 
+     WHERE usuario_id = '$user_id' ORDER BY hora DESC";  
+
+$result = mysqli_query($db, $query);
+$data = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+// Contar el total de registros (sin filtros)
+$totalQuery = "SELECT COUNT(*) as total FROM detalle_temporal WHERE usuario_id = '$user_id'";
+$totalResult = mysqli_query($db, $totalQuery);
+$totalData = mysqli_fetch_assoc($totalResult);
+$totalRecords = $totalData['total'];  // Total de registros encontrados
+
+    // Verificar si las claves existen antes de acceder a ellas
+foreach ($data as &$row) {  
+    // Verificar si 'producto_id' y 'cantidad' están definidos
+    $producto_id = isset($row['producto_id']) ? $row['producto_id'] : null;
+    $cantidad = isset($row['cantidad']) ? $row['cantidad'] : 0;
+
+    // Verificar si el producto tiene variantes
+    $hasVariants = false;
+    if ($producto_id) {
+        $sql_check_variants = "SELECT COUNT(*) AS variants_count FROM variantes WHERE producto_id = '$producto_id'";
+        $result_variants = $db->query($sql_check_variants);
+        if ($result_variants) {
+            $variant_data = $result_variants->fetch_assoc();
+            if ($variant_data['variants_count'] > 0) {
+                $hasVariants = true;
+            }
+        }
+    }
+
+    // Generar el input con el atributo disabled si el producto tiene variantes
+     $row['cant_input'] = '<input type="number" class="input-update input-quantity" 
+                   value="' . (intval($cantidad) == $cantidad ? number_format($cantidad, 0) : number_format($cantidad, 2)) . '" 
+                   data-id="' . $row['detalle_temporal_id'] . '" 
+                   data-item-id="' . ($producto_id ? $producto_id : ($row['pieza_id'] ? $row['pieza_id'] : $row['servicio_id'])) . '" 
+                   data-item-type="' . ($producto_id ? 'producto' : ($row['pieza_id'] ? 'pieza' : 'servicio')) . '" 
+                   step="0.01" ' . ($hasVariants ? 'disabled' : '') . ' />';
+
+    // Generar las acciones para cada producto
+    $row['acciones'] = '
+    <div class="pos-actions">
+        <a class="btn-action action-info" href="#" title="editar" id="item-edit">
+            ' . BUTTON_EDIT . '
+        </a>
+        <a class="btn-action action-danger" data-delete="' . $row['detalle_temporal_id'] . '" id="item-delete">
+            ' . BUTTON_DELETE . '
+        </a>
+    </div>';
+}
+
+// Responder con los datos en formato JSON
+echo json_encode([
+    "recordsTotal" => $totalRecords,          // Total de productos en la base de datos (sin filtros)
+    "recordsFiltered" => $totalRecords,       // Total de productos filtrados
+    "data" => $data                           // Los registros de productos solicitados
+]);
+
+
     break;
 }

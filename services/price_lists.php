@@ -8,6 +8,7 @@ session_start();
 // Conexión a base de datos
 $db = Database::connect();
 
+$user_id = $_SESSION['identity']->usuario_id;
 $action = $_POST['action'] ?? '';
 
 switch ($action) {
@@ -27,10 +28,10 @@ switch ($action) {
           'descripcion' => $row['descripcion'],
           'acciones' => '
             <a href="' . base_url . 'price_lists/edit&id=' . $row['lista_id'] . '">
-              <span class="btn-action action-info">'.BUTTON_EDIT.'</span>
+              <span class="btn-action action-info">' . BUTTON_EDIT . '</span>
             </a>
             <span class="btn-action action-danger" onclick="deletePriceList(\'' . $row['lista_id'] . '\')" title="Eliminar">
-              '.BUTTON_DELETE.'
+              ' . BUTTON_DELETE . '
             </span>'
         ];
       }
@@ -127,5 +128,48 @@ switch ($action) {
   // Eliminar lista de precios
   case 'eliminar_lista':
     echo handleDeletionAction($db, (int)$_POST['id'], 'lp_eliminarLista');
+    break;
+
+  case 'actualizar_precios_pos':
+
+    $list_id = $_POST['list_id'] ?? 0;
+    $product_id = $_POST['product_id'] ?? 0;
+    $newPrice = '';
+    $sql = '';
+
+    if ($product_id > 0) {
+      $sql = "SELECT d.detalle_temporal_id, d.producto_id, p.precio_unitario, pl.valor
+    FROM detalle_temporal d
+    INNER JOIN productos_con_lista_de_precios pl ON pl.producto_id = d.producto_id
+    INNER JOIN productos p ON p.producto_id = pl.producto_id
+    WHERE p.producto_id = '$product_id' AND d.usuario_id = '$user_id'";
+
+    } else {
+
+      $sql = "SELECT d.detalle_temporal_id, d.producto_id, p.precio_unitario, pl.valor
+    FROM detalle_temporal d
+    INNER JOIN productos_con_lista_de_precios pl ON pl.producto_id = d.producto_id
+    INNER JOIN productos p ON p.producto_id = pl.producto_id
+    WHERE d.usuario_id = '$user_id'";
+    }
+
+    $result = $db->query($sql);
+
+    while ($element = $result->fetch_object()) {
+
+      $id = $element->detalle_temporal_id;
+
+      if ($list_id > 0) {
+        $newPrice = $element->valor; // precio de lista
+      } else {
+        $newPrice = $element->precio_unitario; // precio general
+      }
+
+      $sql2 = "UPDATE detalle_temporal SET precio = '$newPrice'
+       WHERE detalle_temporal_id = '$id' AND usuario_id = '$user_id'";
+      $db->query($sql2);
+    }
+
+
     break;
 }
