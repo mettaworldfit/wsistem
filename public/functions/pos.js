@@ -12,12 +12,19 @@ $(document).ready(function() {
 
         .wrap {
             width: 100%;
-            padding: 0px;
+          
         }
         `;
         // Agrega el estilo al head del documento
         document.head.appendChild(style);
     }
+
+    function formatNumber(value) {
+        if (value === null || value === undefined || value === '') return 0;
+        let num = Number(value);
+        return (num % 1 === 0) ? num.toFixed(0) : num;
+    }
+
 
     /**============================================================= 
      * CARGAR PRODUCTOS
@@ -126,6 +133,10 @@ $(document).ready(function() {
                         gridContainer.append(items);
                     });
 
+                    // Mostrar total de items en el detalle
+                    // var total_items = $('.pos-detail-item .pos-item-row').length;
+
+
                 } catch (e) {
                     console.error("Error al analizar la respuesta JSON:", e);
                 }
@@ -232,8 +243,54 @@ $(document).ready(function() {
         });
     }
 
-    // Editar item
+    // Calcular resumen de la venta editar
+    function windowSummary(data) {
 
+        let quantity;
+        let base_price;
+        let base_discount;
+
+        // validar si los datos viene del servidor o de un input
+        if (data) {
+            $('#quantity').val(formatNumber(data.cantidad));
+            $('#base_price').val(formatNumber(data.precio));
+            $('#discount').val(formatNumber(data.descuento));
+            $('#final_price').val(formatNumber(data.precio));
+
+            // Convertir valores numéricos
+            quantity = parseFloat(data.cantidad) || 0;
+            base_price = parseFloat(data.precio) || 0;
+            base_discount = parseFloat(data.descuento) || 0;
+        } else {
+            console.log('inputs')
+            quantity = Number($('#quantity').val()) || 0;
+            base_price = Number($('#base_price').val()) || 0;
+            base_discount = Number($('#discount').val()) || 0;
+        }
+
+        // Cálculos
+        const subtotalValue = quantity * base_price;
+        const totalValue = subtotalValue - base_discount;
+
+        // Formatear
+        const subtotal = format.format(subtotalValue);
+        const discount = format.format(base_discount);
+        const total = format.format(totalValue);
+
+        // Guardar total sin comas
+        // const totalRaw = total.replace(/,/g, "");
+
+        // Insertar valores en los span del HTML
+        if (discount > 0) {
+            $('#row-discount').css('display', 'flex')
+            $('.item-discount').text('$' + discount);
+        }
+
+        $('.item-subtotal').text('$' + subtotal);
+        $('.item-total').text('$' + total);
+    }
+
+    // Editar item
     $('#pos-detail-item').on('click', '#item-edit', function(e) {
         e.preventDefault();
 
@@ -256,33 +313,8 @@ $(document).ready(function() {
                 try {
                     const data = JSON.parse(res)[0];
 
-                    // Asignar valores base
-                    $('#quantity').val(data.cantidad);
-                    $('#base_price').val(data.precio);
-                    $('#discount').val(data.descuento || '');
-
-                    // Convertir valores numéricos
-                    const quantity = parseFloat(data.cantidad) || 0;
-                    const base_price = parseFloat(data.precio) || 0;
-                    const base_discount = parseFloat(data.descuento) || 0;
-
-                    // Cálculos
-                    const subtotalValue = quantity * base_price;
-                    const totalValue = subtotalValue - base_discount;
-
-                    // Formatear
-                    const subtotal = format.format(subtotalValue);
-                    const discount = format.format(base_discount);
-                    const total = format.format(totalValue);
-
-                    // Guardar total sin comas
-                    // const totalRaw = total.replace(/,/g, "");
-
-                    // Insertar valores en los span del HTML
-                    $('.item-subtotal').text('$' + subtotal);
-                    $('.item-discount').text('$' + discount);
-                    $('.item-total').text('$' + total);
-
+                    // Mostrar datos del item
+                    windowSummary(data);
 
                 } catch (e) {
                     console.error('Error al cargar datos del detalle_id', e)
@@ -291,14 +323,27 @@ $(document).ready(function() {
             errorCallback: (res) => {
                 console.error(res)
             },
-            verbose: true
+            verbose: false
         });
     });
 
     // Cerrar la ventana y la capa de fondo
-    $('.overlay').click(function() {
+    $('.overlay, #close-window,#cancel-window').click(function() {
         $('.pos-product-edit').css('right', '-100%'); // Ocultar la ventana deslizante
         $('.overlay').fadeOut(300); // Ocultar la capa de fondo negro
     });
+
+    // Calcular resumen de la venta al salir de un input
+
+    $('#quantity, #discount').on('blur', function() {
+        windowSummary();
+    });
+
+
+
+
+
+
+
 
 }); // Ready

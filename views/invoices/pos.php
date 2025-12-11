@@ -172,7 +172,7 @@
                 <!-- Botones -->
 
                 <div class="footer-btn-container">
-                    <button class="btn-custom btn-red" type="button">
+                    <button class="btn-custom btn-red" type="button" id="cancel-window">
                         <i class="fas fa-window-close"></i>
                         <p>Cancelar</p>
                     </button>
@@ -189,6 +189,7 @@
 
         <!-- Contenedor detalles -->
         <div class="pos-detail-item" id="pos-detail-item">
+            <input type="hidden" name="" id="contador-items">
         </div>
 
 
@@ -213,6 +214,11 @@
             <button action="button" class="pos-button-cash">
                 <p>Facturar</p>
                 <span class="pos-total">$0.00</span>
+            </button>
+
+            <button action="button" class="pos-count-item">
+                <p>-</p>
+                <span class="pos-erase">Cancelar</span>
             </button>
         </div>
     </div>

@@ -3321,13 +3321,14 @@ span.select2-container--default {
     display: grid;
     grid-template-columns: 60% 40%;
     overflow: hidden;
+    margin-top: 0.8rem;
 }
 
 
 /* Productos */
 
 .pos-product-section {
-    box-sizing: border-box;
+    /* box-sizing: border-box; */
 }
 
 .product-grid {
@@ -3400,13 +3401,17 @@ p.pos-stock {
 .pos-search {
     position: fixed;
     width: 100%;
-    z-index: 2;
+    background: var(--background);
+    /* z-index: 2; */
 }
 
 .pos-search-bar {
-    position: relative;
+    position: absolute;
+    width: 100%;
     background: #f4f5fb;
     padding: 15px 0;
+    /* margin-top: 2rem; */
+    top: 0;
 }
 
 .pos-search-bar svg {
@@ -3507,11 +3512,13 @@ p.pos-stock {
 .pos-sidebar {
     position: fixed;
     width: 40%;
-    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    height: 92vh;
     right: 0;
     background-color: #fff;
     border-left: 0.5px solid #ccc;
-    z-index: 2;
+    z-index: 1;
 }
 
 .pos-sidebar p {
@@ -3525,8 +3532,9 @@ p.pos-stock {
     padding: 15px;
     border-bottom: 2px solid #a1a1a1;
     background: #fff;
-    position: fixed;
-    width: 40%;
+    /* position: fixed; */
+    width: 100%;
+    align-self: flex-start;
 }
 
 .pos-field-sm {
@@ -3535,7 +3543,7 @@ p.pos-stock {
 
 .pos-invoice-info {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
 }
 
 button.pos-button-cash {
@@ -3556,6 +3564,28 @@ button.pos-button-cash {
     font-family: var(--font-title);
 }
 
+button.pos-count-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid var(--text-color);
+    margin-top: 0.5rem;
+    padding: 10px;
+    width: 100%;
+    font-family: var(--font-primary);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button.pos-count-item span {
+    color: var(--color-primary);
+}
+
+button.pos-count-item:hover {
+    border: 1px solid var(--color-primary);
+}
+
 .pos-total {
     color: white !important;
     letter-spacing: 1px;
@@ -3565,8 +3595,9 @@ button.pos-button-cash {
 .pos-section-summary {
     padding: 15px;
     width: 100%;
-    position: absolute;
-    bottom: 0;
+    /* position: absolute; */
+    align-self: flex-end;
+    /* bottom: 0; */
     border-top: 0.5px solid #ccc;
     background: #fff
 }
@@ -3576,8 +3607,10 @@ button.pos-button-cash {
 
 .pos-detail-item {
     overflow: auto;
-    height: 260px;
-    margin-top: 9.9em;
+    /* height: 260px; */
+    /* margin-top: 9.9em; */
+    /* margin-top: auto; */
+    margin-bottom: auto;
     background: var(--background);
 }
 
@@ -3821,4 +3854,9 @@ span.close-window {
     justify-content: end;
     padding: 7px 15px;
     align-items: center;
+}
+
+div#row-tax,
+div#row-discount {
+    display: none;
 }
