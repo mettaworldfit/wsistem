@@ -275,12 +275,9 @@
               </div>
 
               <div class="grid-date-field">
-                <?php
-                date_default_timezone_set('America/Santo_Domingo');
-                $datetimeRD = date('Y-m-d\TH:i');
-                ?>
+             
                 <label class="">Fecha Cierre:</label>
-                <input type="datetime-local" class="form-custom" id="closing_date" value="<?= $datetimeRD ?>" required>
+                <input type="datetime-local" class="form-custom" id="closing_date" value="" required>
               </div>
             </div>
           </div>

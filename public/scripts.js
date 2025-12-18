@@ -987,12 +987,14 @@ $(document).ready(function () {
     });
 
     // CIERRE DE CAJA
-    $(document).on('shown.bs.modal', '#modalCashClosing', function () {
-        getFechaServidor(function (data) {
-            console.log("Fecha y hora del servidor (Cierre de Caja):", data.fecha_completa);  // Fecha completa
-            $('#closing_date').val(data.fecha_completa);  // Asignar fecha completa (YYYY-MM-DD HH:MM:SS)
-        });
+   $(document).on('shown.bs.modal', '#modalCashClosing', function () {
+    getFechaServidor(function (data) {
+        console.log("Fecha y hora del servidor (Cierre de Caja):", data.fecha_completa);  // Fecha completa
+        var fechaFormateada = data.fecha_completa.replace(' ', 'T').slice(0, 16);  // Reemplazar espacio por T y recortar a YYYY-MM-DDTHH:MM
+        $('#closing_date').val(fechaFormateada);  // Asignar el valor formateado al input
     });
+});
+
 
 });
 
