@@ -270,16 +270,12 @@ function sendAjaxRequest({ url, data, successCallback, errorCallback, verbose = 
 
             let data = handleJSONResponse(res);
 
-            if (verbose) {
-                console.log("Datos devueltos por el servidor:", data);
-            }
-
             if (Array.isArray(data) || data.success || res === "ready" || res > 0 || (!data.success && res != "duplicate" && !res.includes("Error"))) {
                 // Ejecuta la función successCallback si fue pasada y está definida
                 successCallback?.(res); // Devuelve la response
 
                 if (verbose) {
-                    console.log("Respuesta validada exitosamente:", res);
+                    console.log("Datos devueltos por el servidor:", data);
                 }
             } else if (res === "duplicate") {
                 mysql_error('Existen datos que ya están siendo utilizado');
@@ -937,6 +933,8 @@ $(document).ready(function () {
 
     // Hacer autofocus al abrir una modal
 
+    $('#search-input').trigger('focus');
+
     $('#add_detail').on('shown.bs.modal', function () {
         $('#code').trigger('focus');
     });
@@ -955,39 +953,49 @@ $(document).ready(function () {
 
 
 
-    $(function () {
+   $(function () {
 
-        // Función que obtiene la fecha desde el servidor vía AJAX
-        function getFechaServidor(callback) {
-            sendAjaxRequest({
-                url: "services/config.php",
-                data: {
-                    action: 'fecha_actual'
-                },
-                successCallback: (res) => {
-                    callback(res);
-                    console.log(res)
-                }
-            });
-        }
-
-        // CASH MODAL
-        $(document).on('shown.bs.modal', '#cash_invoice', function () {
-            getFechaServidor(function (fecha) {
-                console.log("Fecha del servidor (CASH):", fecha);
-                $('#cash-in-date').val(fecha);
-            });
+    // Función que obtiene la fecha desde el servidor vía AJAX
+    function getFechaServidor(callback) {
+        sendAjaxRequest({
+            url: "services/config.php",
+            data: {
+                action: 'fecha_actual'
+            },
+            successCallback: (res) => {
+                const data = JSON.parse(res);  // Convertir JSON a objeto
+                callback(data);  // Pasar el objeto con ambas fechas
+                console.log(data);  // Mostrar ambas fechas (completa y solo fecha)
+            }
         });
+    }
 
-        // CREDIT MODAL
-        $(document).on('shown.bs.modal', '#credit_invoice', function () {
-            getFechaServidor(function (fecha) {
-                console.log("Fecha del servidor (CREDIT):", fecha);
-                $('#credit-in-date').val(fecha);
-            });
+    // CASH MODAL
+    $(document).on('shown.bs.modal', '#cash_invoice', function () {
+        getFechaServidor(function (data) {
+            console.log("Fecha del servidor (CASH):", data.fecha);  // Solo la fecha
+            $('#cash-in-date').val(data.fecha);  // Asignar solo la fecha (YYYY-MM-DD)
         });
-
     });
+
+    // CREDIT MODAL
+    $(document).on('shown.bs.modal', '#credit_invoice', function () {
+        getFechaServidor(function (data) {
+            console.log("Fecha del servidor (CREDIT):", data.fecha);  // Solo la fecha
+            $('#credit-in-date').val(data.fecha);  // Asignar solo la fecha (YYYY-MM-DD)
+        });
+    });
+
+    // CIERRE DE CAJA
+    $(document).on('shown.bs.modal', '#modalCashClosing', function () {
+        getFechaServidor(function (data) {
+            console.log("Fecha y hora del servidor (Cierre de Caja):", data.fecha_completa);  // Fecha completa
+            $('#closing_date').val(data.fecha_completa);  // Asignar fecha completa (YYYY-MM-DD HH:MM:SS)
+        });
+    });
+
+});
+
 
 
     // Agregar el comando Ctrl+M para redirigir a la página de inicio

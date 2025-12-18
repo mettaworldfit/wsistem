@@ -477,67 +477,98 @@ switch ($action) {
     break;
 
   case 'detalle_punto_de_venta':
- 
-// Consulta para obtener los productos con paginación
-$query = "SELECT detalle_temporal_id, usuario_id, producto_id, pieza_id, servicio_id, descripcion,
-    cantidad, precio, costo, impuesto, descuento, fecha, hora 
-    FROM detalle_temporal 
-     WHERE usuario_id = '$user_id' ORDER BY hora DESC";  
 
-$result = mysqli_query($db, $query);
-$data = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    $id = $_POST['order_id'];
+    $query = "";
 
-// Contar el total de registros (sin filtros)
-$totalQuery = "SELECT COUNT(*) as total FROM detalle_temporal WHERE usuario_id = '$user_id'";
-$totalResult = mysqli_query($db, $totalQuery);
-$totalData = mysqli_fetch_assoc($totalResult);
-$totalRecords = $totalData['total'];  // Total de registros encontrados
+    if($id != 0) {
+
+       $query = "SELECT COALESCE(p.nombre_producto, pz.nombre_pieza, s.nombre_servicio) AS nombre, df.precio, df.cantidad, 
+      df.detalle_venta_id, df.descuento,p.producto_id,pz.pieza_id,s.servicio_id 
+     FROM detalle_facturas_ventas df
+               LEFT JOIN detalle_ventas_con_productos dvp ON df.detalle_venta_id = dvp.detalle_venta_id
+               LEFT JOIN productos p ON p.producto_id = dvp.producto_id
+               LEFT JOIN productos_con_impuestos pim ON p.producto_id = pim.producto_id
+               LEFT JOIN impuestos i ON pim.impuesto_id = i.impuesto_id
+               LEFT JOIN detalle_ventas_con_piezas_ dvpz ON df.detalle_venta_id = dvpz.detalle_venta_id
+               LEFT JOIN piezas pz ON pz.pieza_id = dvpz.pieza_id
+               LEFT JOIN detalle_ventas_con_servicios dvs ON df.detalle_venta_id = dvs.detalle_venta_id
+               LEFT JOIN servicios s ON s.servicio_id = dvs.servicio_id
+      WHERE df.comanda_id = '$id'";
+
+    } else {
+       $query = "SELECT COALESCE(p.nombre_producto, pz.nombre_pieza, s.nombre_servicio) AS nombre, df.precio, df.cantidad, 
+      df.detalle_venta_id, df.descuento,p.producto_id,pz.pieza_id,s.servicio_id,df.usuario_id
+     FROM detalle_facturas_ventas df
+               LEFT JOIN detalle_ventas_con_productos dvp ON df.detalle_venta_id = dvp.detalle_venta_id
+               LEFT JOIN productos p ON p.producto_id = dvp.producto_id
+               LEFT JOIN productos_con_impuestos pim ON p.producto_id = pim.producto_id
+               LEFT JOIN impuestos i ON pim.impuesto_id = i.impuesto_id
+               LEFT JOIN detalle_ventas_con_piezas_ dvpz ON df.detalle_venta_id = dvpz.detalle_venta_id
+               LEFT JOIN piezas pz ON pz.pieza_id = dvpz.pieza_id
+               LEFT JOIN detalle_ventas_con_servicios dvs ON df.detalle_venta_id = dvs.detalle_venta_id
+               LEFT JOIN servicios s ON s.servicio_id = dvs.servicio_id
+     WHERE df.factura_venta_id IS NULL
+    AND (df.comanda_id IS NULL OR df.comanda_id = 0)
+    AND df.usuario_id = '$user_id'";
+    }
+
+   
+
+    $result = mysqli_query($db, $query);
+    $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    // Contar el total de registros (sin filtros)
+    $totalQuery = "SELECT COUNT(*) as total FROM detalle_facturas_ventas WHERE comanda_id = '$id'";
+    $totalResult = mysqli_query($db, $totalQuery);
+    $totalData = mysqli_fetch_assoc($totalResult);
+    $totalRecords = $totalData['total'];  // Total de registros encontrados
 
     // Verificar si las claves existen antes de acceder a ellas
-foreach ($data as &$row) {  
-    // Verificar si 'producto_id' y 'cantidad' están definidos
-    $producto_id = isset($row['producto_id']) ? $row['producto_id'] : null;
-    $cantidad = isset($row['cantidad']) ? $row['cantidad'] : 0;
+    foreach ($data as &$row) {
+      // Verificar si 'producto_id' y 'cantidad' están definidos
+      $producto_id = isset($row['producto_id']) ? $row['producto_id'] : null;
+      $cantidad = isset($row['cantidad']) ? $row['cantidad'] : 0;
 
-    // Verificar si el producto tiene variantes
-    $hasVariants = false;
-    if ($producto_id) {
+      // Verificar si el producto tiene variantes
+      $hasVariants = false;
+      if ($producto_id) {
         $sql_check_variants = "SELECT COUNT(*) AS variants_count FROM variantes WHERE producto_id = '$producto_id'";
         $result_variants = $db->query($sql_check_variants);
         if ($result_variants) {
-            $variant_data = $result_variants->fetch_assoc();
-            if ($variant_data['variants_count'] > 0) {
-                $hasVariants = true;
-            }
+          $variant_data = $result_variants->fetch_assoc();
+          if ($variant_data['variants_count'] > 0) {
+            $hasVariants = true;
+          }
         }
-    }
+      }
 
-    // Generar el input con el atributo disabled si el producto tiene variantes
-     $row['cant_input'] = '<input type="number" class="input-update input-quantity" 
+      // Generar el input con el atributo disabled si el producto tiene variantes
+      $row['cant_input'] = '<input type="number" class="input-update input-quantity" 
                    value="' . (intval($cantidad) == $cantidad ? number_format($cantidad, 0) : number_format($cantidad, 2)) . '" 
-                   data-id="' . $row['detalle_temporal_id'] . '" 
+                   data-id="' . $row['detalle_venta_id'] . '" 
                    data-item-id="' . ($producto_id ? $producto_id : ($row['pieza_id'] ? $row['pieza_id'] : $row['servicio_id'])) . '" 
                    data-item-type="' . ($producto_id ? 'producto' : ($row['pieza_id'] ? 'pieza' : 'servicio')) . '" 
                    step="0.01" ' . ($hasVariants ? 'disabled' : '') . ' />';
 
-    // Generar las acciones para cada producto
-    $row['acciones'] = '
+      // Generar las acciones para cada producto
+      $row['acciones'] = '
     <div class="pos-actions">
-        <a class="btn-action action-info" href="#" data-edit="'. $row['detalle_temporal_id'] .'" title="editar" id="item-edit">
+        <a class="btn-action action-info" href="#" data-edit="' . $row['detalle_venta_id'] . '" title="editar" id="item-edit">
             ' . BUTTON_EDIT . '
         </a>
-        <a class="btn-action action-danger" data-delete="'. $row['detalle_temporal_id'] .'" id="item-delete">
+        <a class="btn-action action-danger" data-delete="' . $row['detalle_venta_id'] . '" id="item-delete">
             ' . BUTTON_DELETE . '
         </a>
     </div>';
-}
+    }
 
-// Responder con los datos en formato JSON
-echo json_encode([
-    "recordsTotal" => $totalRecords,          // Total de productos en la base de datos (sin filtros)
-    "recordsFiltered" => $totalRecords,       // Total de productos filtrados
-    "data" => $data                           // Los registros de productos solicitados
-]);
+    // Responder con los datos en formato JSON
+    echo json_encode([
+      "recordsTotal" => $totalRecords,          // Total de productos en la base de datos (sin filtros)
+      "data" => $data,                          // Los registros de productos solicitados
+      "id" => $id
+    ]);
 
 
     break;

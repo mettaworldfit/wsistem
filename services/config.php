@@ -26,7 +26,7 @@ if ($_POST['action'] == "index_bonos") {
         'fecha' => $row['fecha'],
         'acciones' => '
         <span class="btn-action action-danger" onclick="deleteBond(\'' . $row['bono_id'] . '\')" title="Eliminar">
-            '.BUTTON_DELETE.'
+            ' . BUTTON_DELETE . '
         </span>'
       ];
     }
@@ -112,7 +112,14 @@ if ($_POST['action'] == 'ajustes_factura_pdf') {
 
 if ($_POST['action'] == 'fecha_actual') {
 
-   // Devuelve la fecha del servidor en formato YYYY-MM-DD
-    echo date('Y-m-d');
-    exit;
+  $db = Database::connect();
+
+  // Devuelve tanto la fecha y hora (completa) y solo la fecha
+  $sql = "SELECT NOW() AS fecha_completa, CURDATE() AS fecha";
+  $result = $db->query($sql);
+  $row = $result->fetch_assoc();
+
+  // Devuelve ambas fechas, para que JS decida cuál usar
+  echo json_encode($row);  // Devuelve ambas fechas en formato JSON
+  exit;
 }

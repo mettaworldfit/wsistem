@@ -81,79 +81,6 @@ if ($_POST['action'] == 'ventas_dias') {
   $config = Database::getConfig();
 
 
-  $query = '';
-
-  if (isset($config['auto_cierre']) && $config['auto_cierre'] === 'false') {
-
-    $query = "SELECT 
-    DAY(c.fecha_apertura) AS dia,
-    ROUND(SUM(ventas.total), 2) AS total
-FROM cierres_caja c
-LEFT JOIN (
-    -- Subconsulta 1: Facturas ventas
-    SELECT 
-        f.factura_venta_id AS id,
-        (f.recibido - IFNULL(SUM(p.recibido), 0)) AS total,
-        CONCAT(f.fecha, ' ', f.hora) AS fecha_evento
-    FROM facturas_ventas f
-    INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
-    INNER JOIN estados_generales e ON e.estado_id = f.estado_id
-    LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = f.factura_venta_id
-    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    GROUP BY f.factura_venta_id
-
-    UNION ALL
-
-    -- Subconsulta 2: Facturas RP
-    SELECT 
-        fr.facturarp_id AS id,
-        (fr.recibido - IFNULL(SUM(p.recibido), 0)) AS total,
-        CONCAT(fr.fecha, ' ', fr.hora) AS fecha_evento
-    FROM facturasRP fr
-    INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
-    INNER JOIN estados_generales e ON e.estado_id = fr.estado_id
-    LEFT JOIN pagos_a_facturasRP pf ON pf.facturarp_id = fr.facturarp_id
-    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    GROUP BY fr.facturarp_id
-
-    UNION ALL
-
-    -- Subconsulta 3: Pagos RP
-    SELECT 
-        p.pago_id AS id,
-        SUM(p.recibido) AS total,
-        CONCAT(p.fecha, ' ', p.hora) AS fecha_evento
-    FROM pagos_a_facturasRP pf 
-    INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    GROUP BY p.pago_id
-
-    UNION ALL
-
-    -- Subconsulta 4: Pagos ventas
-    SELECT 
-        p.pago_id AS id,
-        SUM(p.recibido) AS total,
-        CONCAT(p.fecha, ' ', p.hora) AS fecha_evento
-    FROM pagos_a_facturas_ventas pf 
-    INNER JOIN pagos p ON pf.pago_id = p.pago_id
-    GROUP BY p.pago_id
-) AS ventas
-ON ventas.fecha_evento BETWEEN c.fecha_apertura 
-    AND IFNULL(c.fecha_cierre, NOW())
-WHERE 
-    (c.estado = 'cerrado'
-    OR c.cierre_id = (
-        SELECT MAX(c2.cierre_id)
-        FROM cierres_caja c2
-        WHERE c2.estado = 'abierto'
-    ))
-    AND YEAR(c.fecha_apertura) = YEAR(CURDATE())  
-    AND MONTH(c.fecha_apertura) = MONTH(CURDATE())  
-GROUP BY DAY(c.fecha_apertura)
-ORDER BY ANY_VALUE(c.cierre_id);";
-
-  } else {
-
     $query = "SELECT DAY(fecha) AS dia, SUM(total) AS total
         FROM (
             -- Facturas ventas
@@ -307,7 +234,6 @@ ORDER BY ANY_VALUE(c.cierre_id);";
     ) AS ganancias_mes
     GROUP BY DAY(fecha)
     ORDER BY DAY(fecha);";
-  }
 
   jsonMultiQueryResult($db, $query);
 }

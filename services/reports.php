@@ -164,20 +164,12 @@ if ($_POST['action'] == "index_ventas_hoy") {
             INNER JOIN clientes c ON f.cliente_id = c.cliente_id
             INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
             INNER JOIN estados_generales s ON f.estado_id = s.estado_id
-            WHERE CONCAT(f.fecha," ",f.hora) BETWEEN (
+            WHERE CONCAT(f.fecha," ",f.hora) >= (
             SELECT fecha_apertura 
             FROM cierres_caja 
             WHERE estado = "abierto" 
             ORDER BY fecha_apertura DESC 
-            LIMIT 1
-            ) 
-            AND COALESCE((
-                SELECT fecha_cierre 
-                FROM cierres_caja 
-                WHERE estado = "abierto" 
-                ORDER BY fecha_apertura DESC 
-                LIMIT 1
-            ), NOW())
+            LIMIT 1)
 
             UNION ALL
 
@@ -186,20 +178,12 @@ if ($_POST['action'] == "index_ventas_hoy") {
             INNER JOIN clientes c ON f.cliente_id = c.cliente_id
             INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
             INNER JOIN estados_generales s ON f.estado_id = s.estado_id
-            WHERE CONCAT(f.fecha," ",f.hora) BETWEEN (
+            WHERE CONCAT(f.fecha," ",f.hora) >= (
             SELECT fecha_apertura 
             FROM cierres_caja 
             WHERE estado = "abierto" 
             ORDER BY fecha_apertura DESC 
-            LIMIT 1
-            ) 
-            AND COALESCE((
-                SELECT fecha_cierre 
-                FROM cierres_caja 
-                WHERE estado = "abierto" 
-                ORDER BY fecha_apertura DESC 
-                LIMIT 1
-            ), NOW())
+            LIMIT 1) 
 
             UNION ALL
 
@@ -213,20 +197,12 @@ if ($_POST['action'] == "index_ventas_hoy") {
             INNER JOIN clientes c ON f.cliente_id = c.cliente_id
             INNER JOIN estados_generales s ON f.estado_id = s.estado_id
             WHERE (s.nombre_estado = "por cobrar" OR (s.nombre_estado <> "por cobrar" AND f.fecha <> pg.fecha))
-            AND CONCAT(pg.fecha," ",pg.hora) BETWEEN (
+            AND CONCAT(pg.fecha," ",pg.hora) >= (
             SELECT fecha_apertura 
             FROM cierres_caja 
             WHERE estado = "abierto" 
             ORDER BY fecha_apertura DESC 
-            LIMIT 1
-            ) 
-            AND COALESCE((
-                SELECT fecha_cierre 
-                FROM cierres_caja 
-                WHERE estado = "abierto" 
-                ORDER BY fecha_apertura DESC 
-                LIMIT 1
-            ), NOW())
+            LIMIT 1)
 
             UNION ALL
 
@@ -240,20 +216,12 @@ if ($_POST['action'] == "index_ventas_hoy") {
             INNER JOIN clientes c ON f.cliente_id = c.cliente_id
             INNER JOIN estados_generales s ON f.estado_id = s.estado_id
             WHERE (s.nombre_estado = "por cobrar" OR (s.nombre_estado <> "por cobrar" AND f.fecha <> pg.fecha))
-            AND CONCAT(pg.fecha," ",pg.hora) BETWEEN (
+            AND CONCAT(pg.fecha," ",pg.hora) >= (
             SELECT fecha_apertura 
             FROM cierres_caja 
             WHERE estado = "abierto" 
             ORDER BY fecha_apertura DESC 
-            LIMIT 1
-            ) 
-            AND COALESCE((
-                SELECT fecha_cierre 
-                FROM cierres_caja 
-                WHERE estado = "abierto" 
-                ORDER BY fecha_apertura DESC 
-                LIMIT 1
-            ), NOW())
+            LIMIT 1)
 
             ) AS ventas_del_dia_rango_cierre';
     } else {

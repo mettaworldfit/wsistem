@@ -602,13 +602,20 @@ if ($_POST['action'] == "precios_detalle_venta") {
 if ($_POST['action'] == "precios_ordenes_ventas") {
 
   $db = Database::connect();
+  $order_id = $_POST['order_id'] ?? 0;
+  $user_id = $_SESSION['identity']->usuario_id;
 
-  $order_id = (int)$_POST['order_id'];
+  $sql = "SELECT sum(cantidad * impuesto) as taxes, sum(descuento) as descuentos, sum(cantidad * precio) as precios 
+  FROM detalle_facturas_ventas ";
 
-  $query = "SELECT sum(cantidad * impuesto) as taxes, sum(descuento) as descuentos, sum(cantidad * precio) as precios 
-  FROM detalle_facturas_ventas WHERE comanda_id = '$order_id'";
+  if (!empty($order_id)) {
+    $sql .= "WHERE comanda_id = '$order_id'";
+  } else {
+    $sql .= "WHERE usuario_id = '$user_id' AND comanda_id IS NULL
+    AND factura_venta_id IS NULL";
+  }
 
-  jsonQueryResult($db, $query);
+   jsonQueryResult($db, $sql);
 }
 
 // Eliminar producto del detalle temporar
@@ -713,7 +720,7 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
     if ($db->query($query2) === TRUE) {
 
       // Obtener el ID del detalle insertado
-      $detail_id = $db->insert_id; 
+      $detail_id = $db->insert_id;
 
       // Verificar si se debe insertar en detalle_ventas_con_piezas_
       if ($piece_id > 0) {
@@ -736,16 +743,16 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
     }
   }
 
-   // Obtener el detalle insertado (para devolverlo)
-    $response = $db->query($query1);
-    echo json_encode($response->fetch_all(), JSON_UNESCAPED_UNICODE); // devolver datos del detalle
+  // Obtener el detalle insertado (para devolverlo)
+  $response = $db->query($query1);
+  echo json_encode($response->fetch_all(), JSON_UNESCAPED_UNICODE); // devolver datos del detalle
 
-    // Eliminar detalle temporal
-    $query4 = "DELETE FROM detalle_temporal WHERE usuario_id = '$user_id'";
-    $db->query($query4);
+  // Eliminar detalle temporal
+  $query4 = "DELETE FROM detalle_temporal WHERE usuario_id = '$user_id'";
+  $db->query($query4);
 
-    // Activar TRIGGER
-    Help::createAllTriggers();
+  // Activar TRIGGER
+  Help::createAllTriggers();
 }
 
 
@@ -975,9 +982,6 @@ WHERE c.cotizacion_id = '$id'";
 
   jsonQueryResult($db, $query);
 }
-
-
-
 
 // Registra el detalle de la orden con la factura correspondiente
 if ($_POST['action'] === "registrar_detalle_orden_venta") {
@@ -1239,33 +1243,121 @@ if ($_POST['action'] == "agregar_detalle_pos") {
 
   $db = Database::connect();
 
-  $params = [
-    (int)$_POST['product_id'] ?? 0,
-    // (int)$_POST['piece_id'] ?? 0,
-    // (int)$_POST['service_id'] ?? 0,
-    $_POST['description'],
-    (int)$_SESSION['identity']->usuario_id,
-    $_POST['quantity'],
+$params = [
+    (int) ($_POST['order_id'] ?? 0), // Usamos el valor de order_id o 0 si no está presente
+    (int) $_SESSION['identity']->usuario_id,
+    $_POST['quantity'] ?? 0,
     $_POST['cost'] ?? 0,
-    $_POST['price']
-    // $_POST['taxes'] ?? 0,
-    // (int)$_POST['discount'] ?? 0
-  ];
+    $_POST['price'],
+    (int) $_POST['product_id'] ?? 0,
+    (int)$_POST['piece_id'] ?? 0,
+    (int)$_POST['service_id'] ?? 0
+];
 
-  echo handleProcedureAction($db, 'vt_crearDetalleTemporalPOS', $params);
+$procedure = ($_POST['order_id'] > 0) ? 'pos_agregar_producto' : 'pos_agregar_producto_sin';
+
+echo handleProcedureAction($db, $procedure, $params);
+  
 }
 
-// Obtener datos del detalle por id
+// Obtener datos de la venta editar del pos 
 if ($_POST['action'] == "datos_detalle_id") {
 
   $db = Database::connect();
 
   $id = $_POST['detail_id'];
 
-  $sql = "SELECT cantidad,descuento,precio FROM detalle_temporal 
-          WHERE detalle_temporal_id = '$id'";
-
+  $sql = "SELECT 
+  p.producto_id,pz.pieza_id,s.servicio_id,
+  COALESCE(p.nombre_producto,pz.nombre_pieza,s.nombre_servicio) AS item,
+  CASE
+        WHEN p.nombre_producto IS NOT NULL THEN 'Producto'
+        WHEN pz.nombre_pieza IS NOT NULL THEN 'Pieza'
+        WHEN s.nombre_servicio IS NOT NULL THEN 'Servicio'
+        ELSE 'Desconocido' 
+  END AS tipo_item,
+  d.cantidad,d.descuento,d.precio,p.cantidad as existencia
+  FROM detalle_facturas_ventas d
+  LEFT JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
+  LEFT JOIN productos p ON p.producto_id = dp.producto_id
+  LEFT JOIN detalle_ventas_con_piezas_ dpz ON dpz.detalle_venta_id = d.detalle_venta_id
+  LEFT JOIN piezas pz ON pz.pieza_id = dpz.pieza_id
+  LEFT JOIN detalle_ventas_con_servicios dps ON dps.detalle_venta_id = d.detalle_venta_id
+  LEFT JOIN servicios s ON s.servicio_id = dps.servicio_id
+  WHERE d.detalle_venta_id = '$id'";
 
   jsonQueryResult($db, $sql);
-  
+}
+
+// Borrar detalle en el POS
+if ($_POST['action'] == "borrar_detalle_pos") {
+
+  $db = Database::connect();
+  $order_id = $_POST['order_id'];
+
+  $query = "DELETE FROM detalle_facturas_ventas WHERE comanda_id = '$order_id'";
+  $db->query($query);
+
+  // Verificar cuántas filas fueron afectadas
+  $rows = $db->affected_rows;
+
+  if ($rows > 0) {
+    echo "$rows registros eliminados";
+  }
+}
+
+// Actualizar el detalle en el POS
+if ($_POST['action'] == "actualizar_detalle_pos") {
+
+  $db = Database::connect();
+
+  $params = [
+    (int)$_POST['product_id'],
+    (int)$_POST['piece_id'],
+    (int)$_POST['service_id'],
+    (int)$_POST['detail_id'],
+    (int)$_SESSION['identity']->usuario_id,
+    $_POST['discount'] ?? 0,
+    $_POST['final_price'],
+    $_POST['quantity']
+  ];
+
+ echo handleProcedureAction($db, 'pos_update_detalle', $params);
+}
+
+
+if ($_POST['action'] == "cargar_ordenes_pos") {
+
+  $db = Database::connect();
+
+  // Ordenes sin factura
+  $sql = "SELECT COUNT(d.comanda_id) AS total_items,co.comanda_id, c.cliente_id, c.nombre
+  FROM comandas co
+  INNER JOIN clientes c ON c.cliente_id = co.cliente_id
+  LEFT JOIN detalle_facturas_ventas d ON d.comanda_id = co.comanda_id
+  WHERE d.factura_venta_id IS NULL OR d.factura_venta_id = 0  
+  GROUP BY co.comanda_id
+  ORDER BY co.comanda_id DESC";
+
+  $result = mysqli_query($db, $sql);
+  $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+  // Responder con los datos en formato JSON
+  echo json_encode([
+    "data" => $data   // Las registros de ordenes solicitadas
+  ]);
+}
+
+// Factura al contado POS
+if ($_POST['action'] == "factura_contado_pos") {
+
+  $db = Database::connect();
+
+  echo handleProcedureAction($db, 'pos_factura_venta', [
+    (int)$_SESSION['identity']->usuario_id,
+    (int)$_POST['customer_id'],
+    (int)$_POST['method_id'],
+    (int)$_POST['order_id'],
+    $_POST['total_invoice']
+  ]);
 }

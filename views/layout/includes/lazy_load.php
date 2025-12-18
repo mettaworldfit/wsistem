@@ -26,7 +26,6 @@ $uri = $_SERVER["REQUEST_URI"];
 
 // Scripts globales
 $globalScripts = [
-    base_url . 'public/functions/pos.js',
     base_url . 'public/functions/users.js',
     base_url . 'public/functions/invoices.js',
     base_url . 'public/functions/workshop.js',
@@ -64,6 +63,14 @@ $scriptsMap = [
         base_url . 'public/functions/price_lists.js',
     ],
     'invoices/add_order' => [
+        base_url . 'public/functions/pieces.js',
+        base_url . 'public/functions/products.js',
+        base_url . 'public/functions/services.js',
+        base_url . 'public/functions/contacts.js',
+        base_url . 'public/functions/price_lists.js',
+    ],
+      'invoices/pos' => [
+        base_url . 'public/functions/pos.js',
         base_url . 'public/functions/pieces.js',
         base_url . 'public/functions/products.js',
         base_url . 'public/functions/services.js',

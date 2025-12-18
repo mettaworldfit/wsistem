@@ -2,6 +2,25 @@
 
     <div class="pos-product-section">
 
+        <!-- Ordenes sidebar -->
+        <input type="hidden" id="order_id">
+        <div class="pos-sidebar-order">
+
+            <button type="button" class="btn-pos_home">
+                <i class="fas fa-home"></i>
+            </button>
+
+            <button type="button" class="btn-add_order">
+                <i class="fas fa-plus"></i>
+            </button>
+
+            <!-- Ordenes -->
+            <div class="sidebar_order">
+            </div>
+        </div>
+
+
+
         <div class="pos-search">
             <div class="pos-search-bar">
                 <i class="fas fa-barcode"></i>
@@ -12,6 +31,7 @@
         <!-- Contenedor de productos en grid -->
         <div id="product-grid" class="product-grid">
         </div>
+
 
     </div>
 
@@ -42,7 +62,7 @@
                         <div class="i b-right">
                             <i class="fas fa-list"></i>
                         </div>
-                        <select class="form-custom-icon search " name="" id="cash-in-method">
+                        <select class="form-custom-icon search " name="" id="method_id">
                             <?php $methods = Help::showPaymentMethod();
                             while ($method = $methods->fetch_object()): ?>
                                 <option value="<?= $method->metodo_pago_id ?>"><?= $method->nombre_metodo ?></option>
@@ -58,7 +78,7 @@
                     <div class="i b-right">
                         <i class="fas fa-portrait"></i>
                     </div>
-                    <select class="form-custom-icon search" name="" id="cash-in-customer" required>
+                    <select class="form-custom-icon search" name="" id="customer_id" required>
                         <?php $customers = Help::showCustomers();
                         while ($customer = $customers->fetch_object()): ?>
                             <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre) . " " . ucwords($customer->apellidos ?? '') ?></option>
@@ -94,9 +114,13 @@
                         </div>
 
                         <div class="d-flex flex-column">
-                            <span>Producto</span>
-                            <span>aceitunas manzanilla rellenas de pimiento</span>
-                            <span>Bebida</span>
+                            <span>-</span>
+                            <span>-</span>
+                            <span>-</span>
+                            <input type="hidden" name="" id="windowId">
+                            <input type="hidden" name="" id="w_product_id">
+                            <input type="hidden" name="" id="w_piece_id">
+                            <input type="hidden" name="" id="w_service_id">
                         </div>
                     </div>
 
@@ -117,8 +141,13 @@
                         <span>+</span>
                         <div>
                             <label class="form-check-label">Impuesto</label>
-                            <select class="form-custom search" name="impuesto" id="">
-                                <option value="">Itbis</option>
+                            <select class="form-custom search" name="impuesto" id="tax_id">
+                                <option value="0">Sin impuestos</option>
+                                <?php 
+                                $taxes = help::showTaxes();
+                                while($tax = $taxes->fetch_object()): ?>
+                                  <option value="<?= $tax->valor ?>"><?= ucwords($tax->nombre_impuesto); ?> (<?= $tax->valor ?>)%</option>
+                                <?php endwhile; ?>
                             </select>
                         </div>
                         <span>=</span>
@@ -130,12 +159,12 @@
 
                     <div class="input-row-two">
                         <div>
-                            <label class="form-check-label" for="cantidad">Cantidad</label>
+                            <label class="form-check-label">Cantidad</label>
                             <input class="form-custom" type="number" name="cantidad" id="quantity">
                         </div>
 
                         <div>
-                            <label class="form-check-label" for="descuento">Descuento</label>
+                            <label class="form-check-label">Descuento</label>
                             <input class="form-custom" type="number" name="descuento" id="discount">
                         </div>
                     </div>
@@ -147,7 +176,7 @@
 
                 <div class="window-summary">
                     <div class="price-content-pos">
-                        <div>
+                        <div id="row-subtotal">
                             <span>Subtotal</span>
                             <span class="item-subtotal">$0.00</span>
                         </div>
@@ -170,14 +199,13 @@
                 </div>
 
                 <!-- Botones -->
-
                 <div class="footer-btn-container">
                     <button class="btn-custom btn-red" type="button" id="cancel-window">
                         <i class="fas fa-window-close"></i>
                         <p>Cancelar</p>
                     </button>
 
-                    <button class="btn-custom btn-default" type="button">
+                    <button class="btn-custom btn-default" type="button" id="updatePosItem">
                         <i class="fas fa-plus"></i>
                         <p>Guardar</p>
                     </button>
@@ -189,31 +217,31 @@
 
         <!-- Contenedor detalles -->
         <div class="pos-detail-item" id="pos-detail-item">
-            <input type="hidden" name="" id="contador-items">
         </div>
-
 
         <!-- Resumen -->
         <div class="pos-section-summary">
             <div class="price-content-pos">
-                <div>
+                <div id="pos-subtotal">
                     <span>Subtotal</span>
                     <span class="pos-subtotal">$0.00</span>
                 </div>
 
-                <div>
+                <div id="pos-discount">
                     <span>Descuento -</span>
                     <span class="pos-discount">$0.00</span>
                 </div>
 
-                <div>
+                <div id="pos-taxes">
                     <span>Impuestos +</span>
                     <span class="pos-taxes">$0.00</span>
                 </div>
             </div>
-            <button action="button" class="pos-button-cash">
+
+            <button action="button" class="pos-button-cash" disabled>
                 <p>Facturar</p>
                 <span class="pos-total">$0.00</span>
+                <input type="hidden" name="" id="total_pos">
             </button>
 
             <button action="button" class="pos-count-item">
