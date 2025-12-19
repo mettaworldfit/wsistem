@@ -478,14 +478,14 @@ if ($totalResult) {
 
 
     // Responder con los datos en formato JSON
-    // echo json_encode([
-    //   "draw" => $draw,                          // El número de solicitud de la tabla
-    //   "recordsTotal" => $totalRecords,                    // Total de productos en la base de datos (sin filtros)
-    //   "recordsFiltered" => $totalRecords,       // Total de productos filtrados
-    //   "data" => $data                           // Los registros de productos solicitados
-    // ]);
+    echo json_encode([
+      "draw" => $draw,                          // El número de solicitud de la tabla
+      "recordsTotal" => $totalRecords,                    // Total de productos en la base de datos (sin filtros)
+      "recordsFiltered" => $totalRecords,       // Total de productos filtrados
+      "data" => $data                           // Los registros de productos solicitados
+    ]);
 
-   //  echo json_encode($data, JSON_UNESCAPED_UNICODE);
+    // echo json_encode($data, JSON_UNESCAPED_UNICODE);
 
 
     break;
