@@ -994,7 +994,7 @@ $(document).ready(function () {
         $('#closing_date').val(fechaFormateada);  // Asignar el valor formateado al input
     });
 });
-
+ 
 
 });
 

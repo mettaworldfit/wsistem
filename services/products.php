@@ -513,8 +513,6 @@ switch ($action) {
     AND df.usuario_id = '$user_id'";
     }
 
-   
-
     $result = mysqli_query($db, $query);
     $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
@@ -549,7 +547,7 @@ switch ($action) {
                    data-id="' . $row['detalle_venta_id'] . '" 
                    data-item-id="' . ($producto_id ? $producto_id : ($row['pieza_id'] ? $row['pieza_id'] : $row['servicio_id'])) . '" 
                    data-item-type="' . ($producto_id ? 'producto' : ($row['pieza_id'] ? 'pieza' : 'servicio')) . '" 
-                   step="0.01" ' . ($hasVariants ? 'disabled' : '') . ' />';
+                   step="any" min="0"' . ($hasVariants ? 'disabled' : '') . ' />';
 
       // Generar las acciones para cada producto
       $row['acciones'] = '

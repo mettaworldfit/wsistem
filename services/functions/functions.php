@@ -370,3 +370,94 @@ function jsonQueryRowAffected(mysqli $db, string $query): void
 
     exit;
 }
+
+
+/**
+ * Actualiza la cantidad de un detalle (producto, pieza, o servicio) en la base de datos.
+ *
+ * @param mysqli $db Conexión a la base de datos.
+ * @param int $id ID del detalle a actualizar.
+ * @param int $quantity Nueva cantidad a actualizar.
+ * @param int $item_id ID del producto, pieza o servicio.
+ * @param string $item_type Tipo de ítem: 'producto', 'pieza', 'servicio'.
+ * @param string $tabla_detalle Nombre de la tabla de detalles (ej. 'detalle_temporal' o 'detalle_facturas_ventas').
+ * @param string $tabla_id Nombre de la columna ID en la tabla de detalles (ej. 'detalle_temporal_id' o 'detalle_venta_id').
+ * @return string JSON con el estado de la operación.
+ */
+function updateDetailQuantity($db, $id, $quantity, $item_id, $item_type, $tabla_detalle, $tabla_id)
+{
+    // Validación de entrada
+    if ($quantity <= 0 || $id <= 0 || $item_id <= 0 || empty($item_type)) {
+        return json_encode(['error' => true, 'message' => 'Datos inválidos.']);
+    }
+
+    // Si el item es un servicio, solo actualizamos la cantidad sin verificar stock
+    if ($item_type === 'servicio') {
+        $sql_update = "UPDATE $tabla_detalle SET cantidad = ? WHERE $tabla_id = ?";
+        $stmt = $db->prepare($sql_update);
+        $stmt->bind_param('ii', $quantity, $id);
+        if ($stmt->execute()) {
+            return json_encode(['error' => false, 'message' => 'Detalle actualizado con éxito (Servicio).']);
+        }
+        return json_encode(['error' => true, 'message' => 'Error al actualizar el servicio.']);
+    }
+
+    // Si es un producto o pieza, verificamos stock
+    $sql_check = "";
+    switch ($item_type) {
+        case 'producto':
+            $sql_check = "SELECT cantidad FROM productos WHERE producto_id = ?";
+            break;
+        case 'pieza':
+            $sql_check = "SELECT cantidad FROM piezas WHERE pieza_id = ?";
+            break;
+    }
+
+    if ($sql_check) {
+        // Verificar stock en producto o pieza
+        $stmt_check = $db->prepare($sql_check);
+        $stmt_check->bind_param('i', $item_id);
+        $stmt_check->execute();
+        $result = $stmt_check->get_result();
+        
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $current_stock = $row['cantidad'];
+
+            // Obtener la cantidad actual en detalle
+            $sql_detalle_check = "SELECT cantidad FROM $tabla_detalle WHERE $tabla_id = ?";
+            $stmt_detalle = $db->prepare($sql_detalle_check);
+            $stmt_detalle->bind_param('i', $id);
+            $stmt_detalle->execute();
+            $detalle_result = $stmt_detalle->get_result();
+
+            if ($detalle_result->num_rows > 0) {
+                $detalle_row = $detalle_result->fetch_assoc();
+                $current_detail_quantity = $detalle_row['cantidad']; // Cantidad en detalle
+
+                // Calcular el stock total disponible
+                $total_available = $current_stock + $current_detail_quantity;
+
+                // Verificar si hay suficiente stock
+                if ($total_available >= $quantity) {
+                    // Actualizar la cantidad en detalle
+                    $sql_update = "UPDATE $tabla_detalle SET cantidad = ? WHERE $tabla_id = ?";
+                    $stmt_update = $db->prepare($sql_update);
+                    $stmt_update->bind_param('ii', $quantity, $id);
+                    if ($stmt_update->execute()) {
+                        return json_encode(['error' => false, 'message' => 'Detalle modificado con éxito.']);
+                    }
+                    return json_encode(['error' => true, 'message' => 'Error al actualizar la cantidad en detalle.']);
+                } else {
+                    return json_encode(['error' => true, 'message' => 'No hay suficiente stock para realizar la actualización.']);
+                }
+            } else {
+                return json_encode(['error' => true, 'message' => 'Error al obtener la cantidad en detalle.']);
+            }
+        } else {
+            return json_encode(['error' => true, 'message' => 'Error al verificar el stock del item.']);
+        }
+    }
+
+    return json_encode(['error' => true, 'message' => 'Tipo de item no reconocido.']);
+}

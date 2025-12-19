@@ -41,10 +41,10 @@ try {
             'fecha'     => $row['fecha'],
 
             'acciones' => '<a class="btn-action action-info" href="' . base_url . 'contacts/edit_provider&id=' . $row['proveedor_id'] . '" title="Editar">
-                     '.BUTTON_EDIT.'
+                     ' . BUTTON_EDIT . '
                      </a>
            
-                 <span class="btn-action action-danger" onclick="deleteProveedor(\'' . $row['proveedor_id'] . '\')"  title="Eliminar">'.BUTTON_DELETE.'</span>'
+                 <span class="btn-action action-danger" onclick="deleteProveedor(\'' . $row['proveedor_id'] . '\')"  title="Eliminar">' . BUTTON_DELETE . '</span>'
 
           ];
         }
@@ -84,13 +84,13 @@ try {
             'fecha' => $row['fecha'],
             'direccion' => '<span class="hide-cell">' . $row['direccion'] . '</span>',
             'acciones' => '<a class="btn-action action-warning" href="' . base_url . 'contacts/customer_history&id=' . $row['cliente_id'] . '" title="Ficha del cliente">
-                        '.BUTTON_CLIENT.'
+                        ' . BUTTON_CLIENT . '
                       </a>
                       <a class="btn-action action-info" href="' . base_url . 'contacts/edit_customer&id=' . $row['cliente_id'] . '" title="Editar">
-                        '.BUTTON_EDIT.'
+                        ' . BUTTON_EDIT . '
                       </a>
                       <span class="btn-action action-danger" onclick="deleteCustomer(\'' . $row['cliente_id'] . '\')" title="Eliminar">
-                      '. BUTTON_DELETE .'
+                      ' . BUTTON_DELETE . '
                       </span>'
           ];
         }
@@ -100,7 +100,7 @@ try {
 
     case 'historial_cliente':
 
-       $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+      $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
 
       $sqlHistorial = "SELECT 
         concat(c.nombre,' ',IFNULL(c.apellidos,'')) AS nombre,
@@ -226,7 +226,7 @@ try {
       $type = $_POST['type'];
 
       $params = [
-        $user_id,
+        (int)$user_id,
         $_POST['name'],
         $_POST['lastname'] ?? "",
         $type === 'cliente' ? ($_POST['identity'] ?? "") : null,
@@ -241,8 +241,9 @@ try {
         $params = array_values($params);
       }
 
-      $procedure = $type === 'cliente' ? 'cl_agregarCliente' : 'pv_agregarProveedor';
+      $procedure = $type === 'cliente' ? 'cl_agregar_cliente' : 'pv_agregarProveedor';
       echo handleProcedureAction($db, $procedure, $params);
+      //  echo json_encode(["data"=>$params]);
       break;
 
     // Actualizar cliente o proveedor
@@ -268,6 +269,39 @@ try {
       }
 
       echo handleProcedureAction($db, $procedure, $params);
+      break;
+
+    case 'obtener_clientes':
+
+      $q = isset($_POST['q']) ? $_POST['q'] : '';  // Parámetro de búsqueda
+
+      // Preparar la consulta para prevenir inyecciones SQL
+      $sql = "SELECT cliente_id, nombre, apellidos FROM clientes WHERE nombre LIKE ? OR apellidos LIKE ? LIMIT 15";
+      $stmt = $db->prepare($sql);
+
+      // Parametrizar la búsqueda para evitar inyecciones SQL
+      $searchTerm = "%$q%";
+      $stmt->bind_param('ss', $searchTerm, $searchTerm);
+
+      // Ejecutar la consulta
+      $stmt->execute();
+      $result = $stmt->get_result();
+
+      // Recoger los clientes
+      $clientes = [];
+      while ($row = $result->fetch_assoc()) {
+        $clientes[] = [
+          'id' => $row['cliente_id'],
+          'nombre' => ucwords($row['nombre']),
+          'apellidos' => ucwords($row['apellidos'] ?? '')
+        ];
+      }
+
+      // Devolver los resultados en formato JSON
+      echo json_encode([
+        'results' => $clientes
+      ]);
+
       break;
 
     // Eliminar cliente, proveedor o bono

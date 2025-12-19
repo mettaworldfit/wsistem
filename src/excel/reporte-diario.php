@@ -82,7 +82,7 @@ $queryIngresos = "";
     INNER JOIN clientes c ON c.cliente_id = f.cliente_id
     LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = f.facturaRP_id
     LEFT JOIN pagos p ON pf.pago_id = p.pago_id
-    WHERE CONCAT(f.fecha, ' ', f.hora) >= (SELECT DATE(fecha_apertura) FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
+    WHERE CONCAT(f.fecha, ' ', f.hora) >= (SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
     AND e.nombre_estado = 'por cobrar'
     GROUP BY f.facturaRP_id, f.recibido, e.nombre_estado, f.fecha
 
@@ -100,7 +100,7 @@ $queryIngresos = "";
     INNER JOIN estados_generales e ON e.estado_id = f.estado_id
     INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
     INNER JOIN productos p ON p.producto_id = dp.producto_id
-    WHERE CONCAT(f.fecha, ' ', f.hora) >= (SELECT DATE(fecha_apertura) FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
+    WHERE CONCAT(f.fecha, ' ', f.hora) >= (SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
     AND e.nombre_estado <> 'por cobrar'
 
     UNION ALL
@@ -117,7 +117,7 @@ $queryIngresos = "";
     INNER JOIN estados_generales e ON e.estado_id = f.estado_id
     INNER JOIN detalle_ventas_con_servicios ds ON ds.detalle_venta_id = d.detalle_venta_id
     INNER JOIN servicios s ON s.servicio_id = ds.servicio_id
-    WHERE CONCAT(f.fecha, ' ', f.hora) >= (SELECT DATE(fecha_apertura) FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
+    WHERE CONCAT(f.fecha, ' ', f.hora) >= (SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
     AND e.nombre_estado <> 'por cobrar'
 
     UNION ALL
@@ -134,7 +134,7 @@ $queryIngresos = "";
     INNER JOIN estados_generales e ON e.estado_id = f.estado_id
     INNER JOIN detalle_ventas_con_piezas_ dp ON dp.detalle_venta_id = d.detalle_venta_id
     INNER JOIN piezas pz ON pz.pieza_id = dp.pieza_id
-    WHERE CONCAT(f.fecha, ' ', f.hora) >= (SELECT DATE(fecha_apertura) FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
+    WHERE CONCAT(f.fecha, ' ', f.hora) >= (SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
     AND e.nombre_estado <> 'por cobrar'
 
     UNION ALL
@@ -151,7 +151,7 @@ $queryIngresos = "";
     INNER JOIN estados_generales e ON e.estado_id = f.estado_id
     INNER JOIN detalle_ordenRP_con_servicios dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
     INNER JOIN servicios s ON s.servicio_id = dp.servicio_id
-    WHERE CONCAT(f.fecha, ' ', f.hora) >= (SELECT DATE(fecha_apertura) FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
+    WHERE CONCAT(f.fecha, ' ', f.hora) >= (SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
     AND e.nombre_estado <> 'por cobrar'
 
     UNION ALL
@@ -168,7 +168,7 @@ $queryIngresos = "";
     INNER JOIN estados_generales e ON e.estado_id = f.estado_id
     INNER JOIN detalle_ordenRP_con_piezas dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
     INNER JOIN piezas pz ON pz.pieza_id = dp.pieza_id
-    WHERE CONCAT(f.fecha, ' ', f.hora) >= (SELECT DATE(fecha_apertura) FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
+    WHERE CONCAT(f.fecha, ' ', f.hora) >= (SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
     AND e.nombre_estado <> 'por cobrar'
 
     UNION ALL
@@ -189,7 +189,7 @@ $queryIngresos = "";
     INNER JOIN facturas_ventas f ON f.factura_venta_id = pf.factura_venta_id
     INNER JOIN metodos_de_pagos mp ON mp.metodo_pago_id = f.metodo_pago_id
     INNER JOIN estados_generales e ON e.estado_id = f.estado_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= (SELECT DATE(fecha_apertura) FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= (SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
     AND (e.nombre_estado = 'por cobrar' OR (e.nombre_estado <> 'por cobrar' AND f.fecha <> p.fecha))
 
     UNION ALL
@@ -210,7 +210,7 @@ $queryIngresos = "";
     INNER JOIN facturasRP f ON f.facturaRP_id = pf.facturaRP_id
     INNER JOIN metodos_de_pagos mp ON mp.metodo_pago_id = f.metodo_pago_id
     INNER JOIN estados_generales e ON e.estado_id = f.estado_id
-    WHERE CONCAT(p.fecha, ' ', p.hora) >= (SELECT DATE(fecha_apertura) FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
+    WHERE CONCAT(p.fecha, ' ', p.hora) >= (SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
     AND (e.nombre_estado = 'por cobrar' OR (e.nombre_estado <> 'por cobrar' AND f.fecha <> p.fecha))
 
 ) ingresos_rango_cierre ORDER BY estado ASC;";
@@ -455,7 +455,7 @@ $queryGastos = "SELECT factura,descripcion,proveedor,cantidad,precio,descuento,f
     INNER JOIN motivos m ON dg.motivo_id = m.motivo_id
     INNER JOIN proveedores p ON p.proveedor_id = g.proveedor_id
     WHERE CONCAT(g.fecha,' ',g.hora) >= (
-    SELECT DATE(fecha_apertura) 
+    SELECT fecha_apertura
     FROM cierres_caja 
     WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)
     
@@ -479,7 +479,7 @@ $queryGastos = "SELECT factura,descripcion,proveedor,cantidad,precio,descuento,f
     LEFT JOIN detalle_compra_con_piezas dcz ON dc.detalle_compra_id = dcz.detalle_compra_id
     LEFT JOIN piezas piez ON dcz.pieza_id = piez.pieza_id
     WHERE CONCAT(fp.fecha,' ',fp.hora) >= (
-    SELECT DATE(fecha_apertura) 
+    SELECT fecha_apertura
     FROM cierres_caja 
     WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1) AND oc.estado_id = '12'
     

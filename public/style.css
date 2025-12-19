@@ -3594,6 +3594,20 @@ p.pos-stock {
     justify-content: space-between;
 }
 
+.form-group_pos {
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-group_pos .input-div {
+    width: 100%;
+}
+
+.form-group_pos button {
+    margin-top: 0;
+   margin-left: 10px;
+}
+
 button.pos-button-cash {
     display: flex;
     justify-content: space-between;
@@ -3793,7 +3807,7 @@ span.close-window {
     background: #fff;
     width: 35%;
     height: 100%;
-    top: 0;
+    /* top: 0; */
     right: -100%;
     z-index: 4;
     transition: right 0.5s ease;
@@ -4129,4 +4143,22 @@ button.btn-pos_home:hover {
 button.btn-pos_home:focus {
     outline: none;
     border: 2px solid var(--color-primary);
+}
+
+
+/* Ventana agregar cliente */
+
+.pos-customer-add {
+    position: fixed;
+    background: #fff;
+    width: 40%;
+    height: 100%;
+    right: -100%;
+    z-index: 5;
+    transition: right 0.5s ease;
+}
+
+.footer-customer_window {
+    border-top: 1px solid #ccc;
+    margin-top: 15px;
 }

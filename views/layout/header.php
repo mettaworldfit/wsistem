@@ -466,6 +466,10 @@
                 </div>
               </li>
             <?php endif; ?>
+
+              <li>
+              <div class="link"><a href="<?= base_url ?>invoices/pos"><i class="mr-3 fas fa-print"></i>POS</a></div>
+            </li>
           </ul>
 
         </nav> <!-- app-menu -->

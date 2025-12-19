@@ -615,7 +615,7 @@ if ($_POST['action'] == "precios_ordenes_ventas") {
     AND factura_venta_id IS NULL";
   }
 
-   jsonQueryResult($db, $sql);
+  jsonQueryResult($db, $sql);
 }
 
 // Eliminar producto del detalle temporar
@@ -1102,119 +1102,25 @@ if ($_POST['action'] === "obtener_datos_orden") {
   jsonQueryResult($db, $sql);
 }
 
-
-// // Función para actualizar la cantidad en detalle_temporal o detalle_facturas_ventas
-function actualizarCantidadDetalle($db, $id, $quantity, $item_id, $item_type, $tabla_detalle, $tabla_id)
-{
-  // Si el item es un servicio, no verificamos stock, solo actualizamos la cantidad en detalle
-  if ($item_type === 'servicio') {
-
-    // Actualizar la cantidad
-    $sql_update = "UPDATE $tabla_detalle SET cantidad = '$quantity' WHERE $tabla_id = '$id'";
-    if ($db->query($sql_update)) {
-      return json_encode([
-        'error' => false,
-        'message' => 'Detalle actualizado con éxito (Servicio).',
-      ]);
-    } else {
-      return json_encode([
-        'error' => true,
-        'message' => 'Error al actualizar el servicio.',
-      ]);
-    }
-  }
-
-  // Verificar si el producto tiene variantes (solo si el item es producto)
-  if ($item_type === 'producto') {
-    // Verificar si el producto tiene variantes
-    $sql_check_variants = "SELECT COUNT(*) AS variants_count FROM variantes WHERE producto_id = '$item_id'";
-    $result_variants = $db->query($sql_check_variants);
-
-    if ($result_variants) {
-      $variant_data = $result_variants->fetch_assoc();
-      if ($variant_data['variants_count'] > 0) {
-        return json_encode([
-          'error' => true,
-          'message' => 'Este producto tiene variantes, no se puede modificar la cantidad.',
-        ]);
-      }
-    }
-  }
-
-  // Si es producto o pieza, verificamos el stock disponible
-  $sql_check = "";
-  if ($item_type === 'producto') {
-    $sql_check = "SELECT cantidad FROM productos WHERE producto_id = '$item_id'";
-  } elseif ($item_type === 'pieza') {
-    $sql_check = "SELECT cantidad FROM piezas WHERE pieza_id = '$item_id'";
-  }
-
-  if ($sql_check !== "") {
-    $result = $db->query($sql_check);
-
-    if ($result) {
-      $row = $result->fetch_assoc();
-      $current_stock = $row['cantidad']; // Cantidad actual en el inventario del item
-
-      // Obtener la cantidad actual en detalle para este item
-      $sql_detalle_check = "SELECT cantidad FROM $tabla_detalle WHERE $tabla_id = '$id'";
-      $detalle_result = $db->query($sql_detalle_check);
-
-      if ($detalle_result) {
-        $detalle_row = $detalle_result->fetch_assoc();
-        $current_detail_quantity = $detalle_row['cantidad']; // Cantidad en detalle
-
-        // Calcular el total disponible (stock + detalle)
-        $total_available = $current_stock + $current_detail_quantity;
-
-        // Verificar si el stock total disponible es suficiente
-        if ($total_available >= $quantity) {
-          // Actualizar la cantidad en detalle
-          $sql_update = "UPDATE $tabla_detalle SET cantidad = '$quantity' WHERE $tabla_id = '$id'";
-          if ($db->query($sql_update)) {
-            return json_encode([
-              'error' => false,
-              'message' => 'Detalle modificado con éxito.',
-            ]);
-          } else {
-            return json_encode([
-              'error' => true,
-              'message' => 'Error al actualizar la cantidad en detalle.',
-            ]);
-          }
-        } else {
-          // Si no hay suficiente stock
-          return json_encode([
-            'error' => true,
-            'message' => 'No hay suficiente stock para realizar la actualización.',
-          ]);
-        }
-      } else {
-        return json_encode([
-          'error' => true,
-          'message' => 'Error al obtener la cantidad en detalle.',
-        ]);
-      }
-    } else {
-      // Error al verificar el stock del item
-      return json_encode([
-        'error' => true,
-        'message' => 'Error al verificar el stock del item.',
-      ]);
-    }
-  }
-}
-
-
 // Acción para actualizar cantidad en detalle_temporal o detalle_facturas_ventas
 if ($_POST['action'] === "actualizar_cantidad_detalle_temporal" || $_POST['action'] === "actualizar_cantidad_orden_venta") {
   $db = Database::connect();
 
-  // Datos recibidos del frontend
-  $id = $_POST['id']; // ID del detalle temporal
-  $quantity = $_POST['quantity']; // Nueva cantidad a actualizar
-  $item_id = $_POST['item_id']; // ID del producto, pieza o servicio
-  $item_type = $_POST['item_type']; // Tipo de item: 'producto', 'pieza', 'servicio'
+  // Recoger los datos enviados desde el frontend
+  $id = isset($_POST['id']) ? (int) $_POST['id'] : 0; // ID del detalle temporal
+  $quantity = isset($_POST['quantity']) ? (int) $_POST['quantity'] : 0; // Nueva cantidad a actualizar
+  $item_id = isset($_POST['item_id']) ? (int) $_POST['item_id'] : 0; // ID del producto, pieza o servicio
+  $item_type = isset($_POST['item_type']) ? $_POST['item_type'] : ''; // Tipo de item: 'producto', 'pieza', 'servicio'
+
+  // Validación básica para asegurar que los valores sean válidos
+  if ($id <= 0 || $quantity <= 0 || $item_id <= 0 || empty($item_type)) {
+    echo "Error: Datos inválidos o incompletos.";
+    exit;
+  }
+
+  // Determinar la tabla de detalle y la columna del ID correspondiente
+  $tabla_detalle = '';
+  $tabla_id = '';
 
   // Determinar la tabla de detalle y la tabla del item según el tipo de item
   if ($_POST['action'] === "actualizar_cantidad_detalle_temporal") {
@@ -1226,16 +1132,23 @@ if ($_POST['action'] === "actualizar_cantidad_detalle_temporal" || $_POST['actio
   }
 
   // Determinar la tabla del item según el tipo de item
-  if ($item_type === 'producto') {
-    $tabla_item = 'productos';
-  } elseif ($item_type === 'pieza') {
-    $tabla_item = 'piezas';
-  } else {
-    $tabla_item = ''; // Para servicios no necesitamos tabla de stock
-  }
+switch ($item_type) {
+    case 'producto':
+        $tabla_item = 'productos';
+        break;
+    case 'pieza':
+        $tabla_item = 'piezas';
+        break;
+    case 'servicio':
+        $tabla_item = ''; // No requiere tabla de stock
+        break;
+    default:
+        echo "Error: tipo de item no válido.";
+        exit;
+}
 
   // Llamar a la función de actualización
-  echo actualizarCantidadDetalle($db, $id, $quantity, $item_id, $item_type, $tabla_detalle, $tabla_id);
+  echo updateDetailQuantity($db, $id, $quantity, $item_id, $item_type, $tabla_detalle, $tabla_id);
 }
 
 
@@ -1243,7 +1156,7 @@ if ($_POST['action'] == "agregar_detalle_pos") {
 
   $db = Database::connect();
 
-$params = [
+  $params = [
     (int) ($_POST['order_id'] ?? 0), // Usamos el valor de order_id o 0 si no está presente
     (int) $_SESSION['identity']->usuario_id,
     $_POST['quantity'] ?? 0,
@@ -1252,12 +1165,11 @@ $params = [
     (int) $_POST['product_id'] ?? 0,
     (int)$_POST['piece_id'] ?? 0,
     (int)$_POST['service_id'] ?? 0
-];
+  ];
 
-$procedure = ($_POST['order_id'] > 0) ? 'pos_agregar_producto' : 'pos_agregar_producto_sin';
+  $procedure = ($_POST['order_id'] > 0) ? 'pos_agregar_producto' : 'pos_agregar_producto_sin';
 
-echo handleProcedureAction($db, $procedure, $params);
-  
+  echo handleProcedureAction($db, $procedure, $params);
 }
 
 // Obtener datos de la venta editar del pos 
@@ -1293,17 +1205,11 @@ if ($_POST['action'] == "datos_detalle_id") {
 if ($_POST['action'] == "borrar_detalle_pos") {
 
   $db = Database::connect();
-  $order_id = $_POST['order_id'];
 
-  $query = "DELETE FROM detalle_facturas_ventas WHERE comanda_id = '$order_id'";
-  $db->query($query);
-
-  // Verificar cuántas filas fueron afectadas
-  $rows = $db->affected_rows;
-
-  if ($rows > 0) {
-    echo "$rows registros eliminados";
-  }
+  echo handleProcedureAction($db, 'pos_eliminar_todo', [
+    (int)$_POST['order_id'],
+    (int)$_SESSION['identity']->usuario_id
+  ]);
 }
 
 // Actualizar el detalle en el POS
@@ -1322,7 +1228,7 @@ if ($_POST['action'] == "actualizar_detalle_pos") {
     $_POST['quantity']
   ];
 
- echo handleProcedureAction($db, 'pos_update_detalle', $params);
+  echo handleProcedureAction($db, 'pos_update_detalle', $params);
 }
 
 

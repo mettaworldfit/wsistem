@@ -58,7 +58,7 @@
 
                 <div class="pos-field-sm">
                     <label class="form-check-label">Método</label>
-                    <div class="input-div">
+                    <div class="input-div v_method">
                         <div class="i b-right">
                             <i class="fas fa-list"></i>
                         </div>
@@ -74,25 +74,116 @@
 
             <div class="pos-field-row">
                 <label class="form-check-label">Cliente</label>
-                <div class="input-div">
-                    <div class="i b-right">
-                        <i class="fas fa-portrait"></i>
+
+                <div class="form-group_pos">
+                    <div class="input-div v_customer">
+                        <div class="i b-right">
+                            <i class="fas fa-portrait"></i>
+                        </div>
+                        <select class="form-custom-icon" name="" id="customer_id" required>
+                        </select>
                     </div>
-                    <select class="form-custom-icon search" name="" id="customer_id" required>
-                        <?php $customers = Help::showCustomers();
-                        while ($customer = $customers->fetch_object()): ?>
-                            <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre) . " " . ucwords($customer->apellidos ?? '') ?></option>
 
-                        <?php endwhile; ?>
-                    </select>
+                    <!-- Crear cliente -->
+                    <button class="btn-custom btn-default" type="button" id="pos-add_customer">
+                        <i class="fas fa-plus"></i>
+                        <p>Nuevo</p>
+                    </button>
                 </div>
-
             </div>
         </div>
 
 
         <!-- Capa de fondo transparente -->
         <div class="overlay"></div>
+
+        <!-- Agregar cliente -->
+        <div class="pos-customer-add">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Agregar cliente
+                </h5>
+                <button type="button" class="close" id="close-window">
+                    <span class="close-window">x</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form action="" method="POST" id="contactForm">
+
+                    <div class="form-group col-sm-12">
+                        <p class="title-info">
+                            Incluye los datos principales de tu nuevo contacto
+                        </p>
+                    </div>
+
+                    <div class="row col-md-12">
+
+                        <div class="form-group col-sm-7">
+                            <label for="Nombre" class="form-check-label label-nomb">Nombre/Razón social<span
+                                    class="text-danger">*</span></label>
+                            <input class="form-custom" type="text" name="" id="name" required>
+                        </div>
+
+                        <div class="form-group col-sm-5">
+                            <label for="Apellidos" class="form-check-label">Apellidos</label>
+                            <input class="form-custom" type="text" name="" id="lastname">
+                        </div>
+
+                        <div class="form-group col-sm-6" id="cod_client">
+                            <label class="form-check-label" for="">RNC o Cédula</label>
+                            <input class="form-custom" type="text" name="" maxlength="11" id="identity">
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label class="form-check-label" for="">Dirección</label>
+                            <select class="form-custom search" name="" id="address">
+                                <option value="0" selected> --- </option>
+                                <?php require_once "./views/contacts/includes/direcciones.php"; ?>
+                            </select>
+                        </div>
+
+                    </div> <!-- Row col-md-12 -->
+                    <br>
+
+                    <div class="col-legend">
+                        <h3>Información de contacto</h3>
+                    </div>
+
+                    <div class="row col-md-12">
+                        <div class="form-group col-sm-6 ">
+                            <label class="form-check-label" for="">Télefono 1</label>
+                            <input class="form-custom" type="number" name="" id="tel1">
+                        </div>
+
+                        <div class="form-group col-sm-6 ">
+                            <label class="form-check-label" for="">Télefono 2</label>
+                            <input class="form-custom" type="number" name="" id="tel2">
+                        </div>
+
+                        <div class="form-group col-sm-6 ">
+                            <label class="form-check-label" for="">E-mail</label>
+                            <input class="form-custom" type="email" name="" id="email">
+                        </div>
+                    </div>
+
+                    <div class="footer-customer_window">
+                        <!-- Botones -->
+                        <div class="footer-btn-container">
+                            <button class="btn-custom btn-red" type="button" id="cancel-window">
+                                <i class="fas fa-window-close"></i>
+                                <p>Cancelar</p>
+                            </button>
+
+                            <button class="btn-custom btn-green" type="submit" id="">
+                                <i class="fas fa-plus"></i>
+                                <p>Registrar</p>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div> <!-- end -->
 
         <!-- ventana de editar item -->
         <div class="pos-product-edit">
@@ -143,10 +234,10 @@
                             <label class="form-check-label">Impuesto</label>
                             <select class="form-custom search" name="impuesto" id="tax_id">
                                 <option value="0">Sin impuestos</option>
-                                <?php 
+                                <?php
                                 $taxes = help::showTaxes();
-                                while($tax = $taxes->fetch_object()): ?>
-                                  <option value="<?= $tax->valor ?>"><?= ucwords($tax->nombre_impuesto); ?> (<?= $tax->valor ?>)%</option>
+                                while ($tax = $taxes->fetch_object()): ?>
+                                    <option value="<?= $tax->valor ?>"><?= ucwords($tax->nombre_impuesto); ?> (<?= $tax->valor ?>)%</option>
                                 <?php endwhile; ?>
                             </select>
                         </div>

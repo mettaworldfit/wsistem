@@ -168,15 +168,15 @@ function calculateTotalInvoice(bonus = 0) {
                 $('#cash-received').val('0.00');
                 $('#credit-received').val('0.00');
 
-                 // Insertar en el POS (Punto de venta)
+                // Insertar en el POS (Punto de venta)
                 if (discount > 0) {
                     $('#pos-discount').css('display', 'flex')
                     $('#pos-subtotal').css('display', 'flex')
-                } 
-                
+                }
+
                 if (taxes > 0) {
                     $('#pos-taxes').css('display', 'flex')
-                     $('#pos-subtotal').css('display', 'flex')
+                    $('#pos-subtotal').css('display', 'flex')
                 }
 
                 $('.pos-subtotal').text('$' + subtotal);
@@ -269,69 +269,78 @@ $(document).ready(function () {
 
     // Detectar el cambio en los inputs con la clase .input-quantity
     $(document).on('change', '.input-quantity', function () {
-        var newQuantity = $(this).val();
-        var detail_id = $(this).data('id'); // Obtener el detalle_id del atributo data-id
-        var itemId = $(this).data('item-id');
-        var type = $(this).data('item-type');
+        var debounceTimer;
+        var $input = $(this);  // Guardar la referencia al input actual
 
+        clearTimeout(debounceTimer);  // Limpiar el temporizador anterior
 
-        // Determinar acción según la URL
-        let action;
+        debounceTimer = setTimeout(function () {
+            var newQuantity = parseFloat($input.val());  // Convertir el valor a número de punto flotante
+            var detail_id = $input.data('id');  // Obtener el detalle_id del atributo data-id
+            var itemId = $input.data('item-id');
+            var type = $input.data('item-type');
 
-        if (pageURL.includes("invoices/addpurchase")) {
-            action = 'actualizar_cantidad_detalle_temporal';
-        } else if (pageURL.includes("invoices/add_order")) {
-            action = 'actualizar_cantidad_orden_venta';
-        } else if (pageURL.includes("invoices/pos")) {
-            action = 'actualizar_cantidad_detalle_temporal';
-        }
+            // Obtener la URL actual de la página (si aún no se ha definido)
+            var pageURL = window.location.href;
 
-        if (newQuantity && !isNaN(newQuantity)) {
+            // Determinar acción según la URL
+            let action;
 
-            sendAjaxRequest({
-                url: "services/invoices.php",
-                data: {
-                    id: detail_id,
-                    quantity: newQuantity,
-                    item_id: itemId,
-                    item_type: type,
-                    action: action
-                },
-                successCallback: (res) => {
+            if (pageURL.includes("invoices/addpurchase")) {
+                action = 'actualizar_cantidad_detalle_temporal';
+            } else if (pageURL.includes("invoices/add_order") || pageURL.includes("invoices/pos")) {
+                action = 'actualizar_cantidad_orden_venta';
+            }
 
-                    try {
+            // Validar si la cantidad es un número válido y mayor a 0
+            if (!isNaN(newQuantity) && newQuantity > 0) {
 
-                        var result = JSON.parse(res);
+                // Enviar la solicitud AJAX
+                sendAjaxRequest({
+                    url: "services/invoices.php",
+                    data: {
+                        id: detail_id,
+                        quantity: newQuantity,
+                        item_id: itemId,
+                        item_type: type,
+                        action: action
+                    },
+                    successCallback: (res) => {
+                        try {
+                            var result = JSON.parse(res);  // Parsear la respuesta del servidor
 
-                        if (result.error) {
-                            notifyAlert(result.message, 'error');
-                        } else {
+                            // Verificar si hay algún error en la respuesta
+                            if (result.error) {
+                                notifyAlert(result.message, 'error');
+                            } else {
+                                notifyAlert("Cantidad actualizada correctamente", 'success', 1500);
+                            }
 
-                            notifyAlert("Cantidad actualizada correctamente", 'success', 1500);
+                            // Actualizar la información de la factura
+                            calculateTotalInvoice();
+                            reloadInvoiceDetail();
+
+                        } catch (e) {
+                            console.error("Error al parsear JSON: ", e);
+                            notifyAlert("Hubo un error al procesar la respuesta. Intente de nuevo.", 'error');
                         }
 
-                        calculateTotalInvoice();
-                        reloadInvoiceDetail();
+                    },
+                    errorCallback: (res) => {
+                        console.log(res);
+                        notifyAlert(res, 'error');
+                    },
+                    verbose: true
+                });
 
-                    } catch (e) {
-                        // Si ocurre un error al parsear el JSON
-                        mdtoast("Error al procesar la respuesta del servidor.", {
-                            duration: 5000,
-                            position: "bottom right",
-                            type: 'error',
-                        });
-                        console.error("Error al parsear JSON: ", e);
-                    }
-
-                },
-                verbose: false
-            })
-
-
-        } else {
-            alert('Por favor, ingrese una cantidad válida');
-        }
+            } else {
+                alert('Por favor, ingrese una cantidad válida mayor que cero');
+            }
+        }, 300);  // 300 ms de espera entre cambios rápidos
     });
+
+
+
 
 
     // Ocultar botones por defecto (cotización, editar última factura, tipos de facturación)

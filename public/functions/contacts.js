@@ -51,7 +51,7 @@ function AddContactModal() {
             mysql_row_affected();
             setTimeout(() => location.reload(), 900);
          
-        },verbose: true
+        },verbose: false
     });
 }
 

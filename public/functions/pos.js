@@ -150,7 +150,7 @@ $(document).ready(function () {
                     // cargar resumen de venta
                     calculateTotalInvoice();
                     loadProductsPOS();
-                    loadOrdersPOS(); // Cargar ordenes
+                    //  loadOrdersPOS(); // Cargar ordenes
 
                     // Mostrar total de items en el detalle
                     var total_items = $('.pos-detail-item .pos-item-row').length;
@@ -179,16 +179,6 @@ $(document).ready(function () {
     /**============================================================= 
          * FUNCIONES DEL DETALLE POS
     ===============================================================*/
-
-    // Cerrar la ventana y la capa de fondo
-    $('.overlay, #close-window,#cancel-window').click(function () {
-        hiddenOverlay();
-    });
-
-    function hiddenOverlay() {
-        $('.pos-product-edit').css('right', '-100%'); // Ocultar la ventana deslizante
-        $('.overlay').fadeOut(300); // Ocultar la capa de fondo negro
-    }
 
     // Agregar detalle
     $('#product-grid').on('click', '.product-card', function () {
@@ -299,6 +289,17 @@ $(document).ready(function () {
     * VENTANA DE EDITAR
     ===============================================================*/
 
+    // Cerrar la ventana y la capa de fondo
+    $('.overlay, #close-window,#cancel-window').click(function () {
+        hiddenOverlay();
+    });
+
+    function hiddenOverlay() {
+        $('.pos-product-edit').css('right', '-100%'); // Ocultar la ventana deslizante
+        $('.pos-customer-add').css('right', '-100%');
+        $('.overlay').fadeOut(300); // Ocultar la capa de fondo negro
+    }
+
     // Calcular resumen de la venta editar
     function windowSummary(data) {
 
@@ -348,7 +349,6 @@ $(document).ready(function () {
             $('#row-discount').css('display', 'none')
         }
 
-        
         if (totalTax > 0) {
             $('#row-tax').css('display', 'flex')
             $('.item-taxes').text('$' + taxes);
@@ -368,7 +368,7 @@ $(document).ready(function () {
         $('#windowId').val(detailId);
 
         // Mostrar ventana
-        $('.pos-product-edit').css('display', 'block').css('right', '0');
+        // $('.pos-product-edit').css('display', 'block').css('right', '0');
 
         // Mostrar la ventana con el fondo oscuro
         $('.pos-product-edit').css('display', 'block').css('right', '0'); // Mostrar ventana deslizante desde la derecha
@@ -419,7 +419,7 @@ $(document).ready(function () {
             url: "services/invoices.php",
             data: {
                 action: "borrar_detalle_pos",
-                order_id: $('#order_id').val()
+                order_id: $('#order_id').val() || 0
             },
             successCallback: (res) => {
                 loadDetailPOS();
@@ -457,7 +457,7 @@ $(document).ready(function () {
             },
             errorCallback: (res) => {
                 console.error(res)
-                notifyAlert(res,'error')
+                notifyAlert(res, 'error')
             },
             verbose: true
         });
@@ -492,18 +492,92 @@ $(document).ready(function () {
     }
 
     // Verificar el stock del item
-    $('#quantity').keyup(function(){
+    $('#quantity').keyup(function () {
         var quantity = $(this).val();
 
         console.log('cantidad introducida ', quantity);
     })
 
     /**============================================================= 
+   * VENTANA DE CLIENTE
+   ===============================================================*/
+
+    $('#pos-add_customer').on('click', function () {
+
+        $('.pos-customer-add').css('display', 'block').css('right', '0'); // Mostrar ventana deslizante desde la derecha
+        $('.overlay').css('display', 'block'); // Mostrar la capa de fondo negro con transparencia
+    });
+
+    //  Crear cliente
+    $('#contactForm').on('submit', function (e) {
+        e.preventDefault();
+        addCustomerPOS();
+    });
+
+    function addCustomerPOS() {
+        sendAjaxRequest({
+            url: "services/contacts.php",
+            data: {
+                name: $('#name').val(),
+                lastname: $('#lastname').val(),
+                address: $('#select2-address-container').attr('title'),
+                identity: $('#identity').val(),
+                tel1: $('#tel1').val(),
+                tel2: $('#tel2').val(),
+                email: $('#email').val(),
+                type: "cliente",
+                action: 'crear_contacto'
+            },
+            successCallback: (res) => {
+                $('input[type="text"], input[type="number"]').val('');
+                notifyAlert(res, 'success')
+
+            },
+            errorCallback: (res) => {
+                notifyAlert(res, 'error')
+                console.error(res);
+            },
+            verbose: false
+        })
+    }
+
+
+    // Cargar clientes
+    $('#customer_id').select2({
+        placeholder: 'Selecciona un cliente',
+        allowClear: true, // Permite limpiar la selección
+        ajax: {
+            url: SITE_URL + 'services/contacts.php',  
+            dataType: 'json',
+            method: 'POST',
+            data: function (params) {
+                return {
+                    action: 'obtener_clientes', // Acción que identificarás en el backend
+                    q: params.term // Aquí puedes pasar el término de búsqueda si lo deseas
+                };
+            },
+            processResults: function (data) {
+
+                // Ajuste: Acceder a la propiedad correcta (nombre) en vez de "name"
+                return {
+                    results: data.results.map(function (client) {
+                        return {
+                            id: client.id, // El id del cliente
+                            text: client.nombre + (client.apellidos ? ' ' + client.apellidos : '') // Nombre completo
+                        };
+                    })
+                };
+            }
+        }
+    });
+
+
+
+    /**============================================================= 
      * FUNCIONES DE LAS ORDENES
     ===============================================================*/
 
     function loadOrdersPOS() {
-
         sendAjaxRequest({
             url: "services/invoices.php",
             data: {
@@ -568,10 +642,10 @@ $(document).ready(function () {
 
 
     // Crear nueva orden
-    $('.btn-add_order').on('click', function () {
+    // $('.btn-add_order').on('click', function () {
 
-        console.log('AGREGAR NUEVA ORDEN')
-    })
+    //     console.log('AGREGAR NUEVA ORDEN')
+    // })
 
     // Salir de las ordenes
     $('.btn-pos_home').on('click', function () {
@@ -590,9 +664,6 @@ $(document).ready(function () {
     ===============================================================*/
 
     $('.pos-button-cash').on('click', function () {
-
-        // Desactivar boton
-        $('.pos-button-cash').attr('disabled', true);
 
         const data = {
             // Datos del ticket
@@ -617,14 +688,30 @@ $(document).ready(function () {
 
         // Validación rápida
         if (!data.customer_id || !data.method_id) {
-            alert("Completa todos los datos obligatorios.");
+            notifyAlert("Completa todos los datos obligatorios.", 'warning');
+            // Limpiar los bordes de los campos antes
+            $('.v_customer, .v_method').css('border', ''); // Limpiar cualquier borde previo
+
+            // Cambiar el borde a rojo para los campos vacíos
+            if (!data.customer_id) {
+                $('.v_customer').css('border', '1px solid red');
+            }
+            if (!data.method_id) {
+                $('.v_method').css('border', '1px solid red');
+            }
             return;
         }
+
+        // Si los datos son válidos, limpiar el borde (si es necesario)
+        $('.v_customer, .v_method').css('border', '');
 
         sendAjaxRequest({
             url: "services/invoices.php",
             data: data,
             successCallback: (res) => {
+
+                // Desactivar boton
+                $('.pos-button-cash').attr('disabled', true);
 
                 mysql_row_affected()
                 loadDetailPOS()
@@ -644,6 +731,7 @@ $(document).ready(function () {
 
     // Cargar productos por primera vez
     // loadProductsPOS();
+
     loadDetailPOS()
     loadOrdersPOS();
 
