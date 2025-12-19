@@ -449,22 +449,33 @@ switch ($action) {
     $orderBy = $columns[$orderColumn];
 
     // Consulta para obtener los productos con paginación y búsqueda
-    $query = "SELECT * FROM productos WHERE nombre_producto LIKE ? OR cod_producto LIKE ? ORDER BY $orderBy $orderDir LIMIT ?, ?";
-    $stmt = $db->prepare($query);
-    $searchTerm = "%" . $search . "%";
-    $stmt->bind_param('ssii', $searchTerm, $searchTerm, $start, $length);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $data = $result->fetch_all(MYSQLI_ASSOC);
+  // Termino de búsqueda
+$searchTerm = "%" . $search . "%";
 
-    // Contar el total de productos filtrados por búsqueda
-    $totalQuery = "SELECT COUNT(*) as total FROM productos WHERE nombre_producto LIKE ? OR cod_producto LIKE ?";
-    $stmtTotal = $db->prepare($totalQuery);
-    $stmtTotal->bind_param('ss', $searchTerm, $searchTerm);
-    $stmtTotal->execute();
-    $totalResult = $stmtTotal->get_result();
+// Consulta para obtener los productos con paginación y búsqueda
+$query = "SELECT * FROM productos WHERE nombre_producto LIKE '$searchTerm' OR cod_producto LIKE '$searchTerm' ORDER BY $orderBy $orderDir LIMIT $start, $length";
+$result = $db->query($query);
+
+// Verificar si hay resultados
+if ($result) {
+    $data = $result->fetch_all(MYSQLI_ASSOC);
+} else {
+    $data = [];
+}
+
+// Consulta para contar el total de productos filtrados por búsqueda
+$totalQuery = "SELECT COUNT(*) as total FROM productos WHERE nombre_producto LIKE '$searchTerm' OR cod_producto LIKE '$searchTerm'";
+$totalResult = $db->query($totalQuery);
+
+// Verificar si hay resultados
+if ($totalResult) {
     $totalData = $totalResult->fetch_assoc();
     $totalRecords = $totalData['total'];  // Total de registros filtrados
+} else {
+    $totalRecords = 0;
+}
+
+
 
     // Responder con los datos en formato JSON
     // echo json_encode([
@@ -474,7 +485,8 @@ switch ($action) {
     //   "data" => $data                           // Los registros de productos solicitados
     // ]);
 
-     echo json_encode($data, JSON_UNESCAPED_UNICODE);
+   //  echo json_encode($data, JSON_UNESCAPED_UNICODE);
+
 
     break;
 
