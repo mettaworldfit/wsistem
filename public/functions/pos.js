@@ -50,15 +50,7 @@ $(document).ready(function () {
         orderDir: 'asc' // Dirección de ordenación ('asc' o 'desc')
     },
     success: function (response) {
-        // Verifica si 'data' existe en la respuesta
-        if (response && response.data) {
-            // Solo selecciona y procesa los datos
-            let data = response.data;
-            console.log(data);  // Aquí puedes trabajar solo con los datos
-            // Procesa los datos de acuerdo a lo que necesites hacer
-        } else {
-            console.error('No se encontraron datos en la respuesta:', response);
-        }
+       console.log(response)
     },
     error: function (xhr, status, error) {
         // Maneja cualquier error de la solicitud AJAX

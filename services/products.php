@@ -436,10 +436,6 @@ switch ($action) {
 
   case 'pos':
 
-    // Inicia la respuesta con JSON
-header('Content-Type: application/json');
-
-try {
     // Recibir parámetros de la solicitud
     $draw = isset($_POST['draw']) ? (int) $_POST['draw'] : 1;  // Número de solicitud (para seguimiento)
     $start = isset($_POST['start']) ? (int) $_POST['start'] : 0; // Índice de inicio
@@ -455,54 +451,30 @@ try {
     // Consulta para obtener los productos con paginación y búsqueda
     $query = "SELECT * FROM productos WHERE nombre_producto LIKE ? OR cod_producto LIKE ? ORDER BY $orderBy $orderDir LIMIT ?, ?";
     $stmt = $db->prepare($query);
-
-    if ($stmt === false) {
-        throw new Exception("Error en la preparación de la consulta SQL: " . $db->error);
-    }
-
     $searchTerm = "%" . $search . "%";
     $stmt->bind_param('ssii', $searchTerm, $searchTerm, $start, $length);
-
-    if (!$stmt->execute()) {
-        throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
-    }
-
+    $stmt->execute();
     $result = $stmt->get_result();
     $data = $result->fetch_all(MYSQLI_ASSOC);
 
     // Contar el total de productos filtrados por búsqueda
     $totalQuery = "SELECT COUNT(*) as total FROM productos WHERE nombre_producto LIKE ? OR cod_producto LIKE ?";
     $stmtTotal = $db->prepare($totalQuery);
-
-    if ($stmtTotal === false) {
-        throw new Exception("Error en la preparación de la consulta total: " . $db->error);
-    }
-
     $stmtTotal->bind_param('ss', $searchTerm, $searchTerm);
-
-    if (!$stmtTotal->execute()) {
-        throw new Exception("Error al ejecutar la consulta total: " . $stmtTotal->error);
-    }
-
+    $stmtTotal->execute();
     $totalResult = $stmtTotal->get_result();
     $totalData = $totalResult->fetch_assoc();
     $totalRecords = $totalData['total'];  // Total de registros filtrados
 
     // Responder con los datos en formato JSON
-    echo json_encode([
-        "draw" => $draw,                          // El número de solicitud de la tabla
-        "recordsTotal" => $totalRecords,          // Total de productos en la base de datos (sin filtros)
-        "recordsFiltered" => $totalRecords,      // Total de productos filtrados
-        "data" => $data                           // Los registros de productos solicitados
-    ]);
+    // echo json_encode([
+    //   "draw" => $draw,                          // El número de solicitud de la tabla
+    //   "recordsTotal" => $totalRecords,                    // Total de productos en la base de datos (sin filtros)
+    //   "recordsFiltered" => $totalRecords,       // Total de productos filtrados
+    //   "data" => $data                           // Los registros de productos solicitados
+    // ]);
 
-} catch (Exception $e) {
-    // Si ocurre un error, devolver un JSON con el mensaje de error
-    echo json_encode([
-        "Error" => $e->getMessage()
-    ]);
-}
-
+     echo json_encode($data, JSON_UNESCAPED_UNICODE);
 
     break;
 
