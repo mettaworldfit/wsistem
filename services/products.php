@@ -474,6 +474,12 @@ switch ($action) {
       "data" => $data                           // Los registros de productos solicitados
     ]);
 
+    if (json_last_error() !== JSON_ERROR_NONE) {
+      echo "Error en JSON: " . json_last_error_msg(); // Verifica si hay un error en la codificación JSON
+    } else {
+      echo $json_response;
+    }
+
     break;
 
   case 'detalle_punto_de_venta':
@@ -481,9 +487,9 @@ switch ($action) {
     $id = $_POST['order_id'];
     $query = "";
 
-    if($id != 0) {
+    if ($id != 0) {
 
-       $query = "SELECT COALESCE(p.nombre_producto, pz.nombre_pieza, s.nombre_servicio) AS nombre, df.precio, df.cantidad, 
+      $query = "SELECT COALESCE(p.nombre_producto, pz.nombre_pieza, s.nombre_servicio) AS nombre, df.precio, df.cantidad, 
       df.detalle_venta_id, df.descuento,p.producto_id,pz.pieza_id,s.servicio_id 
      FROM detalle_facturas_ventas df
                LEFT JOIN detalle_ventas_con_productos dvp ON df.detalle_venta_id = dvp.detalle_venta_id
@@ -495,9 +501,8 @@ switch ($action) {
                LEFT JOIN detalle_ventas_con_servicios dvs ON df.detalle_venta_id = dvs.detalle_venta_id
                LEFT JOIN servicios s ON s.servicio_id = dvs.servicio_id
       WHERE df.comanda_id = '$id'";
-
     } else {
-       $query = "SELECT COALESCE(p.nombre_producto, pz.nombre_pieza, s.nombre_servicio) AS nombre, df.precio, df.cantidad, 
+      $query = "SELECT COALESCE(p.nombre_producto, pz.nombre_pieza, s.nombre_servicio) AS nombre, df.precio, df.cantidad, 
       df.detalle_venta_id, df.descuento,p.producto_id,pz.pieza_id,s.servicio_id,df.usuario_id
      FROM detalle_facturas_ventas df
                LEFT JOIN detalle_ventas_con_productos dvp ON df.detalle_venta_id = dvp.detalle_venta_id
@@ -514,10 +519,20 @@ switch ($action) {
     }
 
     $result = mysqli_query($db, $query);
+// Verificar si hubo un error en la ejecución de la consulta
+if (!$result) {
+    error_log("Error en la consulta SQL: " . mysqli_error($db));
+    echo json_encode([
+        "error" => "Error en la consulta SQL."
+    ]);
+    exit;
+}
+
+
     $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
     // Contar el total de registros (sin filtros)
-   
+
     // $totalQuery = "SELECT COUNT(*) as total FROM detalle_facturas_ventas WHERE comanda_id = '$id'";
     // $totalResult = mysqli_query($db, $totalQuery);
     // $totalData = mysqli_fetch_assoc($totalResult);
@@ -568,6 +583,15 @@ switch ($action) {
       "data" => $data,                          // Los registros de productos solicitados
       "id" => $id
     ]);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+      error_log("Error al generar el JSON: " . json_last_error_msg());
+      echo json_encode([
+        "error" => "Error al generar la respuesta JSON."
+      ]);
+    } else {
+      echo $json_response;
+    }
 
 
     break;
