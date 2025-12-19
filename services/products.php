@@ -436,29 +436,53 @@ switch ($action) {
 
   case 'pos':
 
+    // Recibir parámetros de la solicitud
+    $draw = isset($_POST['draw']) ? (int) $_POST['draw'] : 1;  // Número de solicitud (para seguimiento)
+    $start = isset($_POST['start']) ? (int) $_POST['start'] : 0; // Índice de inicio
+    $length = isset($_POST['length']) ? (int) $_POST['length'] : 10; // Cantidad de productos por página
+    $search = isset($_POST['search']) ? $_POST['search'] : ''; // Término de búsqueda
 
-    // Preparar la consulta SQL
-    $query = "SELECT * FROM productos"; // Asegúrate de que el nombre de la tabla y las columnas son correctas
+    // Columnas para ordenamiento
+    $columns = ['nombre_producto', 'cod_producto', 'precio_unitario'];  // Ajusta las columnas según tu base de datos
+    $orderColumn = isset($_POST['orderColumn']) ? (int) $_POST['orderColumn'] : 0;
+    $orderDir = isset($_POST['orderDir']) ? $_POST['orderDir'] : 'asc';
+    $orderBy = $columns[$orderColumn];
 
-    // Ejecutar la consulta
+    // Consulta para obtener los productos con paginación y búsqueda
+    // Termino de búsqueda
+    $searchTerm = "%" . $search . "%";
+
+    // Consulta para obtener los productos con paginación y búsqueda
+    $query = "SELECT * FROM productos WHERE nombre_producto LIKE '$searchTerm' OR cod_producto LIKE '$searchTerm' ORDER BY $orderBy $orderDir LIMIT $start, $length";
     $result = $db->query($query);
 
     // Verificar si hay resultados
-    if ($result->num_rows > 0) {
-      // Crear un array para almacenar los productos
-      $productos = array();
-
-      // Recorrer los resultados y almacenarlos en el array
-      while ($row = $result->fetch_assoc()) {
-        $productos[] = $row;
-      }
-
-      // Devolver los productos en formato JSON
-      echo json_encode($productos);
+    if ($result) {
+      $data = $result->fetch_all(MYSQLI_ASSOC);
     } else {
-      // Si no hay productos, devolver un mensaje vacío
-      echo json_encode([]);
+      $data = [];
     }
+
+    // Consulta para contar el total de productos filtrados por búsqueda
+    $totalQuery = "SELECT COUNT(*) as total FROM productos WHERE nombre_producto LIKE '$searchTerm' OR cod_producto LIKE '$searchTerm'";
+    $totalResult = $db->query($totalQuery);
+
+    // Verificar si hay resultados
+    if ($totalResult) {
+      $totalData = $totalResult->fetch_assoc();
+      $totalRecords = $totalData['total'];  // Total de registros filtrados
+    } else {
+      $totalRecords = 0;
+    }
+
+
+    // Responder con los datos en formato JSON
+    echo json_encode([
+      "draw" => $draw,                          // El número de solicitud de la tabla
+      "recordsTotal" => $totalRecords,                    // Total de productos en la base de datos (sin filtros)
+      "recordsFiltered" => $totalRecords,       // Total de productos filtrados
+      "data" => $data                           // Los registros de productos solicitados
+    ]);
 
     break;
 

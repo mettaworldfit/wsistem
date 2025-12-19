@@ -57,7 +57,7 @@ $(document).ready(function () {
                     gridContainer.empty();
 
                         // Agregar los productos a la cuadrícula
-                        data.forEach(product => {
+                        data.data.forEach(product => {
 
                             // Construir imagen si existe, de lo contrario mostrar ícono SVG
                             // const productImage = product.imagen && product.imagen !== ""
@@ -125,8 +125,6 @@ $(document).ready(function () {
                     const gridContainer = $('#pos-detail-item');
                     gridContainer.empty();
 
-                    if (data.data && data.data.length > 0) {
-
                         // Agregar los productos a la cuadrícula
                         data.data.forEach(detail => {
 
@@ -164,10 +162,6 @@ $(document).ready(function () {
                             $('.pos-count-item').hide()
                             $('.pos-button-cash').attr('disabled', true);
                         }
-
-                    } else {
-                        console.error('No hay detalle')
-                    }
 
                 } catch (e) {
                     console.error("Error al analizar la respuesta JSON del detalle:", e);
