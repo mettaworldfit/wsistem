@@ -38,7 +38,7 @@ $(document).ready(function () {
         const start = (page - 1) * pageSize; // Calcular el índice de inicio
 
         sendAjaxRequest({
-            url: 'services/products',
+            url: 'services/products.php',
             data: {
                 action: 'pos',
                 draw: currentPage, // Número de solicitud (lo mismo que DataTables)
@@ -56,9 +56,8 @@ $(document).ready(function () {
                     const gridContainer = $('#product-grid');
                     gridContainer.empty();
 
-                    if (data && data.data && data.data.length > 0) {
                         // Agregar los productos a la cuadrícula
-                        data.data.forEach(product => {
+                        data.forEach(product => {
 
                             // Construir imagen si existe, de lo contrario mostrar ícono SVG
                             // const productImage = product.imagen && product.imagen !== ""
@@ -88,17 +87,13 @@ $(document).ready(function () {
                             gridContainer.append(productCard);
                         });
 
-                    } else {
-                        console.error("No hay productos disponibles");
-                    }
-
                 } catch (e) {
                     console.error("Error al analizar la respuesta JSON del producto:", e);
                 }
             },
             errorCallback: (res) => {
                 console.error(res);
-            },verbose: false
+            },verbose: true
         })
     }
 
@@ -117,7 +112,7 @@ $(document).ready(function () {
     // Función para mostrar los items del detalle
     function loadDetailPOS() {
         sendAjaxRequest({
-            url: 'services/products',
+            url: 'services/products.php',
             data: {
                 action: 'detalle_punto_de_venta',
                 order_id: $('#order_id').val() || 0
@@ -740,7 +735,7 @@ $(document).ready(function () {
     ===============================================================*/
 
     // Cargar productos por primera vez
-   // loadProductsPOS();
+   loadProductsPOS();
     // loadDetailPOS()
     loadOrdersPOS();
 
