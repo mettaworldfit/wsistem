@@ -453,40 +453,39 @@ switch ($action) {
 $searchTerm = "%" . $search . "%";
 
 // Consulta para obtener los productos con paginación y búsqueda
-$query = "SELECT * FROM productos WHERE nombre_producto LIKE '$searchTerm' OR cod_producto LIKE '$searchTerm' ORDER BY $orderBy $orderDir LIMIT $start, $length";
+// $query = "SELECT * FROM productos WHERE nombre_producto LIKE '$searchTerm' OR cod_producto LIKE '$searchTerm' ORDER BY $orderBy $orderDir LIMIT $start, $length";
+$query = "SELECT * FROM productos";
 $result = $db->query($query);
 
 // Verificar si hay resultados
 if ($result) {
-    $data = $result->fetch_all(MYSQLI_ASSOC);
+   $data = $result->fetch_all(MYSQLI_ASSOC);
+    
 } else {
     $data = [];
 }
 
-// Consulta para contar el total de productos filtrados por búsqueda
-$totalQuery = "SELECT COUNT(*) as total FROM productos WHERE nombre_producto LIKE '$searchTerm' OR cod_producto LIKE '$searchTerm'";
-$totalResult = $db->query($totalQuery);
+// // Consulta para contar el total de productos filtrados por búsqueda
+// $totalQuery = "SELECT COUNT(*) as total FROM productos WHERE nombre_producto LIKE '$searchTerm' OR cod_producto LIKE '$searchTerm'";
+// $totalResult = $db->query($totalQuery);
 
-// Verificar si hay resultados
-if ($totalResult) {
-    $totalData = $totalResult->fetch_assoc();
-    $totalRecords = $totalData['total'];  // Total de registros filtrados
-} else {
-    $totalRecords = 0;
-}
+// // Verificar si hay resultados
+// if ($totalResult) {
+//     $totalData = $totalResult->fetch_assoc();
+//     $totalRecords = $totalData['total'];  // Total de registros filtrados
+// } else {
+//     $totalRecords = 0;
+// }
 
 
 
     // Responder con los datos en formato JSON
     echo json_encode([
-      "draw" => $draw,                          // El número de solicitud de la tabla
-      "recordsTotal" => $totalRecords,                    // Total de productos en la base de datos (sin filtros)
-      "recordsFiltered" => $totalRecords,       // Total de productos filtrados
+      // "draw" => $draw,                          // El número de solicitud de la tabla
+      // "recordsTotal" => $totalRecords,                    // Total de productos en la base de datos (sin filtros)
+      // "recordsFiltered" => $totalRecords,       // Total de productos filtrados
       "data" => $data                           // Los registros de productos solicitados
     ]);
-
-    // echo json_encode($data, JSON_UNESCAPED_UNICODE);
-
 
     break;
 

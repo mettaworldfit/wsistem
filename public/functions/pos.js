@@ -56,7 +56,7 @@ console.log(data)
                     const gridContainer = $('#product-grid');
                     gridContainer.empty();
 
-                    if (data.data && data.data.length > 0) {
+                    if (data && data.data && data.data.length > 0) {
                         // Agregar los productos a la cuadrícula
                         data.data.forEach(product => {
 
