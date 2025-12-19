@@ -98,7 +98,7 @@ $(document).ready(function () {
             },
             errorCallback: (res) => {
                 console.error(res);
-            }
+            },verbose: true
         })
     }
 
@@ -741,7 +741,7 @@ $(document).ready(function () {
 
     // Cargar productos por primera vez
     loadProductsPOS();
-    loadDetailPOS()
+    // loadDetailPOS()
     loadOrdersPOS();
 
 
