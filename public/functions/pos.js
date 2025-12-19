@@ -56,22 +56,23 @@ $(document).ready(function () {
                     const gridContainer = $('#product-grid');
                     gridContainer.empty();
 
-                    // Agregar los productos a la cuadrícula
-                    data.data.forEach(product => {
+                    if (data.data && data.data.length > 0) {
+                        // Agregar los productos a la cuadrícula
+                        data.data.forEach(product => {
 
-                        // Construir imagen si existe, de lo contrario mostrar ícono SVG
-                        // const productImage = product.imagen && product.imagen !== ""
-                        //     ? `<img src="${SITE_URL}public/imagen/${product.imagen}" 
-                        //                 onerror="this.onerror=null; this.src='${SITE_URL}public/imagen/sistem/no-imagen.png';" 
-                        //                 alt="">`
-                        //                             : `
-                        //         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags">
-                        //             <path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" />
-                        //             <path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" />
-                        //             <circle cx="10.5" cy="6.5" r=".5" fill="currentColor" />
-                        //         </svg>`;
+                            // Construir imagen si existe, de lo contrario mostrar ícono SVG
+                            // const productImage = product.imagen && product.imagen !== ""
+                            //     ? `<img src="${SITE_URL}public/imagen/${product.imagen}" 
+                            //                 onerror="this.onerror=null; this.src='${SITE_URL}public/imagen/sistem/no-imagen.png';" 
+                            //                 alt="">`
+                            //                             : `
+                            //         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags">
+                            //             <path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" />
+                            //             <path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" />
+                            //             <circle cx="10.5" cy="6.5" r=".5" fill="currentColor" />
+                            //         </svg>`;
 
-                        const productCard = `
+                            const productCard = `
 
                         <button class="product-card" action="button" data-product="${product.producto_id}" data-desc="${product.nombre_producto}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags"><path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" /><path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" /><circle cx="10.5" cy="6.5" r=".5" fill="currentColor" /></svg>
@@ -84,11 +85,15 @@ $(document).ready(function () {
                                 <input type="hidden" id="cost" value="${product.precio_costo}">
                                 </button>
                                 `;
-                        gridContainer.append(productCard);
-                    });
+                            gridContainer.append(productCard);
+                        });
+
+                    } else {
+                        console.error("No hay productos disponibles");
+                    }
 
                 } catch (e) {
-                    console.error("Error al analizar la respuesta JSON:", e);
+                    console.error("Error al analizar la respuesta JSON del producto:", e);
                 }
             },
             errorCallback: (res) => {
@@ -125,13 +130,15 @@ $(document).ready(function () {
                     const gridContainer = $('#pos-detail-item');
                     gridContainer.empty();
 
-                    // Agregar los productos a la cuadrícula
-                    data.data.forEach(detail => {
+                    if (data.data && data.data.length > 0) {
 
-                        // importe
-                        var total = (parseFloat(detail.cantidad) * parseFloat(detail.precio));
+                        // Agregar los productos a la cuadrícula
+                        data.data.forEach(detail => {
 
-                        const items = `
+                            // importe
+                            var total = (parseFloat(detail.cantidad) * parseFloat(detail.precio));
+
+                            const items = `
                         <div class="pos-item-row">
                             <div class="pos-item">
                                 <span class="item-name">${detail.nombre}</span>
@@ -143,29 +150,32 @@ $(document).ready(function () {
                             </div>
                         </div>
                         `;
-                        gridContainer.append(items);
-                    });
+                            gridContainer.append(items);
+                        });
 
+                        // cargar resumen de venta
+                        calculateTotalInvoice();
+                        loadProductsPOS();
+                        //  loadOrdersPOS(); // Cargar ordenes
 
-                    // cargar resumen de venta
-                    calculateTotalInvoice();
-                    loadProductsPOS();
-                    //  loadOrdersPOS(); // Cargar ordenes
+                        // Mostrar total de items en el detalle
+                        var total_items = $('.pos-detail-item .pos-item-row').length;
 
-                    // Mostrar total de items en el detalle
-                    var total_items = $('.pos-detail-item .pos-item-row').length;
+                        if (total_items > 0) {
+                            $('.pos-count-item').css('display', 'flex')
+                            $('.pos-count-item p').text(total_items + ' Items');
+                            $('.pos-button-cash').attr('disabled', false);
+                        } else {
+                            $('.pos-count-item').hide()
+                            $('.pos-button-cash').attr('disabled', true);
+                        }
 
-                    if (total_items > 0) {
-                        $('.pos-count-item').css('display', 'flex')
-                        $('.pos-count-item p').text(total_items + ' Items');
-                        $('.pos-button-cash').attr('disabled', false);
                     } else {
-                        $('.pos-count-item').hide()
-                        $('.pos-button-cash').attr('disabled', true);
+                        console.error('No hay detalle')
                     }
 
                 } catch (e) {
-                    console.error("Error al analizar la respuesta JSON:", e);
+                    console.error("Error al analizar la respuesta JSON del detalle:", e);
                 }
             },
             errorCallback: (res) => {
@@ -547,7 +557,7 @@ $(document).ready(function () {
         placeholder: 'Selecciona un cliente',
         allowClear: true, // Permite limpiar la selección
         ajax: {
-            url: SITE_URL + 'services/contacts.php',  
+            url: SITE_URL + 'services/contacts.php',
             dataType: 'json',
             method: 'POST',
             data: function (params) {

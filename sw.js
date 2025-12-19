@@ -37,7 +37,6 @@ self.addEventListener("install", (e) => {
                 "public/fonts/Cabin-Regular.ttf",
                 "public/fonts/Nunito-Regular.ttf",
                 "public/fonts/Barlow-Regular.ttf",
-                "public/fonts/Quicksand-Regular.ttf",
                 "public/font-awesome/all.min.css",
                 "public/font-awesome/all.min.js"
             ]);

@@ -474,12 +474,6 @@ switch ($action) {
       "data" => $data                           // Los registros de productos solicitados
     ]);
 
-    if (json_last_error() !== JSON_ERROR_NONE) {
-      echo "Error en JSON: " . json_last_error_msg(); // Verifica si hay un error en la codificación JSON
-    } else {
-      echo $json_response;
-    }
-
     break;
 
   case 'detalle_punto_de_venta':
@@ -519,16 +513,6 @@ switch ($action) {
     }
 
     $result = mysqli_query($db, $query);
-// Verificar si hubo un error en la ejecución de la consulta
-if (!$result) {
-    error_log("Error en la consulta SQL: " . mysqli_error($db));
-    echo json_encode([
-        "error" => "Error en la consulta SQL."
-    ]);
-    exit;
-}
-
-
     $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
     // Contar el total de registros (sin filtros)
@@ -583,16 +567,6 @@ if (!$result) {
       "data" => $data,                          // Los registros de productos solicitados
       "id" => $id
     ]);
-
-    if (json_last_error() !== JSON_ERROR_NONE) {
-      error_log("Error al generar el JSON: " . json_last_error_msg());
-      echo json_encode([
-        "error" => "Error al generar la respuesta JSON."
-      ]);
-    } else {
-      echo $json_response;
-    }
-
 
     break;
 }
