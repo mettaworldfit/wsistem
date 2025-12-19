@@ -730,8 +730,7 @@ $(document).ready(function () {
     ===============================================================*/
 
     // Cargar productos por primera vez
-    // loadProductsPOS();
-
+    loadProductsPOS();
     loadDetailPOS()
     loadOrdersPOS();
 
