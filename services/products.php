@@ -517,10 +517,11 @@ switch ($action) {
     $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
     // Contar el total de registros (sin filtros)
-    $totalQuery = "SELECT COUNT(*) as total FROM detalle_facturas_ventas WHERE comanda_id = '$id'";
-    $totalResult = mysqli_query($db, $totalQuery);
-    $totalData = mysqli_fetch_assoc($totalResult);
-    $totalRecords = $totalData['total'];  // Total de registros encontrados
+   
+    // $totalQuery = "SELECT COUNT(*) as total FROM detalle_facturas_ventas WHERE comanda_id = '$id'";
+    // $totalResult = mysqli_query($db, $totalQuery);
+    // $totalData = mysqli_fetch_assoc($totalResult);
+    // $totalRecords = $totalData['total'];  // Total de registros encontrados
 
     // Verificar si las claves existen antes de acceder a ellas
     foreach ($data as &$row) {
@@ -563,7 +564,7 @@ switch ($action) {
 
     // Responder con los datos en formato JSON
     echo json_encode([
-      "recordsTotal" => $totalRecords,          // Total de productos en la base de datos (sin filtros)
+      // "recordsTotal" => $totalRecords,          // Total de productos en la base de datos (sin filtros)
       "data" => $data,                          // Los registros de productos solicitados
       "id" => $id
     ]);

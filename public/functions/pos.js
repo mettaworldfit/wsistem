@@ -172,7 +172,7 @@ $(document).ready(function () {
                 console.error(res);
                 notifyAlert(res, 'error');
             },
-            verbose: false
+            verbose: true
         })
     }
 
