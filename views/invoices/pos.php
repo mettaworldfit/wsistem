@@ -215,7 +215,7 @@
                         </div>
                     </div>
 
-                    <button type="button" class="close">
+                    <button type="button" class="close" id="erase_window_item">
                         <span class="close-window">
                             <i class="far fa-trash-alt"></i>
                         </span>

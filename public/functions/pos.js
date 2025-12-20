@@ -229,7 +229,7 @@ $(document).ready(function () {
         deleteItemPOS(id)
     });
 
-    $('.close').on('click', function (e) {
+    $('#erase_window_item').on('click', function (e) {
         e.preventDefault();
 
         const id = $('#windowId').val();

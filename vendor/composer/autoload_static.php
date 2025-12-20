@@ -6,10 +6,19 @@ namespace Composer\Autoload;
 
 class ComposerStaticInitf8c7abcf6c7b94f4b2c40dc849ec2f66
 {
+    public static $files = array (
+        '74ed299072414d276bb7568fe71d5b0c' => __DIR__ . '/..' . '/tinify/tinify/lib/Tinify.php',
+        '9635627915aaea7a98d6d14d04ca5b56' => __DIR__ . '/..' . '/tinify/tinify/lib/Tinify/Exception.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
         'Z' => 
         array (
             'ZipStream\\' => 10,
+        ),
+        'T' => 
+        array (
+            'Tinify\\' => 7,
         ),
         'S' => 
         array (
@@ -49,6 +58,10 @@ class ComposerStaticInitf8c7abcf6c7b94f4b2c40dc849ec2f66
         'ZipStream\\' => 
         array (
             0 => __DIR__ . '/..' . '/maennchen/zipstream-php/src',
+        ),
+        'Tinify\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/tinify/tinify/lib/Tinify',
         ),
         'Svg\\' => 
         array (

@@ -5,6 +5,9 @@ require_once '../config/parameters.php';
 require_once 'functions/functions.php';
 session_start();
 
+require_once __DIR__ . '/../vendor/autoload.php';
+\Tinify\Tinify::setKey("j6NYhPDxKlPVz6C0NyXrr5c6vVjNKvqj"); // Reemplaza con tu clave de API
+
 $db = Database::connect();
 $config = Database::getConfig(); // Cargar configuraciones
 $user_id = $_SESSION['identity']->usuario_id;
@@ -582,27 +585,27 @@ switch ($action) {
     }
 
     // Primero, verificamos si se está subiendo una imagen
-  if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
-    $product_id = $_POST['product_id'];  // El ID del producto que se acaba de crear
+    if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
+      $product_id = $_POST['product_id'];  // El ID del producto que se acaba de crear
 
-    // Definir la ruta donde se guardará la imagen
-    $target_dir = $_SERVER['DOCUMENT_ROOT']."/".basename(dirname(__DIR__))."/public/uploads/". $dir_name;
+      // Definir la ruta donde se guardará la imagen
+      $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/" . basename(dirname(__DIR__)) . "/public/uploads/" . $dir_name;
 
-    echo $target_dir;
+      echo $target_dir;
 
-    // Verificar si la carpeta existe, si no, crearla
-    if (!file_exists($target_dir)) {
-      if (!mkdir($target_dir, 0777, true)) {
-        echo "Hubo un error al intentar crear la carpeta.";
-        exit;
+      // Verificar si la carpeta existe, si no, crearla
+      if (!file_exists($target_dir)) {
+        if (!mkdir($target_dir, 0777, true)) {
+          echo "Hubo un error al intentar crear la carpeta.";
+          exit;
+        } else {
+          // Si la carpeta fue creada correctamente, devolver la ruta
+          echo "La carpeta fue creada con éxito: " . $target_dir;
+        }
       } else {
-        // Si la carpeta fue creada correctamente, devolver la ruta
-        echo "La carpeta fue creada con éxito: " . $target_dir;
+        // Si la carpeta ya existe, devolver la ruta
+        echo "La carpeta ya existe: " . $target_dir;
       }
-    } else {
-      // Si la carpeta ya existe, devolver la ruta
-      echo "La carpeta ya existe: " . $target_dir;
-    }
 
       // Obtener el nombre del archivo y la extensión
       $file_name = basename($_FILES["product_image"]["name"]);
@@ -628,22 +631,29 @@ switch ($action) {
         exit;
       }
 
-      // Mover la imagen a la carpeta especificada
-      if (move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file)) {
-        echo "La imagen ha sido cargada con éxito en el directorio: " . $target_file;
-
-          $image_path = $dir_name . $file_name;  // Ruta relativa a la carpeta de imágenes
-
-        // Actualizar el producto en la base de datos con la ruta de la imagen
-        $sql = "UPDATE productos SET imagen = '$image_path' WHERE producto_id = $product_id";
-        if (mysqli_query($db, $sql)) {
-          echo "El producto ha sido actualizado con la imagen.";
-        } else {
-          echo "Error al actualizar el producto en la base de datos: " . mysqli_error($db);
-        }
-      } else {
-        echo "Hubo un error al subir la imagen.";
+      // Comprimir la imagen usando Tinify antes de moverla
+      try {
+        // Comprimir la imagen utilizando Tinify
+        $source = \Tinify\Source::fromFile($_FILES["product_image"]["tmp_name"]);
+        $source->toFile($target_file); // Guardar la imagen comprimida en el directorio destino
+        echo "La imagen ha sido comprimida y cargada con éxito en el directorio: " . $target_file;
+      } catch (Exception $e) {
+        echo "Hubo un error al comprimir la imagen: " . $e->getMessage();
+        exit;
       }
+
+      // Ahora, puedes actualizar la base de datos con la ruta relativa de la imagen
+      $image_path = $dir_name . $file_name;  // Ruta relativa a la carpeta de imágenes
+
+      // Actualizar el producto en la base de datos con la ruta de la imagen
+      $sql = "UPDATE productos SET imagen = '$image_path' WHERE producto_id = $product_id";
+      if (mysqli_query($db, $sql)) {
+        echo "El producto ha sido actualizado con la imagen.";
+      } else {
+        echo "Error al actualizar el producto en la base de datos: " . mysqli_error($db);
+      }
+    } else {
+      echo "Hubo un error al subir la imagen.";
     }
 
     break;
