@@ -56,25 +56,24 @@ $(document).ready(function () {
                     const gridContainer = $('#product-grid');
                     gridContainer.empty();
 
-                        // Agregar los productos a la cuadrícula
-                        data.data.forEach(product => {
+                    // Agregar los productos a la cuadrícula
+                    data.data.forEach(product => {
 
-                            // Construir imagen si existe, de lo contrario mostrar ícono SVG
-                            // const productImage = product.imagen && product.imagen !== ""
-                            //     ? `<img src="${SITE_URL}public/imagen/${product.imagen}" 
-                            //                 onerror="this.onerror=null; this.src='${SITE_URL}public/imagen/sistem/no-imagen.png';" 
-                            //                 alt="">`
-                            //                             : `
-                            //         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags">
-                            //             <path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" />
-                            //             <path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" />
-                            //             <circle cx="10.5" cy="6.5" r=".5" fill="currentColor" />
-                            //         </svg>`;
+                        // Construir imagen si existe, de lo contrario mostrar ícono SVG
+                        const productImage = product.imagen && product.imagen !== ""
+                            ? `<img src="${SITE_URL}public/uploads/${product.imagen}" 
+                                onerror="this.onerror=null; this.src='${SITE_URL}public/imagen/sistem/no-imagen.png';" 
+                                alt="Imagen del producto">`
+                            : `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags">
+                                <path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" />
+                                <path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" />
+                                <circle cx="10.5" cy="6.5" r=".5" fill="currentColor" />
+                            </svg>`;
 
-                            const productCard = `
+                        const productCard = `
 
                         <button class="product-card" action="button" data-product="${product.producto_id}" data-desc="${product.nombre_producto}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags"><path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" /><path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" /><circle cx="10.5" cy="6.5" r=".5" fill="currentColor" /></svg>
+                             ${productImage}
                             <div class="product-info">
                                 <p class="pos-stock">inv. ${parseFloat(product.cantidad)}</p>
                                 <span>${product.nombre_producto}</span>
@@ -84,8 +83,11 @@ $(document).ready(function () {
                                 <input type="hidden" id="cost" value="${product.precio_costo}">
                                 </button>
                                 `;
-                            gridContainer.append(productCard);
-                        });
+                        gridContainer.append(productCard);
+                    });
+
+                    // Hacer focus en el buscador
+                    $('#search-input').trigger('focus');
 
                 } catch (e) {
                     console.error("Error al analizar la respuesta JSON del producto:", e);
@@ -93,7 +95,7 @@ $(document).ready(function () {
             },
             errorCallback: (res) => {
                 console.error(res);
-            },verbose: true
+            }, verbose: true
         })
     }
 
@@ -125,13 +127,13 @@ $(document).ready(function () {
                     const gridContainer = $('#pos-detail-item');
                     gridContainer.empty();
 
-                        // Agregar los productos a la cuadrícula
-                        data.data.forEach(detail => {
+                    // Agregar los productos a la cuadrícula
+                    data.data.forEach(detail => {
 
-                            // importe
-                            var total = (parseFloat(detail.cantidad) * parseFloat(detail.precio));
+                        // importe
+                        var total = (parseFloat(detail.cantidad) * parseFloat(detail.precio));
 
-                            const items = `
+                        const items = `
                         <div class="pos-item-row">
                             <div class="pos-item">
                                 <span class="item-name">${detail.nombre}</span>
@@ -143,25 +145,25 @@ $(document).ready(function () {
                             </div>
                         </div>
                         `;
-                            gridContainer.append(items);
-                        });
+                        gridContainer.append(items);
+                    });
 
-                        // cargar resumen de venta
-                        calculateTotalInvoice();
-                        loadProductsPOS();
-                        //  loadOrdersPOS(); // Cargar ordenes
+                    // cargar resumen de venta
+                    calculateTotalInvoice();
+                    loadProductsPOS($('#search-input').val());
+                    //  loadOrdersPOS(); // Cargar ordenes
 
-                        // Mostrar total de items en el detalle
-                        var total_items = $('.pos-detail-item .pos-item-row').length;
+                    // Mostrar total de items en el detalle
+                    var total_items = $('.pos-detail-item .pos-item-row').length;
 
-                        if (total_items > 0) {
-                            $('.pos-count-item').css('display', 'flex')
-                            $('.pos-count-item p').text(total_items + ' Items');
-                            $('.pos-button-cash').attr('disabled', false);
-                        } else {
-                            $('.pos-count-item').hide()
-                            $('.pos-button-cash').attr('disabled', true);
-                        }
+                    if (total_items > 0) {
+                        $('.pos-count-item').css('display', 'flex')
+                        $('.pos-count-item p').text(total_items + ' Items');
+                        $('.pos-button-cash').attr('disabled', false);
+                    } else {
+                        $('.pos-count-item').hide()
+                        $('.pos-button-cash').attr('disabled', true);
+                    }
 
                 } catch (e) {
                     console.error("Error al analizar la respuesta JSON del detalle:", e);
@@ -366,9 +368,6 @@ $(document).ready(function () {
         var detailId = $(this).data('edit');
         $('#windowId').val(detailId);
 
-        // Mostrar ventana
-        // $('.pos-product-edit').css('display', 'block').css('right', '0');
-
         // Mostrar la ventana con el fondo oscuro
         $('.pos-product-edit').css('display', 'block').css('right', '0'); // Mostrar ventana deslizante desde la derecha
         $('.overlay').css('display', 'block'); // Mostrar la capa de fondo negro con transparencia
@@ -387,6 +386,19 @@ $(document).ready(function () {
                     $('.d-flex span').eq(0).text(data.tipo_item);
                     $('.d-flex span').eq(1).text(data.item);
                     $('.d-flex span').eq(2).text('Sin categoria');
+
+                    const productImage = data.imagen && data.imagen !== ""
+                        ? `<img src="${SITE_URL}public/uploads/${data.imagen}" 
+                                onerror="this.onerror=null; this.src='${SITE_URL}public/imagen/sistem/no-imagen.png';" 
+                                alt="Imagen del producto">`
+                        : `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags">
+                                <path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" />
+                                <path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" />
+                                <circle cx="10.5" cy="6.5" r=".5" fill="currentColor" />
+                            </svg>`;
+
+                    $('.item-thumb').html(productImage);
+
 
                     $('#w_product_id').val(data.producto_id);
                     $('#w_piece_id').val(data.pieza_id);
@@ -414,20 +426,27 @@ $(document).ready(function () {
     // Borrar todo el detalle 
     $('.pos-count-item').on('click', function () {
 
-        sendAjaxRequest({
-            url: "services/invoices.php",
-            data: {
-                action: "borrar_detalle_pos",
-                order_id: $('#order_id').val() || 0
+        alertify.confirm("<i class='text-warning fas fa-exclamation-circle'></i> Borrar todo el detalle", "¿Desea borrar todo el detalle? ",
+            function () {
+                sendAjaxRequest({
+                    url: "services/invoices.php",
+                    data: {
+                        action: "borrar_detalle_pos",
+                        order_id: $('#order_id').val() || 0
+                    },
+                    successCallback: (res) => {
+                        loadDetailPOS();
+                    },
+                    errorCallback: (res) => {
+                        console.error(res)
+                    },
+                    verbose: false
+                });
+
             },
-            successCallback: (res) => {
-                loadDetailPOS();
-            },
-            errorCallback: (res) => {
-                console.error(res)
-            },
-            verbose: false
-        });
+            function () {
+
+            });
     });
 
     // Actualizar detalle
@@ -729,8 +748,8 @@ $(document).ready(function () {
     ===============================================================*/
 
     // Cargar productos por primera vez
-   loadProductsPOS();
-    // loadDetailPOS()
+    loadProductsPOS();
+    loadDetailPOS()
     loadOrdersPOS();
 
 

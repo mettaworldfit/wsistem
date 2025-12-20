@@ -1188,7 +1188,7 @@ if ($_POST['action'] == "datos_detalle_id") {
         WHEN s.nombre_servicio IS NOT NULL THEN 'Servicio'
         ELSE 'Desconocido' 
   END AS tipo_item,
-  d.cantidad,d.descuento,d.precio,p.cantidad as existencia
+  d.cantidad,d.descuento,d.precio,p.cantidad as existencia,p.imagen
   FROM detalle_facturas_ventas d
   LEFT JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
   LEFT JOIN productos p ON p.producto_id = dp.producto_id

@@ -933,8 +933,6 @@ $(document).ready(function () {
 
     // Hacer autofocus al abrir una modal
 
-    $('#search-input').trigger('focus');
-
     $('#add_detail').on('shown.bs.modal', function () {
         $('#code').trigger('focus');
     });
@@ -950,7 +948,6 @@ $(document).ready(function () {
     $('#credit_invoice').on('shown.bs.modal', function () {
         $('#credit-pay').trigger('focus');
     });
-
 
 
    $(function () {

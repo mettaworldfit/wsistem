@@ -949,6 +949,8 @@ $(document).ready(function () {
                     if (localStorage.getItem("lista_de_precios")) assignProductPrice(res);
                     if (localStorage.getItem("variantes")) assignProductVariant(res);
 
+                    uploadImage(res)
+
                     $('#last_product_edit').show().attr('href', `${SITE_URL}/products/edit&id=${res}`);
                     resetProductForm();
                     mysql_row_affected();
@@ -1110,6 +1112,67 @@ $(document).ready(function () {
 
     // Detectar cambios en todos los campos
     $("#quantity, #discount, #product").on("input change", calculateDetailModalTotalProduct);
+
+
+    /**============================================================= 
+   * MANEJO DE IMAGEN
+   ===============================================================*/
+
+    // Al cambiar el input de imagen (cuando se selecciona una imagen)
+    $('#product_image').change(function () {
+        var productId = $("#product_id").val();
+
+        // Verificamos si el ID del producto es válido (mayor que 0 y no vacío)
+        if (productId && productId > 0) {
+            uploadImage(productId);
+        }
+    });
+
+
+    // Subir imagen
+    function uploadImage(productId) {
+        var formData = new FormData();
+        var fileInput = $('#product_image')[0];  // Capturamos el input de la imagen
+        var file = fileInput.files[0];  // Tomamos el archivo de la imagen
+
+        // Verificamos si el archivo es válido
+        if (file) {
+            formData.append('product_image', file);
+            formData.append('action', 'subir_imagen');
+            formData.append('product_id', productId);
+
+            $.ajax({
+                url: SITE_URL + 'services/products.php',  // El archivo PHP que procesará la carga
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    // Si la respuesta es exitosa, mostramos un mensaje
+                    // notifyAlert(response)
+
+                    console.log(response)
+                },
+                error: function () {
+                    notifyAlert('Hubo un error al subir la imagen.', 'error')
+                }
+            });
+        } else {
+            notifyAlert('Por favor, selecciona una imagen.', 'error')
+        }
+    }
+
+
+    // Cargar la imagen subida
+    $('#product_image').on('change', function (e) {
+        var reader = new FileReader();
+        reader.onload = function (event) {
+            $('#product-content-img').empty();
+            $('#product-content-img').html('<img src="' + event.target.result + '" alt="Vista previa de la imagen" />');
+        };
+        reader.readAsDataURL(this.files[0]);
+    });
+
 
 
 }); // Ready

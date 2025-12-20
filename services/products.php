@@ -6,6 +6,7 @@ require_once 'functions/functions.php';
 session_start();
 
 $db = Database::connect();
+$config = Database::getConfig(); // Cargar configuraciones
 $user_id = $_SESSION['identity']->usuario_id;
 $action = $_POST['action'] ?? '';
 
@@ -475,7 +476,6 @@ switch ($action) {
       $totalRecords = 0;
     }
 
-
     // Responder con los datos en formato JSON
     echo json_encode([
       "draw" => $draw,                          // El número de solicitud de la tabla
@@ -525,13 +525,6 @@ switch ($action) {
     $result = mysqli_query($db, $query);
     $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-    // Contar el total de registros (sin filtros)
-
-    // $totalQuery = "SELECT COUNT(*) as total FROM detalle_facturas_ventas WHERE comanda_id = '$id'";
-    // $totalResult = mysqli_query($db, $totalQuery);
-    // $totalData = mysqli_fetch_assoc($totalResult);
-    // $totalRecords = $totalData['total'];  // Total de registros encontrados
-
     // Verificar si las claves existen antes de acceder a ellas
     foreach ($data as &$row) {
       // Verificar si 'producto_id' y 'cantidad' están definidos
@@ -573,10 +566,85 @@ switch ($action) {
 
     // Responder con los datos en formato JSON
     echo json_encode([
-      // "recordsTotal" => $totalRecords,          // Total de productos en la base de datos (sin filtros)
       "data" => $data,                          // Los registros de productos solicitados
       "id" => $id
     ]);
+
+    break;
+
+  // Subir imagenes a de los productos
+  case "subir_imagen":
+
+    $dir_name = '';
+
+    if (isset($config['carpeta']) && !empty($config['carpeta'])) {
+      $dir_name = $config['carpeta'];
+    }
+
+    // Primero, verificamos si se está subiendo una imagen
+  if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
+    $product_id = $_POST['product_id'];  // El ID del producto que se acaba de crear
+
+    // Definir la ruta donde se guardará la imagen
+    $target_dir = $_SERVER['DOCUMENT_ROOT']."/".basename(dirname(__DIR__))."/public/uploads/". $dir_name;
+
+    echo $target_dir;
+
+    // Verificar si la carpeta existe, si no, crearla
+    if (!file_exists($target_dir)) {
+      if (!mkdir($target_dir, 0777, true)) {
+        echo "Hubo un error al intentar crear la carpeta.";
+        exit;
+      } else {
+        // Si la carpeta fue creada correctamente, devolver la ruta
+        echo "La carpeta fue creada con éxito: " . $target_dir;
+      }
+    } else {
+      // Si la carpeta ya existe, devolver la ruta
+      echo "La carpeta ya existe: " . $target_dir;
+    }
+
+      // Obtener el nombre del archivo y la extensión
+      $file_name = basename($_FILES["product_image"]["name"]);
+      $target_file = $target_dir . $file_name;
+      $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+      // Verificar si el archivo es una imagen
+      if (getimagesize($_FILES["product_image"]["tmp_name"]) === false) {
+        echo "El archivo no es una imagen.";
+        exit;
+      }
+
+      // Verificar el tamaño de la imagen (2 MB máximo)
+      if ($_FILES["product_image"]["size"] > 2000000) {
+        echo "Error archivo demasiado grande.";
+        exit;
+      }
+
+      // Verificar la extensión de la imagen
+      $allowed_types = ["jpg", "jpeg", "png", "gif"];
+      if (!in_array($imageFileType, $allowed_types)) {
+        echo "Error solo se permiten imágenes JPG, JPEG, PNG y GIF.";
+        exit;
+      }
+
+      // Mover la imagen a la carpeta especificada
+      if (move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file)) {
+        echo "La imagen ha sido cargada con éxito en el directorio: " . $target_file;
+
+          $image_path = $dir_name . $file_name;  // Ruta relativa a la carpeta de imágenes
+
+        // Actualizar el producto en la base de datos con la ruta de la imagen
+        $sql = "UPDATE productos SET imagen = '$image_path' WHERE producto_id = $product_id";
+        if (mysqli_query($db, $sql)) {
+          echo "El producto ha sido actualizado con la imagen.";
+        } else {
+          echo "Error al actualizar el producto en la base de datos: " . mysqli_error($db);
+        }
+      } else {
+        echo "Hubo un error al subir la imagen.";
+      }
+    }
 
     break;
 }
