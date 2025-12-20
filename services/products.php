@@ -589,7 +589,7 @@ switch ($action) {
       $product_id = $_POST['product_id'];  // El ID del producto que se acaba de crear
 
       // Definir la ruta donde se guardará la imagen
-      $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/" . basename(dirname(__DIR__)) . "/public/uploads/" . $dir_name;
+      $target_dir = $_SERVER['DOCUMENT_ROOT'] .  "/public/uploads/" . $dir_name;
 
       echo $target_dir;
 
