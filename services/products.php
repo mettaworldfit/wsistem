@@ -588,11 +588,12 @@ switch ($action) {
     if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
       $product_id = $_POST['product_id'];  // El ID del producto que se acaba de crear
 
-      // Definir la ruta donde se guardará la imagen
-      $target_dir = $_SERVER['DOCUMENT_ROOT'] .  "/public/uploads/" . $dir_name;
+      // Definir la ruta donde se guardará la imagen en produccion no lleva el basename
+      $target_dir = $_SERVER['DOCUMENT_ROOT']. "/public/uploads/" . $dir_name;
+      // $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/" . basename(dirname(__DIR__)) . "/public/uploads/" . $dir_name;
 
-      echo $target_dir;
 
+  
       // Verificar si la carpeta existe, si no, crearla
       if (!file_exists($target_dir)) {
         if (!mkdir($target_dir, 0777, true)) {

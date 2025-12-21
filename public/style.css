@@ -2575,6 +2575,31 @@ textarea:focus {
     }
 }
 
+/* imagen del producto */
+
+div#product-content-img {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 13px 0px;
+}
+
+#product-content-img img {
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+    padding: 0px;
+}
+
+div#product-content-img svg {
+    width: 60%;
+    height: auto;
+    stroke: #ccc;
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+}
+
+
 .row-price {
     display: flex;
     overflow: hidden;
@@ -4161,7 +4186,6 @@ button.btn-pos_home:focus {
 
 
 /* Ventana agregar cliente */
-
 .pos-customer-add {
     position: fixed;
     background: #fff;
@@ -4172,31 +4196,18 @@ button.btn-pos_home:focus {
     transition: right 0.5s ease;
 }
 
-.footer-customer_window {
+.footer-window_pos {
     border-top: 1px solid #ccc;
     margin-top: 15px;
 }
 
-
-div#product-content-img {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 13px 0px;
-}
-
-/* imagen del producto */
-#product-content-img img {
-    width: 100%;
-    height: 200px;
-    object-fit: contain;
-    padding: 0px;
-}
-
-div#product-content-img svg {
-    width: 60%;
-    height: auto;
-    stroke: #ccc;
-    display: block;
-    margin: 0 auto;
-    text-align: center;
+/* Ventana agrega orden nueva */
+.pos-order-add {
+    position: fixed;
+    background: #fff;
+    width: 40%;
+    height: 100%;
+    right: -100%;
+    z-index: 5;
+    transition: right 0.5s ease;
 }

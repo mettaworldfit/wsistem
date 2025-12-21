@@ -2402,27 +2402,11 @@ IN o_observacion TEXT,IN o_tipo_entrega varchar(6),IN o_direccion_entrega TEXT,
 IN o_nombre_receptor VARCHAR(100),IN o_telefono_receptor VARCHAR(20))
 BEGIN
 
-    INSERT INTO comandas (
-        cliente_id,
-        usuario_id,
-        estado_id,
-        observacion,
-        tipo_entrega,
-        direccion_entrega,
-        nombre_receptor,
-        telefono_receptor,
-        fecha
-    ) VALUES (
-        o_cliente_id,
-        o_usuario_id,
-        o_estado_id,
-        o_observacion,
-        o_tipo_entrega,
-        o_direccion_entrega,
-        o_nombre_receptor,
-        o_telefono_receptor,
-        NOW()
-    );
+    INSERT INTO comandas (cliente_id,usuario_id,estado_id,observacion,tipo_entrega,
+    direccion_entrega,nombre_receptor,telefono_receptor,fecha) 
+    VALUES (o_cliente_id,o_usuario_id,o_estado_id,
+	o_observacion,o_tipo_entrega,o_direccion_entrega,o_nombre_receptor,
+	o_telefono_receptor,NOW());
     
     -- Opcional: devolver el ID insertado
     SELECT LAST_INSERT_ID() AS msg;

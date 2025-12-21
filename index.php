@@ -1,8 +1,8 @@
 <?php
 
 // Configurar sesión
-// Duración en segundos (1 hora 25 minutos = 5100 segundos)
-$timeout = 5100;
+// Duración en segundos (12 horas = 43200 segundos)
+$timeout = 43200;
 
 // Ajustar configuración de sesión
 ini_set('session.gc_maxlifetime', $timeout);      // Tiempo máximo de vida en servidor
@@ -10,7 +10,6 @@ ini_set('session.cookie_lifetime', $timeout);     // Tiempo máximo de vida en n
 
 // Iniciar sesión
 session_start();
-
 
 require_once 'config/parameters.php';
 
@@ -33,6 +32,7 @@ if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) >
 
 // Actualiza el tiempo de última actividad
 $_SESSION['LAST_ACTIVITY'] = time();
+
 
 require_once 'autoload.php';
 require_once 'help.php';

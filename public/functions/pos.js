@@ -95,7 +95,7 @@ $(document).ready(function () {
             },
             errorCallback: (res) => {
                 console.error(res);
-            }, verbose: true
+            }
         })
     }
 
@@ -151,7 +151,7 @@ $(document).ready(function () {
                     // cargar resumen de venta
                     calculateTotalInvoice();
                     loadProductsPOS($('#search-input').val());
-                    //  loadOrdersPOS(); // Cargar ordenes
+                    loadOrdersPOS(); // Cargar ordenes
 
                     // Mostrar total de items en el detalle
                     var total_items = $('.pos-detail-item .pos-item-row').length;
@@ -172,8 +172,7 @@ $(document).ready(function () {
             errorCallback: (res) => {
                 console.error(res);
                 notifyAlert(res, 'error');
-            },
-            verbose: true
+            }
         })
     }
 
@@ -297,7 +296,8 @@ $(document).ready(function () {
 
     function hiddenOverlay() {
         $('.pos-product-edit').css('right', '-100%'); // Ocultar la ventana deslizante
-        $('.pos-customer-add').css('right', '-100%');
+        $('.pos-customer-add').css('right', '-100%'); // Ventana agregar cliente
+        $('.pos-order-add').css('right', '-100%'); // Ventana agregar order
         $('.overlay').fadeOut(300); // Ocultar la capa de fondo negro
     }
 
@@ -476,8 +476,7 @@ $(document).ready(function () {
             errorCallback: (res) => {
                 console.error(res)
                 notifyAlert(res, 'error')
-            },
-            verbose: true
+            }
         });
     });
 
@@ -559,9 +558,8 @@ $(document).ready(function () {
         })
     }
 
-
     // Cargar clientes
-    $('#customer_id').select2({
+    $('#customer_id, #pos_customer_id').select2({
         placeholder: 'Selecciona un cliente',
         allowClear: true, // Permite limpiar la selección
         ajax: {
@@ -590,12 +588,20 @@ $(document).ready(function () {
     });
 
 
-
     /**============================================================= 
      * FUNCIONES DE LAS ORDENES
     ===============================================================*/
 
+    // Función para cargar las órdenes
     function loadOrdersPOS() {
+        var selectedOrderId = $('#order_id').val()
+
+        if (selectedOrderId == 0 || selectedOrderId == '') {
+            $('.btn-pos_home').css('border','1px solid var(--color-primary)')
+        } else {
+             $('.btn-pos_home').css('border','1px solid #ccc')
+        }
+
         sendAjaxRequest({
             url: "services/invoices.php",
             data: {
@@ -613,18 +619,19 @@ $(document).ready(function () {
                     data.data.forEach(element => {
 
                         const items = `
-                        <div class="order-item">
-                            <input type="radio" class="order-radio" name="order_select"
-                                id="order${element.comanda_id}" data-order="${element.comanda_id}">
+                    <div class="order-item">
+                        <input type="radio" class="order-radio" name="order_select"
+                            id="order${element.comanda_id}" data-order="${element.comanda_id}"
+                            ${selectedOrderId == element.comanda_id ? 'checked' : ''}>  <!-- Marcar si es la orden seleccionada -->
 
-                            <span>${element.total_items}</span>
-                            <i class="fas fa-shopping-basket"></i>
-            
-                            <label for="order${element.comanda_id}" class="order-radio-label">
-                                ${element.nombre}
-                            </label>
-                        </div>
-                        `;
+                        <span>${element.total_items}</span>
+                        <i class="fas fa-shopping-basket"></i>
+
+                        <label for="order${element.comanda_id}" class="order-radio-label">
+                            ${element.nombre}
+                        </label>
+                    </div>
+                    `;
                         gridContainer.append(items);
                     });
 
@@ -633,12 +640,11 @@ $(document).ready(function () {
                 }
             },
             errorCallback: (res) => {
-                console.error(res)
-                notifyAlert(res)
+                console.error(res);
+                notifyAlert(res);
             },
-            verbose: true
+            verbose: false
         });
-
     }
 
     //  Cambiar de orden
@@ -659,13 +665,7 @@ $(document).ready(function () {
     });
 
 
-    // Crear nueva orden
-    // $('.btn-add_order').on('click', function () {
-
-    //     console.log('AGREGAR NUEVA ORDEN')
-    // })
-
-    // Salir de las ordenes
+    // Ir a facturacion sin orden
     $('.btn-pos_home').on('click', function () {
 
         // Quitar datos de las ordenes
@@ -676,6 +676,47 @@ $(document).ready(function () {
         // Cargar detalle
         loadDetailPOS();
     });
+
+
+    // Abrir ventan nueva orden
+    $('.btn-add_order').on('click', function () {
+
+        $('.pos-order-add').css('display', 'block').css('right', '0'); // Mostrar ventana deslizante desde la derecha
+        $('.overlay').css('display', 'block'); // Mostrar la capa de fondo negro con transparencia
+    })
+
+    // Registrar nueva orden
+    $('#orderForm').on('submit', function (e) {
+        e.preventDefault();
+
+        const data = {
+            action: "registrar_orden",
+            customer_id: $('#pos_customer_id').val(),
+            name: $('#pos_fullname').val(),
+            tel: $('#pos_tel').val(),
+            direction: $('#pos_direction').val(),
+            observation: $('#pos_comment').val(),
+            delivery: $('#pos_delivery').val()
+        }
+
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: data,
+            successCallback: (res) => {
+
+                if (res > 0) {
+                    $('input[type="text"]').val('');
+                    notifyAlert('Orden creada correctamente')
+                    loadOrdersPOS();
+                }
+
+            },
+            errorCallback: (res) => {
+                console.error(res)
+            }
+        })
+    })
+
 
     /**============================================================= 
     * FACTURACION
@@ -732,6 +773,7 @@ $(document).ready(function () {
                 $('.pos-button-cash').attr('disabled', true);
 
                 mysql_row_affected()
+                $('#order_id').val('') // quitar orden
                 loadDetailPOS()
 
             },

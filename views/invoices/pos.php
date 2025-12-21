@@ -97,6 +97,104 @@
         <!-- Capa de fondo transparente -->
         <div class="overlay"></div>
 
+        <div class="pos-order-add">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Nueva orden
+                </h5>
+                <button type="button" class="close" id="close-window">
+                    <span class="close-window">x</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form action="" method="POST" id="orderForm">
+                    <div class="row">
+                        <div class="form-group col-sm-8">
+                            <label class="form-check-label" for="">Cliente<span class="text-danger">*</span></label>
+                            <div class="input-div">
+                                <div class="i b-right">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <select class="form-custom-icon" name="cliente" id="pos_customer_id" required>
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-sm-12">
+                            <label class="form-check-label" for="">Dirección de entrega</label>
+                            <textarea class="form-custom" name="" value="" id="pos_direction" cols="30" rows="3"
+                                maxlength="254" placeholder="Dirección completa"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row">
+
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Nombre del receptor</span></label>
+                            <div class="input-div">
+                                <div class="i">
+                                    <i class="fas fa-user-tag"></i>
+                                </div>
+                                <input class="form-custom-icon b-left" type="text" name="receptor" id="pos_fullname">
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Teléfono</label>
+                            <div class="input-div">
+                                <div class="i b-right">
+                                    <i class="fas fa-phone-alt"></i>
+                                </div>
+                                <input class="form-custom-icon b-left" type="text" name="telefono" id="pos_tel">
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Tipo de entrega</label>
+                            <div class="input-div">
+                                <div class="i b-right">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <select class="form-custom-icon search" name="entrega" id="pos_delivery">
+                                    <option value="-" selected>Nínguno</option>
+                                    <option value="envio">Envío</option>
+                                    <option value="retiro">Retiro</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-sm-12">
+                            <label class="form-check-label" for="">Comentarios o instrucciones especiales</label>
+                            <textarea class="form-custom" name="" value="" id="pos_comment" cols="30" rows="3"
+                                maxlength="254" placeholder="Observaciones"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="footer-window_pos">
+                        <!-- Botones -->
+                        <div class="footer-btn-container">
+                            <button class="btn-custom btn-red" type="button" id="cancel-window">
+                                <i class="fas fa-window-close"></i>
+                                <p>Cancelar</p>
+                            </button>
+
+                            <button class="btn-custom btn-green" type="submit" id="">
+                                <i class="fas fa-plus"></i>
+                                <p>Registrar</p>
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div> <!-- end -->
+
         <!-- Agregar cliente -->
         <div class="pos-customer-add">
             <div class="modal-header">
@@ -167,7 +265,7 @@
                         </div>
                     </div>
 
-                    <div class="footer-customer_window">
+                    <div class="footer-window_pos">
                         <!-- Botones -->
                         <div class="footer-btn-container">
                             <button class="btn-custom btn-red" type="button" id="cancel-window">
