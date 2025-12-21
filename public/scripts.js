@@ -20,7 +20,7 @@ const format = new Intl.NumberFormat('en'); // Formato 0,000
     * @param {string} type - tipo de notificacion
     * @param {int} duration  - duracion de la notificacion
     */
-function notifyAlert(response, type = "success", duration = 5000) {
+function notifyAlert(response, type = "success", duration = 2000) {
     mdtoast(response, {
         duration: duration,
         position: "bottom right",

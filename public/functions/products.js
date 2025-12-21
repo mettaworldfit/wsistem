@@ -1149,7 +1149,7 @@ $(document).ready(function () {
                 processData: false,
                 success: function (response) {
                     // Si la respuesta es exitosa, mostramos un mensaje
-                    // notifyAlert(response)
+                     notifyAlert("Imagen cargada exitosamente")
 
                     console.log(response)
                 },

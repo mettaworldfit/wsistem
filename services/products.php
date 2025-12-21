@@ -588,19 +588,21 @@ switch ($action) {
     if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
       $product_id = $_POST['product_id'];  // El ID del producto que se acaba de crear
 
-      // Definir la ruta donde se guardará la imagen en produccion no lleva el basename
-      $target_dir = $_SERVER['DOCUMENT_ROOT']. "/public/uploads/" . $dir_name;
-      // $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/" . basename(dirname(__DIR__)) . "/public/uploads/" . $dir_name;
+      // Definir la ruta donde se guardará la imagen 
+      if ($_SERVER['SERVER_NAME'] === 'localhost') {
+        // Si estamos en localhost, usar la ruta relativa
+        $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/" . basename(dirname(__DIR__)) . "/public/uploads/" . $dir_name;
+      } else {
+        // Si no estamos en localhost, usar la ruta pública estándar para producción
+        $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/public/uploads/" . $dir_name;
+      }
 
-
-  
       // Verificar si la carpeta existe, si no, crearla
       if (!file_exists($target_dir)) {
         if (!mkdir($target_dir, 0777, true)) {
           echo "Hubo un error al intentar crear la carpeta.";
           exit;
         } else {
-          // Si la carpeta fue creada correctamente, devolver la ruta
           echo "La carpeta fue creada con éxito: " . $target_dir;
         }
       } else {
@@ -632,15 +634,26 @@ switch ($action) {
         exit;
       }
 
-      // Comprimir la imagen usando Tinify antes de moverla
-      try {
-        // Comprimir la imagen utilizando Tinify
-        $source = \Tinify\Source::fromFile($_FILES["product_image"]["tmp_name"]);
-        $source->toFile($target_file); // Guardar la imagen comprimida en el directorio destino
-        echo "La imagen ha sido comprimida y cargada con éxito en el directorio: " . $target_file;
-      } catch (Exception $e) {
-        echo "Hubo un error al comprimir la imagen: " . $e->getMessage();
-        exit;
+      // Verificar si estamos en producción (no localhost)
+      if ($_SERVER['SERVER_NAME'] !== 'localhost') {
+        // Comprimir la imagen usando Tinify solo si estamos en producción
+        try {
+          // Comprimir la imagen utilizando Tinify
+          $source = \Tinify\Source::fromFile($_FILES["product_image"]["tmp_name"]);
+          $source->toFile($target_file); // Guardar la imagen comprimida en el directorio destino
+          echo "La imagen ha sido comprimida y cargada con éxito en el directorio: " . $target_file;
+        } catch (Exception $e) {
+          echo "Hubo un error al comprimir la imagen: " . $e->getMessage();
+          exit;
+        }
+      } else {
+        // Si estamos en localhost, no comprimir la imagen, solo moverla
+        if (move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file)) {
+          echo "La imagen ha sido cargada con éxito sin compresión.";
+        } else {
+          echo "Hubo un error al mover la imagen.";
+          exit;
+        }
       }
 
       // Ahora, puedes actualizar la base de datos con la ruta relativa de la imagen
@@ -656,6 +669,7 @@ switch ($action) {
     } else {
       echo "Hubo un error al subir la imagen.";
     }
+
 
     break;
 }

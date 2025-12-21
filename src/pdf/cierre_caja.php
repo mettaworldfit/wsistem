@@ -112,8 +112,12 @@ $html = "
       <th class='right'>Monto</th>
     </tr>
     <tr>
-      <td><strong>Total del Cierre</strong></td>
+      <td><strong>Total real vendido </strong></td>
       <td class='right bold'>\$" . number_format($totalCierre, 2) . "</td>
+    </tr>
+    <tr>
+      <td>Total esperado</td>
+      <td class='right'>\$" . number_format($total_esperado, 2) . "</td>
     </tr>
     <tr>
       <td>Total efectivo en caja</td>

@@ -643,7 +643,7 @@ $(document).ready(function () {
                 console.error(res);
                 notifyAlert(res);
             },
-            verbose: false
+            verbose: true
         });
     }
 
@@ -706,7 +706,7 @@ $(document).ready(function () {
 
                 if (res > 0) {
                     $('input[type="text"]').val('');
-                    notifyAlert('Orden creada correctamente')
+                    notifyAlert('Orden creada correctamente','success',1500)
                     loadOrdersPOS();
                 }
 

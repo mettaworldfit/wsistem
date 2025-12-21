@@ -290,7 +290,6 @@ class Help
       if (isset($config['auto_cierre']) && $config['auto_cierre'] === 'false') {
          // Si 'auto_cierre' es 'false', ejecutamos la primera consulta
 
-
          $query = "SELECT SUM(total) AS total 
          FROM (
             -- Subconsulta 1: Facturas ventas
