@@ -1,64 +1,68 @@
 <div class="section-wrapper">
-    <div class="align-content clearfix">
-        <div class="float-left">
-            <h1>Cierres de caja</h1>
-        </div>
-
-
-        <div class="float-right">
-            <div class="float-right">
-                <a href="#" class="btn-custom btn-green" data-toggle="modal" data-target="#modalCashOpening">
-                    <i class="fas fa-door-open"></i>
-                    <p>Abrir caja</p>
-                </a>
-
-                <?php if ($cashOpening): ?>
-                    <a href="#" class="btn-custom btn-red" data-toggle="modal" data-target="#modalCashClosing" id="cash_closing">
-                        <i class="fas fa-door-closed"></i>
-                        <p>Cerrar caja</p>
-                    </a>
-                <?php endif; ?>
-            </div>
-        </div>
+  <div class="align-content clearfix">
+    <div class="float-left">
+      <h1>Cierres de caja</h1>
     </div>
+
+
+    <div class="float-right">
+      <div class="float-right">
+        <?php if (empty($cashOpening)): ?>
+          <a href="#" class="btn-custom btn-green" data-toggle="modal" data-target="#modalCashOpening">
+            <i class="fas fa-door-open"></i>
+            <p>Abrir caja</p>
+          </a>
+        <?php endif; ?>
+
+        <?php if ($cashOpening): ?>
+          <a href="#" class="btn-custom btn-red" data-toggle="modal" data-target="#modalCashClosing" id="cash_closing">
+            <i class="fas fa-door-closed"></i>
+            <p>Cerrar caja</p>
+          </a>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="generalContainer">
-    <table id="cashClosing" class="table-custom table">
-        <thead>
-            <tr>
-                <th class="hide-cell">N°</th>
-                <th>Usuario</th>
-                <th class="hide-cell">Total real</th>
-                <th class="hide-cell">Gastos</th>
-                <th class="hide-cell">Diferencia</th>
-                <th>Fecha apertura</th>
-                <th>Fecha cierre</th>
-                <th class="hide-cell">Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-    </table>
+  <table id="cashClosing" class="table-custom table">
+    <thead>
+      <tr>
+        <th class="hide-cell">N°</th>
+        <th>Usuario</th>
+        <th class="hide-cell">Total real</th>
+        <th class="hide-cell">Gastos</th>
+        <th class="hide-cell">Diferencia</th>
+        <th>Fecha apertura</th>
+        <th>Fecha cierre</th>
+        <th class="hide-cell">Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+  </table>
 </div>
-
 
 <!-- Cierre de caja -->
 <div class="modal fade" id="modalCashClosing" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalCierreCajaLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
+  <div class="modal-dialog modal-lg .modal-cashClosing">
     <div class="modal-content border-0 shadow-lg">
       <div class="modal-header bg-light border-bottom">
-        <h5 class="modal-title" id="modalCierreCajaLabel">Cierre de Caja</h5>
+        <h5 class="modal-title" id="modalCierreCajaLabel">Cierre de caja</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
       <div class="modal-body">
         <form action="" onsubmit="event.preventDefault(); cashClosing();">
           <input type="hidden" name="id" value="<?= $cashOpening->cierre_id ?>" id="closingId">
+          <input type="hidden" name="" value="<?= $tickets->total_facturas ?>" id="tickets_invoices">
+           <input type="hidden" name="" value="<?= $tickets->total_pagos ?>" id="tickets_payments">
+           <input type="hidden" name="" value="<?= ucwords($_SESSION['identity']->nombre) ?> <?= ucwords($_SESSION['identity']->apellidos ?? '') ?>" id="user_name">
 
           <div class="row col-sm-12 invoice-head-modal">
             <div class="col-sm-3 head-content">
-              <h6>Total vendido</h6>
-              <input type="text" class="invisible-input text-success" value="<?= number_format($totalPurchase ?? 0) ?>" id="total" disabled>
+              <h6>Total Vendido</h6>
+              <input type="text" class="invisible-input text-success" value="<?= number_format($totalReal ?? 0) ?>" id="total" disabled>
             </div>
 
             <div class="col-sm-3 head-content">
@@ -83,11 +87,7 @@
               <div class="grid-date-field">
                 <label class="">Usuario:</label>
                 <select class="form-custom search col-sm-12" name="user" id="user_id" required>
-                  <option value="" selected disabled>Selecionar usuario</option>
-                  <?php $users = Help::loadUsers();
-                  while ($user = $users->fetch_object()): ?>
-                    <option value="<?= $user->usuario_id ?>"><?= ucwords($user->nombre) ?></option>
-                  <?php endwhile; ?>
+                  <option value="<?= $_SESSION['identity']->usuario_id ?>"><?= ucwords($_SESSION['identity']->nombre) ?> <?= ucwords($_SESSION['identity']->apellidos ?? '') ?></option>
                 </select>
               </div>
             </div>
@@ -99,12 +99,9 @@
               </div>
 
               <div class="grid-date-field">
-                <?php
-                date_default_timezone_set('America/Santo_Domingo');
-                $datetimeRD = date('Y-m-d\TH:i');
-                ?>
+             
                 <label class="">Fecha Cierre:</label>
-                <input type="datetime-local" class="form-custom" id="closing_date" value="<?= $datetimeRD ?>" required>
+                <input type="datetime-local" class="form-custom" id="closing_date" value="" required>
               </div>
             </div>
           </div>
@@ -142,7 +139,6 @@
                 <label class="">+ Ingresos Cheques:</label>
                 <input type="text" class="" id="check_income" value="<?= number_format($checks ?? 0.00, 2) ?>" readonly disabled>
               </div>
-
 
               <div class="form-field field-subtraction">
                 <label class="">- Gastos externos:</label>

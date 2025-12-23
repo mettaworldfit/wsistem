@@ -3,8 +3,36 @@
 class HomeController
 {
 
+    // Definir los permisos por acción en un array
+    private $permissions = [
+        'index' => ['administrador', 'cajero'],
+        'error' => ['administrador', 'cajero'],
+        'permise_denied' => ['administrador', 'cajero']
+    ];
+
+    // Verificación de permisos
+    private function check_permission($action)
+    {
+        // Si no está autenticado, redirigir a login
+        if (!isset($_SESSION['identity'])) {
+            header('Location: ' . base_url . 'login');
+            exit();
+        }
+
+        // Verificar si el rol del usuario tiene permiso para la acción solicitada
+        $roles = isset($this->permissions[$action]) ? $this->permissions[$action] : [];
+
+        if (!in_array($_SESSION['identity']->nombre_rol, $roles)) {
+            // Si no tiene permiso, redirigir a la página de acceso denegado
+            require_once './views/layout/denied.php';
+            exit();
+        }
+    }
+
     public function index()
     {
+
+        // echo var_dump($_SESSION['identity']);
 
         // Abreviar cifras
         function number_format_short($n, $precision = 1)
@@ -39,19 +67,23 @@ class HomeController
             return $n_format . $suffix;
         }
 
+        // Cierre de caja
         $cashOpening = Help::getCashOpening(); // Obtener datos de la caja abierta
+        $tickets = Help::getIssuedInvoices(); // Total de tickets emitidos
 
+        $totalReal = Help::getTotalReal(); // Total real
         $cash = Help::getDailySalesByPaymentMethod(1); // Efectivo
         $credit = Help::getDailySalesByPaymentMethod(2); // Tarjeta de credido
         $debit = Help::getDailySalesByPaymentMethod(3); // Tarjeta de debito
         $card = $credit + $debit;
         $transfers = Help::getDailySalesByPaymentMethod(4); // Tranferencias
         $checks = Help::getDailySalesByPaymentMethod(5); // Cheques
-
-        $totalPurchase = Help::getPurchaseToday(); // Total vendido hoy
-        $totalExpenses = Help::getExpensesToday(); // Total gastado hoy
         $cashExpenses = Help::getOriginExpensesToday('caja'); // Total Origen de gastos
         $externalExpenses = Help::getOriginExpensesToday('fuera_caja'); // Total Origen de gastos
+
+        // Dashboard
+        $totalPurchase = Help::getPurchaseToday(); // Total vendido hoy
+        $totalExpenses = Help::getExpensesToday(); // Total gastado hoy
         $products = Help::getTotalProducts();
         $pieces = Help::getTotalPieces();
         $customers = Help::getTotalCustomers();
@@ -62,16 +94,19 @@ class HomeController
 
         $getActiveCustomersThisMonth = Help::getActiveCustomersThisMonth(); // Clientes activos de este mes
 
+        $this->check_permission('index');
         require_once './views/layout/home.php';
     }
 
     public function error()
     {
+        $this->check_permission('error');
         require_once './views/layout/404.php';
     }
 
     public function permise_denied()
     {
+        $this->check_permission('permise_denied');
         require_once './views/layout/denied.php';
     }
 }

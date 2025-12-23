@@ -2,41 +2,77 @@
 
 class ReportsController
 {
+    // Array de permisos por acción
+    private $permissions = [
+        'day' => ['administrador', 'cajero'], // Roles con acceso a la acción 'day'
+        'querys' => ['administrador'], // Roles con acceso a la acción 'querys'
+        'cash_closing' => ['administrador', 'cajero'], // Solo 'administrador' tiene acceso a 'cash_closing'
+    ];
 
+    // Verificación de permisos
+    private function check_permission($action)
+    {
+        // Si no está autenticado, redirigir a login
+        if (!isset($_SESSION['identity'])) {
+            header('Location: ' . base_url . 'login');
+            exit();
+        }
+
+        // Verificar si el rol del usuario tiene permiso para la acción solicitada
+        $roles = isset($this->permissions[$action]) ? $this->permissions[$action] : [];
+        
+        if (!in_array($_SESSION['identity']->nombre_rol, $roles)) {
+            // Si no tiene permiso, redirigir a la página de acceso denegado
+            require_once './views/layout/denied.php';
+            exit();
+        }
+    }
+
+    // Acción para mostrar las ventas del día
     public function day()
     {
+        // Verificar permisos para la acción 'day'
+        $this->check_permission('day');
 
+        // Obtener las ventas del día
         $invoices = Help::calculateSalesToDay();
 
+        // Mostrar la vista correspondiente
         require_once './views/reports/day.php';
     }
 
+    // Acción para mostrar las consultas
     public function querys()
     {
+        // Verificar permisos para la acción 'querys'
+        $this->check_permission('querys');
 
+        // Mostrar la vista de consultas
         require_once './views/reports/querys.php';
     }
 
+    // Acción para mostrar el cierre de caja
     public function cash_closing()
     {
-        if ($_SESSION['identity']->nombre_rol == 'administrador') {
+        // Verificar permisos para la acción 'cash_closing'
+        $this->check_permission('cash_closing');
 
-            $cashOpening = Help::getCashOpening(); // Obtener datos de la caja abierta
+        // Obtener los datos necesarios para el cierre de caja
+        $cashOpening = Help::getCashOpening(); // Obtener datos de la caja abierta
 
-            $cash = Help::getDailySalesByPaymentMethod(1); // Efectivo
-            $credit = Help::getDailySalesByPaymentMethod(2); // Tarjeta de credido
-            $debit = Help::getDailySalesByPaymentMethod(3); // Tarjeta de debito
-            $card = $credit + $debit;
-            $transfers = Help::getDailySalesByPaymentMethod(4); // Tranferencias
-            $checks = Help::getDailySalesByPaymentMethod(5); // Cheques
-            $totalExpenses = Help::getExpensesToday(); // Total gastado hoy
-            $cashExpenses = Help::getOriginExpensesToday('caja'); // Total Origen de gastos
-            $externalExpenses = Help::getOriginExpensesToday('fuera_caja'); // Total Origen de gastos
+        $tickets = Help::getIssuedInvoices(); // Total de tickets emitidos
+        $totalReal = Help::getTotalReal(); // Total real
+        $cash = Help::getDailySalesByPaymentMethod(1); // Efectivo
+        $credit = Help::getDailySalesByPaymentMethod(2); // Tarjeta de crédito
+        $debit = Help::getDailySalesByPaymentMethod(3); // Tarjeta de débito
+        $card = $credit + $debit;
+        $transfers = Help::getDailySalesByPaymentMethod(4); // Transferencias
+        $checks = Help::getDailySalesByPaymentMethod(5); // Cheques
+        $totalExpenses = Help::getExpensesToday(); // Total gastado hoy
+        $cashExpenses = Help::getOriginExpensesToday('caja'); // Total Origen de gastos
+        $externalExpenses = Help::getOriginExpensesToday('fuera_caja'); // Total Origen de gastos
 
-            require_once './views/reports/cash_closing.php';
-        } else {
-            // Permiso denegado
-            require_once './views/layout/denied.php';
-        }
+        // Mostrar la vista de cierre de caja
+        require_once './views/reports/cash_closing.php';
     }
 }

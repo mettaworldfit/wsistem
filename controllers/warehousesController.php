@@ -2,41 +2,59 @@
 
 class WarehousesController
 {
+    // Array de permisos por acción
+    private $permissions = [
+        'index' => ['administrador'], 
+        'add' => ['administrador'],  
+        'edit' => ['administrador'],  
+    ];
 
+    // Verificación de permisos
+    private function check_permission($action)
+    {
+        // Si no está autenticado, redirigir a login
+        if (!isset($_SESSION['identity'])) {
+            header('Location: ' . base_url . 'login');
+            exit();
+        }
+
+        // Verificar si el rol del usuario tiene permiso para la acción solicitada
+        $roles = isset($this->permissions[$action]) ? $this->permissions[$action] : [];
+
+        if (!in_array($_SESSION['identity']->nombre_rol, $roles)) {
+            // Si no tiene permiso, redirigir a la página de acceso denegado
+            require_once './views/layout/denied.php';
+            exit();
+        }
+    }
+
+    // Acción para listar los almacenes
     public function index()
     {
-        // Verificar rol de usuario
-        if ($_SESSION['identity']->nombre_rol == 'administrador') {
+        // Verificar permisos para la acción 'index'
+        $this->check_permission('index');
 
-            require_once './views/warehouses/index.php';
-        } else {
-            // Permiso denegado
-            require_once './views/layout/denied.php';
-        }
+        // Mostrar la vista correspondiente
+        require_once './views/warehouses/index.php';
     }
 
+    // Acción para agregar un almacén
     public function add()
     {
-        // Verificar rol de usuario
-        if ($_SESSION['identity']->nombre_rol == 'administrador') {
+        // Verificar permisos para la acción 'add'
+        $this->check_permission('add');
 
-            require_once './views/warehouses/add.php';
-        } else {
-            // Permiso denegado
-            require_once './views/layout/denied.php';
-        }
+        // Mostrar la vista de agregar almacén
+        require_once './views/warehouses/add.php';
     }
 
+    // Acción para editar un almacén
     public function edit()
     {
+        // Verificar permisos para la acción 'edit'
+        $this->check_permission('edit');
 
-        // Verificar rol de usuario
-        if ($_SESSION['identity']->nombre_rol == 'administrador') {
-
-            require_once './views/warehouses/edit.php';
-        } else {
-            // Permiso denegado
-            require_once './views/layout/denied.php';
-        }
+        // Mostrar la vista de editar almacén
+        require_once './views/warehouses/edit.php';
     }
 }

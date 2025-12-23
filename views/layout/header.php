@@ -83,403 +83,202 @@
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
 
 
- 
+
 </head>
 
 <body>
 
   <?php if (isset($_SESSION['admin']) || isset($_SESSION['identity'])): ?>
 
-    <!-- <section class="contenido"> -->
+       <?php require_once 'includes/sidebar.php'; ?>
 
-     <!-- ================ HEADER ==================== -->
-  
-      <header class="admin-bar clearfix">
-        <div class="container-logo">
-          <!-- Logo -->
-          <!-- <img src="<?= base_url ?>public/imagen/sistem/" alt="" class="logo"> -->
-        </div>
+    <!-- ================ HEADER ==================== -->
 
-        <section class="content-bar">
-          <div class="admin-left">
+    <header class="admin-bar clearfix">
+      <div class="container-logo">
+        <!-- Logo -->
+        <!-- <img src="<?= base_url ?>public/imagen/sistem/" alt="" class="logo"> -->
+      </div>
 
-            <!-- Menu rapido -->
-            <nav class="nav-container">
-              <ul>
-                <li><a href="<?= base_url ?>invoices/addpurchase">
-                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/bill.png" alt="">
-                    Factura de venta</a></li>
+      <section class="content-bar">
+        <div class="admin-left">
 
-                <li data-toggle="modal" data-target="#modalComanda"><a href="#">
-                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/sort.png" alt="">
-                    Orden de venta</a></li>
+          <!-- Menu rapido -->
+          <nav class="nav-container">
+            <ul>
+              <li><a href="<?= base_url ?>invoices/addpurchase">
+                  <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/bill.png" alt="">
+                  Factura de venta</a></li>
 
-                <li data-toggle="modal" data-target="#orden"><a href="#">
-                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/clipboard.png" alt="">
-                    Orden de reparación</a></li>
+              <li data-toggle="modal" data-target="#modalComanda"><a href="#">
+                  <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/sort.png" alt="">
+                  Orden de venta</a></li>
 
-                <li><a href="<?= base_url ?>invoices/quote">
-                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/advice.png" alt="">
-                    Cotización</a></li>
+              <li data-toggle="modal" data-target="#orden"><a href="#">
+                  <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/clipboard.png" alt="">
+                  Orden de reparación</a></li>
 
-                <li><a href="<?= base_url ?>payments/add">
-                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/pay.png" alt="">
-                    Pagar factura</a></li>
+              <li><a href="<?= base_url ?>invoices/quote">
+                  <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/advice.png" alt="">
+                  Cotización</a></li>
 
-                <li><a href="<?= base_url ?>bills/addbills">
-                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/expense.png" alt="">
-                    Agregar gasto</a></li>
+              <li><a href="<?= base_url ?>payments/add">
+                  <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/pay.png" alt="">
+                  Pagar factura</a></li>
 
-                <li><a href="<?= base_url ?>products/add">
-                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/add-item.png" alt="">
-                    Agregar producto</a></li>
+              <li><a href="<?= base_url ?>bills/addbills">
+                  <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/expense.png" alt="">
+                  Agregar gasto</a></li>
 
-                <li><a href="<?= base_url ?>services/add">
-                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/service.png" alt="">
-                    Agregar servicio</a></li>
+              <li><a href="<?= base_url ?>products/add">
+                  <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/add-item.png" alt="">
+                  Agregar producto</a></li>
 
-                <li><a href="<?= base_url ?>reports/querys">
-                    <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/analytics.png" alt="">
-                    Consultas</a></li>
-              </ul>
-            </nav>
+              <li><a href="<?= base_url ?>services/add">
+                  <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/service.png" alt="">
+                  Agregar servicio</a></li>
+
+              <li><a href="<?= base_url ?>reports/querys">
+                  <img class="nav-icon" src="<?= base_url ?>/public/imagen/icons/analytics.png" alt="">
+                  Consultas</a></li>
+            </ul>
+          </nav>
 
 
-            <div id="menuToggle">
-              <input type="checkbox" />
-              <span></span>
-              <span></span>
-              <span></span>
+          <div id="menuToggle">
+            <input type="checkbox" />
+            <span></span>
+            <span></span>
+            <span></span>
 
-              <ul id="accordion-movil" class="accordion menu-movil">
+            <ul id="accordion-movil" class="accordion menu-movil">
 
-                <!-- user-section -->
-                <div class="user-section">
-                  <div class="user-info">
-                    <div class="user-icon">
-                      <i class="fas fa-user"></i>
-                    </div>
-
-                    <div class="user-details">
-                      <span class="username"><?= $_SESSION['identity']->nombre ?></span>
-                    </div>
+              <!-- user-section -->
+              <div class="user-section">
+                <div class="user-info">
+                  <div class="user-icon">
+                    <i class="fas fa-user"></i>
                   </div>
 
-                  <div class="user-actions">
-                    <a href="<?= base_url ?>users/edit&id=<?= $_SESSION['identity']->usuario_id ?>">Perfil</a>
-                    <a href="#" id="logout-movil"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+                  <div class="user-details">
+                    <span class="username"><?= $_SESSION['identity']->nombre ?></span>
                   </div>
                 </div>
 
-
-                <!-- menu-movil -->
-                <li>
-                  <div class="link"><a href="<?= base_url ?>home/index"><i class="mr-3 fas fa-home"></i>Inicio</a></div>
-                </li>
-
-                <li class="dropdown-1">
-                  <div class="link"><i class="mr-3 fas fa-arrow-circle-down"></i>Ingresos <i
-                      class="fas fa-chevron-down"></i></div>
-                  <ul class="submenu">
-                    <li class="page"><a href="<?= base_url ?>invoices/index">Facturas de ventas</a> <a
-                        href="<?= base_url ?>invoices/addpurchase"><i class="fas fa-plus-circle"></i></a></li>
-                    <li><a href="<?= base_url ?>invoices/index_repair">Facturas de reparaciones</a> </li>
-                    <li class="page"><a href="<?= base_url ?>invoices/quotes">Cotizaciones</a> <a
-                        href="<?= base_url ?>invoices/quote"><i class="fas fa-plus-circle"></i></a></li>
-                    <li class="page"><a href="<?= base_url ?>invoices/orders">Órdenes de ventas</a></li>
-                    <li class="page"><a href="<?= base_url ?>payments/index">Pagos</a> <a
-                        href="<?= base_url ?>payments/add"><i class="fas fa-plus-circle"></i></a></li>
-                  </ul>
-                </li>
-
-                <li class="dropdown-2">
-                  <div class="link"><i class="mr-3 fas fa-arrow-circle-up"></i>Egresos <i
-                      class="fas fa-chevron-down"></i></div>
-                  <ul class="submenu ">
-                    <li class="page"><a href="<?= base_url ?>bills/invoices">Facturas de proveedores</a> <a
-                        href="<?= base_url ?>bills/addinvoice"><i class="fas fa-plus-circle"></i></a></li>
-                    <li class="page"><a href="<?= base_url ?>bills/bills">Gastos</a> <a
-                        href="<?= base_url ?>bills/addbills"><i class="fas fa-plus-circle"></i></a></li>
-                    <li class="page"><a href="<?= base_url ?>bills/payments">Pagos</a> <a
-                        href="<?= base_url ?>bills/add_payment"><i class="fas fa-plus-circle"></i></a></li>
-                    <li class="page"><a href="<?= base_url ?>bills/orders">Órdenes de compras</a> <a
-                        href="<?= base_url ?>bills/add_order"><i class="fas fa-plus-circle"></i></a></li>
-                  </ul>
-                </li>
-
-                <li class="dropdown-3">
-                  <div class="link"><i class="mr-3 fas fa-tools"></i>Taller <i class="fas fa-chevron-down"></i></div>
-                  <ul class="submenu ">
-                    <li><a href="<?= base_url ?>workshop/index">Órdenes de servicios</a> </li>
-
-                  </ul>
-                </li>
-
-                <li class="dropdown-4">
-                  <div class="link"><i class="mr-3 fas fa-box"></i>Inventario <i class="fas fa-chevron-down"></i></div>
-                  <ul class="submenu ">
-                    <li class="page"><a href="<?= base_url ?>products/index">Productos</a> <a
-                        href="<?= base_url ?>products/add"><i class="fas fa-plus-circle"></i></a></li>
-                    <li class="page"><a href="<?= base_url ?>pieces/index">Piezas</a> <a
-                        href="<?= base_url ?>pieces/add"><i class="fas fa-plus-circle"></i></a></li>
-                    <li class="page"><a href="<?= base_url ?>services/index">Servicios</a> <a
-                        href="<?= base_url ?>services/add"><i class="fas fa-plus-circle"></i></a></li>
-                    <li><a href="<?= base_url ?>inventory_control/inventory">Valor de inventario</a></li>
-                    <li class="page"><a href="<?= base_url ?>warehouses/index">Almacenes</a> <a
-                        href="<?= base_url ?>warehouses/add"><i class="fas fa-plus-circle"></i></a></li>
-                    <li class="page"><a href="<?= base_url ?>categories/index">Categorías</a> <a
-                        href="<?= base_url ?>categories/add"><i class="fas fa-plus-circle"></i></a></li>
-                    <li class="page"><a href="<?= base_url ?>price_lists/index">Listas de precios</a> <a
-                        href="<?= base_url ?>price_lists/add"><i class="fas fa-plus-circle"></i></a></li>
-                    <li class="page"><a href="<?= base_url ?>brands/index">Marcas</a> <a
-                        href="<?= base_url ?>brands/add"><i class="fas fa-plus-circle"></i></a></li>
-                    <li class="page"><a href="<?= base_url ?>taxes/index">Impuestos</a> <a
-                        href="<?= base_url ?>taxes/add"><i class="fas fa-plus-circle"></i></a></li>
-                    <li class="page"><a href="<?= base_url ?>positions/index">Posiciones</a> <a
-                        href="<?= base_url ?>positions/add"><i class="fas fa-plus-circle"></i></a></li>
-                    <li class="page"><a href="<?= base_url ?>offers/index">Ofertas</a> <a
-                        href="<?= base_url ?>offers/add"><i class="fas fa-plus-circle"></i></a></li>
-                  </ul>
-                </li>
-
-                <li class="dropdown-5">
-                  <div class="link"><i class="mr-3 fas fa-address-book"></i>Contactos <i
-                      class="fas fa-chevron-down"></i></div>
-                  <ul class="submenu">
-                    <li class="page"><a href="<?= base_url ?>contacts/customers">Clientes</a> <a
-                        href="<?= base_url ?>contacts/add&type=1"><i class="fas fa-plus-circle"></i></a></li>
-                    <li class="page"><a href="<?= base_url ?>contacts/providers">Proveedores</a> <a
-                        href="<?= base_url ?>contacts/add&type=0"><i class="fas fa-plus-circle"></i></a></li>
-                  </ul>
-                </li>
-
-                <li class="dropdown-6">
-                  <div class="link"><i class="mr-3 fas fa-chart-bar"></i>Reportes <i class="fas fa-chevron-down"></i>
-                  </div>
-                  <ul class="submenu">
-                    <li class="page"><a href="<?= base_url ?>reports/day">Ventas del día</a></li>
-                    <li class="page"><a href="<?= base_url ?>reports/querys">Consultas</a></li>
-                    <li class="page"><a href="<?= base_url ?>reports/cash_closing">Cierres de caja</a></li>
-                    <li class="page"><a href="<?= base_url ?>reports/pending">Cuentas por cobrar</a> </li>
-                  </ul>
-                </li>
-
-                <li>
-                  <div class="link"><a href="<?= base_url ?>users/index"><i class="mr-3 fas fa-users"></i>Usuarios</a>
-                  </div>
-                </li>
-
-                <?php if ($_SESSION['identity']->nombre_rol == 'administrador'): ?>
-                  <li>
-                    <div class="link"><a href="<?= base_url ?>config/index"><i
-                          class="mr-3 fas fa-cog"></i>Configuración</a></div>
-                  </li>
-                <?php endif; ?>
-              </ul>
-            </div>
-
-            <!-- buscador -->
-            <div class="explorer">
-              <i class="fas fa-search"></i>
-              <input type="text" class="form-custom" name="" placeholder="Clientes / proveedores / productos / piezas / facturas / ordenes" id="keyword">
-              <ul id="search_result"></ul>
-            </div>
-
-            <!-- Menu rapido icon -->
-            <span id="bar-menu" data-title="Menu"><i class="fas fa-th"></i></span>
-          </div> <!-- admin-left -->
-
-
-          <div class="admin-right">
-            <div class="content-bar-info">
-
-              <div class="num-order">
-                <a href="<?= base_url ?>" data-title="Ordenes de ventas">
-                  <?php
-                      $order = Help::numOrderAlert();
-                      $className = "";
-
-                      if ($order < 10) {
-                        $className .= "alert-notify alert-notify-xs alert-num-order";
-                      } elseif ($order > 99) {
-                        $className .= "alert-notify alert-notify-lg alert-num-order";
-                        $order = "99+";
-                      } else {
-                        $className .= "alert-notify alert-notify-md alert-num-order";
-                      }
-                  ?>
-                  <span class="<?= $className ?>">
-                    <i class="fas fa-clipboard-list"></i>
-                    <p><?= $order; ?></p>
-                  </span>
-                </a>
+                <div class="user-actions">
+                  <a href="<?= base_url ?>users/edit&id=<?= $_SESSION['identity']->usuario_id ?>">Perfil</a>
+                  <a href="#" id="logout-movil"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+                </div>
               </div>
 
-              <!-- fuera de stock -->
-              <div class="out-stock">
-                <a href="<?= base_url ?>products/stock" data-title="Casi agotados">
-                  <?php
-                      $stock = Help::minStockProductAlert();
-                      $className = "";
+              <?php
+              // Mostrar las secciones del menú
+              foreach ($menu_sections as $section) {
+                display_menu_item($section);
+              }
+              ?>
 
-                      if ($stock < 10) {
-                        $className .= "alert-notify alert-notify-xs alert-out-stock";
-                      } elseif ($stock > 99) {
-                        $className .= "alert-notify alert-notify-lg alert-out-stock";
-                        $stock = "99+"; // Nuevo stock
-                      } else {
-                        $className .= "alert-notify alert-notify-md alert-out-stock";
-                      }
-                  ?>
-                  <span class="<?= $className ?>">
-                    <i class="fas fa-inbox"></i>
-                    <p><?= $stock; ?></p>
-                  </span>
-                </a>
-              </div> 
+            </ul>
+          </div>
 
-              <!-- session de usuario -->
-              <div class="user">
-                <span><i class="fas fa-user-circle"></i></span>
-                <span><?= $_SESSION['identity']->nombre ?></span>
-              </div>
+          <!-- buscador -->
+          <div class="explorer">
+            <i class="fas fa-search"></i>
+            <input type="text" class="form-custom" name="" placeholder="Clientes / proveedores / productos / piezas / facturas / ordenes" id="keyword">
+            <ul id="search_result"></ul>
+          </div>
 
+          <!-- Menu rapido icon -->
+          <span id="bar-menu" data-title="Menu"><i class="fas fa-th"></i></span>
+        </div> <!-- admin-left -->
+
+
+        <div class="admin-right">
+          <div class="content-bar-info">
+
+            <div class="num-order">
+              <a href="<?= base_url ?>" data-title="Ordenes de ventas">
+                <?php
+                $order = Help::numOrderAlert();
+                $className = "";
+
+                if ($order < 10) {
+                  $className .= "alert-notify alert-notify-xs alert-num-order";
+                } elseif ($order > 99) {
+                  $className .= "alert-notify alert-notify-lg alert-num-order";
+                  $order = "99+";
+                } else {
+                  $className .= "alert-notify alert-notify-md alert-num-order";
+                }
+                ?>
+                <span class="<?= $className ?>">
+                  <i class="fas fa-clipboard-list"></i>
+                  <p><?= $order; ?></p>
+                </span>
+              </a>
             </div>
 
-            <nav class="nav-user">
-              <ul class="user-menu">
-                <li><a href="<?= base_url ?>users/edit&id=<?= $_SESSION['identity']->usuario_id ?>">Perfil</a></li>
-                <li id="logout"><a href="#">Cerrar sesión</a></li>
-              </ul>
-            </nav>
-          </div> <!-- admin-right -->
-        </section> <!-- content-bar -->
-      </header>
+            <!-- fuera de stock -->
+            <div class="out-stock">
+              <a href="<?= base_url ?>products/stock" data-title="Casi agotados">
+                <?php
+                $stock = Help::minStockProductAlert();
+                $className = "";
+
+                if ($stock < 10) {
+                  $className .= "alert-notify alert-notify-xs alert-out-stock";
+                } elseif ($stock > 99) {
+                  $className .= "alert-notify alert-notify-lg alert-out-stock";
+                  $stock = "99+"; // Nuevo stock
+                } else {
+                  $className .= "alert-notify alert-notify-md alert-out-stock";
+                }
+                ?>
+                <span class="<?= $className ?>">
+                  <i class="fas fa-inbox"></i>
+                  <p><?= $stock; ?></p>
+                </span>
+              </a>
+            </div>
+
+            <!-- session de usuario -->
+            <div class="user">
+              <span><i class="fas fa-user-circle"></i></span>
+              <span><?= $_SESSION['identity']->nombre ?></span>
+            </div>
+
+          </div>
+
+          <nav class="nav-user">
+            <ul class="user-menu">
+              <li><a href="<?= base_url ?>users/edit&id=<?= $_SESSION['identity']->usuario_id ?>">Perfil</a></li>
+              <li id="logout"><a href="#">Cerrar sesión</a></li>
+            </ul>
+          </nav>
+        </div> <!-- admin-right -->
+      </section> <!-- content-bar -->
+    </header>
 
 
     <!-- ================ SIDEBAR (APP-MENU) ==================== -->
 
-      <aside class="sidebar clearfix">
-        <nav class="app-menu">
+    <aside class="sidebar clearfix">
+      <nav class="app-menu">
+        <ul id="accordion" class="accordion">
+          <?php
+          // Mostrar las secciones del menú
+          foreach ($menu_sections as $section) {
+            display_menu_item($section);
+          }
+          ?>
+        </ul>
+      </nav> <!-- app-menu -->
+    </aside>
 
-          <ul id="accordion" class="accordion">
-            <li>
-              <div class="link"><a href="<?= base_url ?>home/index"><i class="mr-3 fas fa-home"></i>Inicio</a></div>
-            </li>
+    <!-- ================ CONTENIDO ==================== -->
 
-            <li class="dropdown-1">
-              <div class="link"><i class="mr-3 fas fa-arrow-circle-down"></i>Ingresos <i class="fas fa-chevron-down"></i>
-              </div>
-              <ul class="submenu">
-                <li class="page"><a href="<?= base_url ?>invoices/index">Facturas de ventas</a> <a
-                    href="<?= base_url ?>invoices/addpurchase"><i class="fas fa-plus-circle"></i></a></li>
-                <li><a href="<?= base_url ?>invoices/index_repair">Facturas de reparaciones</a> </li>
-                <li class="page"><a href="<?= base_url ?>invoices/quotes">Cotizaciones</a> <a
-                    href="<?= base_url ?>invoices/quote"><i class="fas fa-plus-circle"></i></a></li>
-                <li class="page"><a href="<?= base_url ?>invoices/orders">Órdenes de ventas</a></li>
-                <li class="page"><a href="<?= base_url ?>payments/index">Pagos</a> <a
-                    href="<?= base_url ?>payments/add"><i class="fas fa-plus-circle"></i></a></li>
-              </ul>
-            </li>
+    <div class="main wrap">
+      <main>
 
-            <li class="dropdown-2">
-              <div class="link"><i class="mr-3 fas fa-arrow-circle-up"></i>Egresos <i class="fas fa-chevron-down"></i>
-              </div>
-              <ul class="submenu ">
-                <li class="page"><a href="<?= base_url ?>bills/invoices">Facturas de proveedores</a> <a
-                    href="<?= base_url ?>bills/addinvoice"><i class="fas fa-plus-circle"></i></a></li>
-                <li class="page"><a href="<?= base_url ?>bills/bills">Gastos</a> <a
-                    href="<?= base_url ?>bills/addbills"><i class="fas fa-plus-circle"></i></a></li>
-                <li class="page"><a href="<?= base_url ?>bills/payments">Pagos</a> <a
-                    href="<?= base_url ?>bills/add_payment"><i class="fas fa-plus-circle"></i></a></li>
-                <li class="page"><a href="<?= base_url ?>bills/orders">Órdenes de compras</a> <a
-                    href="<?= base_url ?>bills/add_order"><i class="fas fa-plus-circle"></i></a></li>
-
-              </ul>
-            </li>
-
-            <li class="dropdown-3">
-              <div class="link"><i class="mr-3 fas fa-tools"></i>Taller <i class="fas fa-chevron-down"></i></div>
-              <ul class="submenu ">
-                <li><a href="<?= base_url ?>workshop/index">Órdenes de servicios</a> </li>
-
-              </ul>
-            </li>
-
-            <li class="dropdown-4">
-              <div class="link"><i class="mr-3 fas fa-box"></i>Inventario <i class="fas fa-chevron-down"></i></div>
-              <ul class="submenu ">
-                <li class="page"><a href="<?= base_url ?>products/index">Productos</a> <a
-                    href="<?= base_url ?>products/add"><i class="fas fa-plus-circle"></i></a></li>
-                <li class="page"><a href="<?= base_url ?>pieces/index">Piezas</a> <a href="<?= base_url ?>pieces/add"><i
-                      class="fas fa-plus-circle"></i></a></li>
-                <li class="page"><a href="<?= base_url ?>services/index">Servicios</a> <a
-                    href="<?= base_url ?>services/add"><i class="fas fa-plus-circle"></i></a></li>
-                <li><a href="<?= base_url ?>inventory_control/inventory">Valor de inventario</a></li>
-                <li class="page"><a href="<?= base_url ?>warehouses/index">Almacenes</a> <a
-                    href="<?= base_url ?>warehouses/add"><i class="fas fa-plus-circle"></i></a></li>
-                <li class="page"><a href="<?= base_url ?>categories/index">Categorías</a> <a
-                    href="<?= base_url ?>categories/add"><i class="fas fa-plus-circle"></i></a></li>
-                <li class="page"><a href="<?= base_url ?>price_lists/index">Listas de precios</a> <a
-                    href="<?= base_url ?>price_lists/add"><i class="fas fa-plus-circle"></i></a></li>
-                <li class="page"><a href="<?= base_url ?>brands/index">Marcas</a> <a href="<?= base_url ?>brands/add"><i
-                      class="fas fa-plus-circle"></i></a></li>
-                <li class="page"><a href="<?= base_url ?>taxes/index">Impuestos</a> <a href="<?= base_url ?>taxes/add"><i
-                      class="fas fa-plus-circle"></i></a></li>
-                <li class="page"><a href="<?= base_url ?>positions/index">Posiciones</a> <a
-                    href="<?= base_url ?>positions/add"><i class="fas fa-plus-circle"></i></a></li>
-                <li class="page"><a href="<?= base_url ?>offers/index">Ofertas</a> <a href="<?= base_url ?>offers/add"><i
-                      class="fas fa-plus-circle"></i></a></li>
-
-              </ul>
-            </li>
-
-            <li class="dropdown-5">
-              <div class="link"><i class="mr-3 fas fa-address-book"></i>Contactos <i class="fas fa-chevron-down"></i>
-              </div>
-              <ul class="submenu">
-                <li class="page"><a href="<?= base_url ?>contacts/customers">Clientes</a> <a
-                    href="<?= base_url ?>contacts/add&type=1"><i class="fas fa-plus-circle"></i></a></li>
-                <li class="page"><a href="<?= base_url ?>contacts/providers">Proveedores</a> <a
-                    href="<?= base_url ?>contacts/add&type=0"><i class="fas fa-plus-circle"></i></a></li>
-              </ul>
-            </li>
-
-            <li class="dropdown-6">
-              <div class="link"><i class="mr-3 fas fa-chart-bar"></i>Reportes <i class="fas fa-chevron-down"></i></div>
-              <ul class="submenu">
-                <li class="page"><a href="<?= base_url ?>reports/day">Ventas del día</a></li>
-                <li class="page"><a href="<?= base_url ?>reports/querys">Consultas</a></li>
-                <li class="page"><a href="<?= base_url ?>reports/cash_closing">Cierres de caja</a></li>
-                <li class="page"><a href="<?= base_url ?>reportss/pending">Cuentas por cobrar</a> </li>
-
-              </ul>
-            </li>
-
-            <li>
-              <div class="link"><a href="<?= base_url ?>users/index"><i class="mr-3 fas fa-users"></i>Usuarios</a></div>
-            </li>
-
-            <?php if ($_SESSION['identity']->nombre_rol == 'administrador'): ?>
-              <li>
-                <div class="link"><a href="<?= base_url ?>config/index"><i class="mr-3 fas fa-cog"></i>Configuración</a>
-                </div>
-              </li>
-            <?php endif; ?>
-
-              <li>
-              <div class="link"><a href="<?= base_url ?>invoices/pos"><i class="mr-3 fas fa-print"></i>POS</a></div>
-            </li>
-          </ul>
-
-        </nav> <!-- app-menu -->
-      </aside>
-
-
-        <!-- ================ CONTENIDO ==================== -->
-
-      <div class="main wrap">
-        <main>
-
-        <?php require_once 'includes/modal-global.php'; ?>  <!-- Modals goblales -->
-        <?php endif; ?><!-- verificar sesion activa -->
+        <?php require_once 'includes/modal-global.php'; ?> <!-- Modals goblales -->
+      <?php endif; ?><!-- verificar sesion activa -->

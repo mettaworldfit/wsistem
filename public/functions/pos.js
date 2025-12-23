@@ -228,6 +228,7 @@ $(document).ready(function () {
         deleteItemPOS(id)
     });
 
+    // eliminar producto en la ventana
     $('#erase_window_item').on('click', function (e) {
         e.preventDefault();
 
@@ -237,7 +238,6 @@ $(document).ready(function () {
     });
 
     function deleteItemPOS(detailId) {
-
         sendAjaxRequest({
             url: "services/invoices.php",
             data: {
@@ -246,9 +246,6 @@ $(document).ready(function () {
             },
             successCallback: () => {
                 loadDetailPOS(); // Recargar los detalles
-                // loadProductsPOS();
-                // loadOrdersPOS(); // Cargar ordenes
-                // calculateTotalInvoice(); // Recalcular el total de la factura
             },
             errorCallback: (res) => {
                 console.error('Error al eliminar detalle:', res);
@@ -284,6 +281,30 @@ $(document).ready(function () {
             }, verbose: false
         });
     }
+
+    // Guardar lista de precio seleccionada
+    const STORAGE_KEY = "pos_list_price";
+    const $listPrice = $("#list_price");
+
+    // Restaurar valor guardado al cargar
+    const savedListPrice = localStorage.getItem(STORAGE_KEY);
+    if (savedListPrice !== null) {
+        // Primero, agregar la opción con el nombre de la lista seleccionada antes de "General"
+        const savedListName = $("#list_price option[value='" + savedListPrice + "']").text(); // Obtener el nombre de la lista seleccionada
+        const selectedOptionHtml = `<option value="${savedListPrice}" selected>${savedListName}</option>`;
+
+        // Insertar la nueva opción antes de "General"
+        $listPrice.find('option[value="0"]').before(selectedOptionHtml);
+
+        // Establecer el valor del select con el valor guardado
+        $listPrice.val(savedListPrice);
+    }
+
+    // Guardar cuando cambia el select
+    $listPrice.on("change", function () {
+        localStorage.setItem(STORAGE_KEY, $(this).val());
+    });
+
 
     /**============================================================= 
     * VENTANA DE EDITAR
@@ -597,9 +618,9 @@ $(document).ready(function () {
         var selectedOrderId = $('#order_id').val()
 
         if (selectedOrderId == 0 || selectedOrderId == '') {
-            $('.btn-pos_home').css('border','1px solid var(--color-primary)')
+            $('.btn-pos_home').css('border', '1px solid var(--color-primary)')
         } else {
-             $('.btn-pos_home').css('border','1px solid #ccc')
+            $('.btn-pos_home').css('border', '1px solid #ccc')
         }
 
         sendAjaxRequest({
@@ -642,8 +663,7 @@ $(document).ready(function () {
             errorCallback: (res) => {
                 console.error(res);
                 notifyAlert(res);
-            },
-            verbose: true
+            }
         });
     }
 
@@ -706,7 +726,7 @@ $(document).ready(function () {
 
                 if (res > 0) {
                     $('input[type="text"]').val('');
-                    notifyAlert('Orden creada correctamente','success',1500)
+                    notifyAlert('Orden creada correctamente', 'success', 1500)
                     loadOrdersPOS();
                 }
 

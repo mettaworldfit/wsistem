@@ -1,38 +1,60 @@
 <?php
 
-class ServicesController {
+class ServicesController
+{
+    // Array de permisos por acción
+    private $permissions = [
+        'index' => ['administrador'],  
+        'add' => ['administrador'],  
+        'edit' => ['administrador']
+    ];
 
-    public function index(){
+    // Verificación de permisos
+    private function check_permission($action)
+    {
+        // Si no está autenticado, redirigir a login
+        if (!isset($_SESSION['identity'])) {
+            header('Location: ' . base_url . 'login');
+            exit();
+        }
+
+        // Verificar si el rol del usuario tiene permiso para la acción solicitada
+        $roles = isset($this->permissions[$action]) ? $this->permissions[$action] : [];
         
+        if (!in_array($_SESSION['identity']->nombre_rol, $roles)) {
+            // Si no tiene permiso, redirigir a la página de acceso denegado
+            require_once './views/layout/denied.php';
+            exit();
+        }
+    }
+
+    // Acción para ver los servicios
+    public function index()
+    {
+        // Verificar permisos para la acción 'index'
+        $this->check_permission('index');
+
+        // Mostrar la vista correspondiente
         require_once './views/services/index.php';
     }
-    
-    public function add() {
 
-        if ($_SESSION['identity']->nombre_rol == 'administrador') {
+    // Acción para agregar un servicio
+    public function add()
+    {
+        // Verificar permisos para la acción 'add'
+        $this->check_permission('add');
 
-            require_once './views/services/add.php';
-
-        } else {
-             // Permiso denegado
-             require_once './views/layout/denied.php';
-        }
-       
+        // Mostrar la vista de agregar servicio
+        require_once './views/services/add.php';
     }
 
-    public function edit() {
+    // Acción para editar un servicio
+    public function edit()
+    {
+        // Verificar permisos para la acción 'edit'
+        $this->check_permission('edit');
 
-        if ($_SESSION['identity']->nombre_rol == 'administrador') {
-
-            require_once './views/services/edit.php';
-
-        } else {
-             // Permiso denegado
-             require_once './views/layout/denied.php';
-        }
-      
+        // Mostrar la vista de editar servicio
+        require_once './views/services/edit.php';
     }
-
-  
 }
-

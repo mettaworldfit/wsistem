@@ -124,6 +124,11 @@ $(document).ready(function () {
 
 }); // Ready
 
+
+/**============================================================= 
+* FUNCIONES DEL CIERRE DE CAJA
+===============================================================*/
+
 // Generar cierre pdf
 function generateCashClosingPDF(id) {
 
@@ -140,7 +145,6 @@ function generateCashClosingPDF(id) {
 }
 
 // Abrir caja
-
 function cashOpening() {
 
     let OpeningDateRaw = $('#opening').val(); // "2025-06-17T10:17"
@@ -177,21 +181,35 @@ function cashOpening() {
 // Cierre de caja
 function cashClosing() {
 
-    let closingDateRaw = $('#closing_date').val(); // "2025-06-17T10:17"
-    let localDate = new Date(closingDateRaw);
+    function formatDate(dateString) {
+        let localDate = new Date(dateString);
 
-    // Formatear a "YYYY-MM-DD HH:MM:SS"
-    let formattedClosingDate = localDate.getFullYear() + '-' +
-        String(localDate.getMonth() + 1).padStart(2, '0') + '-' +
-        String(localDate.getDate()).padStart(2, '0') + ' ' +
-        String(localDate.getHours()).padStart(2, '0') + ':' +
-        String(localDate.getMinutes()).padStart(2, '0') + ':' +
-        '00'; // segundos fijos
+        // Formatear a "YYYY-MM-DD HH:MM:SS"
+        let formattedDate = localDate.getFullYear() + '-' +
+            String(localDate.getMonth() + 1).padStart(2, '0') + '-' +
+            String(localDate.getDate()).padStart(2, '0') + ' ' +
+            String(localDate.getHours()).padStart(2, '0') + ':' +
+            String(localDate.getMinutes()).padStart(2, '0') + ':' +
+            '00'; // segundos fijos
+
+        return formattedDate;
+    }
+
 
     const data = {
+        // Datos de impresion
+        tickets_invoices: $('#tickets_invoices').val(),
+        tickets_payments: $('#tickets_payments').val(),
+        difference: $('#total_difference').val().replace(/,/g, ""),
+        total_expected: $('#total_expected').val().replace(/,/g, ""),
+        user_name: $('#user_name').val(),
+        opening_date: formatDate($('#opening_date').val()),
+
+
+        // Datos para guardar
         action: "cierre_caja",
         user_id: $('#user_id').val(),
-        closing_date: formattedClosingDate, // closing_date
+        closing_date: formatDate($('#closing_date').val()), // closing_date
         initial_balance: parseFloat($('#initial_balance').val()) || 0,
         cash_income: parseFloat($('#cash_income').val().replace(/,/g, "")) || 0,
         card_income: parseFloat($('#card_income').val().replace(/,/g, "")) || 0,
@@ -213,16 +231,44 @@ function cashClosing() {
             $('.float-right').load(window.location.href + ' .float-right > *');
             mysql_row_affected()
 
-           sendCashClosing(res) // Enviar el cierr de caja por correo
+            $('#modalCashClosing').modal('hide'); // Cerrar ventana
+
+            printerClosing(data, res)
+            // sendCashClosing(res) // Enviar el cierr de caja por correo
         },
         errorCallback: (res) => mysql_error(res),
         verbose: false
     })
 }
 
+function printerClosing(data, cierre_id) {
+    $.ajax({
+        type: "POST",
+        url: PRINTER_SERVER + "cierre_caja.php",
+        data: JSON.stringify({
+            data: data,
+            id: cierre_id
+        }),
+        contentType: "application/json", // Enviamos JSON
+        dataType: "json", // Esperamos JSON de respuesta
+        success: function (res) {
+            console.log(res)
+            if (res.success) {
+                console.log("✅ Impresión completada:", res.message);
+            } else {
+                console.warn("⚠️ Error en impresión:", res.message);
+                notifyAlert(res.message || "Error al imprimir","error");
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("❌ Error AJAX:", error);
+            notifyAlert("No se pudo conectar con el servidor de impresión.","error");
+        }
+    });
+}
+
 
 // Enviar cierre de caja por correo
-
 function sendCashClosing(id) {
     var url = SITE_URL + 'src/phpmailer/cierre_caja.php?id=' + id;
 
@@ -233,7 +279,7 @@ function sendCashClosing(id) {
 
             // Recargar la página después del envío
             if (data.includes("enviado correctamente") || data.includes("ok")) {
-                    location.reload();
+                location.reload();
             }
         })
         .catch(error => {
@@ -242,7 +288,6 @@ function sendCashClosing(id) {
 }
 
 // Eliminar cierre de caja
-
 function deleteCashClosing(id) {
     alertify.confirm("Eliminar cierre de caja", "¿Estas seguro que deseas eliminar el cierre? ",
         function () {
@@ -262,6 +307,10 @@ function deleteCashClosing(id) {
         function () { }
     );
 }
+
+/**============================================================= 
+* FUNCIONES DE CONSULTAS
+===============================================================*/
 
 function Query() {
     const action = $('#action').val();

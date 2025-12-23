@@ -77,6 +77,14 @@ h6 {
     font-family: var(--font-title);
 }
 
+html, body {
+  overflow: scroll; /* Habilita el desplazamiento */
+}
+
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  display: none; /* Oculta la barra de desplazamiento */
+}
+
 
 /*=======================
  INPUTS
@@ -3381,10 +3389,7 @@ span.select2-container--default {
   PUNTO DE VENTA POS
 ================================================== */
 
-
-
 /* Contenedor principal */
-
 .pos-wrap {
     position: relative;
     display: grid;
@@ -3393,11 +3398,35 @@ span.select2-container--default {
     /* margin-top: 0.8rem; */
 }
 
-
 /* Productos */
 
 .pos-product-section {
-    /* box-sizing: border-box; */
+    overflow-y: auto;
+    max-height: 100vh;
+}
+
+
+/* Personalización del scroll */
+.pos-product-section::-webkit-scrollbar {
+    width: 3px;
+    /* Ancho del scrollbar */
+}
+
+.pos-product-section::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    /* Color de fondo de la pista del scroll */
+    border-radius: 10px;
+}
+
+.pos-product-section::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    /* Color del thumb del scroll */
+    border-radius: 10px;
+}
+
+.pos-product-section::-webkit-scrollbar-thumb:hover {
+    background: #555;
+    /* Color cuando el thumb está en hover */
 }
 
 .product-grid {
@@ -3584,7 +3613,7 @@ p.pos-stock {
     width: 40%;
     display: flex;
     flex-direction: column;
-    height: 89vh;
+    height: 90%;
     right: 0;
     background-color: #fff;
     border-left: 0.5px solid #ccc;
@@ -3935,8 +3964,8 @@ span.close-window {
 }
 
 .footer-summary {
-    width: 100%;
-    position: absolute;
+    width: 35%;
+    position: fixed;
     bottom: 0;
 }
 
@@ -4199,6 +4228,9 @@ button.btn-pos_home:focus {
 .footer-window_pos {
     border-top: 1px solid #ccc;
     margin-top: 15px;
+    position: fixed;
+    width: 38%;
+    bottom: 0;
 }
 
 /* Ventana agrega orden nueva */

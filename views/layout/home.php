@@ -5,10 +5,12 @@
     </div>
 
     <div class="float-right">
+      <?php if (empty($cashOpening)): ?>
       <a href="#" class="btn-custom btn-green" data-toggle="modal" data-target="#modalCashOpening">
         <i class="fas fa-door-open"></i>
         <p>Abrir caja</p>
       </a>
+      <?php endif; ?>
 
       <?php if ($cashOpening): ?>
         <a href="#" class="btn-custom btn-red" data-toggle="modal" data-target="#modalCashClosing" id="cash_closing">
@@ -223,18 +225,21 @@
   <div class="modal-dialog modal-lg .modal-cashClosing">
     <div class="modal-content border-0 shadow-lg">
       <div class="modal-header bg-light border-bottom">
-        <h5 class="modal-title" id="modalCierreCajaLabel">Cierre de Caja</h5>
+        <h5 class="modal-title" id="modalCierreCajaLabel">Cierre de caja</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
       <div class="modal-body">
         <form action="" onsubmit="event.preventDefault(); cashClosing();">
           <input type="hidden" name="id" value="<?= $cashOpening->cierre_id ?>" id="closingId">
+          <input type="hidden" name="" value="<?= $tickets->total_facturas ?>" id="tickets_invoices">
+           <input type="hidden" name="" value="<?= $tickets->total_pagos ?>" id="tickets_payments">
+           <input type="hidden" name="" value="<?= ucwords($_SESSION['identity']->nombre) ?> <?= ucwords($_SESSION['identity']->apellidos ?? '') ?>" id="user_name">
 
           <div class="row col-sm-12 invoice-head-modal">
             <div class="col-sm-3 head-content">
-              <h6>Total vendido</h6>
-              <input type="text" class="invisible-input text-success" value="<?= number_format($totalPurchase ?? 0) ?>" id="total" disabled>
+              <h6>Total Vendido</h6>
+              <input type="text" class="invisible-input text-success" value="<?= number_format($totalReal ?? 0) ?>" id="total" disabled>
             </div>
 
             <div class="col-sm-3 head-content">
@@ -259,11 +264,7 @@
               <div class="grid-date-field">
                 <label class="">Usuario:</label>
                 <select class="form-custom search col-sm-12" name="user" id="user_id" required>
-                  <option value="" selected disabled>Selecionar usuario</option>
-                  <?php $users = Help::loadUsers();
-                  while ($user = $users->fetch_object()): ?>
-                    <option value="<?= $user->usuario_id ?>"><?= ucwords($user->nombre) ?></option>
-                  <?php endwhile; ?>
+                  <option value="<?= $_SESSION['identity']->usuario_id ?>"><?= ucwords($_SESSION['identity']->nombre) ?> <?= ucwords($_SESSION['identity']->apellidos ?? '') ?></option>
                 </select>
               </div>
             </div>
