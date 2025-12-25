@@ -944,12 +944,11 @@ $(document).ready(function () {
                 action: "agregar_producto"
             },
             successCallback: (res) => {
-                console.log(res)
                 if (res > 0) {
                     if (localStorage.getItem("lista_de_precios")) assignProductPrice(res);
                     if (localStorage.getItem("variantes")) assignProductVariant(res);
 
-                    uploadImage(res)
+                    uploadImage(res) // Subir imagen
 
                     $('#last_product_edit').show().attr('href', `${SITE_URL}/products/edit&id=${res}`);
                     resetProductForm();
@@ -1128,7 +1127,6 @@ $(document).ready(function () {
         }
     });
 
-
     // Subir imagen
     function uploadImage(productId) {
         var formData = new FormData();
@@ -1142,23 +1140,30 @@ $(document).ready(function () {
             formData.append('product_id', productId);
 
             $.ajax({
-                url: SITE_URL + 'services/products.php',  // El archivo PHP que procesará la carga
+                url: SITE_URL + 'services/products.php',
                 type: 'POST',
                 data: formData,
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    // Si la respuesta es exitosa, mostramos un mensaje
-                     notifyAlert("Imagen cargada exitosamente")
+                    try {
+                        var data = JSON.parse(response)
 
-                    console.log(response)
+                        if (data.success) {
+                            notifyAlert(data.info)
+                            console.log(data)
+                        } else {
+                            notifyAlert(data.error, 'error')
+                        }
+
+                    } catch (error) {
+                        notifyAlert('Error de respuesta al subir la imagen', 'error')
+                    }
                 },
-                error: function () {
-                    notifyAlert('Hubo un error al subir la imagen.', 'error')
+                error: function (e) {
+                    notifyAlert(e, 'error')
                 }
             });
-        } else {
-            notifyAlert('Por favor, selecciona una imagen.', 'error')
         }
     }
 

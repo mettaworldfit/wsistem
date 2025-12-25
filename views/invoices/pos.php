@@ -428,7 +428,7 @@
             </div>
 
             <button action="button" class="pos-button-cash" disabled>
-                <p>Facturar</p>
+                <p>Facturar al contado</p>
                 <span class="pos-total">$0.00</span>
                 <input type="hidden" name="" id="total_pos">
             </button>

@@ -137,7 +137,7 @@ $menu_sections = [
                 'link' => base_url . 'warehouses/index',
                 'icon' => 'fas fa-plus-circle',
                 'icon_link' => base_url . 'warehouses/add',
-                'roles' => ['administrador']
+                'roles' => ['']
             ],
             [
                 'label' => 'Categorías',

@@ -31,7 +31,7 @@ $(document).ready(function () {
     ===============================================================*/
 
     let currentPage = 1; // Página actual
-    const pageSize = 10; // Cantidad de productos por página
+    const pageSize = 15; // Cantidad de productos por página
 
     // Función para cargar productos
     function loadProductsPOS(search = '', page = 1) {
@@ -77,7 +77,7 @@ $(document).ready(function () {
                             <div class="product-info">
                                 <p class="pos-stock">inv. ${parseFloat(product.cantidad)}</p>
                                 <span>${product.nombre_producto}</span>
-                                <p class="pos-price">$${product.precio_unitario}</p>
+                                <p class="pos-price">$${format.format(product.precio_unitario)}</p>
                             </div>
                             <input type="hidden" id="price_out" value="${product.precio_unitario}">
                                 <input type="hidden" id="cost" value="${product.precio_costo}">

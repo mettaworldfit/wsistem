@@ -91,7 +91,7 @@ function deleteCategory(id) {
 
                     if (res == "ready") {
 
-                        $(".table").load(location.href + " .table");
+                        dataTablesInstances['categories'].ajax.reload(null, false)
 
                     } else {
                         mysql_error(res)

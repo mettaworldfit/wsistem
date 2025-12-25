@@ -1,8 +1,3 @@
-# Base de datos
-#-------------------------------------------------------------------
-
-
-
 # Datos por principales
 #-------------------------------------------------------------------
 
@@ -156,8 +151,9 @@ VALUES
     ('condiciones', '-', 'terminos y condiciones de la factura pdf'),
     ('titulo', '-', 'Título del sitio web'),
     ('correo_adm','','correo del administracion del sistema'),
-	('auto_cierre', 'true', 'Cierre continuo que cierra automaticamente a la 12:00 am');
-
+    ('carpeta', 'wsistem/', 'carpeta de imagenes'),
+	('auto_cierre', 'true', 'Cierre continuo que cierra automaticamente a la 12:00 am'),
+    ('modo_cierre', 'separado', 'estilo de cierre de caja normal/separado');
 
 # Store Procedures
 #-------------------------------------------------------------------
@@ -499,27 +495,36 @@ DELIMITER ;
 
 # -------------- Clientes -----------------
 
+DROP PROCEDURE IF EXISTS `cl_agregar_cliente`;
 DELIMITER $$
-CREATE PROCEDURE `cl_agregarCliente` (in usuario_id int, in nombre varchar(50), in apellidos varchar(100),
-in codigo varchar(11), in tel1 varchar(15), in tel2 varchar(15),in direccion varchar(150), in email varchar(50))
+CREATE PROCEDURE `cl_agregar_cliente` (
+    IN usuario_id INT, 
+    IN nombre VARCHAR(50), 
+    IN apellidos VARCHAR(100),
+    IN codigo VARCHAR(11), 
+    IN tel1 VARCHAR(15), 
+    IN tel2 VARCHAR(15),
+    IN direccion VARCHAR(150), 
+    IN email VARCHAR(50)
+)
 BEGIN
+	DECLARE EXIT HANDLER FOR 1062 SELECT 'Error de clave duplicada encontrado' AS msg;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'Error SQL encontrado' AS msg;
+	DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'Error SQLSTATE 23000' AS msg;
 
- DECLARE EXIT HANDLER FOR 1062 SELECT 'Duplicate keys error encountered' AS msg;
- DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
- DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
-
-   IF (codigo != '') THEN
-   
-   INSERT INTO clientes VALUES (null,usuario_id,codigo,nombre,apellidos,tel1,tel2,email,direccion,curdate());
-   select 'ready' AS msg;
-   
-   ELSE 
-   
-   INSERT INTO clientes VALUES (null,usuario_id,null,nombre,apellidos,tel1,tel2,email,direccion,curdate());
-   select 'ready' AS msg;
-   
-   END IF ;
-
+    -- Verificar si el código es vacío o no
+    IF (codigo != '') THEN
+        -- Insertar el cliente con código
+	   INSERT INTO clientes (usuario_id, cedula, nombre, apellidos, telefono1, telefono2, email, direccion, fecha)
+       VALUES (usuario_id, codigo, nombre, apellidos, tel1, tel2, email, direccion, CURDATE());
+       SELECT 'Registrado correctamente' as msg;
+    ELSE
+        -- Insertar el cliente sin código
+        INSERT INTO clientes (usuario_id, cedula, nombre, apellidos, telefono1, telefono2, email, direccion, fecha)
+        VALUES (usuario_id, NULL, nombre, apellidos, tel1, tel2, email, direccion, CURDATE());
+        SELECT 'Registrado correctamente' as msg;
+    END IF;
+    
 END $$
 DELIMITER ;
 
@@ -715,7 +720,7 @@ DELIMITER $$
 CREATE PROCEDURE `pr_editarProducto` (in productoId int, in almacen_id int, in codigo varchar(100),
 in nombre varchar(100), in costo decimal(19,2), in precio decimal(19,2), in cantidad decimal(19,2), 
 in cantidad_min decimal(19,2), in categoria_id int, in posicion_id int, in impuesto_id int, in ofertaId int, 
-in marca_id int, in proveedor_id int, in imagen varchar(255))
+in marca_id int, in proveedor_id int)
 BEGIN
 
  DECLARE EXIT HANDLER FOR 1062 SELECT 'Duplicate keys error encountered' AS msg;
@@ -725,18 +730,18 @@ BEGIN
  IF (codigo != '') THEN
  
    update productos set nombre_producto = nombre, cod_producto = codigo, almacen_id = almacen_id, precio_unitario = precio,
-   precio_costo = costo, cantidad = cantidad, cantidad_min = cantidad_min, imagen = imagen where producto_id = productoId;
+   precio_costo = costo, cantidad = cantidad, cantidad_min = cantidad_min where producto_id = productoId;
    
    select "ready" AS msg;
 ELSEIF(codigo = '') THEN
  
    update productos set nombre_producto = nombre, cod_producto = null, almacen_id = almacen_id, precio_unitario = precio,
-   precio_costo = costo, cantidad = cantidad, cantidad_min = cantidad_min, imagen = imagen where producto_id = productoId;
+   precio_costo = costo, cantidad = cantidad, cantidad_min = cantidad_min where producto_id = productoId;
    
    select "ready" AS msg;
 ELSE 
    update productos set nombre_producto = nombre, almacen_id = almacen_id, precio_unitario = precio,
-   precio_costo = costo, cantidad = cantidad, cantidad_min = cantidad_min, imagen = imagen where producto_id = productoId;
+   precio_costo = costo, cantidad = cantidad, cantidad_min = cantidad_min where producto_id = productoId;
    
    select "ready" AS msg;
 END IF ;
@@ -2345,7 +2350,7 @@ END$$
 DELIMITER ;
 
 
--- ordenes de ventas
+# ----- ordenes de ventas ---------
 
 DELIMITER $$
 CREATE PROCEDURE `ov_actualizarEstadoOrden` (in estado_id_ int, in id int)
@@ -2396,19 +2401,34 @@ END$$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `ov_agregarOrden`;
 DELIMITER $$
-CREATE PROCEDURE `ov_agregarOrden` (IN o_cliente_id INT,IN o_usuario_id INT,IN o_estado_id INT,
-IN o_observacion TEXT,IN o_tipo_entrega varchar(6),IN o_direccion_entrega TEXT,
-IN o_nombre_receptor VARCHAR(100),IN o_telefono_receptor VARCHAR(20))
+CREATE PROCEDURE `ov_agregarOrden` (
+    IN o_cliente_id INT,
+    IN o_usuario_id INT,
+    IN o_estado_id INT,
+    IN o_observacion TEXT,
+    IN o_tipo_entrega VARCHAR(6),
+    IN o_direccion_entrega TEXT,
+    IN o_nombre_receptor VARCHAR(100),
+    IN o_telefono_receptor VARCHAR(20)
+)
 BEGIN
+    -- Declarar un manejador para los errores de SQL
+    DECLARE exit handler for SQLEXCEPTION
+    BEGIN
+        -- Captura el error y devuelve un mensaje personalizado
+        SELECT 'Error: No se pudo crear la orden' AS msg;
+    END;
 
-    INSERT INTO comandas (cliente_id,usuario_id,estado_id,observacion,tipo_entrega,
-    direccion_entrega,nombre_receptor,telefono_receptor,fecha) 
-    VALUES (o_cliente_id,o_usuario_id,o_estado_id,
-	o_observacion,o_tipo_entrega,o_direccion_entrega,o_nombre_receptor,
-	o_telefono_receptor,NOW());
-    
-    -- Opcional: devolver el ID insertado
+    -- Intentar insertar la nueva orden
+    INSERT INTO comandas (cliente_id, usuario_id, estado_id, observacion, tipo_entrega,
+    direccion_entrega, nombre_receptor, telefono_receptor, fecha) 
+    VALUES (o_cliente_id, o_usuario_id, o_estado_id,
+    o_observacion, o_tipo_entrega, o_direccion_entrega, o_nombre_receptor,
+    o_telefono_receptor, NOW());
+
+    -- Opcional: devolver el ID insertado si no hubo error
     SELECT LAST_INSERT_ID() AS msg;
 END$$
 DELIMITER ;
@@ -2435,6 +2455,343 @@ BEGIN
 END$$
 DELIMITER ;
 
+# ----- Punto de venta ---------
 
+DROP PROCEDURE IF EXISTS `pos_factura_venta`;
+DELIMITER $$
+CREATE PROCEDURE `pos_factura_venta` (IN _usuario_id INT, IN _cliente_id INT, 
+IN _metodo_id INT, IN _comanda_id INT, IN _total DECIMAL(10,2))
+BEGIN
+
+	DECLARE factura_id INT;
+    
+    -- Manejo de errores generales y excepciones
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+        BEGIN
+            -- Aquí puedes manejar el error, como un mensaje de error
+            SELECT 'SQLException encountered' AS error_message;
+        END;
+
+    DECLARE EXIT HANDLER FOR SQLSTATE '23000' 
+        BEGIN
+            -- Este es para manejar errores específicos, por ejemplo, violación de clave primaria
+            SELECT 'SQLSTATE 23000: Integrity constraint violation' AS error_message;
+        END;
+    
+    -- Crear factura
+    INSERT INTO facturas_ventas (usuario_id, cliente_id, estado_id, metodo_pago_id, total, recibido, pendiente, fecha)
+    VALUES (_usuario_id, _cliente_id, 3, _metodo_id, _total, _total, 0, CURDATE());
+
+    -- Asignar el ID de la nueva factura a la variable factura_id
+    SET factura_id = LAST_INSERT_ID();
+    
+    IF (_comanda_id > 0) THEN
+        -- Si hay una comanda_id, actualizar los detalles de la factura
+        UPDATE detalle_facturas_ventas 
+        SET factura_venta_id = factura_id 
+        WHERE comanda_id = _comanda_id;
+    ELSE
+        -- Si no hay comanda_id, asignar el ID de la factura a los detalles sin comanda ni factura
+        UPDATE detalle_facturas_ventas 
+        SET factura_venta_id = factura_id 
+        WHERE usuario_id = _usuario_id 
+          AND comanda_id IS NULL
+          AND factura_venta_id IS NULL;
+    END IF;
+
+    -- Si todo se ejecuta sin errores, puedes devolver un mensaje de éxito
+    SELECT 'Factura creada exitosamente con ID: ' AS msg;
+
+END $$
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `pos_agregar_producto`;
+DELIMITER $$
+CREATE PROCEDURE `pos_agregar_producto`(
+    IN p_comanda_id INT,
+    IN p_usuario_id INT,
+    IN p_cantidad DECIMAL(10,2),
+    IN p_costo DECIMAL(10,2),
+    IN p_precio DECIMAL(10,2),
+    IN p_producto_id INT,
+    IN p_pieza_id INT,
+    IN p_servicio_id INT
+)
+BEGIN
+
+  DECLARE v_detalle_id INT;
+  DECLARE v_comanda_exists INT;
+  DECLARE v_cantidad_existente DECIMAL(10,2);
+  DECLARE v_stock_disponible DECIMAL(10,2);
+  
+  
+   -- 1. Verificar si el comanda_id existe en la tabla comandas
+  SELECT COUNT(*) INTO v_comanda_exists
+  FROM comandas
+  WHERE comanda_id = p_comanda_id;
+
+  -- Si no existe, asignar al usuario para factura rapida
+  IF v_comanda_exists = 0 THEN
+    SELECT 'Error: No existe orden seleccionada' AS msg;
+  END IF;
+
+  -- 1. Obtener la cantidad actual de detalle
+  SELECT d.cantidad INTO v_cantidad_existente
+  FROM detalle_facturas_ventas d
+  INNER JOIN detalle_ventas_con_productos dp 
+      ON dp.detalle_venta_id = d.detalle_venta_id
+  WHERE dp.producto_id = p_producto_id AND d.comanda_id = p_comanda_id LIMIT 1;
+
+  -- 2. Obtener el stock disponible del producto
+  SELECT cantidad INTO v_stock_disponible
+  FROM productos WHERE producto_id = p_producto_id LIMIT 1;
+    
+  -- Verificar que la cantidad no exceda el stock disponible
+  IF p_cantidad > v_stock_disponible THEN
+    SELECT 'Error: No hay suficiente stock disponible.' AS msg;
+  ELSE
+    -- 3. Verificar si ya existe el detalle para este producto y comanda
+    IF EXISTS (SELECT 1 
+               FROM detalle_facturas_ventas d 
+               INNER JOIN detalle_ventas_con_productos dp 
+               ON dp.detalle_venta_id = d.detalle_venta_id 
+               WHERE dp.producto_id = p_producto_id 
+               AND d.comanda_id = p_comanda_id) THEN
+
+      -- Si ya existe, obtener el detalle_venta_id
+      SELECT d.detalle_venta_id INTO v_detalle_id
+      FROM detalle_facturas_ventas d
+      INNER JOIN detalle_ventas_con_productos dp 
+          ON dp.detalle_venta_id = d.detalle_venta_id
+      WHERE dp.producto_id = p_producto_id AND d.comanda_id = p_comanda_id LIMIT 1;
+
+      -- Actualizar la cantidad (sumando la cantidad existente)
+      UPDATE detalle_facturas_ventas 
+      SET cantidad = v_cantidad_existente + p_cantidad 
+      WHERE detalle_venta_id = v_detalle_id;
+
+      -- Mostrar mensaje indicando que se incrementó el detalle
+      SELECT 'Detalle incrementado' AS msg;
+
+    ELSE 
+      -- Si el producto no existe, insertar un nuevo detalle
+      INSERT INTO detalle_facturas_ventas (comanda_id, usuario_id, cantidad, costo, precio, fecha)
+      VALUES (p_comanda_id, p_usuario_id, p_cantidad, p_costo, p_precio, CURDATE());
+        
+         -- Obtener el detalle_venta_id del nuevo registro
+      SET v_detalle_id = LAST_INSERT_ID();
+
+      -- Insertar el producto en detalle_ventas_con_productos
+      INSERT INTO detalle_ventas_con_productos (detalle_venta_id, producto_id, comanda_id)
+      VALUES (v_detalle_id, p_producto_id, p_comanda_id);
+
+      -- Mostrar mensaje indicando que se creó un nuevo detalle
+      SELECT 'Nuevo detalle creado' AS msg;
+
+    END IF;
+  END IF;
+
+END$$
+DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS `pos_agregar_producto_sin`;
+DELIMITER $$
+CREATE PROCEDURE `pos_agregar_producto_sin`(
+    IN p_comanda_id INT,
+    IN p_usuario_id INT,
+    IN p_cantidad DECIMAL(10,2),
+    IN p_costo DECIMAL(10,2),
+    IN p_precio DECIMAL(10,2),
+    IN p_producto_id INT,
+    IN p_pieza_id INT,
+    IN p_servicio_id INT
+)
+BEGIN
+
+  DECLARE v_detalle_id INT;
+  DECLARE v_cantidad_existente DECIMAL(10,2);
+  DECLARE v_stock_disponible DECIMAL(10,2);
+
+  -- 1. Obtener la cantidad actual de detalle
+  SELECT d.cantidad INTO v_cantidad_existente
+  FROM detalle_facturas_ventas d
+  INNER JOIN detalle_ventas_con_productos dp 
+      ON dp.detalle_venta_id = d.detalle_venta_id
+  WHERE dp.producto_id = p_producto_id 
+  AND d.usuario_id = p_usuario_id AND d.comanda_id IS NULL
+  AND d.factura_venta_id IS NULL LIMIT 1;
+
+  -- 2. Obtener el stock disponible del producto
+  SELECT cantidad INTO v_stock_disponible
+  FROM productos WHERE producto_id = p_producto_id LIMIT 1;
+    
+  -- Verificar que la cantidad no exceda el stock disponible
+  IF p_cantidad > v_stock_disponible THEN
+    SELECT 'Error: No hay suficiente stock disponible.' AS msg;
+  ELSE
+    -- 3. Verificar si ya existe el detalle para este producto y comanda
+    IF EXISTS (SELECT 1 
+               FROM detalle_facturas_ventas d 
+               INNER JOIN detalle_ventas_con_productos dp 
+               ON dp.detalle_venta_id = d.detalle_venta_id 
+               WHERE dp.producto_id = p_producto_id 
+  AND d.usuario_id = p_usuario_id 
+  AND d.comanda_id IS NULL
+  AND d.factura_venta_id IS NULL
+LIMIT 1) THEN
+
+      -- Si ya existe, obtener el detalle_venta_id
+      SELECT d.detalle_venta_id INTO v_detalle_id
+      FROM detalle_facturas_ventas d
+      INNER JOIN detalle_ventas_con_productos dp 
+          ON dp.detalle_venta_id = d.detalle_venta_id
+      WHERE dp.producto_id = p_producto_id 
+  AND d.usuario_id = p_usuario_id 
+  AND d.comanda_id IS NULL
+  AND d.factura_venta_id IS NULL
+LIMIT 1;
+
+      -- Actualizar la cantidad (sumando la cantidad existente)
+      UPDATE detalle_facturas_ventas 
+      SET cantidad = v_cantidad_existente + p_cantidad 
+      WHERE detalle_venta_id = v_detalle_id;
+
+      -- Mostrar mensaje indicando que se incrementó el detalle
+      SELECT 'Detalle incrementado' AS msg;
+
+    ELSE 
+      -- Si el producto no existe, insertar un nuevo detalle
+      INSERT INTO detalle_facturas_ventas (usuario_id, cantidad, costo, precio, fecha)
+      VALUES (p_usuario_id, p_cantidad, p_costo, p_precio, CURDATE());
+        
+         -- Obtener el detalle_venta_id del nuevo registro
+      SET v_detalle_id = LAST_INSERT_ID();
+
+      -- Insertar el producto en detalle_ventas_con_productos
+      INSERT INTO detalle_ventas_con_productos (detalle_venta_id, producto_id)
+      VALUES (v_detalle_id, p_producto_id);
+
+      -- Mostrar mensaje indicando que se creó un nuevo detalle
+      SELECT 'Nuevo detalle creado' AS msg;
+
+    END IF;
+  END IF;
+
+END$$
+DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS `pos_update_detalle`;
+DELIMITER $$
+CREATE PROCEDURE pos_update_detalle (
+    IN _producto_id INT,
+    IN _pieza_id INT,
+    IN _servicio_id INT,
+    IN _detalle_id INT,
+    IN _usuario_id INT,
+    IN _descuento DECIMAL(10,2),
+    IN _precio DECIMAL(10,2),
+    IN _cantidad DECIMAL(10,2)
+)
+BEGIN
+    DECLARE stock_disponible DECIMAL(10,2);
+    DECLARE stock_detalle DECIMAL(10,2);
+    DECLARE total_stock DECIMAL(10,2);
+    DECLARE exit_message VARCHAR(255);
+
+    -- Manejadores de excepciones
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+        BEGIN
+            SET exit_message = 'Error: SQLException encountered';
+            SELECT exit_message AS msg;
+        END;
+
+    DECLARE EXIT HANDLER FOR SQLSTATE '23000'
+        BEGIN
+            SET exit_message = 'Error: SQLSTATE 23000: Integrity constraint violation';
+            SELECT exit_message AS msg;
+        END;
+
+    -- Si es un servicio, no verificar stock
+    IF _servicio_id > 0 THEN
+        -- Si es un servicio, simplemente continuar sin verificar stock
+        SET stock_disponible = NULL;
+    ELSE
+        -- Verificar el stock disponible para el producto o pieza
+        IF _producto_id > 0 THEN
+            -- Si es un producto, verificar stock en la tabla de productos
+            SELECT cantidad INTO stock_disponible
+            FROM productos
+            WHERE producto_id = _producto_id;
+        ELSEIF _pieza_id > 0 THEN
+            -- Si es una pieza, verificar stock en la tabla de piezas
+            SELECT cantidad INTO stock_disponible
+            FROM piezas
+            WHERE pieza_id = _pieza_id;
+        END IF;
+    END IF;
+
+    -- Verificar si se encontró stock disponible para productos o piezas
+    IF stock_disponible IS NULL AND _servicio_id = 0 THEN
+        SET exit_message = 'Error: Producto o pieza no encontrado';
+        SELECT exit_message AS msg;
+    END IF;
+
+    -- Obtener la cantidad actual en el detalle de la factura
+    SELECT cantidad INTO stock_detalle
+    FROM detalle_facturas_ventas
+    WHERE detalle_venta_id = _detalle_id;
+
+    -- Calcular el stock total disponible (stock actual + cantidad en detalle)
+    SET total_stock = stock_disponible + stock_detalle;
+
+    -- Depuración: Verificar el valor de total_stock antes de la comparación
+    SELECT total_stock AS total_stock_available;
+
+    -- Verificar si el stock total disponible es suficiente (solo si no es un servicio)
+    IF (_servicio_id = 0 AND total_stock > _cantidad) OR _servicio_id > 0 THEN
+        -- Actualizar los detalles de la factura si hay suficiente stock o si es un servicio
+        UPDATE detalle_facturas_ventas
+        SET descuento = _descuento, precio = _precio, cantidad = _cantidad
+        WHERE detalle_venta_id = _detalle_id;
+
+        SELECT 'Datos actualizados correctamente' AS msg;
+    ELSE
+        -- Si no hay suficiente stock o si no es un servicio
+        SELECT 'Error: No hay suficiente stock disponible' AS msg;
+    END IF;
+
+END $$
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `pos_eliminar_todo`;
+DELIMITER $$
+CREATE PROCEDURE `pos_eliminar_todo` (IN _comanda_id INT, IN _usuario_id INT)
+BEGIN
+
+     DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
+     DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+
+    -- Si _comanda_id es mayor a 0, eliminar registros específicos
+    IF _comanda_id > 0 THEN
+        DELETE FROM detalle_facturas_ventas WHERE comanda_id = _comanda_id;
+        SELECT 'Registros eliminados por comanda_id' as msg;
+    ELSE 
+        -- Si _comanda_id es 0 o menor, eliminar registros donde usuario_id coincida y otros campos sean nulos
+        DELETE FROM detalle_facturas_ventas 
+        WHERE usuario_id = _usuario_id 
+        AND comanda_id IS NULL 
+        AND factura_venta_id IS NULL;
+        
+        SELECT 'Registros eliminados por usuario_id' as msg;
+    END IF;
+
+END $$
+DELIMITER ;
 
 

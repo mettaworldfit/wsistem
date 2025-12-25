@@ -397,8 +397,7 @@ switch ($action) {
       ($_POST['tax'] != "Vacío") ? $_POST['tax'] : 0,
       ($_POST['offer'] != "Vacío") ? $_POST['offer'] : 0,
       $_POST['brand'],
-      $_POST['provider'],
-      ''
+      $_POST['provider']
     ];
     $procedure = $action === 'editar_producto' ? 'pr_editarProducto' : 'pr_agregarProducto';
     echo handleProcedureAction($db, $procedure, $params);
@@ -443,7 +442,7 @@ switch ($action) {
     // Recibir parámetros de la solicitud
     $draw = isset($_POST['draw']) ? (int) $_POST['draw'] : 1;  // Número de solicitud (para seguimiento)
     $start = isset($_POST['start']) ? (int) $_POST['start'] : 0; // Índice de inicio
-    $length = isset($_POST['length']) ? (int) $_POST['length'] : 10; // Cantidad de productos por página
+    $length = isset($_POST['length']) ? (int) $_POST['length'] : 15; // Cantidad de productos por página
     $search = isset($_POST['search']) ? $_POST['search'] : ''; // Término de búsqueda
 
     // Columnas para ordenamiento
@@ -457,7 +456,11 @@ switch ($action) {
     $searchTerm = "%" . $search . "%";
 
     // Consulta para obtener los productos con paginación y búsqueda
-    $query = "SELECT * FROM productos WHERE nombre_producto LIKE '$searchTerm' OR cod_producto LIKE '$searchTerm' ORDER BY $orderBy $orderDir LIMIT $start, $length";
+    $query = "SELECT * FROM productos p
+    LEFT JOIN productos_con_categorias pc ON pc.producto_id = p.producto_id
+    LEFT JOIN categorias c ON pc.categoria_id = c.categoria_id
+    WHERE p.nombre_producto LIKE '$searchTerm' OR p.cod_producto LIKE '$searchTerm' OR c.nombre_categoria LIKE '$searchTerm' 
+    ORDER BY $orderBy $orderDir LIMIT $start, $length";
     $result = $db->query($query);
 
     // Verificar si hay resultados
@@ -578,6 +581,7 @@ switch ($action) {
   // Subir imagenes a de los productos
   case "subir_imagen":
 
+    $response = array();  // Array para almacenar las respuestas
     $dir_name = '';
 
     if (isset($config['carpeta']) && !empty($config['carpeta'])) {
@@ -600,14 +604,15 @@ switch ($action) {
       // Verificar si la carpeta existe, si no, crearla
       if (!file_exists($target_dir)) {
         if (!mkdir($target_dir, 0777, true)) {
-          echo "Hubo un error al intentar crear la carpeta.";
+          $response['error'] = "Hubo un error al intentar crear la carpeta.";
+          echo json_encode($response);
           exit;
         } else {
-          echo "La carpeta fue creada con éxito: " . $target_dir;
+          $response['success'] = "La carpeta fue creada con éxito: " . $target_dir;
         }
       } else {
         // Si la carpeta ya existe, devolver la ruta
-        echo "La carpeta ya existe: " . $target_dir;
+        $response['info'] = "La carpeta ya existe: " . $target_dir;
       }
 
       // Obtener el nombre del archivo y la extensión
@@ -617,58 +622,85 @@ switch ($action) {
 
       // Verificar si el archivo es una imagen
       if (getimagesize($_FILES["product_image"]["tmp_name"]) === false) {
-        echo "El archivo no es una imagen.";
+        $response['error'] = "El archivo no es una imagen.";
+        echo json_encode($response);
         exit;
       }
 
       // Verificar el tamaño de la imagen (2 MB máximo)
       if ($_FILES["product_image"]["size"] > 2000000) {
-        echo "Error archivo demasiado grande.";
+        $response['error'] = "Error archivo demasiado grande.";
+        echo json_encode($response);
         exit;
       }
 
       // Verificar la extensión de la imagen
-      $allowed_types = ["jpg", "jpeg", "png", "gif"];
+      $allowed_types = ["jpg", "jpeg", "png", "webp", "avif"];
       if (!in_array($imageFileType, $allowed_types)) {
-        echo "Error solo se permiten imágenes JPG, JPEG, PNG y GIF.";
+        $response['error'] = "Error solo se permiten imágenes JPG, JPEG, PNG, AVIF, WEBP.";
+        echo json_encode($response);
         exit;
       }
 
-      // Verificar si estamos en producción (no localhost)
+      // Si estamos en producción (no localhost)
       if ($_SERVER['SERVER_NAME'] !== 'localhost') {
-        // Comprimir la imagen usando Tinify solo si estamos en producción
+        // Comprimir y convertir la imagen usando Tinify solo si estamos en producción
         try {
           // Comprimir la imagen utilizando Tinify
           $source = \Tinify\Source::fromFile($_FILES["product_image"]["tmp_name"]);
-          $source->toFile($target_file); // Guardar la imagen comprimida en el directorio destino
-          echo "La imagen ha sido comprimida y cargada con éxito en el directorio: " . $target_file;
+
+          // Convertir la imagen a WebP si no es ya WebP o AVIF
+          if ($imageFileType !== 'webp' && $imageFileType !== 'avif') {
+            $target_file_webp = $target_dir . pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
+            $source->toFile($target_file_webp); // Guardar la imagen comprimida en WebP
+            $response['success'] = "La imagen ha sido comprimida y convertida a WebP con éxito en: " . $target_file_webp;
+          } else {
+            // Si la imagen ya es WebP o AVIF, guardarla tal cual
+            move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file);
+            $response['success'] = "La imagen ha sido subida exitosamente: " . $target_file;
+          }
         } catch (Exception $e) {
-          echo "Hubo un error al comprimir la imagen: " . $e->getMessage();
+          $response['error'] = "Hubo un error al comprimir y convertir la imagen: " . $e->getMessage();
+          echo json_encode($response);
           exit;
         }
       } else {
-        // Si estamos en localhost, no comprimir la imagen, solo moverla
-        if (move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file)) {
-          echo "La imagen ha sido cargada con éxito sin compresión.";
+        // Si estamos en localhost, no comprimir la imagen, solo moverla si es AVIF o WEBP
+        if ($imageFileType === 'webp' || $imageFileType === 'avif') {
+          // Si la imagen es AVIF o WEBP, simplemente moverla
+          move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file);
+          $response['success'] = "La imagen ha sido subida exitosamente: " . $target_file;
         } else {
-          echo "Hubo un error al mover la imagen.";
-          exit;
+          // Si la imagen no es AVIF ni WEBP, convertirla a WebP
+          $image_tmp = $_FILES["product_image"]["tmp_name"];
+          $image_info = getimagesize($image_tmp);
+          $image_type = $image_info[2];
+
+          if ($image_type == IMAGETYPE_JPEG || $image_type == IMAGETYPE_PNG) {
+            $image = imagecreatefromstring(file_get_contents($image_tmp));
+            $webp_file = $target_dir . pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
+            imagewebp($image, $webp_file); // Guardar la imagen como WebP
+            imagedestroy($image);
+            $response['success'] = "La imagen ha sido convertida a WebP y subida: " . $webp_file;
+          }
         }
       }
 
       // Ahora, puedes actualizar la base de datos con la ruta relativa de la imagen
-      $image_path = $dir_name . $file_name;  // Ruta relativa a la carpeta de imágenes
+      $image_path = $dir_name . pathinfo($file_name, PATHINFO_FILENAME) . '.webp';  // Ruta relativa a la carpeta de imágenes
 
       // Actualizar el producto en la base de datos con la ruta de la imagen
       $sql = "UPDATE productos SET imagen = '$image_path' WHERE producto_id = $product_id";
       if (mysqli_query($db, $sql)) {
-        echo "El producto ha sido actualizado con la imagen.";
+        $response['success'] = "El producto ha sido actualizado con la imagen.";
       } else {
-        echo "Error al actualizar el producto en la base de datos: " . mysqli_error($db);
+        $response['error'] = "Error al actualizar el producto en la base de datos: " . mysqli_error($db);
       }
     } else {
-      echo "Hubo un error al subir la imagen.";
+      $response['error'] = "Hubo un error al subir la imagen.";
     }
+
+    echo json_encode($response);  // Devolver la respuesta en formato JSON
 
 
     break;

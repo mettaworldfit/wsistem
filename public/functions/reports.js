@@ -252,7 +252,7 @@ function printerClosing(data, cierre_id) {
         contentType: "application/json", // Enviamos JSON
         dataType: "json", // Esperamos JSON de respuesta
         success: function (res) {
-            console.log(res)
+    
             if (res.success) {
                 console.log("✅ Impresión completada:", res.message);
             } else {
