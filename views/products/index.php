@@ -22,7 +22,7 @@
                 <th class="hide-cell">Código</th>
                 <th>Nombre</th>
                 <th class="hide-cell">Categorías</th>
-                <th class="hide-cell">Almacen</th>
+                <!-- <th class="hide-cell">Almacen</th> -->
                 <th>Cantidad</th>
                 <th class="hide-cell">P/Compra</th>
                 <th>P/Unitario</th>

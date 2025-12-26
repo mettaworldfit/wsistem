@@ -626,9 +626,9 @@ $(document).ready(function () {
         url: 'services/products.php',
         action: 'index_productos',
         columns: [
-            'codigo', 'nombre', 'categoria', 'almacen', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
+            'codigo', 'nombre', 'categoria', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
         ],
-        hiddenColumns: [0, 2, 3, 5]
+        hiddenColumns: [0, 2, 5]
     },
     {
         id: '#invoicesrp',

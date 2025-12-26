@@ -239,7 +239,7 @@ $menu_sections = [
     ],
     'usuarios' => [
         'label' => 'Usuarios',
-        'icon' => 'fas fa-plus-circle',
+        'icon' => 'fas fa-users',
         'link' => base_url . 'users/index',
         'roles' => ['administrador']
     ],

@@ -212,7 +212,7 @@ switch ($action) {
         'p.nombre_producto',
         'p.cod_producto',
         'c.nombre_categoria',
-        'a.nombre_almacen',
+        // 'a.nombre_almacen',
         'p.cantidad_min',
         'p.cantidad',
         'p.precio_costo',
@@ -280,7 +280,7 @@ switch ($action) {
           'codigo' => '<span class="hide-cell">' . $row['cod_producto'] . '</span>',
           'nombre' => $row['nombre_producto'],
           'categoria' => '<span class="hide-cell">' . $row['nombre_categoria'] . '</span>',
-          'almacen' => '<span class="hide-cell">' . $row['nombre_almacen'] . '</span>',
+          // 'almacen' => '<span class="hide-cell">' . $row['nombre_almacen'] . '</span>',
           'cantidad' => $cantidad,
           'precio_costo' => '<span class="hide-cell">' . number_format($row['precio_costo'] ?? 0, 2) . '</span>',
           'precio_unitario' => number_format($row['precio_unitario'], 2),
@@ -701,6 +701,71 @@ switch ($action) {
     }
 
     echo json_encode($response);  // Devolver la respuesta en formato JSON
+
+    break;
+
+  case "borrar_imagen":
+
+    $response = [
+      'success' => false,
+      'deleted' => false,
+      'message' => '',
+      'debug' => []
+    ];
+
+    $product_id = $_POST['product_id'];
+
+    // Obtener imagen guardada
+    $oldImgQuery = $db->query("SELECT imagen FROM productos WHERE producto_id = '$product_id'");
+
+    if ($oldImgQuery && $oldRow = mysqli_fetch_assoc($oldImgQuery)) {
+
+      if (!empty($oldRow['imagen'])) {
+
+        // Ruta base
+        if ($_SERVER['SERVER_NAME'] === 'localhost') {
+          $basePath = $_SERVER['DOCUMENT_ROOT'] . "/" . basename(dirname(__DIR__)) . "/public/uploads/";
+        } else {
+          $basePath = $_SERVER['DOCUMENT_ROOT'] . "/public/uploads/";
+        }
+
+        $relativePath = ltrim($oldRow['imagen'], '/');
+
+        // Nombre sin extensión
+        $imgName = pathinfo($relativePath, PATHINFO_FILENAME);
+        $imgDir  = dirname($relativePath);
+
+        $extensions = ['webp', 'avif', 'jpg', 'jpeg', 'png'];
+
+        foreach ($extensions as $ext) {
+          $filePath = $basePath . $imgDir . '/' . $imgName . '.' . $ext;
+
+          $response['debug'][] = $filePath;
+
+          if (file_exists($filePath)) {
+            unlink($filePath);
+            $response['deleted'] = true;
+          }
+        }
+
+        if ($response['deleted']) {
+
+          $db->query("UPDATE productos SET imagen = '' WHERE producto_id = '$product_id'");
+
+          $response['success'] = true;
+          $response['message'] = 'Imagen eliminada correctamente';
+        } else {
+          $response['message'] = 'No se encontró la imagen en disco';
+        }
+      } else {
+        $response['message'] = 'El producto no tiene imagen';
+      }
+    } else {
+      $response['message'] = 'Producto no encontrado';
+    }
+
+    echo json_encode($response);
+    exit;
 
 
     break;

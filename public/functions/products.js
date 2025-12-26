@@ -959,7 +959,7 @@ $(document).ready(function () {
                 } else if (res.includes("Error")) {
                     mysql_error(res);
                 }
-            }
+            }, verbose: true
         })
 
     }
@@ -1123,7 +1123,27 @@ $(document).ready(function () {
 
         // Verificamos si el ID del producto es válido (mayor que 0 y no vacío)
         if (productId && productId > 0) {
-            uploadImage(productId);
+
+            // Verificar si existe la imagen antes de guardar
+            sendAjaxRequest({
+                url: "services/products.php",
+                data: {
+                    action: "borrar_imagen",
+                    product_id: productId
+                },
+                successCallback: (res) => {
+                  try {
+                    var data = JSON.parse(res);
+                    console.log(data)
+
+                    uploadImage(productId); // Guardar imagen
+                    
+                  } catch (error) {
+                    console.error("Error en respuesta del servidor ",error)
+                  }
+                }
+            });
+
         }
     });
 
