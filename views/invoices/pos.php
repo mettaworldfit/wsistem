@@ -19,12 +19,10 @@
             </div>
         </div>
 
-
-
         <div class="pos-search">
             <div class="pos-search-bar">
                 <i class="fas fa-barcode"></i>
-                <input class="form-custom" type="text" id="search-input" placeholder="Buscar producto">
+                <input class="form-custom" type="text" id="search-input" placeholder="Buscar producto" autocomplete="off">
             </div>
         </div>
 
@@ -299,7 +297,7 @@
                 <div class="content-product-info">
                     <div class="item-info">
                         <div class="item-thumb">
-                            <img src="<?= base_url ?>/public/imagen/presidente.jpg" alt="">
+                            <img src="#" alt="">
                         </div>
 
                         <div class="d-flex flex-column">

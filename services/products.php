@@ -39,7 +39,7 @@ function fetchProductData($field, $value, $useLike = false)
   $query = "SELECT p.nombre_producto, p.cantidad, p.precio_unitario, p.precio_costo, p.cod_producto, 
                    pl.valor AS valor_lista, o.valor AS oferta, 
                    p.producto_id AS IDproducto, i.valor AS impuesto, 
-                   p.estado_id, pos.referencia 
+                   p.estado_id, pos.referencia, p.imagen
             FROM productos p 
             LEFT JOIN almacenes a ON p.almacen_id = a.almacen_id
             LEFT JOIN productos_con_impuestos pim ON p.producto_id = pim.producto_id
@@ -178,7 +178,10 @@ switch ($action) {
 
         // Eliminar
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
-          $acciones .= '<span onclick="deleteProduct(\'' . $row['idproducto'] . '\')" class="btn-action action-danger" title="Eliminar">' . BUTTON_DELETE . '</span>';
+          $acciones .= '<span class="btn-action action-danger btn-delete-product" 
+          data-id="' . $row['idproducto'] . '" 
+          data-name="' . $row['nombre_producto'] . '"
+          title="Eliminar">' . BUTTON_DELETE . '</span>';
         } else {
           $acciones .= '<span class="btn-action action-danger action-disable" title="Eliminar">' . BUTTON_DELETE . '</span>';
         }
@@ -260,7 +263,10 @@ switch ($action) {
 
         // Eliminar
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
-          $acciones .= '<span onclick="deleteProduct(\'' . $row['idproducto'] . '\')" class="btn-action action-danger" title="Eliminar">' . BUTTON_DELETE . '</span>';
+          $acciones .= '<span class="btn-action action-danger btn-delete-product" 
+          data-id="' . $row['idproducto'] . '" 
+          data-name="' . $row['nombre_producto'] . '"
+          title="Eliminar">' . BUTTON_DELETE . '</span>';
         } else {
           $acciones .= '<span class="btn-action action-danger action-disable" title="Eliminar">' . BUTTON_DELETE . '</span>';
         }
@@ -456,7 +462,8 @@ switch ($action) {
     $searchTerm = "%" . $search . "%";
 
     // Consulta para obtener los productos con paginación y búsqueda
-    $query = "SELECT * FROM productos p
+    $query = "SELECT p.nombre_producto,p.producto_id,p.cantidad,
+     p.precio_unitario,p.precio_costo,p.imagen FROM productos p
     LEFT JOIN productos_con_categorias pc ON pc.producto_id = p.producto_id
     LEFT JOIN categorias c ON pc.categoria_id = c.categoria_id
     WHERE p.nombre_producto LIKE '$searchTerm' OR p.cod_producto LIKE '$searchTerm' OR c.nombre_categoria LIKE '$searchTerm' 

@@ -147,36 +147,45 @@ function generateCashClosingPDF(id) {
 // Abrir caja
 function cashOpening() {
 
-    let OpeningDateRaw = $('#opening').val(); // "2025-06-17T10:17"
+    const btn = $('#btnOpenCash');
+
+    // Evitar doble ejecución
+    if (btn.prop('disabled')) return;
+
+    btn.prop('disabled', true).text('Abriendo...');
+
+    let OpeningDateRaw = $('#opening').val();
     let localDate = new Date(OpeningDateRaw);
 
-    // Formatear a "YYYY-MM-DD HH:MM:SS"
     let formattedOpeningDate = localDate.getFullYear() + '-' +
         String(localDate.getMonth() + 1).padStart(2, '0') + '-' +
         String(localDate.getDate()).padStart(2, '0') + ' ' +
         String(localDate.getHours()).padStart(2, '0') + ':' +
-        String(localDate.getMinutes()).padStart(2, '0') + ':' +
-        '00'; // segundos fijos
+        String(localDate.getMinutes()).padStart(2, '0') + ':00';
 
-    data = {
+    const data = {
         action: "abrir_caja",
         initial_balance: parseFloat($('#cash_initial').val()) || 0,
         opening_date: formattedOpeningDate,
-    }
+    };
 
     sendAjaxRequest({
         url: "services/reports.php",
-        data: data,
-        successCallback: (res) => {
+        data,
+        successCallback: () => {
             $('.float-right').load(window.location.href + ' .float-right > *');
+            $('#modalCashOpening').modal('hide');
             setTimeout(() => location.reload(), 900);
-            mysql_row_affected()
+            mysql_row_affected();
         },
-        errorCallback: (res) => mysql_error(res),
-        verbose: true
-    })
-
+        errorCallback: (res) => {
+            btn.prop('disabled', false).text('Abrir caja');
+            mysql_error(res);
+        },
+        verbose: false
+    });
 }
+
 
 // Cierre de caja
 function cashClosing() {

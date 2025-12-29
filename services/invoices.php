@@ -1170,6 +1170,7 @@ if ($_POST['action'] == "agregar_detalle_pos") {
   $procedure = ($_POST['order_id'] > 0) ? 'pos_agregar_producto' : 'pos_agregar_producto_sin';
 
   echo handleProcedureAction($db, $procedure, $params);
+
 }
 
 // Obtener datos de la venta editar del pos 

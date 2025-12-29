@@ -125,112 +125,112 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="tab-detail">
-                            <div class="row-price">
-                                <span>DOP</span>
-                                <input type="text" class="invisible-input col-sm-12 text-left" value="" id="totalPriceProduct" disabled>
-                                <input type="text" class="invisible-input col-sm-12 text-left" value="" id="totalPricePiece" disabled>
-                                <input type="text" class="invisible-input col-sm-12 text-left" value="" id="totalPriceService" disabled>
-                            </div>
-                        </div>
                     </div>
 
-                    <!-- Información -->
-                    <div class="modal-legend">
-                        <p>información</p>
-                    </div>
+                    <div class="modal-product_info">
 
-                    <div class="row col-sm-12">
-
-                        <div class="form-group col-sm-4 piece">
-                            <label class="form-check-label" for="">Código</label>
-                            <div class="input-div">
-                                <div class="i">
-                                    <i class="fas fa-barcode"></i>
-                                </div>
-                                <input class="form-custom-icon b-left" type="text" name="codigo" id="piece_code">
-                            </div>
+                        <!-- Información -->
+                        <div class="modal-legend col-sm-8">
+                            <p>información</p>
                         </div>
 
-                        <div class="form-group col-sm-3 product">
-                            <label class="form-check-label" for="">Código</label>
-                            <div class="input-div">
-                                <div class="i">
-                                    <i class="fas fa-barcode"></i>
+                        <div class="row col-sm-9">
+                            <div class="form-group col-sm-4 piece">
+                                <label class="form-check-label" for="">Código</label>
+                                <div class="input-div">
+                                    <div class="i">
+                                        <i class="fas fa-barcode"></i>
+                                    </div>
+                                    <input class="form-custom-icon b-left" type="text" name="codigo" id="piece_code" autocomplete="off">
                                 </div>
-                                <input class="form-custom-icon b-left" type="text" name="codigo" id="code">
-                            </div>
-                        </div>
-
-                        <div class="form-group col-sm-5 piece">
-                            <label class="form-check-label" for="">Piezas</label>
-                            <div class="input-div">
-                                <div class="i b-right">
-                                    <i class="fas fa-list"></i>
-                                </div>
-                                <select class="form-custom-icon search" name="pieza" id="piece">
-                                    <option value="" disabled selected>Buscar piezas</option>
-                                    <?php $pieces = Help::showPieces();
-                                    while ($piece = $pieces->fetch_object()): ?>
-                                        <option value="<?= $piece->pieza_id; ?>" data-price="<?= $piece->precio_unitario; ?>" data-discount="<?= $piece->valor; ?>"><?= ucwords($piece->nombre_pieza) ?></option>
-                                    <?php endwhile; ?>
-                                </select>
-                                <input type="hidden" name="" value="" id="piece_id">
-                                <input type="hidden" name="" value="" id="piece_cost">
-                            </div>
-                        </div>
-
-                        <div class="form-group col-sm-6 product">
-                            <label class="form-check-label" for="">Productos</label>
-                            <div class="input-div">
-                                <div class="i">
-                                    <i class="far fa-clipboard"></i>
-                                </div>
-                                <select class="form-custom-icon search" name="producto" id="product">
-                                    <option value="" disabled selected>Buscar productos</option>
-                                    <?php $products = Help::showProducts();
-                                    while ($product = $products->fetch_object()): ?>
-                                        <option value="<?= $product->IDproducto ?>" data-price="<?= $product->precio_unitario ?>" data-discount="<?= $product->valor ?>"><?= ucwords($product->nombre_producto) ?></option>
-                                    <?php endwhile; ?>
-                                </select>
-                                <input type="hidden" name="" value="" id="taxes">
-                                <input type="hidden" name="" value="" id="product_cost">
-                                <input type="hidden" name="" value="" id="product_id">
                             </div>
 
-                        </div>
-
-
-                        <div class="form-group col-sm-12 service">
-                            <label class="form-check-label" for="">Servicios</label>
-                            <div class="input-div">
-                                <div class="i">
-                                    <i class="far fa-clipboard"></i>
+                            <div class="form-group col-sm-4 product">
+                                <label class="form-check-label" for="">Código</label>
+                                <div class="input-div">
+                                    <div class="i">
+                                        <i class="fas fa-barcode"></i>
+                                    </div>
+                                    <input class="form-custom-icon b-left" type="text" name="codigo" id="code" autocomplete="off">
                                 </div>
-                                <select class="form-custom-icon search" name="servicio" id="service">
-                                    <option value="" disabled selected>Buscar servicios</option>
-                                    <?php $services = Help::showServices();
-                                    while ($service = $services->fetch_object()): ?>
-                                        <option value="<?= $service->servicio_id ?>" data-price="<?= $service->precio ?>"><?= ucwords($service->nombre_servicio) ?></option>
-                                    <?php endwhile; ?>
-                                </select>
-                                <input type="hidden" class="form-custom-icon b-left" name="costo" value="" id="service_cost">
                             </div>
 
+                            <div class="form-group col-sm-8 piece">
+                                <label class="form-check-label" for="">Piezas</label>
+                                <div class="input-div">
+                                    <div class="i b-right">
+                                        <i class="fas fa-list"></i>
+                                    </div>
+                                    <select class="form-custom-icon search" name="pieza" id="piece">
+                                        <option value="" disabled selected>Buscar piezas</option>
+                                        <?php $pieces = Help::showPieces();
+                                        while ($piece = $pieces->fetch_object()): ?>
+                                            <option value="<?= $piece->pieza_id; ?>" data-price="<?= $piece->precio_unitario; ?>" data-discount="<?= $piece->valor; ?>"><?= ucwords($piece->nombre_pieza) ?></option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                    <input type="hidden" name="" value="" id="piece_id">
+                                    <input type="hidden" name="" value="" id="piece_cost">
+                                </div>
+                            </div>
+
+                            <div class="form-group col-sm-8 product">
+                                <label class="form-check-label" for="">Productos</label>
+                                <div class="input-div">
+                                    <div class="i">
+                                        <i class="far fa-clipboard"></i>
+                                    </div>
+                                    <select class="form-custom-icon search" name="producto" id="product">
+                                        <option value="" disabled selected>Buscar productos</option>
+                                        <?php $products = Help::showProducts();
+                                        while ($product = $products->fetch_object()): ?>
+                                            <option value="<?= $product->IDproducto ?>" data-price="<?= $product->precio_unitario ?>" data-discount="<?= $product->valor ?>"><?= ucwords($product->nombre_producto) ?></option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                    <input type="hidden" name="" value="" id="taxes">
+                                    <input type="hidden" name="" value="" id="product_cost">
+                                    <input type="hidden" name="" value="" id="product_id">
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-group col-sm-12 service">
+                                <label class="form-check-label" for="">Servicios</label>
+                                <div class="input-div">
+                                    <div class="i">
+                                        <i class="far fa-clipboard"></i>
+                                    </div>
+                                    <select class="form-custom-icon search" name="servicio" id="service">
+                                        <option value="" disabled selected>Buscar servicios</option>
+                                        <?php $services = Help::showServices();
+                                        while ($service = $services->fetch_object()): ?>
+                                            <option value="<?= $service->servicio_id ?>" data-price="<?= $service->precio ?>"><?= ucwords($service->nombre_servicio) ?></option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                    <input type="hidden" class="form-custom-icon b-left" name="costo" value="" id="service_cost">
+                                </div>
+                            </div>
+                            <input type="hidden" name="" id="stock">
                         </div>
 
+                        <div class="content-thumb">
+                            <div class="item-img">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags">
+                                    <path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" />
+                                    <path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" />
+                                    <circle cx="10.5" cy="6.5" r=".5" fill="currentColor" />
+                                </svg>
+                                <span id="">0 inv</span>
+                            </div>
 
-                        <div class="form-group col-sm-3 product-piece">
-                            <label class="form-check-label" for="">Cantidad inventario</label>
-                            <div class="input-div">
-                                <div class="i">
-                                    <i class="fas fa-boxes"></i>
-                                </div>
-                                <input type="number" class="form-custom-icon b-left" name="stock" id="stock" disabled>
+                            <div class="item-price">
+                                <span>DOP
+                                    <span id="totalPriceProduct"></span>
+                                    <span id="totalPricePiece"></span>
+                                    <span id="totalPriceService"></span>
+                                </span>
                             </div>
                         </div>
-
                     </div>
 
                     <!-- Variantes del producto -->
@@ -347,9 +347,8 @@
                                 <input type="number" class="form-custom-icon b-left" name="descuento" id="discount_service">
                             </div>
                         </div>
-                        
 
-                        <div class="form-group col-sm-3">
+                        <div class="form-group col-sm-3 service">
                             <label class="form-check-label" for="">Precio</label>
                             <div class="input-div">
                                 <div class="i">
@@ -371,9 +370,6 @@
                         </div>
                     </div> <!-- Row -->
 
-                    <div class="row col-sm-12 mt-1">
-
-                    </div> <!-- Row -->
 
                     <div class="mt-4 modal-footer">
                         <button type="button" class="btn-custom btn-red" data-dismiss="modal" id="">
@@ -550,7 +546,6 @@
 
 
 <!-- Factura a crédito -->
-
 <div class="modal fade" id="credit_invoice" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -626,7 +621,6 @@
                                                                                                             echo date('Y-m-d'); ?>">
                         </div>
                     </div>
-
 
                 </div> <!-- Row -->
 

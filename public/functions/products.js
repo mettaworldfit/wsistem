@@ -139,35 +139,6 @@ function enableProduct(product_id) {
     );
 }
 
-// Eliminar producto
-
-function deleteProduct(id) {
-
-    alertify.confirm("Eliminar producto", "¿Estas seguro que deseas borrar este producto? ",
-        function () {
-
-            sendAjaxRequest({
-                url: "services/products.php",
-                data: {
-                    action: "eliminarProducto",
-                    product_id: id
-                },
-                successCallback: () => {
-                    dataTablesInstances['products'].ajax.reload(null, false); // Actualizar datatable
-                },
-                errorCallback: (res) => {
-                    alertify.alert(
-                        "<div class='error-info'><i class='text-danger fas fa-exclamation-circle'></i> " + res + "</div>"
-                    )
-                        .set('basic', true);
-                }
-            });
-        },
-        function () { }
-    );
-}
-
-
 // Funcion para agregar variantes a un producto
 function addVariantDb() {
 
@@ -556,7 +527,6 @@ function deleteVariantDb(variant_id, cost) {
 }
 
 // Actualizar el tipo de variante
-
 function toggleVariantFieldsListener() {
 
     // Reset inicial
@@ -592,6 +562,47 @@ function toggleVariantFieldsListener() {
 
 $(document).ready(function () {
 
+    /**============================================================= 
+   * FUNCIONES Y ACCIONES EN LAS VENTAS SECCION PRODUCTOS
+   ===============================================================*/
+
+    // Funcion que maneja y muestra los inputs en las ventanas
+    function handleProductModal() {
+        const tipo = $('input[name="tipo"]:checked').val();
+
+        // Limpiar campos comunes
+        $('#code, #piece_code, #stock, #discount, #quantity, #service_quantity, #price_out, #totalPriceProduct').val('');
+
+        if (tipo === "producto") {
+
+            $('.product').show();
+            $('.piece, .service').hide();
+            $('#piece_code').hide();
+            $('.product-piece, .discount').show();
+
+            $('#code').show().focus();
+
+            $("#totalPriceProduct").show();
+            $("#totalPricePiece, #totalPriceService").hide();
+
+            $('.item-img').load(window.location.href + ' .item-img > *');
+
+            $('#service').attr('required', false);
+            $('#product').attr('required', true);
+            $('#piece').attr('required', false);
+
+            $('#select2-product-container').html("Buscar productos");
+        }
+    }
+
+    handleProductModal(); // Inicializador
+
+    $('input[name="tipo"]').on('change', handleProductModal);
+
+    /**============================================================= 
+   * FUNCIONES PARA MOSTRAR PRODUCTOS
+   ===============================================================*/
+
     // Inicializar el tipo de variante
     toggleVariantFieldsListener();
 
@@ -614,7 +625,6 @@ $(document).ready(function () {
     }
 
     // Funcion para mostrar interfaz de variantes y normal
-
     function toggleVariantUI(isVariant) {
 
         if (isVariant) {
@@ -668,6 +678,25 @@ $(document).ready(function () {
         const product = data[0];
         const variantsInfo = data[1];
 
+
+        // Mostrar imagen
+        const quantity = parseFloat(product.cantidad);
+        const formatQuantity = quantity % 1 === 0 ? quantity.toString() : quantity;
+
+        const productImage = product.imagen && product.imagen !== ""
+            ? `<img src="${SITE_URL}public/uploads/${product.imagen}" 
+                                onerror="this.onerror=null; this.src='${SITE_URL}public/imagen/sistem/no-imagen.png';" 
+                                alt="Imagen del producto">
+                                <span id="stock">${formatQuantity} inv</span>`
+            : `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags">
+                                <path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" />
+                                <path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" />
+                                <circle cx="10.5" cy="6.5" r=".5" fill="currentColor" />
+                            </svg>
+                            <span id="stock">${formatQuantity} inv</span>`;
+
+        $('.item-img').html(productImage)
+
         const discountRate = parseFloat(product.oferta) || 0;
         const unitPrice = parseFloat(product.precio_unitario) || 0;
         const productCost = parseFloat(product.precio_costo) || 0;
@@ -683,7 +712,7 @@ $(document).ready(function () {
         $("#quantity").val(1);
         $("#locate").val(product.referencia);
         $("#price_out").val(format.format(unitPrice));
-        $("#totalPriceProduct").val(unitPrice.toFixed(2))
+        $("#totalPriceProduct").text(unitPrice.toFixed(2))
         $("#product_cost").val(productCost);
         $("#taxes").val(format.format(product.impuesto));
         $("#quantity").removeAttr("disabled");
@@ -720,7 +749,6 @@ $(document).ready(function () {
     });
 
     // Buscar producto por nombre
-
     $("#product").change(function () {
         const productId = $(this).val();
         if (productId) {
@@ -729,7 +757,6 @@ $(document).ready(function () {
     });
 
     function fetchProduct(product_id) {
-
         sendAjaxRequest({
             url: "services/products.php",
             data: {
@@ -743,21 +770,29 @@ $(document).ready(function () {
 
                 applyProductOptions(data); // Aplicar opciones
                 validateProductQuantity(); // Calcular precios
-            }
+            }, verbose: true
         });
     }
 
     // Buscar producto por barcode
+    $("#code").on("keydown", function (e) {
 
-    $("#code").on("keyup", function () {
+        if (e.key === "Enter") {
+            e.preventDefault();
+
+            fetchProductCode($(this).val().trim());
+
+            // Limpiar para siguiente escaneo
+            $(this).val("");
+        }
+    }).on('input', function () {
         const productCode = $(this).val().trim();
 
-        if (productCode.length < 3) {
-            return;
-        }
+        if (productCode.length < 3) return;
 
-        fetchProductCode(productCode || null);
+        fetchProductCode(productCode);
     });
+
 
     function fetchProductCode(product_code) {
 
@@ -781,7 +816,6 @@ $(document).ready(function () {
     }
 
     // Muestra todas las variantes de los productos
-
     function loadProductVariants(productId) {
         sendAjaxRequest({
             url: "services/products.php",
@@ -800,8 +834,11 @@ $(document).ready(function () {
         });
     }
 
-    // Cargar las listas de precios del producto
+    /**============================================================= 
+    * FUNCIONES, ACCIONES Y VALIDACION DE PRECIO
+    ===============================================================*/
 
+    // Cargar las listas de precios del producto
     function loadProductPrice(productId) {
         sendAjaxRequest({
             url: "services/price_lists.php",
@@ -821,10 +858,8 @@ $(document).ready(function () {
     }
 
     // Cambiar precio del producto
-
     $("#list_id").change(function () {
         const productId = $("#product_id").val()
-
 
         if ($(this).val() > 0) {
 
@@ -853,7 +888,6 @@ $(document).ready(function () {
 
 
     // Validar la cantidad del producto antes de agregar
-
     $("#quantity").keyup(function (e) {
         e.preventDefault();
 
@@ -871,9 +905,7 @@ $(document).ready(function () {
         $("#add_item_free").toggle(isValidQuantity);
     }
 
-
     // Aplicar descuento
-
     $("#discount").keyup(function (e) {
         e.preventDefault();
 
@@ -892,8 +924,77 @@ $(document).ready(function () {
         }
     });
 
-    // Crear producto
+    /**
+    * Calcula y actualiza el total del producto dentro del modal de detalle.
+    *
+    * La función toma en cuenta:
+    * - Cantidad del producto
+    * - Precio base del producto
+    * - Precio proveniente de lista o precio externo
+    * - Descuento por porcentaje o monto manual
+    *
+    * Actualiza automáticamente los campos:
+    * - #discount (si el descuento es porcentual)
+    * - #totalPriceProduct
+    *
+    * @param {number} [price_out=0] - Precio externo opcional (por ejemplo, precio enviado desde una lista)
+    * @returns {void}
+    */
+    function calculateDetailModalTotalProduct(price_out = 0) {
+        const tipo = $('input[name="tipo"]:checked').val();
 
+        if (tipo == "producto") {
+
+            var quantity = parseFloat($("#quantity").val()) || 1;
+            var discountPercent = parseFloat($("#product option:selected").data("discount")) || 0;
+            const listId = parseInt($('#list_id').val()) || 0;
+            const priceOutValue = parseFloat(price_out) || 0;
+            const priceOutInput = parseFloat($('#price_out').val().replace(/,/g, "")) || 0;
+            const productPrice = parseFloat($('#product option:selected').data('price')) || 0;
+
+            const price = (priceOutValue > 0)
+                ? (listId > 0 ? priceOutInput : priceOutValue)
+                : productPrice;
+
+            var subtotal = quantity * price;
+
+            let discountAmount = discountPercent > 0
+                ? subtotal * (discountPercent / 100)
+                : parseFloat($("#discount").val()) || 0;
+
+            // Actualizar el campo de descuento solo si es porcentual
+            if (discountPercent > 0) {
+                $("#discount").val(discountAmount);
+            }
+
+            var total = subtotal - discountAmount;
+
+            // Mostrar el total con dos decimales
+            $("#totalPriceProduct").text(total.toFixed(2));
+        }
+    }
+
+
+    // Cada vez que cambie producto, setea también el descuento automático
+    // Producto: solo setea el descuento
+    $(document)
+        .off("change", "#product")
+        .on("change", "#product", function () {
+            var discount = $("#product option:selected").data("discount") || 0;
+            $("#discount").val(discount);
+        });
+
+    // Cálculo centralizado (UNA sola vez)
+    $(document)
+        .off("input change", "#quantity, #discount, #product")
+        .on("input change", "#quantity, #discount, #product", calculateDetailModalTotalProduct);
+
+
+    /**============================================================= 
+    * FUNCIONES CRUD DEL PRODUCTO
+    ===============================================================*/
+
+    // Crear producto
     $("#createProduct").on("click", (e) => {
         e.preventDefault();
 
@@ -924,7 +1025,6 @@ $(document).ready(function () {
     });
 
     function createProduct() {
-
         sendAjaxRequest({
             url: "services/products.php",
             data: {
@@ -959,7 +1059,7 @@ $(document).ready(function () {
                 } else if (res.includes("Error")) {
                     mysql_error(res);
                 }
-            }, verbose: true
+            }
         })
 
     }
@@ -987,7 +1087,6 @@ $(document).ready(function () {
     }
 
     // Asignar precios a productos
-
     function assignProductPrice(productId) {
         if (localStorage.getItem("lista_de_precios")) {
             const priceListArray = JSON.parse(localStorage.getItem("lista_de_precios"));
@@ -1013,7 +1112,6 @@ $(document).ready(function () {
     }
 
     // Asignar variante a productos
-
     function assignProductVariant(productId) {
         if (localStorage.getItem("variantes")) {
             const variantArrayList = JSON.parse(localStorage.getItem("variantes"));
@@ -1056,94 +1154,71 @@ $(document).ready(function () {
         }
     }
 
+    // Eliminar producto
+    $(document).on('click', '.btn-delete-product', function () {
+        const productId = $(this).data('id');
+        const productName = $(this).data('name');
 
-    /**
-     * calculateDetailModalTotalProduct
-     * --------------------------
-     * Esta función calcula el total dentro del modal de agregar detalle.
-     * - Obtiene la cantidad introducida por el usuario.
-     * - Obtiene el precio unitario del producto seleccionado.
-     * - Obtiene el porcentaje de descuento (si aplica).
-     * - Calcula el subtotal (cantidad * precio).
-     * - Aplica el descuento en base al porcentaje.
-     * - Muestra el total en el campo correspondiente.
-     */
-    function calculateDetailModalTotalProduct(price_out = 0) {
+        alertify.confirm("Eliminar producto", "¿Estas seguro que deseas eliminar " + productName + " ?",
+            function () {
 
-        var quantity = parseFloat($("#quantity").val()) || 1; // por defecto 1
-        var discountPercent = parseFloat($("#product option:selected").data("discount")) || 0;
+                 unsetImagen(productId) // Eliminar imagen
 
-        // Obtener valores de manera consistente
-        const listId = parseInt($('#list_id').val()) || 0;
-        const priceOutValue = parseFloat(price_out) || $('#list_id').val();
-        const priceOutInput = parseFloat($('#price_out').val().replace(/,/g, "")) || 0;
-        const productPrice = parseFloat($('#product option:selected').data('price')) || 0;
-
-        // Determinar el precio final
-        const price = (priceOutValue > 0)
-            ? (listId > 0 ? priceOutInput : priceOutValue)
-            : productPrice;
-
-
-        var subtotal = quantity * price;
-
-        let discountAmount = discountPercent > 0
-            ? subtotal * (discountPercent / 100) // Calcular descuento en base al porcentaje
-            : parseFloat($("#discount").val()) || 0; // Introducirlo manualmente
-
-        // Mostrar el nuevo descuento solo si es mayor a 0
-        if (discountPercent > 0) {
-            $("#discount").val(discountAmount);
-        }
-
-        // Calcular el total
-        var total = subtotal - discountAmount;
-
-        $("#totalPriceProduct").val(total.toFixed(2));
-    }
-
-    // Cada vez que cambie producto, setea también el descuento automático
-    $("#product").on("change", function () {
-        var discount = $("#product option:selected").data("discount") || 0;
-        $("#discount").val(discount); // asignar automáticamente
-        calculateDetailModalTotalProduct();
+                sendAjaxRequest({
+                    url: "services/products.php",
+                    data: {
+                        action: "eliminarProducto",
+                        product_id: productId
+                    },
+                    successCallback: () => {
+                        dataTablesInstances['products'].ajax.reload(null, false); // Actualizar datatable
+                    },
+                    errorCallback: (res) => {
+                        alertify.alert(
+                            "<div class='error-info'><i class='text-danger fas fa-exclamation-circle'></i> " + res + "</div>"
+                        )
+                            .set('basic', true);
+                    }
+                });
+            },
+            function () { }
+        );
     });
-
-    // Detectar cambios en todos los campos
-    $("#quantity, #discount, #product").on("input change", calculateDetailModalTotalProduct);
-
 
     /**============================================================= 
    * MANEJO DE IMAGEN
    ===============================================================*/
 
-    // Al cambiar el input de imagen (cuando se selecciona una imagen)
+    // Eliminar imagen al cambiar o eliminar el producto 
+    function unsetImagen(productId) {
+        // Verificar si existe la imagen antes de guardar
+        sendAjaxRequest({
+            url: "services/products.php",
+            data: {
+                action: "borrar_imagen",
+                product_id: productId
+            },
+            successCallback: (res) => {
+                try {
+                    var data = JSON.parse(res);
+                    console.log(data)
+
+                } catch (error) {
+                    console.error("Error en respuesta del servidor ", error)
+                }
+            }
+        });
+    }
+
+    // Cambiar imagen
     $('#product_image').change(function () {
         var productId = $("#product_id").val();
 
         // Verificamos si el ID del producto es válido (mayor que 0 y no vacío)
         if (productId && productId > 0) {
 
-            // Verificar si existe la imagen antes de guardar
-            sendAjaxRequest({
-                url: "services/products.php",
-                data: {
-                    action: "borrar_imagen",
-                    product_id: productId
-                },
-                successCallback: (res) => {
-                  try {
-                    var data = JSON.parse(res);
-                    console.log(data)
-
-                    uploadImage(productId); // Guardar imagen
-                    
-                  } catch (error) {
-                    console.error("Error en respuesta del servidor ",error)
-                  }
-                }
-            });
-
+             unsetImagen(productId) // Elimina la imagen anterior
+             uploadImage(productId); // Guardar imagen
         }
     });
 

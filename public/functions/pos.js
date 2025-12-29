@@ -101,11 +101,22 @@ $(document).ready(function () {
 
 
     // Manejar el evento de búsqueda 
-    $('#search-input').on('input', function () {
-        const searchValue = $(this).val().trim();
-        currentPage = 1; // Volver a la primera página con el nuevo término de búsqueda
-        loadProductsPOS(searchValue, currentPage); // Recargar la página 1 con el término de búsqueda
-    });
+    $('#search-input')
+        .on('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                currentPage = 1;
+                loadProductsPOS($(this).val().trim(), currentPage);
+
+                // Limpiar para siguiente escaneo
+                $(this).val("");
+            }
+        })
+        .on('input', function () {
+            currentPage = 1;
+            loadProductsPOS($(this).val().trim(), currentPage);
+        });
+
 
     /**============================================================= 
      * CARGAR DETALLES
@@ -207,16 +218,13 @@ $(document).ready(function () {
 
                 loadDetailPOS(); // Cargar detalle
                 updateToListPrice(price_list, productId); // usar precio de lista
-                // loadProductsPOS() // Cargar productos
-                // loadOrdersPOS() // Cargar ordenes
 
             },
             errorCallback: (res) => {
                 console.error(res);
                 notifyAlert(res, 'error');
 
-            },
-            verbose: false
+            }
         });
     });
 
@@ -273,7 +281,6 @@ $(document).ready(function () {
             successCallback: (res) => {
 
                 loadDetailPOS(); // Recargar los detalles
-                //calculateTotalInvoice(); // Recalcular el total de la factura
             },
             errorCallback: (res) => {
                 console.error(res)

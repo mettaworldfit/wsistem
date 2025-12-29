@@ -4245,3 +4245,57 @@ button.btn-pos_home:focus {
     z-index: 5;
     transition: right 0.5s ease;
 }
+
+
+.modal-product_info {
+    position: relative;
+}
+
+.content-thumb {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: absolute;
+    top: -69px;
+    right: 0;
+    margin-right: 2rem;
+    width: 20%;
+    overflow: hidden;
+}
+
+.item-img {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 2px;
+}
+
+.item-img img {
+    width: 100%;
+    height: 100px;
+    object-fit: contain;
+    padding: 0px;
+}
+
+.item-img svg {
+    display: flex;
+    align-items: center;
+    stroke: #ccc;
+    width: 70%;
+    margin: 0 auto;
+    height: 100px;
+    padding: 10px 0px;
+}
+
+.item-price {
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: var(--font-primary);
+    margin-top: 5px;
+}
+
+.item-img span {
+    font-size: 9pt;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-left: 5px;
+}

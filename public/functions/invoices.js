@@ -267,6 +267,9 @@ function resetModal() {
 
 $(document).ready(function () {
 
+    // Ocultar botones por defecto (cotización, editar última factura, tipos de facturación)
+    $('#SaveQuote, #last_invoice_edit, #credit-in-finish, #credit-in-finish-receipt, #cash-in-finish-receipt, #cash-in-finish').hide();
+
     // Detectar el cambio en los inputs con la clase .input-quantity
     $(document).on('change', '.input-quantity', function () {
         var debounceTimer;
@@ -339,110 +342,19 @@ $(document).ready(function () {
         }, 300);  // 300 ms de espera entre cambios rápidos
     });
 
+    const validPages = [
+        "invoices/addpurchase",
+        "invoices/edit",
+        "invoices/edit_quote",
+        "invoices/quote",
+        "invoices/add_order",
+        "invoices/pos"
+    ];
 
-
-
-
-    // Ocultar botones por defecto (cotización, editar última factura, tipos de facturación)
-    $('#SaveQuote, #last_invoice_edit, #credit-in-finish, #credit-in-finish-receipt, #cash-in-finish-receipt, #cash-in-finish').hide();
-
-    if (
-        pageURL.includes("invoices/addpurchase") ||
-        pageURL.includes("invoices/edit") ||
-        pageURL.includes("invoices/edit_quote") ||
-        pageURL.includes("invoices/quote") ||
-        pageURL.includes("invoices/add_order") ||
-        pageURL.includes("invoices/pos")
-    ) {
+    // Verificar si la URL actual está en el array
+    if (validPages.some(page => pageURL.includes(page))) {
         // Calcular total actual de la factura
         calculateTotalInvoice();
-
-        // Ocultar todos los tipos inicialmente
-        $('.piece, .service, #piece_code, #add_item_free').hide();
-        $('#piece, #service').attr('required', false);
-
-        // Manejar el cambio de tipo de ítem (pieza, producto o servicio)
-        $('input:radio[name=tipo]').change(function () {
-            const tipo = $(this).val();
-
-            // Limpiar campos comunes
-            $('#code, #piece_code, #stock, #discount, #quantity, #service_quantity, #price_out').val('');
-
-            switch (tipo) {
-                case "pieza":
-                    // Mostrar campos relacionados con piezas
-                    $('.piece').show();
-                    $('.product, .service',).hide();
-                    $('#piece_code').show();
-                    $('.product-piece, .discount').show();
-                    $('#code').hide();
-
-                    // Modal total
-                    $("#totalPricePiece").show();
-                    $("#totalPricePiece").val("0.00");
-                    $("#totalPriceProduct").hide();
-                    $("#totalPriceService").hide();
-
-                    // Requerimientos
-                    $('#service, #product').attr('required', false);
-                    $('#piece').attr('required', true);
-
-                    // Placeholder de Select2
-                    $('#select2-piece-container').html("Buscar piezas");
-                    break;
-
-                case "producto":
-                    // Mostrar campos relacionados con productos
-                    $('.product').show();
-                    $('.piece, .service').hide();
-                    $('#piece_code').hide();
-                    $('.product-piece, .discount').show();
-                    $('#code').show();
-
-                    // Modal total
-                    $("#totalPriceProduct").show();
-                    $("#totalPriceProduct").val("0.00");
-                    $("#totalPricePiece").hide();
-                    $("#totalPriceService").hide();
-
-                    // Requerimientos
-                    $('#service').attr('required', false);
-                    $('#product').attr('required', true);
-                    $('#piece').attr('required', false);
-
-                    // Placeholder de Select2
-                    $('#select2-product-container').html("Buscar productos");
-                    break;
-
-                case "servicio":
-                    // Mostrar campos relacionados con servicios
-                    $('.service').show();
-                    $('.product, .piece, .product-piece').hide();
-                    $('.discount').hide();
-                    // $('.discount, #cost-field').hide();
-                    $('#discount_service').show();
-                    $('#add_item_free').hide();
-
-                    // Modal total
-                    $("#totalPriceService").show();
-                    $("#totalPriceService").val("0.00");
-                    $("#totalPricePiece").hide();
-                    $("#totalPriceProduct").hide();
-
-                    // Requerimientos
-                    $('#service').attr('required', true);
-                    $('#product, #piece').attr('required', false);
-                    $('#quantity').attr('required', false);
-                    $('#discount, #price_out').attr('disabled', false);
-
-                    // Mostrar botón para agregar servicio
-                    $('#add_item').show();
-
-                    // Placeholder de Select2
-                    $('#select2-service-container').html("Buscar servicios");
-                    break;
-            }
-        });
     }
 
     // Botón: Crear factura al contado sin ticket

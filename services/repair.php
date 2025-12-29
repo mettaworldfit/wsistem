@@ -140,13 +140,12 @@ if ($_POST['action'] == "index_facturas_reparacion") {
 
             if ($editable) {
                 $acciones .= '<a class="btn-action action-info" href="' . base_url . 'invoices/repair_edit&o=' . $ordenId . '&f=' . $facturaId . '" title="Editar">
-                <i class="fas fa-edit"></i></a>';
+                '.BUTTON_EDIT.'</a>';
             } else {
-                $acciones .= '<a class="btn-action action-disable" href="#" title="Editar">
-                <i class="fas fa-edit"></i></a>';
+                $acciones .= '<a class="btn-action action-disable" href="#" title="Editar">'.BUTTON_EDIT.'</a>';
             }
 
-            $acciones .= ' <span onclick="deleteInvoiceRP(\'' . $ordenId. '\')" class="btn-action action-danger"><i class="fas fa-minus-square"></i></span>';
+            $acciones .= ' <span onclick="deleteInvoiceRP(\'' . $ordenId. '\')" class="btn-action action-danger">'.BUTTON_DELETE.'</span>';
 
             return [
                 'id' => 'RP-00' . $facturaId,

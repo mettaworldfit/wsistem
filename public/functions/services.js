@@ -40,7 +40,6 @@ function updateService(serviceId) {
 }
 
 // Eliminar servicio
-
 function deleteService(serviceId) {
     alertify.confirm("Eliminar servicio", "¿Estas seguro que deseas borrar este servicio? ",
         function () {
@@ -62,27 +61,49 @@ function deleteService(serviceId) {
 
 $(document).ready(function () {
 
-    // Aplicar descuento con cantidad
-    $('#discount_service').keyup(function (e) {
-        e.preventDefault();
+   /**============================================================= 
+   * FUNCIONES Y ACCIONES EN LAS VENTAS SECCION SERVICIOS
+   ===============================================================*/
 
-        // Obtener valores numéricos
-        const price = parseFloat($('#price_out').val().replace(/,/g, '')) || 0;
-        const quantity = parseFloat($('#service_quantity').val()) || 1;
-        const discount = parseFloat($('#discount_service').val()) || 0;
+     // Funcion que maneja y muestra los inputs en las ventanas
+    function handleServiceModal() {
+        const tipo = $('input[name="tipo"]:checked').val();
 
-        // Calcular precio total con cantidad
-        const total = price * quantity;
+        // Limpiar campos comunes
+        $('#code, #piece_code, #stock, #discount, #quantity, #service_quantity, #price_out,#totalPriceService').val('');
 
-        // Validar que el descuento no supere el total
-        if (discount <= total) {
-            $('#rp_add_item').show(); // Botón de orden de reparación
-            $('#add_item').show();    // Botón de factura
-        } else {
-            $('#rp_add_item').hide();
-            $('#add_item').hide();
+        if (tipo === "servicio") {
+            // Mostrar campos relacionados con servicios
+            $('.service').show();
+            $('.product, .piece, .product-piece').hide();
+            $('.discount').hide();
+
+            $('#discount_service').show();
+            $('#add_item_free').hide();
+
+            // Modal total
+            $("#totalPriceService").show();
+            $("#totalPricePiece, #totalPriceProduct").hide();
+
+            // Volver a cargar imagen
+            $('.item-img').load(window.location.href + ' .item-img > *');
+
+            // Requerimientos
+            $('#service').attr('required', true);
+            $('#product, #piece').attr('required', false);
+            $('#quantity').attr('required', false);
+            $('#discount, #price_out').attr('disabled', false);
+
+            // Mostrar botón para agregar servicio
+            $('#add_item').show();
+
+            // Placeholder de Select2
+            $('#select2-service-container').html("Buscar servicios");
         }
-    });
+    }
+
+    handleServiceModal(); // Inicializador
+    $('input[name="tipo"]').on('change', handleServiceModal);
 
 
     // Buscar servicio por nombre
@@ -135,55 +156,79 @@ $(document).ready(function () {
         });
     }
 
+    // Aplicar descuento con cantidad
+    $('#discount_service').keyup(function (e) {
+        e.preventDefault();
 
+        // Obtener valores numéricos
+        const price = parseFloat($('#price_out').val().replace(/,/g, '')) || 0;
+        const quantity = parseFloat($('#service_quantity').val()) || 1;
+        const discount = parseFloat($('#discount_service').val()) || 0;
+
+        // Calcular precio total con cantidad
+        const total = price * quantity;
+
+        // Validar que el descuento no supere el total
+        if (discount <= total) {
+            $('#rp_add_item').show(); // Botón de orden de reparación
+            $('#add_item').show();    // Botón de factura
+        } else {
+            $('#rp_add_item').hide();
+            $('#add_item').hide();
+        }
+    });
 
     /**
-        * calculateDetailModalTotalService
-        * --------------------------
-        * Esta función calcula el total dentro del modal de agregar detalle.
-        * - Obtiene la cantidad introducida por el usuario.
-        * - Obtiene el precio unitario del producto seleccionado.
-        * - Obtiene el porcentaje de descuento (si aplica).
-        * - Calcula el subtotal (cantidad * precio).
-        * - Aplica el descuento en base al porcentaje.
-        * - Muestra el total en el campo correspondiente.
-        */
+    * Calcula y muestra el total de un servicio en el modal de detalle.
+    *
+    * La función:
+    * - Verifica que el tipo seleccionado sea "servicio"
+    * - Obtiene la cantidad, precio base y descuentos
+    * - Determina el precio final según lista de precios o precio directo
+    * - Calcula subtotal, descuento y total
+    * - Actualiza el total en el DOM
+    *
+    * @param {number} [price_out=0] - Precio externo opcional (por ejemplo, desde una lista de precios).
+    *                                 Si es mayor a 0, tiene prioridad sobre el precio del producto.
+    *
+    * @returns {void} No retorna ningún valor, solo actualiza el HTML.
+    */
     function calculateDetailModalTotalService(price_out = 0) {
-    // Obtener cantidad (default 1)
-    var quantity = parseFloat($("#service_quantity").val()) || 1;
+        // Obtener cantidad (default 1)
+        var quantity = parseFloat($("#service_quantity").val()) || 1;
 
-    // Obtener descuento (0 si vacío o NaN)
-    var discount = parseFloat($("#discount_service").val() || $("#discount").val()) || 0;
+        // Obtener descuento (0 si vacío o NaN)
+        var discount = parseFloat($("#discount_service").val() || $("#discount").val()) || 0;
 
-    // Precio externo (valor manual de price_out)
-    let priceOutValue = parseFloat(price_out) || 0;
+        // Precio externo (valor manual de price_out)
+        let priceOutValue = parseFloat(price_out) || 0;
 
-    // Determinar precio (prioridad: externo > data-price > input price_out)
-    let price = priceOutValue > 0
-        ? priceOutValue
-        : parseFloat($("#service option:selected").data("price")) || parseFloat($('#price_out').val()) || 0;
+        // Determinar precio (prioridad: externo > data-price > input price_out)
+        let price = priceOutValue > 0
+            ? priceOutValue
+            : parseFloat($("#service option:selected").data("price")) || parseFloat($('#price_out').val()) || 0;
 
-    // Calcular subtotal y total
-    var subtotal = quantity * price;
-    var total = subtotal - discount;
+        // Calcular subtotal y total
+        var subtotal = quantity * price;
+        var total = subtotal - discount;
 
-    // Mostrar total con 2 decimales
-    $("#totalPriceService").val(total.toFixed(2));
-}
+        // Mostrar total con 2 decimales
+        $("#totalPriceService").text(total.toFixed(2));
+    }
 
 
-// Cuando cambie servicio, recalcular
-$("#service").on("change", function () {
-    calculateDetailModalTotalService();
-});
+    // Cuando cambie servicio, recalcular
+    $("#service").on("change", function () {
+        calculateDetailModalTotalService();
+    });
 
-// Detectar cambios en cantidad, descuentos y servicio
-$("#service_quantity, #discount_service, #discount, #service").on("input change", calculateDetailModalTotalService);
+    // Detectar cambios en cantidad, descuentos y servicio
+    $("#service_quantity, #discount_service, #discount, #service").on("input change", calculateDetailModalTotalService);
 
-// Si editan manualmente el precio
-$("#price_out").on("keyup", function () { 
-    calculateDetailModalTotalService($(this).val());
-});
+    // Si editan manualmente el precio
+    $("#price_out").on("keyup", function () {
+        calculateDetailModalTotalService($(this).val());
+    });
 
 
 }); // Ready

@@ -85,16 +85,71 @@ function deletePiece(pieceId) {
 
 $(document).ready(function () {
 
+    /**============================================================= 
+    * FUNCIONES Y ACCIONES EN LAS VENTAS SECCION PIEZAS
+    ===============================================================*/
+
+    // Funcion que maneja y muestra los inputs en las ventanas
+    function handlePieceModal() {
+        const tipo = $('input[name="tipo"]:checked').val();
+
+        // Limpiar campos comunes
+        $('#code, #piece_code, #stock, #discount, #quantity, #service_quantity, #price_out, #totalPricePiece').val('');
+
+        if (tipo === "pieza") {
+
+            $('.piece').show();
+            $('.product, .service').hide();
+            $('.product-piece, .discount').show();
+
+            $('#piece_code').show().focus();
+            $('#code').hide();
+
+            // Modal total
+            $("#totalPricePiece").show();
+            $("#totalPriceProduct, #totalPriceService").hide();
+
+            // Volver a cargar imagen
+            $('.item-img').load(window.location.href + ' .item-img > *');
+
+            // Requerimientos
+            $('#service, #product').attr('required', false);
+            $('#piece').attr('required', true);
+
+            // Placeholder de Select2
+            $('#select2-piece-container').html("Buscar piezas");
+        }
+    }
+
+    handlePieceModal(); // Inicializador
+
+    $('input[name="tipo"]').on('change', handlePieceModal);
+
+
     // Inputs por defecto
     $("#piece_quantity").val("1");
 
     // Rellenar el formulario con los datos de la pieza seleccionada
     function populatePieceFormFields(data) {
-     
+
         if (!Array.isArray(data)) return;
 
         const piece = data[0];
         const unitPrice = parseFloat(piece.precio_unitario) || 0;
+
+
+        // Mostrar imagen
+        const quantity = parseFloat(piece.cantidad);
+        const formatQuantity = quantity % 1 === 0 ? quantity.toString() : quantity;
+
+        const pieceImage = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags">
+                                <path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" />
+                                <path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" />
+                                <circle cx="10.5" cy="6.5" r=".5" fill="currentColor" />
+                            </svg>
+                            <span id="stock">${formatQuantity} inv</span>`;
+
+        $('.item-img').html(pieceImage)
 
         $("#add_item_free").show();
 
@@ -103,7 +158,7 @@ $(document).ready(function () {
         $('#locate').val(piece.referencia);
         $('#quantity').val(1).removeAttr('disabled');
         $('#price_out').val(format.format(unitPrice));
-         $("#totalPricePiece").val(unitPrice.toFixed(2));
+        $("#totalPricePiece").text(unitPrice.toFixed(2));
         $("#piece_cost").val(piece.precio_costo);
         $('#discount').removeAttr('disabled');
 
@@ -111,7 +166,7 @@ $(document).ready(function () {
         if (piece.oferta > 0) {
             const oferta = unitPrice * piece.oferta / 100;
             $('#discount').val(oferta).attr('disabled', true);
-        } 
+        }
 
         // Cargar lista de precios si tiene
         if (piece.valor_lista > 0) {
@@ -139,7 +194,7 @@ $(document).ready(function () {
 
                 var data = JSON.parse(res);
                 $('#piece_code').val(data[0].cod_pieza)
-                  
+
                 populatePieceFormFields(data)
                 validatePieceQuantity() // Calcular precios
 
@@ -212,12 +267,12 @@ $(document).ready(function () {
                     action: 'elegir_precio_pieza'
                 },
                 successCallback: (res) => {
-                  
+
                     var data = JSON.parse(res);
                     $('#price_out').val(format.format(data[0].valor))
 
-                   calculateDetailModalTotalPiece($("#price_out").val().replace(/,/g, '')); // recalcular total con nuevo precio
-                 
+                    calculateDetailModalTotalPiece($("#price_out").val().replace(/,/g, '')); // recalcular total con nuevo precio
+
                 }
             });
 
@@ -365,7 +420,6 @@ $(document).ready(function () {
     })
 
     function editPiece() {
-
         $.ajax({
             type: "post",
             url: SITE_URL + "services/pieces.php",
@@ -403,69 +457,72 @@ $(document).ready(function () {
     }
 
 
-  
+
+
     /**
- * calculateDetailModalTotalPiece
- * --------------------------
- * Esta función calcula el total dentro del modal de agregar detalle de una pieza.
- * - Obtiene la cantidad introducida por el usuario.
- * - Obtiene el precio unitario de la pieza seleccionada.
- * - Obtiene el porcentaje de descuento (si aplica).
- * - Calcula el subtotal (cantidad * precio).
- * - Aplica el descuento en base al porcentaje o manual.
- * - Muestra el total en el campo correspondiente.
+ * Calcula y muestra el total de una pieza en el modal de detalle.
+ *
+ * La función:
+ * - Verifica que el tipo seleccionado sea "pieza"
+ * - Obtiene la cantidad, precio base y descuentos
+ * - Determina el precio final según lista de precios o precio directo
+ * - Calcula subtotal, descuento y total
+ * - Actualiza el total en el DOM
+ *
+ * @param {number} [price_out=0] - Precio externo opcional (por ejemplo, desde una lista de precios).
+ *                                 Si es mayor a 0, tiene prioridad sobre el precio del producto.
+ *
+ * @returns {void} No retorna ningún valor, solo actualiza el HTML.
  */
-function calculateDetailModalTotalPiece(price_out = 0) {
+    function calculateDetailModalTotalPiece(price_out = 0) {
+        const tipo = $('input[name="tipo"]:checked').val();
 
-    var quantity = parseFloat($("#quantity").val()) || 1; // por defecto 1
-    var discountPercent = parseFloat($("#piece option:selected").data("discount")) || 0;
+        if (tipo == "pieza") {
+            var quantity = parseFloat($("#quantity").val()) || 1; // por defecto 1
+            var discountPercent = parseFloat($("#piece option:selected").data("discount")) || 0;
 
-    // Obtener valores de manera consistente
-        const listId = parseInt($('#piece_list_id').val()) || 0;
-        const priceOutValue = parseFloat(price_out) || $('#piece_list_id').val();
-        const priceOutInput = parseFloat($('#price_out').val().replace(/,/g, "")) || 0;
-        const piecePrice = parseFloat($('#piece option:selected').data('price')) || 0;
+            // Obtener valores de manera consistente
+            const listId = parseInt($('#piece_list_id').val()) || 0;
+            const priceOutValue = parseFloat(price_out) || $('#piece_list_id').val();
+            const priceOutInput = parseFloat($('#price_out').val().replace(/,/g, "")) || 0;
+            const piecePrice = parseFloat($('#piece option:selected').data('price')) || 0;
 
-        // Determinar el precio final
-        const price = (priceOutValue > 0)
-            ? (listId > 0 ? priceOutInput : priceOutValue)
-            : piecePrice;
-          
-    var subtotal = quantity * price;
+            // Determinar el precio final
+            const price = (priceOutValue > 0)
+                ? (listId > 0 ? priceOutInput : priceOutValue)
+                : piecePrice;
 
-    let discountAmount = discountPercent > 0
-       ? subtotal * (discountPercent / 100) // Calcular descuento en base al porcentaje
-       : parseFloat($("#discount").val()) || 0; // Introducirlo manualmente
+            var subtotal = quantity * price;
 
-    // Mostrar el nuevo descuento solo si es mayor a 0
-    if (discountPercent > 0) {
-        $("#discount").val(discountAmount);
+            let discountAmount = discountPercent > 0
+                ? subtotal * (discountPercent / 100) // Calcular descuento en base al porcentaje
+                : parseFloat($("#discount").val()) || 0; // Introducirlo manualmente
+
+            // Mostrar el nuevo descuento solo si es mayor a 0
+            if (discountPercent > 0) {
+                $("#discount").val(discountAmount);
+            }
+
+            // Calcular el total
+            var total = subtotal - discountAmount;
+
+            $("#totalPricePiece").text(total.toFixed(2));
+        }
     }
 
-    // Calcular el total
-    var total = subtotal - discountAmount;
+    // Cada vez que cambie la pieza, setea también el descuento automático
 
-     $("#totalPricePiece").val(total.toFixed(2));
-    
-    // Debug en consola
-    // console.log("cantidad", quantity);
-//    console.log("precio", price);
-    // console.log("descuento %", discountPercent);
-    // console.log("subtotal", subtotal);
-    // console.log("descuento aplicado", discountAmount);
-   // console.log("total", total.toFixed(2));
+    $(document)
+        .off("change", "#piece")
+        .on("change", "#piece", function () {
+            var discount = $("#piece option:selected").data("discount") || 0;
+            $("#discount").val(discount);
+        });
 
-}
-
-// Cada vez que cambie la pieza, setea también el descuento automático
-$("#piece").on("change", function () {
-    var discount = $("#piece option:selected").data("discount") || 0;
-    $("#discount").val(discount); // asignar automáticamente
-    calculateDetailModalTotalPiece();
-});
-
-// Detectar cambios en todos los campos relacionados a piezas
-$("#quantity, #discount, #piece").on("input change", calculateDetailModalTotalPiece);
+    // Cálculo centralizado
+    $(document)
+        .off("input change", "#quantity, #discount, #piece")
+        .on("input change", "#quantity, #discount, #piece", calculateDetailModalTotalPiece);
 
 
 

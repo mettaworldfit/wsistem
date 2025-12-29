@@ -10,12 +10,10 @@
                 <p>Agregar cliente</p>
             </a>
         </div>
-
     </div>
 </div>
 
 <div class="generalContainer padding-10 box-shadow-low">
-
     <input type="hidden" name="" value="<?= $_GET['o'] ?>" id="orden_id">
     <input type="hidden" name="" value="<?= $_GET['f'] ?>" id="invoice_id">
     <table id="editrepair" class="table-custom table">
@@ -55,7 +53,6 @@
                     <span><input type="text" class="invisible-input" value="" id="in-total" disabled></span>
                 </div>
             </div>
-
         </div>
 
     </div> <!-- Row -->
@@ -100,10 +97,9 @@
 
 </div> <!-- generalConntainer -->
 
-
 <!-- Modal: Agregar detalle de facturación -->
 <div class="modal fade" id="add_detail" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
-     aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
 
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -122,7 +118,6 @@
 
                     <!-- Selección de tipo (pieza o servicio) y vista de total -->
                     <div class="grid-tab-detail">
-
                         <!-- Radios para elegir tipo -->
                         <div class="tab-detail">
                             <div class="radio-list">
@@ -136,72 +131,78 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Vista del total -->
-                        <div class="tab-detail">
-                            <div class="row-price">
-                                <span>DOP</span>
-                                <input type="text" class="invisible-input col-sm-12 text-left" id="totalPricePiece" disabled>
-                                <input type="text" class="invisible-input col-sm-12 text-left" id="totalPriceService" disabled>
-                            </div>
-                        </div>
                     </div>
 
-                    <!-- Información principal -->
-                    <div class="modal-legend">
-                        <p>Información</p>
-                    </div>
-
-                    <div class="row col-sm-12">
-
-                        <!-- Código de pieza -->
-                        <div class="form-group col-sm-4 piece">
-                            <label for="piece_code">Código</label>
-                            <div class="input-div">
-                                <div class="i"><i class="fas fa-barcode"></i></div>
-                                <input class="form-custom-icon b-left" type="text" id="piece_code" name="codigo">
-                            </div>
+                    <div class="modal-product_info">
+                        <!-- Información principal -->
+                        <div class="modal-legend col-sm-8">
+                            <p>Información</p>
                         </div>
 
-                        <!-- Selección de pieza -->
-                        <div class="form-group col-sm-5 piece">
-                            <label for="piece">Piezas</label>
-                            <div class="input-div">
-                                <div class="i b-right"><i class="fas fa-list"></i></div>
-                                <select class="form-custom-icon search" id="piece" name="pieza">
-                                    <option value="" disabled selected>Buscar piezas</option>
-                                    <?php $pieces = Help::showPieces();
-                                    while ($piece = $pieces->fetch_object()): ?>
-                                        <option value="<?= $piece->pieza_id ?>" data-price="<?= $piece->precio_unitario; ?>" data-discount="<?= $piece->valor; ?>"><?= ucwords($piece->nombre_pieza) ?> </option>
-                                    <?php endwhile; ?>
-                                </select>
-                                <!-- Campos ocultos -->
-                                <input type="hidden" id="piece_id">
-                                <input type="hidden" id="piece_cost">
+                        <div class="row col-sm-9">
+
+                            <!-- Código de pieza -->
+                            <div class="form-group col-sm-4 piece">
+                                <label for="piece_code">Código</label>
+                                <div class="input-div">
+                                    <div class="i"><i class="fas fa-barcode"></i></div>
+                                    <input class="form-custom-icon b-left" type="text" id="piece_code" name="codigo">
+                                </div>
                             </div>
+
+                            <!-- Selección de pieza -->
+                            <div class="form-group col-sm-8 piece">
+                                <label for="piece">Piezas</label>
+                                <div class="input-div">
+                                    <div class="i b-right"><i class="fas fa-list"></i></div>
+                                    <select class="form-custom-icon search" id="piece" name="pieza">
+                                        <option value="" disabled selected>Buscar piezas</option>
+                                        <?php $pieces = Help::showPieces();
+                                        while ($piece = $pieces->fetch_object()): ?>
+                                            <option value="<?= $piece->pieza_id ?>" data-price="<?= $piece->precio_unitario; ?>" data-discount="<?= $piece->valor; ?>"><?= ucwords($piece->nombre_pieza) ?> </option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                    <!-- Campos ocultos -->
+                                    <input type="hidden" id="piece_id">
+                                    <input type="hidden" id="piece_cost">
+                                </div>
+                            </div>
+
+                            <!-- Selección de servicio -->
+                            <div class="form-group col-sm-12 service">
+                                <label for="service">Servicios</label>
+                                <div class="input-div">
+                                    <div class="i"><i class="far fa-clipboard"></i></div>
+                                    <select class="form-custom-icon search" id="service" name="servicio">
+                                        <option value="" disabled selected>Buscar servicios</option>
+                                        <?php $services = Help::showServices();
+                                        while ($service = $services->fetch_object()): ?>
+                                            <option value="<?= $service->servicio_id ?>" data-price="<?= $service->precio ?>"><?= ucwords($service->nombre_servicio) ?></option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Stock disponible (solo piezas) -->
+                            <input type="hidden" name="" id="stock">
                         </div>
 
-                        <!-- Selección de servicio -->
-                        <div class="form-group col-sm-12 service">
-                            <label for="service">Servicios</label>
-                            <div class="input-div">
-                                <div class="i"><i class="far fa-clipboard"></i></div>
-                                <select class="form-custom-icon search" id="service" name="servicio">
-                                    <option value="" disabled selected>Buscar servicios</option>
-                                    <?php $services = Help::showServices();
-                                    while ($service = $services->fetch_object()): ?>
-                                        <option value="<?= $service->servicio_id ?>" data-price="<?= $service->precio ?>"><?= ucwords($service->nombre_servicio) ?></option>
-                                    <?php endwhile; ?>
-                                </select>
+                        <div class="content-thumb">
+                            <div class="item-img">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags">
+                                    <path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" />
+                                    <path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" />
+                                    <circle cx="10.5" cy="6.5" r=".5" fill="currentColor" />
+                                </svg>
+                                <span id="">0 inv</span>
                             </div>
-                        </div>
 
-                        <!-- Stock disponible (solo piezas) -->
-                        <div class="form-group col-sm-3 piece">
-                            <label for="stock">Cantidad inventario</label>
-                            <div class="input-div">
-                                <div class="i"><i class="fas fa-boxes"></i></div>
-                                <input type="number" class="form-custom-icon b-left" id="stock" name="stock">
+                            <div class="item-price">
+                                <span>DOP
+                                    <span id="totalPriceProduct"></span>
+                                    <span id="totalPricePiece"></span>
+                                    <span id="totalPriceService"></span>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -240,8 +241,8 @@
                             <div class="input-div verify-quantity">
                                 <div class="i"><i class="fas fa-box-open"></i></div>
                                 <input type="number" step="0.01" min="0" max="999.99"
-                                       class="form-custom-icon b-left"
-                                       id="quantity" name="cantidad" required>
+                                    class="form-custom-icon b-left"
+                                    id="quantity" name="cantidad" required>
                             </div>
                         </div>
 
@@ -263,18 +264,8 @@
                             </div>
                         </div>
 
-                        <!-- Costo (solo servicios) -->
-                        <div class="form-group col-sm-3 service" id="cost-field">
-                            <label for="service_cost">Costo</label>
-                            <div class="input-div">
-                                <div class="i"><i class="fas fa-level-down-alt"></i></div>
-                                <input type="number" class="form-custom-icon b-left" id="service_cost" name="costo"
-                                       style="font-weight: 600" required disabled>
-                            </div>
-                        </div>
-
                         <!-- Precio -->
-                        <div class="form-group col-sm-3">
+                        <div class="form-group col-sm-3 service">
                             <label for="price_out">Precio</label>
                             <div class="input-div">
                                 <div class="i"><i class="fas fa-dollar-sign"></i></div>
