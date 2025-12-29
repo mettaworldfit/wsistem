@@ -5,13 +5,26 @@ require_once '../config/parameters.php';
 require_once 'functions/functions.php';
 session_start();
 
-require_once __DIR__ . '/../vendor/autoload.php';
-\Tinify\Tinify::setKey("j6NYhPDxKlPVz6C0NyXrr5c6vVjNKvqj"); // Reemplaza con tu clave de API
-
 $db = Database::connect();
 $config = Database::getConfig(); // Cargar configuraciones
 $user_id = $_SESSION['identity']->usuario_id;
 $action = $_POST['action'] ?? '';
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Tinify\Tinify;
+
+// API key por defecto
+$defaultTinifyKey = "j6NYhPDxKlPVz6C0NyXrr5c6vVjNKvqj";
+
+// Obtener desde config si existe y no está vacía
+$tinify_API_KEY = !empty($config['tinify_API_KEY'])
+    ? $config['tinify_API_KEY']
+    : $defaultTinifyKey;
+
+// Setear la key
+Tinify::setKey($tinify_API_KEY);
+
 
 /**
  * Obtiene los datos de un producto y su cantidad de variantes activas.
@@ -579,7 +592,7 @@ switch ($action) {
 
     // Responder con los datos en formato JSON
     echo json_encode([
-      "data" => $data,                          // Los registros de productos solicitados
+      "data" => $data,    // Los registros de productos solicitados
       "id" => $id
     ]);
 

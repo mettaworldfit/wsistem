@@ -264,6 +264,15 @@
                             </div>
                         </div>
 
+                        <!-- Costo -->
+                        <div class="form-group col-sm-3 service">
+                            <label for="service_cost">Costo</label>
+                            <div class="input-div">
+                                <div class="i"><i class="fas fa-dollar-sign"></i></div>
+                                <input type="text" class="form-custom-icon b-left" id="service_cost" name="costo">
+                            </div>
+                        </div>
+
                         <!-- Precio -->
                         <div class="form-group col-sm-3 service">
                             <label for="price_out">Precio</label>

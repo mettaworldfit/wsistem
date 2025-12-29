@@ -465,7 +465,8 @@ function addDetailOrdenRepair() {
             reloadOrdenRepair()
             setTimeout(() => location.reload(), 1000);
         },
-        errorCallback: (res) => mysql_error(res)
+        errorCallback: (res) => mysql_error(res),
+        verbose: true
     })
 }
 

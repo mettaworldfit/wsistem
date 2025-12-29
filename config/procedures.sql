@@ -152,6 +152,7 @@ VALUES
     ('titulo', '-', 'Título del sitio web'),
     ('correo_adm','','correo del administracion del sistema'),
     ('carpeta', 'wsistem/', 'carpeta de imagenes'),
+    ('tinify_API_KEY', '', 'Clave para comprimir las imagenes'),
 	('auto_cierre', 'true', 'Cierre continuo que cierra automaticamente a la 12:00 am'),
     ('modo_cierre', 'separado', 'estilo de cierre de caja normal/separado');
 
@@ -642,7 +643,7 @@ DELIMITER $$
 CREATE PROCEDURE `pr_agregarProducto` (in usuario_id int, in almacen_id int, in codigo varchar(100),
 in nombre varchar(100), in costo decimal(19,2), in precio decimal(19,2), in cantidad decimal(19,2), 
 in cantidad_min decimal(19,2), in categoria_id int, in posicion_id int, in impuesto_id int, in oferta_id int, 
-in marca_id int, in proveedor_id int, in imagen varchar(255))
+in marca_id int, in proveedor_id int)
 BEGIN
 
  DECLARE EXIT HANDLER FOR 1062 SELECT 'Duplicate keys error encountered' AS msg;
@@ -684,6 +685,7 @@ SET @last_id = last_insert_id();
 
 END $$
 DELIMITER ;
+
 
 
 DELIMITER $$
