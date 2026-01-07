@@ -347,7 +347,7 @@
                     <div class="input-row-two">
                         <div>
                             <label class="form-check-label">Cantidad</label>
-                            <input class="form-custom" type="number" name="cantidad" id="quantity">
+                            <input class="form-custom" type="number" name="cantidad" id="quantity" min="0">
                         </div>
 
                         <div>

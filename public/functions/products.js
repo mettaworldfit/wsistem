@@ -98,7 +98,6 @@ function calculateAverageProductCost() {
 }
 
 // Desactivar producto
-
 function disableProduct(product_id) {
     alertify.confirm(
         "<i class='text-warning fas fa-exclamation-circle'></i> Desactivar producto",

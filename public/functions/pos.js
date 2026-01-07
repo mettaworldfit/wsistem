@@ -141,8 +141,16 @@ $(document).ready(function () {
                     // Agregar los productos a la cuadrícula
                     data.data.forEach(detail => {
 
-                        // importe
-                        var total = (parseFloat(detail.cantidad) * parseFloat(detail.precio));
+                        var cantidad = parseFloat(detail.cantidad) || 0;
+                        var precio = parseFloat(detail.precio) || 0;
+                        var impuesto = parseFloat(detail.impuesto) || 0; // impuesto por unidad
+                        var descuento = parseFloat(detail.descuento) || 0; // descuento por unidad
+
+                        var subtotal = cantidad * precio;
+                        var descuentoTotal = cantidad * descuento;
+                        var impuestoTotal = cantidad * impuesto;
+
+                        var total = subtotal - descuentoTotal + impuestoTotal;
 
                         const items = `
                         <div class="pos-item-row">
@@ -342,7 +350,7 @@ $(document).ready(function () {
         if (data) {
             $('#quantity').val(formatNumber(data.cantidad));
             $('#base_price').val(formatNumber(data.precio));
-            $('#discount').val('');
+            $('#discount').val(formatNumber(data.descuento));
             $('#final_price').val(formatNumber(data.precio));
 
             // Convertir valores numéricos
@@ -360,15 +368,22 @@ $(document).ready(function () {
 
         // Cálculos
         const subtotalValue = quantity * base_price;
-        const totalTax = subtotalValue * base_taxes / 100;
-        const totalValue = subtotalValue - base_discount + totalTax;
+        const totalDiscount = quantity * base_discount; // descuento por unidad
+        let totalTax;
+
+        if (data) {
+            totalTax = quantity * base_taxes;
+        } else {
+            totalTax = subtotalValue * base_taxes / 100;
+        }
+
+        const totalValue = subtotalValue - totalDiscount + totalTax;
 
         // Formatear
         const subtotal = format.format(subtotalValue);
-        const discount = format.format(base_discount);
-        const total = format.format(totalValue);
+        const discount = format.format(totalDiscount);
         const taxes = format.format(totalTax);
-
+        const total = format.format(totalValue);
 
         // Insertar valores en los span del HTML
         if (base_discount > 0) {
@@ -442,7 +457,7 @@ $(document).ready(function () {
             errorCallback: (res) => {
                 console.error(res)
             },
-            verbose: false
+            verbose: true
         });
     });
 
@@ -480,11 +495,21 @@ $(document).ready(function () {
     // Actualizar detalle
     $('#updatePosItem').on('click', function () {
 
+        var base_price = parseFloat($('#base_price').val().replace(/,/g, "")) || 0;
+        var final_price = parseFloat($('#final_price').val().replace(/,/g, "")) || 0;
+        var total_taxes = final_price - base_price;
+
+        // Evitar valores negativos
+        if (total_taxes < 0) {
+            total_taxes = 0;
+        }
+
         const data = {
             action: "actualizar_detalle_pos",
             quantity: $('#quantity').val(),
-            final_price: $('#final_price').val(),
+            base_price: $('#base_price').val(),
             discount: $('#discount').val() || 0,
+            taxes: total_taxes,
             detail_id: $('#windowId').val(),
             product_id: $('#w_product_id').val() || 0,
             piece_id: $('#w_piece_id').val() || 0,
@@ -535,13 +560,6 @@ $(document).ready(function () {
         // Calcular todo
         windowSummary();
     }
-
-    // Verificar el stock del item
-    $('#quantity').keyup(function () {
-        var quantity = $(this).val();
-
-        console.log('cantidad introducida ', quantity);
-    })
 
     /**============================================================= 
    * VENTANA DE CLIENTE
@@ -746,24 +764,12 @@ $(document).ready(function () {
 
 
     /**============================================================= 
-    * FACTURACION
+    * FACTURACION E IMPRESION
     ===============================================================*/
 
     $('.pos-button-cash').on('click', function () {
 
         const data = {
-            // Datos del ticket
-            // customer: $('#select2-cash-in-customer-container').attr('title'),
-            // seller: $('#cash-in-seller').val(),
-            // payment_method: $('#select2-cash-in-method-container').attr('title'),
-            // subtotal: parseFloat($('#in-subtotal').val().replace(/,/g, "")) || 0,
-            // discount: parseFloat($('#in-discount').val().replace(/,/g, "")) || 0,
-            // taxes: parseFloat($('#in-taxes').val().replace(/,/g, "")) || 0,
-            // total: parseFloat($('#in-total').val().replace(/,/g, "")) || 0,
-            // bonus: parseFloat($('#cash-bonus').val().replace(/,/g, "")) || 0,
-            // date: $('#cash-in-date').val(),
-            // observation: $('#observation').val(),
-
             // Datos para la factura
             action: "factura_contado_pos",
             order_id: $('#order_id').val() || 0,
@@ -803,14 +809,80 @@ $(document).ready(function () {
                 $('#order_id').val('') // quitar orden
                 loadDetailPOS()
 
+                printerInvoicePOS(res) // Imprimir
+
             },
             errorCallback: (res) => {
                 console.error(res)
                 notifyAlert(res, 'error')
-            }
+            }, verbose: false
         });
     })
 
+
+    /**
+     * Envía una factura de venta al servidor de impresión POS
+     * Obtiene los datos de la factura vía AJAX y los envía al servicio de impresión
+     *
+     * @param {number} invoice_id - ID de la factura de venta
+     * @returns {void}
+     */
+    function printerInvoicePOS(invoice_id) {
+
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: {
+                id: invoice_id,
+                action: "devolver_datos_impresion"
+            },
+            successCallback: (response) => {
+
+                var data = typeof response === 'string' ? JSON.parse(response) : response;
+
+                const dataInv = {
+                    customer: data.datos.nombre,
+                    seller: data.datos.usuario,
+                    payment_method: data.datos.nombre_metodo,
+                    invoice_id: data.datos.factura_venta_id,
+                    subtotal: data.datos.subtotal || 0,
+                    discount: data.datos.total_descuento || 0,
+                    taxes: data.datos.total_impuesto || 0,
+                    total: data.datos.total || 0,
+                    received: data.datos.recibido,
+                    pending: data.datos.pendiente,
+                    date: data.datos.fecha,
+                    observation: data.datos.descripcion
+                };
+
+               printer(dataInv, JSON.stringify(data.detalle));
+            },
+            verbose: false
+        });
+
+        // Funcion de imprimir
+        function printer(dataInv, detail) {
+            $.ajax({
+                type: "POST",
+                url: PRINTER_SERVER + "factura_venta.php",
+                data: {
+                    detail: detail,
+                    data: dataInv
+                },
+                dataType: "json",
+                success: function (res) {
+                    if (res.status === "success") {
+                        console.log('✅ Impresión completada con exito: ', res.data);
+                    } else {
+                        console.error('❌ Error:', res.error || 'Desconocido');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('🚨 Error AJAX:', status, error);
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+    }
 
     /**============================================================= 
     * INICIAR FUNCIONES

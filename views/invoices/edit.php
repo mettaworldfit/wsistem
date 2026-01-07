@@ -73,7 +73,7 @@
             <i class="fas fa-plus"></i>
             <p>Agregar detalle</p>
         </button>
-        <button class="btn-custom btn-orange" type="button" id="printer_inv">
+        <button class="btn-custom btn-orange" type="button" data-id="<?= $_GET['id'] ?>" id="printInv">
             <i class="fas fa-receipt"></i>
             <p>Imprimir ticket</p>
         </button>

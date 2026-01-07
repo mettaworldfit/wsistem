@@ -15,7 +15,6 @@
     </div>
 </div>
 
-
 <div class="generalContainer padding-10 box-shadow-low">
 
     <table id="Detalle" class="table-custom table">
@@ -35,12 +34,14 @@
                 <td><?= $element->cantidad ?></td>
                 <td><?= number_format($element->precio, 2) ?></td>
                 <td class="hide-cell"><?= $element->impuesto ?></td>
-                <td><?= number_format($element->descuento,2) ?></td>
-                <td><?= number_format((($element->cantidad * $element->precio) + $element->impuesto) - $element->descuento, 2) ?></td>
-                <td> 
-                <a class="btn-action action-danger" onclick="DeleteItemQ('<?= $element->detalle_id ?>',true)">
-                    <i class="fas fa-backspace"></i>
-                </a>
+                <td><?= number_format($element->descuento, 2) ?></td>
+                <td>
+                    <?= number_format((($element->cantidad * $element->precio) + ($element->cantidad * $element->impuesto) - ($element->cantidad * $element->descuento)), 2) ?>
+                </td>
+                <td>
+                    <a class="btn-action action-danger" onclick="DeleteItemQ('<?= $element->detalle_id ?>',true)">
+                        <i class="fas fa-backspace"></i>
+                    </a>
                 </td>
             </tbody>
         <?php endwhile; ?>

@@ -520,7 +520,7 @@ switch ($action) {
     if ($id != 0) {
 
       $query = "SELECT COALESCE(p.nombre_producto, pz.nombre_pieza, s.nombre_servicio) AS nombre, df.precio, df.cantidad, 
-      df.detalle_venta_id, df.descuento,p.producto_id,pz.pieza_id,s.servicio_id 
+      df.detalle_venta_id, df.descuento,df.impuesto,p.producto_id,pz.pieza_id,s.servicio_id 
      FROM detalle_facturas_ventas df
                LEFT JOIN detalle_ventas_con_productos dvp ON df.detalle_venta_id = dvp.detalle_venta_id
                LEFT JOIN productos p ON p.producto_id = dvp.producto_id
@@ -533,7 +533,7 @@ switch ($action) {
       WHERE df.comanda_id = '$id'";
     } else {
       $query = "SELECT COALESCE(p.nombre_producto, pz.nombre_pieza, s.nombre_servicio) AS nombre, df.precio, df.cantidad, 
-      df.detalle_venta_id, df.descuento,p.producto_id,pz.pieza_id,s.servicio_id,df.usuario_id
+      df.detalle_venta_id, df.descuento,df.impuesto,p.producto_id,pz.pieza_id,s.servicio_id,df.usuario_id
      FROM detalle_facturas_ventas df
                LEFT JOIN detalle_ventas_con_productos dvp ON df.detalle_venta_id = dvp.detalle_venta_id
                LEFT JOIN productos p ON p.producto_id = dvp.producto_id

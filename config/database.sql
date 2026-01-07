@@ -310,7 +310,7 @@ nombre_producto varchar(100) NOT NULL,
 precio_costo DECIMAL(10,2) NULL,
 precio_unitario DECIMAL(10,2) NOT NULL,
 cantidad DECIMAL(10,2) NOT NULL,
-cantidad_min int NULL,
+cantidad_min int NULL DEFAULT 1,
 imagen varchar(50) NULL,
 fecha date NULL,
 

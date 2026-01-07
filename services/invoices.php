@@ -218,7 +218,6 @@ if ($_POST['action'] == "cargar_detalle_facturas") {
   $user_id = $_SESSION['identity']->usuario_id;
   $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
 
-
   handleDataTableRequest($db, [
     'columns' => [
       'nombre_producto',
@@ -251,7 +250,7 @@ if ($_POST['action'] == "cargar_detalle_facturas") {
       $impuesto = (float)($row['impuesto'] ?? 0);
       $valor = (float)($row['valor'] ?? 0);
       $descuento = (float)($row['descuento'] ?? 0);
-      $importe = ($cantidad * $precio) + ($cantidad * $impuesto) - $descuento;
+      $importe = ($cantidad * $precio) + ($cantidad * $impuesto) - ($cantidad * $descuento);
 
       return [
         'descripcion' => $row['nombre_producto']
@@ -269,7 +268,7 @@ if ($_POST['action'] == "cargar_detalle_facturas") {
                 </span>
             </span>',
         'impuesto' => '<span class="hide-cell">' . number_format($cantidad * $impuesto, 2) . ' - (' . number_format($valor, 2) . '%)</span>',
-        'descuento' => number_format($descuento, 2),
+        'descuento' => number_format($cantidad * $descuento, 2),
         'total' => number_format($importe, 2),
         'acciones' => '<a class="btn-action action-danger" onclick="deleteInvoiceDetail(\'' . $row['id'] . '\')">
         ' . BUTTON_ERASE . '
@@ -344,10 +343,9 @@ if ($_POST['action'] == "cargar_detalle_temporal") {
         'descuento' => number_format($row['descuento'] ?? 0, 2),
         'importe' => number_format(
           ($row['cantidad'] * $row['precio']) +
-            ($row['cantidad'] * $row['impuesto']) -
-            $row['descuento'],
-          2
-        ),
+          ($row['cantidad'] * $row['impuesto']) -
+          ($row['cantidad'] *$row['descuento']),
+          2),
         'acciones' => '
         <a class="btn-action action-danger" onclick="deleteInvoiceDetail(\'' . $row['detalle_temporal_id'] . '\')">
             ' . BUTTON_ERASE . '
@@ -574,8 +572,11 @@ if ($_POST['action'] == "precios_detalle_temp") {
 
   $user_id = $_SESSION['identity']->usuario_id;
 
-  $query = "SELECT sum(cantidad * impuesto) as taxes, sum(descuento) as descuentos, sum(cantidad * precio) as precios 
-  FROM detalle_temporal WHERE usuario_id = '$user_id'";
+  $query = "SELECT
+    SUM(cantidad * impuesto)  AS taxes,
+    SUM(cantidad * descuento) AS descuentos,
+    SUM(cantidad * precio)    AS precios
+    FROM detalle_temporal WHERE usuario_id = '$user_id'";
 
   jsonQueryResult($db, $query);
 }
@@ -588,8 +589,11 @@ if ($_POST['action'] == "precios_detalle_venta") {
 
   $invoice_id = (int)$_POST['invoice_id'];
 
-  $query = "SELECT sum(d.cantidad * d.impuesto) as taxes, sum(d.descuento) as descuentos, 
-  sum(d.cantidad * precio) as precios, f.total, f.pendiente, f.recibido
+  $query = "SELECT 
+  SUM(d.cantidad * d.impuesto)  AS taxes,
+  SUM(d.cantidad * d.descuento) AS descuentos,
+  SUM(d.cantidad * d.precio)    AS precios,
+  f.total, f.pendiente, f.recibido
   FROM detalle_facturas_ventas d 
   INNER JOIN facturas_ventas f on f.factura_venta_id = d.factura_venta_id 
   WHERE d.factura_venta_id = '$invoice_id'";
@@ -605,7 +609,10 @@ if ($_POST['action'] == "precios_ordenes_ventas") {
   $order_id = $_POST['order_id'] ?? 0;
   $user_id = $_SESSION['identity']->usuario_id;
 
-  $sql = "SELECT sum(cantidad * impuesto) as taxes, sum(descuento) as descuentos, sum(cantidad * precio) as precios 
+  $sql = "SELECT 
+  SUM(cantidad * impuesto)  AS taxes,
+  SUM(cantidad * descuento) AS descuentos,
+  SUM(cantidad * precio)    AS precios
   FROM detalle_facturas_ventas ";
 
   if (!empty($order_id)) {
@@ -972,9 +979,9 @@ if ($_POST['action'] == "total_cotizacion") {
   $id = $_POST['invoice_id'];
 
   $query = "SELECT 
-  SUM(d.cantidad * d.impuesto) AS taxes,
-  SUM(d.descuento) AS descuentos,
-  SUM(d.cantidad * d.precio) AS precios,
+  SUM(d.cantidad * d.impuesto)  AS taxes,
+  SUM(d.cantidad * d.descuento) AS descuentos,
+  SUM(d.cantidad * d.precio)    AS precios,
   SUM((d.cantidad * d.precio) + (d.cantidad * d.impuesto) - d.descuento) AS total_factura
 FROM detalle_cotizaciones d 
 INNER JOIN cotizaciones c ON c.cotizacion_id = d.cotizacion_id
@@ -1132,20 +1139,20 @@ if ($_POST['action'] === "actualizar_cantidad_detalle_temporal" || $_POST['actio
   }
 
   // Determinar la tabla del item según el tipo de item
-switch ($item_type) {
+  switch ($item_type) {
     case 'producto':
-        $tabla_item = 'productos';
-        break;
+      $tabla_item = 'productos';
+      break;
     case 'pieza':
-        $tabla_item = 'piezas';
-        break;
+      $tabla_item = 'piezas';
+      break;
     case 'servicio':
-        $tabla_item = ''; // No requiere tabla de stock
-        break;
+      $tabla_item = ''; // No requiere tabla de stock
+      break;
     default:
-        echo "Error: tipo de item no válido.";
-        exit;
-}
+      echo "Error: tipo de item no válido.";
+      exit;
+  }
 
   // Llamar a la función de actualización
   echo updateDetailQuantity($db, $id, $quantity, $item_id, $item_type, $tabla_detalle, $tabla_id);
@@ -1170,7 +1177,6 @@ if ($_POST['action'] == "agregar_detalle_pos") {
   $procedure = ($_POST['order_id'] > 0) ? 'pos_agregar_producto' : 'pos_agregar_producto_sin';
 
   echo handleProcedureAction($db, $procedure, $params);
-
 }
 
 // Obtener datos de la venta editar del pos 
@@ -1189,7 +1195,7 @@ if ($_POST['action'] == "datos_detalle_id") {
         WHEN s.nombre_servicio IS NOT NULL THEN 'Servicio'
         ELSE 'Desconocido' 
   END AS tipo_item,
-  d.cantidad,d.descuento,d.precio,p.cantidad as existencia,p.imagen
+  d.cantidad,d.descuento,d.impuesto,d.precio,p.cantidad as existencia,p.imagen
   FROM detalle_facturas_ventas d
   LEFT JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
   LEFT JOIN productos p ON p.producto_id = dp.producto_id
@@ -1225,7 +1231,8 @@ if ($_POST['action'] == "actualizar_detalle_pos") {
     (int)$_POST['detail_id'],
     (int)$_SESSION['identity']->usuario_id,
     $_POST['discount'] ?? 0,
-    $_POST['final_price'],
+    $_POST['taxes'] ?? 0,
+    $_POST['base_price'],
     $_POST['quantity']
   ];
 
@@ -1266,5 +1273,53 @@ if ($_POST['action'] == "factura_contado_pos") {
     (int)$_POST['method_id'],
     (int)$_POST['order_id'],
     $_POST['total_invoice']
+  ]);
+}
+
+// Devolver datos del detalle para imprimir en POS
+
+if ($_POST['action'] == "devolver_datos_impresion") {
+
+  $id = $_POST['id'];
+  $user_id = $_SESSION['identity']->usuario_id;
+  $db = Database::connect();
+
+  // Datos del detalle
+  $sql = "SELECT p.nombre_producto, df.precio, pz.nombre_pieza, s.nombre_servicio, df.cantidad as cantidad_total, 
+      df.detalle_venta_id as 'id', df.descuento, df.impuesto, i.valor FROM detalle_facturas_ventas df
+               LEFT JOIN detalle_ventas_con_productos dvp ON df.detalle_venta_id = dvp.detalle_venta_id
+               LEFT JOIN productos p ON p.producto_id = dvp.producto_id
+               LEFT JOIN productos_con_impuestos pim ON p.producto_id = pim.producto_id
+               LEFT JOIN impuestos i ON pim.impuesto_id = i.impuesto_id
+               LEFT JOIN detalle_ventas_con_piezas_ dvpz ON df.detalle_venta_id = dvpz.detalle_venta_id
+               LEFT JOIN piezas pz ON pz.pieza_id = dvpz.pieza_id
+               LEFT JOIN detalle_ventas_con_servicios dvs ON df.detalle_venta_id = dvs.detalle_venta_id
+               LEFT JOIN servicios s ON s.servicio_id = dvs.servicio_id
+               WHERE df.factura_venta_id = '$id'";
+
+  // Datos de facturacion
+  $sql2 = "SELECT concat(c.nombre,' ',IFNULL(c.apellidos,'')) as nombre,
+  concat(u.nombre,' ',IFNULL(u.apellidos,'')) as usuario,
+  m.nombre_metodo, f.factura_venta_id, f.pendiente,f.recibido, f.fecha, f.descripcion,
+  SUM(df.cantidad * df.precio) AS subtotal,
+  SUM(IFNULL(df.descuento, 0) * df.cantidad) AS total_descuento,  -- Descuento total por cantidad
+  SUM(IFNULL(df.impuesto, 0) * df.cantidad) AS total_impuesto,    -- Impuesto total por cantidad
+  (SUM(df.cantidad * df.precio) 
+    - SUM(IFNULL(df.descuento, 0) * df.cantidad) 
+    + SUM(IFNULL(df.impuesto, 0) * df.cantidad)
+  ) AS total
+  FROM facturas_ventas f
+  INNER JOIN detalle_facturas_ventas df ON df.factura_venta_id = f.factura_venta_id
+  INNER JOIN clientes c ON c.cliente_id = f.cliente_id
+  INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = f.metodo_pago_id
+  INNER JOIN usuarios u ON u.usuario_id = f.usuario_id
+  WHERE f.factura_venta_id = '$id' GROUP BY f.factura_venta_id LIMIT 1";
+
+  // Respuesta JSON
+  echo json_encode([
+    "detalle" => $db->query($sql)->fetch_all(),
+    JSON_UNESCAPED_UNICODE,
+    "datos" => $db->query($sql2)->fetch_assoc(),
+    JSON_UNESCAPED_UNICODE
   ]);
 }

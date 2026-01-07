@@ -147,14 +147,24 @@ function calculateTotalInvoice(bonus = 0) {
             url: "services/invoices.php",
             data: { action, invoice_id, order_id },
             successCallback: (res) => {
+
                 const data = JSON.parse(res)[0];
 
+                // 1. Obtener los valores crudos de precios, impuestos y descuentos
+                const rawPrice = parseFloat(data.precios) || 0;
+                const rawTaxes = parseFloat(data.taxes || 0);
+                const rawDiscount = parseFloat(data.descuentos || 0);
+
+                // 2. Cálculo del valor total
+                const totalValue = rawPrice + rawTaxes - rawDiscount;
+
+                // 3. Formateo de los valores de descuento, impuestos y subtotal
+                const subtotal = format.format(data.precios);
                 const discount = format.format(data.descuentos || 0);
                 const taxes = format.format(data.taxes || 0);
-                const subtotal = format.format(data.precios);
-
-                const totalValue = parseFloat(data.precios) + parseFloat(data.taxes || 0) - parseFloat(data.descuentos || 0);
                 const total = isNaN(totalValue) ? '0.00' : format.format(totalValue);
+
+                // 4. Eliminar las comas del total para usarlo en cálculos o almacenamiento
                 const totalRaw = total.replace(/,/g, "");
 
                 // Asignar valores al formulario principal
@@ -356,6 +366,11 @@ $(document).ready(function () {
         // Calcular total actual de la factura
         calculateTotalInvoice();
     }
+
+
+    /**============================================================= 
+    * FACTURACION E IMPRESION
+    ===============================================================*/
 
     // Botón: Crear factura al contado sin ticket
     $('#cash-in-finish').on('click', function (e) {
@@ -747,42 +762,126 @@ $(document).ready(function () {
             });
 
         }
-
-
     }
-
 
     /**
      * Imprime una factura según el tipo especificado.
      *
-     * @param {number|string} invoice_id - El ID de la factura. Puede ser un número o una cadena.
-     * @param {object} detail - Un objeto que contiene información detallada sobre los artículos de la factura. La estructura exacta depende de la aplicación.
-     * @param {object} data - Un objeto que contiene datos generales de la factura (por ejemplo, información del cliente, fechas). La estructura exacta depende de la aplicación.
-     * @param {string} type - El tipo de factura, ya sea "cash" (contado) o "credit" (crédito). Esto determina qué archivo PHP se utiliza.
+     * @param {number|string} invoice_id
+     * @param {object} detail
+     * @param {object} data
+     * @param {string} type - "cash" | "credit"
      */
     function printer(invoice_id, detail, data, type) {
-        console.log('imprimiendo.....')
 
-        let file;
-        if (type == "cash") {
-            file = "factura_al_contado.php"
-        } else if (type == "credit") {
-            file = "factura_credito.php"
+        let file = '';
+
+        if (type === 'cash') {
+            file = 'factura_al_contado.php';
+        } else if (type === 'credit') {
+            file = 'factura_credito.php';
+        } else {
+            console.error('❌ Tipo de factura inválido');
+            return;
         }
 
         $.ajax({
-            type: "post",
+            type: 'POST',
             url: PRINTER_SERVER + file,
             data: {
+                id: invoice_id,
                 detail: detail,
-                data: data,
-                id: invoice_id
+                data: data
             },
+            dataType: 'json',
             success: function (res) {
-                console.log(res)
+
+                if (res.status === "success") {
+                    console.log('✅ Respuesta del servidor:', res);
+                } else {
+                    console.error('❌ Error del servidor:', res.error || 'Error desconocido');
+                }
+            },
+            error: function (xhr, status, error) {
+
+                console.error('🚨 Error AJAX');
+                console.error('Status:', status);
+                console.error('Error:', error);
+                console.error('Respuesta:', xhr.responseText);
             }
         });
+    }
 
+
+    // Evento que imprime la factura 
+    $('#printInv').on('click', function () {
+        const invId = $(this).data('id');
+        printerInvoice(invId);
+    })
+
+    /**
+   * Envía una factura de venta al servidor de impresión
+   * Obtiene los datos de la factura vía AJAX y los envía al servicio de impresión
+   *
+   * @param {number} invoice_id - ID de la factura de venta
+   * @returns {void}
+   */
+    function printerInvoice(invoice_id) {
+
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: {
+                id: invoice_id,
+                action: "devolver_datos_impresion"
+            },
+            successCallback: (response) => {
+
+                var data = typeof response === 'string' ? JSON.parse(response) : response;
+
+                const dataInv = {
+                    customer: data.datos.nombre,
+                    seller: data.datos.usuario,
+                    payment_method: data.datos.nombre_metodo,
+                    invoice_id: data.datos.factura_venta_id,
+                    subtotal: data.datos.subtotal || 0,
+                    discount: data.datos.total_descuento || 0,
+                    taxes: data.datos.total_impuesto || 0,
+                    total: data.datos.total || 0,
+                    received: data.datos.recibido,
+                    pending: data.datos.pendiente,
+                    date: data.datos.fecha,
+                    observation: data.datos.descripcion
+                };
+
+                printer(dataInv, JSON.stringify(data.detalle));
+            },
+            verbose: false
+        });
+
+        // Funcion de imprimir
+        function printer(dataInv, detail) {
+            $.ajax({
+                type: "POST",
+                url: PRINTER_SERVER + "factura_venta.php",
+                data: {
+                    detail: detail,
+                    data: dataInv
+                },
+                dataType: "json",
+                success: function (res) {
+                    if (res.status === "success") {
+                        console.log('✅ Impresión completada con exito: ', res.data);
+                        notifyAlert("Imprimiendo factura...")
+                    } else {
+                        console.error('❌ Error:', res.error || 'Desconocido');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('🚨 Error AJAX:', status, error);
+                    console.error(xhr.responseText);
+                }
+            });
+        }
     }
 
 
@@ -963,65 +1062,10 @@ $(document).ready(function () {
                 })
             });
         }
-
         function clean(val) {
             return parseFloat((val || "").toString().replace(/,/g, "")) || 0;
         }
     });
-
-
-
-    /**
-     * ! Imprimir factura de venta
-     *  Imprimir la factura luego de ser facturada en la sección editar factura
-     */
-
-
-    $('#printer_inv').on('click', (e) => {
-        e.preventDefault;
-
-        const data = {
-            customer: $('#select2-customer-container').attr('title').trim(),
-            seller: $('#cash-in-seller').val(),
-            payment_method: $('#select2-method-container').attr('title'),
-            invoice_id: $("#invoice_id").val(),
-            subtotal: $('#in-subtotal').val().replace(/,/g, ""),
-            discount: $('#in-discount').val().replace(/,/g, ""),
-            taxes: $('#in-taxes').val().replace(/,/g, ""),
-            total: $('#in-total').val().replace(/,/g, ""),
-            received: $('#cash-received').val(),
-            pending: $('#cash-pending').val(),
-            date: $('#date').val(),
-            observation: $('#observation').val()
-        };
-
-
-        $.ajax({
-            type: "POST",
-            url: PRINTER_SERVER + "factura_venta.php",
-            data: {
-                detail: $('#detail_inv').val(),
-                data: data
-            },
-            dataType: "json",
-            success: function (res) {
-                if (res.status === "success") {
-                    alertify.success(res.message);
-                    console.log(res.data)
-                } else {
-                    alertify.error(res.message);
-                }
-                console.log("Respuesta del servidor:", res);
-            },
-            error: function (xhr, status, error) {
-                console.error("Error en la solicitud:", error);
-                alertify.error("No se pudo conectar con la impresora.");
-            }
-        });
-
-
-    })
-
 
     // Auto cargar detalle cotizacion desde LocalStorage
 
@@ -1045,27 +1089,34 @@ $(document).ready(function () {
                     }
 
                     ArrayItem.push(data); // Guardar de localStorage a ArrayItem
-
                     CalcQuote(ArrayItem);
 
-                    var total = (element.quantity * element.price) - element.discount;
-                    var price = format.format(element.price);
+                    // Calcula el total, el descuento y el impuesto por unidad, solo si los valores son mayores a cero
+                    var totalPrice = element.quantity * element.price;
+                    var totalDiscount = (element.discount > 0) ? (element.quantity * element.discount) : 0; // Si el descuento es mayor que 0, lo calculamos
+                    var totalTax = (element.tax > 0) ? (element.quantity * element.tax) : 0; // Si el impuesto es mayor que 0, lo calculamos
 
+                    // El total final es el precio total más el impuesto menos el descuento
+                    var total = totalPrice + totalTax - totalDiscount;
+
+                    // Formateo de precio y total
+                    var price = format.format(element.price); // Precio por unidad
+                    var formattedTotalDiscount = format.format(totalDiscount); // Descuento total
+                    var formattedTotalTax = format.format(totalTax); // Impuesto total
+
+                    // Añade una nueva fila a la tabla
                     document.querySelector('#rows').innerHTML += `
-                 <tr>
-                     <td>${element.description}</td>
-                     <td>${element.quantity}</td>
-                     <td>${price}</td>
-                     <td class="hide-cell">${0} - ${0}%</td>
-                     <td>${element.discount}</td>
-                     <td>${format.format(total)}</td>
-                     <td>
-                       <span class="action-delete" onClick="DeleteItemQ(${index});"><i class="fas fa-times"></i></span>
-                     </td>
-                 </tr>
-                 `;
-
-
+                    <tr>
+                        <td>${element.description}</td>
+                        <td>${element.quantity}</td>
+                        <td>${price}</td>
+                        <td class="hide-cell">${formattedTotalTax} - ${element.tax > 0 ? element.tax : 0}%</td> <!-- Impuesto por unidad, solo si es mayor que 0 -->
+                        <td>${formattedTotalDiscount}</td> <!-- Descuento total, solo si es mayor que 0 -->
+                        <td>${format.format(total)}</td> <!-- Total con impuesto y descuento -->
+                        <td>
+                            <span class="action-delete" onClick="DeleteItemQ(${index});"><i class="fas fa-backspace"></i></span>
+                        </td>
+                    </tr>`;
                 });
             }
         })
@@ -1390,7 +1441,7 @@ function AddDQuote(onDb = false) {
             quantity: $('#quantity').val(),
             description: $('#select2-piece-container').attr('title').trim(),
             price: $('#price_out').val().replace(/,/g, ""),
-            tax_value: 0
+            tax_value: $('#taxes').val() || 0
         }
 
 
@@ -1411,7 +1462,7 @@ function AddDQuote(onDb = false) {
             quantity: $('#quantity').val(),
             price: $('#price_out').val().replace(/,/g, ""),
             description: $('#select2-product-container').attr('title').trim(),
-            tax_value: 0
+            tax_value: $('#taxes').val() || 0
 
         }
 
@@ -1455,22 +1506,33 @@ function ShowDB() {
     // Loop del detalle en localStorage 
     QuoteLocalStorage.forEach((element, index) => {
 
-        var total = (element.quantity * element.price) - element.discount;
-        var price = format.format(element.price);
+        // Calcula el total, el descuento y el impuesto por unidad, solo si los valores son mayores a cero
+        var totalPrice = element.quantity * element.price;
+        var totalDiscount = (element.discount > 0) ? (element.quantity * element.discount) : 0; // Si el descuento es mayor que 0, lo calculamos
+        var totalTax = (element.tax > 0) ? (element.quantity * element.tax) : 0; // Si el impuesto es mayor que 0, lo calculamos
 
+        // El total final es el precio total más el impuesto menos el descuento
+        var total = totalPrice + totalTax - totalDiscount;
+
+        // Formateo de precio y total
+        var price = format.format(element.price); // Precio por unidad
+        var formattedTotalDiscount = format.format(totalDiscount); // Descuento total
+        var formattedTotalTax = format.format(totalTax); // Impuesto total
+
+        // Añade una nueva fila a la tabla
         document.querySelector('#rows').innerHTML += `
-         <tr>
-             <td>${element.description}</td>
-             <td>${element.quantity}</td>
-             <td>${price}</td>
-             <td class="hide-cell">${0} - ${0}%</td>
-             <td>${element.discount}</td>
-             <td>${format.format(total)}</td>
-             <td>
-               <span class="action-delete" onClick="DeleteItemQ(${index});"><i class="fas fa-times"></i></span>
-             </td>
-         </tr>
-         `;
+    <tr>
+        <td>${element.description}</td>
+        <td>${element.quantity}</td>
+        <td>${price}</td>
+        <td class="hide-cell">${formattedTotalTax} - ${element.tax > 0 ? element.tax : 0}%</td> <!-- Impuesto por unidad, solo si es mayor que 0 -->
+        <td>${formattedTotalDiscount}</td> <!-- Descuento total, solo si es mayor que 0 -->
+        <td>${format.format(total)}</td> <!-- Total con impuesto y descuento -->
+        <td>
+            <span class="action-delete" onClick="DeleteItemQ(${index});"><i class="fas fa-backspace"></i></span>
+        </td>
+    </tr>`;
+
 
     });
 
@@ -1486,31 +1548,43 @@ function CalcQuote(arr) {
     let total = 0;
     let discount = 0;
 
-    arr.forEach((element, index) => {
+    // Recorre cada elemento para calcular los valores
+    arr.forEach((element) => {
 
-        subtotal = subtotal + (parseFloat(element.quantity) * element.price.replace(/,/g, ""));
-        total = total + (subtotal + taxes - element.discount);
-        discount = parseInt(discount) + element.discount;
+        // Calcula el subtotal sumando la cantidad * precio
+        subtotal += parseFloat(element.quantity) * parseFloat(element.price.replace(/,/g, ""));
 
-        if (element.tax_value > 0) return taxes = parseInt(element.tax_value);
+        // Suma el descuento total, considerando el descuento por unidad multiplicado por la cantidad
+        discount += parseFloat(element.discount) * parseFloat(element.quantity);
+
+        // Calcula el impuesto total, considerando el impuesto por unidad multiplicado por la cantidad
+        if (parseFloat(element.tax_value) > 0) {
+            taxes += (parseFloat(element.tax_value) / 100) * parseFloat(element.quantity) * parseFloat(element.price.replace(/,/g, ""));
+        }
     });
 
-    var sub = format.format(subtotal.toFixed(2));
-    final = format.format(subtotal + taxes - discount);
+    // Formateo de los valores calculados
+    var sub = format.format(subtotal.toFixed(2)); // Subtotal formateado
+    var totalDiscount = format.format(discount.toFixed(2)); // Descuento total formateado
+    var totalTaxes = format.format(taxes.toFixed(2)); // Impuesto total formateado
 
+    // Calcula el total final con impuestos y descuento
+    var final = format.format((subtotal + taxes - discount).toFixed(2));
+
+    // Vaciamos los valores actuales y los mostramos actualizados
     document.querySelector('#price').innerHTML = ""; // Vaciar precios de la factura
 
     document.querySelector('#price').innerHTML += `
-         <span><input type="text" class="invisible-input" value="${sub}" id="in-subtotal" disabled></span>
-         <span><input type="text" class="invisible-input" value="${discount}" id="in-discount" disabled></span>
-         <span><input type="text" class="invisible-input" value="${taxes}" id="in-taxes" disabled></span>
-         <span><input type="text" class="invisible-input" value="${final}" id="in-total" disabled></span>
-         <input type="hidden" name="" value="${final}" id="total_invoice">
-     `;
+    <span><input type="text" class="invisible-input" value="${sub}" id="in-subtotal" disabled></span>
+    <span><input type="text" class="invisible-input" value="${totalDiscount}" id="in-discount" disabled></span>
+    <span><input type="text" class="invisible-input" value="${totalTaxes}" id="in-taxes" disabled></span>
+    <span><input type="text" class="invisible-input" value="${final}" id="in-total" disabled></span>
+    <input type="hidden" name="" value="${final}" id="total_invoice">
+`;
 
-    $("#SaveQuote").show() // Botón registrar cotización
+    $("#SaveQuote").show(); // Muestra el botón para registrar la cotización
 
-} // function CalcQuote()
+}
 
 
 // Borrar todo del localstorage
@@ -1574,7 +1648,7 @@ function saveQuote() {
                 mysql_error(res)
             }
         },
-        verbose: true
+        verbose: false
     });
 
 } // function
