@@ -77,12 +77,16 @@ h6 {
     font-family: var(--font-title);
 }
 
-html, body {
-  overflow: scroll; /* Habilita el desplazamiento */
+html,
+body {
+    overflow: scroll;
+    /* Habilita el desplazamiento */
 }
 
-html::-webkit-scrollbar, body::-webkit-scrollbar {
-  display: none; /* Oculta la barra de desplazamiento */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    display: none;
+    /* Oculta la barra de desplazamiento */
 }
 
 
@@ -3626,6 +3630,29 @@ p.pos-stock {
     margin-bottom: 10px;
 }
 
+.pos-sidebar-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.pos-sidebar-header button {
+    border: none;
+    background: transparent;
+    color: #757575;
+    margin-left: 3px;
+}
+
+.pos-sidebar-header button:hover {
+    color: var(--color-primary);
+}
+
+.pos-sidebar-header button:focus {
+    outline: none;
+}
+
+.pos-sidebar-header button svg {
+    width: 19px;
+}
 
 /* pos factura data */
 
@@ -3664,25 +3691,54 @@ p.pos-stock {
     margin-left: 10px;
 }
 
+.group-button-row {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+}
+
+button.pos-button-credit {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #303741;
+    font-size: 11pt;
+    color: white;
+    border: none;
+    padding: 10px;
+    /* margin-top: 0.5rem; */
+    width: 25%;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.pos-button-credit p {
+    margin: 0;
+    font-family: var(--font-title);
+}
+
 button.pos-button-cash {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background-color: var(--color-primary);
+    font-size: 11pt;
     color: white;
     border: none;
     padding: 10px;
-    margin-top: 0.5rem;
+    /* margin-top: 0.5rem; */
     width: 100%;
     border-radius: 5px;
     cursor: pointer;
 }
 
+.pos-button-credit:disabled,
 .pos-button-cash:disabled {
     background-color: #ccc;
     cursor: not-allowed;
 }
 
+.pos-button-credit:hover,
 .pos-button-cash:hover {
     transform: scale(1.01);
 }
@@ -3698,6 +3754,7 @@ button.pos-count-item {
     align-items: center;
     background-color: #fff;
     border: 1px solid var(--text-color);
+    font-size: 11pt;
     margin-top: 0.5rem;
     padding: 10px;
     width: 100%;
@@ -3722,6 +3779,7 @@ button.pos-count-item:hover {
 }
 
 button.pos-button-cash:focus,
+button.pos-button-credit:focus,
 button.pos-count-item:focus {
     outline: none;
 }
@@ -4298,4 +4356,37 @@ button.btn-pos_home:focus {
     font-weight: 600;
     color: var(--color-primary);
     margin-left: 5px;
+}
+
+
+
+/* Informacion de la factura */
+
+button.pos-info-final {
+    display: flex;
+    flex-direction: center;
+    align-items: center;
+    background-color: #303741;
+    color: white;
+    border: none;
+    padding: 10px;
+    margin-top: 0.5rem;
+    width: 11%;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button.pos-info-final svg {
+    margin: 0 auto;
+    font-size: 1.2rem;
+}
+
+.pos-info-window {
+    position: fixed;
+    background: #fff;
+    width: 40%;
+    height: 100%;
+    right: -100%;
+    z-index: 5;
+    transition: right 0.5s ease;
 }

@@ -36,6 +36,33 @@
     <!-- Detalles del producto -->
     <div class="pos-sidebar">
         <div class="pos-section-invoice">
+            <div class="pos-sidebar-header">
+                <h5>Factura de venta</h5>
+
+                <div>
+                    <button type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-printer-icon lucide-printer">
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                            <path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" />
+                            <rect x="6" y="14" width="12" height="8" rx="1" />
+                        </svg>
+                    </button>
+
+                    <button type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sliders-horizontal-icon lucide-sliders-horizontal">
+                            <path d="M10 5H3" />
+                            <path d="M12 19H3" />
+                            <path d="M14 3v4" />
+                            <path d="M16 17v4" />
+                            <path d="M21 12h-9" />
+                            <path d="M21 19h-5" />
+                            <path d="M21 5h-7" />
+                            <path d="M8 10v4" />
+                            <path d="M8 12H3" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
             <div class="pos-invoice-info">
 
                 <div class="pos-field-sm">
@@ -188,7 +215,6 @@
                             </button>
                         </div>
                     </div>
-
                 </form>
             </div>
         </div> <!-- end -->
@@ -397,9 +423,7 @@
                         <p>Guardar</p>
                     </button>
                 </div>
-
             </div>
-
         </div> <!-- end -->
 
         <!-- Contenedor detalles -->
@@ -425,16 +449,137 @@
                 </div>
             </div>
 
-            <button action="button" class="pos-button-cash" disabled>
-                <p>Facturar al contado</p>
-                <span class="pos-total">$0.00</span>
-                <input type="hidden" name="" id="total_pos">
-            </button>
+            <div class="group-button-row">
+                <button action="button" class="pos-button-cash" disabled>
+                    <p>Facturar al contado</p>
+                    <span class="pos-total">$0.00</span>
+                    <input type="hidden" name="" id="total_pos">
+                </button>
+
+                <button action="button" class="pos-button-credit" data-toggle="modal" data-target="#pos-credit">
+                    <p>Crédito</p>
+                </button>
+            </div>
 
             <button action="button" class="pos-count-item">
                 <p>-</p>
                 <span class="pos-erase">Cancelar</span>
             </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal: Factura a crédito -->
+<div class="modal fade" id="pos-credit" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Factura a crédito</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="POST" id="invoiceCredit">
+
+                    <!-- Head -->
+                    <div class="row col-sm-12 invoice-head-modal">
+
+                        <div class="col-sm-4 head-content">
+                            <h6>Total Pagado</h6>
+                            <input type="text" class="invisible-input text-success" value="" id="credit-received" disabled>
+                        </div>
+
+                        <div class="col-sm-4 head-content">
+                            <h6>Monto a Pagar</h6>
+                            <input type="text" class="invisible-input text-primary" value="" id="credit-topay" disabled>
+                        </div>
+
+                        <div class="col-sm-4 head-content">
+                            <h6>Monto Pendiente</h6>
+                            <input type="text" class="invisible-input text-danger" value="" id="credit-pending" disabled>
+                        </div>
+
+                    </div>
+                    <br>
+
+                    <!-- Content -->
+                    <div class="row col-sm-12">
+
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Cliente</label>
+                            <div class="input-div">
+                                <div class="i b-right">
+                                    <i class="fas fa-portrait"></i>
+                                </div>
+                                <select class="form-custom-icon search" name="customer" id="modal-customer_id" required>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Método</label>
+                            <div class="input-div">
+                                <div class="i b-right">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <select class="form-custom-icon search " name="method" id="modal-method_id" required>
+                                    <?php $methods = Help::showPaymentMethod();
+                                    while ($method = $methods->fetch_object()): ?>
+                                        <option value="<?= $method->metodo_pago_id ?>"><?= $method->nombre_metodo ?></option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Fecha</label>
+                            <div class="input-div">
+
+                                <input type="date" name="date" class="form-custom-icon" id="modal-date" value="<?php date_default_timezone_set('America/New_York');
+                                                                                                                echo date('Y-m-d'); ?>" required>
+                            </div>
+                        </div>
+
+                    </div> <!-- Row -->
+
+                    <div class="row col-sm-12 mt-1">
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Vendedor</label>
+                            <div class="input-div">
+                                <div class="i">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                <input class="form-custom-icon b-left" type="text" name="" value="<?= $_SESSION['identity']->nombre ?>" id="modal-seller" disabled>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-4 pay">
+                            <label class="form-check-label" for="">Monto</label>
+                            <div class="input-div">
+                                <div class="i">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <input class="form-custom-icon b-left" type="number" name="pay" value="" id="modal-pay" required>
+                            </div>
+                        </div>
+                    </div> <!-- Row -->
+
+                    <div class="mt-4 modal-footer">
+                        <button type="button" class="btn-custom btn-red" data-dismiss="modal" id="">
+                            <i class="fas fa-window-close"></i>
+                            <p>Salir</p>
+                        </button>
+
+                        <button type="submit" class="btn-custom btn-green">
+                            <i class="fas fa-dollar-sign"></i>
+                            <p>Facturar</p>
+                        </button>
+                    </div>
+                </form>
+            </div> <!-- Body -->
         </div>
     </div>
 </div>

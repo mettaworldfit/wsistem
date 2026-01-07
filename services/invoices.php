@@ -1276,6 +1276,22 @@ if ($_POST['action'] == "factura_contado_pos") {
   ]);
 }
 
+// Factura al contado POS
+if ($_POST['action'] == "factura_credito_pos") {
+
+  $db = Database::connect();
+
+  echo handleProcedureAction($db, 'pos_factura_credito', [
+    (int)$_SESSION['identity']->usuario_id,
+    (int)$_POST['customer_id'],
+    (int)$_POST['method_id'],
+    (int)$_POST['order_id'],
+    $_POST['total_invoice'],
+    $_POST['pay'],
+    $_POST['date']
+  ]);
+}
+
 // Devolver datos del detalle para imprimir en POS
 
 if ($_POST['action'] == "devolver_datos_impresion") {

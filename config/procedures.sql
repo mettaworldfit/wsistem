@@ -2459,6 +2459,7 @@ DELIMITER ;
 
 # ----- Punto de venta ---------
 
+
 DROP PROCEDURE IF EXISTS `pos_factura_venta`;
 DELIMITER $$
 CREATE PROCEDURE `pos_factura_venta` (IN _usuario_id INT, IN _cliente_id INT, 
@@ -2502,7 +2503,61 @@ BEGIN
     END IF;
 
     -- Si todo se ejecuta sin errores, puedes devolver un mensaje de éxito
-    SELECT 'Factura creada exitosamente con ID: ' AS msg;
+    SELECT last_insert_id() AS msg;
+
+END $$
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `pos_factura_credito`;
+DELIMITER $$
+CREATE PROCEDURE `pos_factura_credito` (IN _usuario_id INT, IN _cliente_id INT, 
+IN _metodo_id INT, IN _comanda_id INT, IN _total DECIMAL(10,2), 
+IN _pago DECIMAL(10,2), IN _fecha DATE)
+BEGIN
+
+	DECLARE factura_id INT;
+	DECLARE v_pendiente DECIMAL(10,2);
+     
+    -- Manejo de errores generales y excepciones
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+        BEGIN
+            -- Aquí puedes manejar el error, como un mensaje de error
+            SELECT 'SQLException encountered' AS error_message;
+        END;
+
+    DECLARE EXIT HANDLER FOR SQLSTATE '23000' 
+        BEGIN
+            -- Este es para manejar errores específicos, por ejemplo, violación de clave primaria
+            SELECT 'SQLSTATE 23000: Integrity constraint violation' AS error_message;
+        END;
+        
+	-- Calcular pendiente
+    SET v_pendiente = ROUND(_total - _pago, 2);
+    
+    -- Crear factura
+    INSERT INTO facturas_ventas (usuario_id, cliente_id, estado_id, metodo_pago_id, total, recibido, pendiente, fecha)
+    VALUES (_usuario_id, _cliente_id, 4, _metodo_id, _total, _pago, v_pendiente, CURDATE());
+
+    -- Asignar el ID de la nueva factura a la variable factura_id
+    SET factura_id = LAST_INSERT_ID();
+    
+    IF (_comanda_id > 0) THEN
+        -- Si hay una comanda_id, actualizar los detalles de la factura
+        UPDATE detalle_facturas_ventas 
+        SET factura_venta_id = factura_id 
+        WHERE comanda_id = _comanda_id;
+    ELSE
+        -- Si no hay comanda_id, asignar el ID de la factura a los detalles sin comanda ni factura
+        UPDATE detalle_facturas_ventas 
+        SET factura_venta_id = factura_id 
+        WHERE usuario_id = _usuario_id 
+          AND comanda_id IS NULL
+          AND factura_venta_id IS NULL;
+    END IF;
+
+    -- Si todo se ejecuta sin errores, puedes devolver un mensaje de éxito
+    SELECT last_insert_id() AS msg;
 
 END $$
 DELIMITER ;
@@ -2687,6 +2742,7 @@ DELIMITER ;
 
 
 
+
 DROP PROCEDURE IF EXISTS `pos_update_detalle`;
 DELIMITER $$
 CREATE PROCEDURE pos_update_detalle (
@@ -2696,13 +2752,14 @@ CREATE PROCEDURE pos_update_detalle (
     IN _detalle_id INT,
     IN _usuario_id INT,
     IN _descuento DECIMAL(10,2),
+    IN _impuesto DECIMAL(10,2),
     IN _precio DECIMAL(10,2),
     IN _cantidad DECIMAL(10,2)
 )
 BEGIN
-    DECLARE stock_disponible DECIMAL(10,2);
-    DECLARE stock_detalle DECIMAL(10,2);
-    DECLARE total_stock DECIMAL(10,2);
+    DECLARE stock_disponible DECIMAL(10,2) DEFAULT 0;  -- Establecer valor predeterminado de stock_disponible
+    DECLARE stock_detalle DECIMAL(10,2) DEFAULT 0;     -- Establecer valor predeterminado de stock_detalle
+    DECLARE total_stock DECIMAL(10,2) DEFAULT 0;       -- Establecer valor predeterminado de total_stock
     DECLARE exit_message VARCHAR(255);
 
     -- Manejadores de excepciones
@@ -2748,17 +2805,27 @@ BEGIN
     FROM detalle_facturas_ventas
     WHERE detalle_venta_id = _detalle_id;
 
+    -- Verificar si se ha encontrado un detalle en la factura
+    IF stock_detalle IS NULL THEN
+        SET stock_detalle = 0;  -- Si no se encuentra el detalle, asignamos 0
+    END IF;
+
     -- Calcular el stock total disponible (stock actual + cantidad en detalle)
+    -- Si stock_disponible es NULL, lo asignamos a 0, ya que el producto podría no estar en stock
+    IF stock_disponible IS NULL THEN
+        SET stock_disponible = 0;
+    END IF;
+
     SET total_stock = stock_disponible + stock_detalle;
 
     -- Depuración: Verificar el valor de total_stock antes de la comparación
     SELECT total_stock AS total_stock_available;
 
     -- Verificar si el stock total disponible es suficiente (solo si no es un servicio)
-    IF (_servicio_id = 0 AND total_stock > _cantidad) OR _servicio_id > 0 THEN
+    IF (_servicio_id = 0 AND total_stock >= _cantidad) OR _servicio_id > 0 THEN
         -- Actualizar los detalles de la factura si hay suficiente stock o si es un servicio
         UPDATE detalle_facturas_ventas
-        SET descuento = _descuento, precio = _precio, cantidad = _cantidad
+        SET descuento = _descuento, impuesto = _impuesto, precio = _precio, cantidad = _cantidad
         WHERE detalle_venta_id = _detalle_id;
 
         SELECT 'Datos actualizados correctamente' AS msg;

@@ -179,9 +179,11 @@ $(document).ready(function () {
                         $('.pos-count-item').css('display', 'flex')
                         $('.pos-count-item p').text(total_items + ' Items');
                         $('.pos-button-cash').attr('disabled', false);
+                        $('.pos-button-credit').attr('disabled', false);
                     } else {
                         $('.pos-count-item').hide()
                         $('.pos-button-cash').attr('disabled', true);
+                        $('.pos-button-credit').attr('disabled', true);
                     }
 
                 } catch (e) {
@@ -334,6 +336,7 @@ $(document).ready(function () {
         $('.pos-product-edit').css('right', '-100%'); // Ocultar la ventana deslizante
         $('.pos-customer-add').css('right', '-100%'); // Ventana agregar cliente
         $('.pos-order-add').css('right', '-100%'); // Ventana agregar order
+        $('.pos-info-window').css('right', '-100%'); // Ventana informacion de factura
         $('.overlay').fadeOut(300); // Ocultar la capa de fondo negro
     }
 
@@ -592,8 +595,8 @@ $(document).ready(function () {
                 action: 'crear_contacto'
             },
             successCallback: (res) => {
-                $('input[type="text"], input[type="number"]').val('');
                 notifyAlert(res, 'success')
+                hiddenOverlay() // Ocultar ventana
 
             },
             errorCallback: (res) => {
@@ -605,7 +608,7 @@ $(document).ready(function () {
     }
 
     // Cargar clientes
-    $('#customer_id, #pos_customer_id').select2({
+    $('#customer_id, #pos_customer_id, #modal-customer_id').select2({
         placeholder: 'Selecciona un cliente',
         allowClear: true, // Permite limpiar la selección
         ajax: {
@@ -753,6 +756,8 @@ $(document).ready(function () {
                     $('input[type="text"]').val('');
                     notifyAlert('Orden creada correctamente', 'success', 1500)
                     loadOrdersPOS();
+
+                    hiddenOverlay() // Ocultar ventana
                 }
 
             },
@@ -762,13 +767,12 @@ $(document).ready(function () {
         })
     })
 
-
     /**============================================================= 
     * FACTURACION E IMPRESION
     ===============================================================*/
 
+    // Factura al contando
     $('.pos-button-cash').on('click', function () {
-
         const data = {
             // Datos para la factura
             action: "factura_contado_pos",
@@ -819,6 +823,41 @@ $(document).ready(function () {
         });
     })
 
+    // Factura a credito
+    $('#invoiceCredit').on('submit', function (e) {
+        e.preventDefault();
+    
+        const data = {
+            // Datos para la factura
+            action: "factura_credito_pos",
+            order_id: $('#order_id').val() || 0,
+            customer_id: $('#modal-customer_id').val(),
+            method_id: $('#modal-method_id').val(),
+            total_invoice: parseFloat($('#total_pos').val()),
+            pay: $('#modal-pay').val() || 0,
+            date: $('#modal-date').val()
+        };
+
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: data,
+            successCallback: (res) => {
+
+                $('#pos-credit').modal('hide'); // cerrar modal
+
+                mysql_row_affected()
+                $('#order_id').val('') // quitar orden
+                loadDetailPOS()
+                printerInvoicePOS(res) // Imprimir
+
+            },
+            errorCallback: (res) => {
+                console.error(res)
+                notifyAlert(res, 'error')
+            }, verbose: false
+        });
+    })
+
 
     /**
      * Envía una factura de venta al servidor de impresión POS
@@ -854,7 +893,7 @@ $(document).ready(function () {
                     observation: data.datos.descripcion
                 };
 
-               printer(dataInv, JSON.stringify(data.detalle));
+                printer(dataInv, JSON.stringify(data.detalle));
             },
             verbose: false
         });

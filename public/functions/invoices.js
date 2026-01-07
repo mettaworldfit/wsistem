@@ -906,8 +906,6 @@ $(document).ready(function () {
             orderId: $('#order_id').val()
         };
 
-        console.log('Obteniendo datos .....');
-
         // Solicita los detalles de la orden de venta al servidor
         sendAjaxRequest({
             url: "services/invoices.php",
@@ -919,9 +917,9 @@ $(document).ready(function () {
                 const detail = JSON.parse(res)[0]; // Detalle de los productos/piezas/servicios
                 const data = JSON.parse(res)[1]; // Información general de la orden
 
-                console.log('Datos del detalle', detail);
-                console.log('Datos de la orden', data);
-                console.log(totals);
+                // console.log('Datos del detalle', detail);
+                // console.log('Datos de la orden', data);
+                //  console.log(totals);
 
                 // Envía los datos a la impresora
                 printOrder(detail, data, totals);
@@ -947,12 +945,12 @@ $(document).ready(function () {
                 contentType: "application/json", // Enviamos JSON
                 dataType: "json", // Esperamos JSON de respuesta
                 success: function (res) {
-                    if (res.success) {
+                    if (res.status === "success") {
                         console.log("✅ Impresión completada:", res.message);
-                        alertify.success(res.message || "Ticket impreso correctamente.");
+                        notifyAlert(res.message || "Ticket impreso correctamente.")
                     } else {
                         console.warn("⚠️ Error en impresión:", res.message);
-                        alertify.error(res.message || "Error al imprimir el ticket.");
+                        notifyAlert(res.message || "Error al imprimir el ticket.","error");
                     }
                 },
                 error: function (xhr, status, error) {

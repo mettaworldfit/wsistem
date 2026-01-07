@@ -35,8 +35,6 @@
     <br>
 
     <!-- Información -->
-
-
     <div class="row col-sm-12">
         <div class="form-group col-sm-8">
             <textarea class="form-custom" name="" value="" id="observation" cols="30" rows="6" maxlength="150"
@@ -617,7 +615,7 @@
                         <label class="form-check-label" for="">Fecha</label>
                         <div class="input-div">
 
-                            <input type="date" name="" class="form-custom-icon" id="credit-in-date" value="<?php date_default_timezone_set('America/New_York');;
+                            <input type="date" name="" class="form-custom-icon" id="modal-date" value="<?php date_default_timezone_set('America/New_York');;
                                                                                                             echo date('Y-m-d'); ?>">
                         </div>
                     </div>
@@ -633,7 +631,7 @@
                                 <i class="fas fa-user-tie"></i>
                             </div>
                             <input class="form-custom-icon b-left" type="text" name=""
-                                value="<?= $_SESSION['identity']->nombre ?>" id="credit-in-seller" disabled>
+                                value="<?= $_SESSION['identity']->nombre ?>" id="" disabled>
                         </div>
                     </div>
 
@@ -646,10 +644,7 @@
                             <input class="form-custom-icon b-left" type="number" name="" value="" id="credit-pay">
                         </div>
                     </div>
-
-
                 </div> <!-- Row -->
-
 
                 <div class="mt-4 modal-footer">
                     <button type="button" class="btn-custom btn-red" data-dismiss="modal" id="">

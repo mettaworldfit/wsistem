@@ -962,7 +962,6 @@ $(document).ready(function () {
             successCallback: (res) => {
                 const data = JSON.parse(res);  // Convertir JSON a objeto
                 callback(data);  // Pasar el objeto con ambas fechas
-                console.log(data);  // Mostrar ambas fechas (completa y solo fecha)
             }
         });
     }
@@ -970,7 +969,6 @@ $(document).ready(function () {
     // CASH MODAL
     $(document).on('shown.bs.modal', '#cash_invoice', function () {
         getFechaServidor(function (data) {
-            console.log("Fecha del servidor (CASH):", data.fecha);  // Solo la fecha
             $('#cash-in-date').val(data.fecha);  // Asignar solo la fecha (YYYY-MM-DD)
         });
     });
@@ -978,8 +976,14 @@ $(document).ready(function () {
     // CREDIT MODAL
     $(document).on('shown.bs.modal', '#credit_invoice', function () {
         getFechaServidor(function (data) {
-            console.log("Fecha del servidor (CREDIT):", data.fecha);  // Solo la fecha
             $('#credit-in-date').val(data.fecha);  // Asignar solo la fecha (YYYY-MM-DD)
+        });
+    });
+
+    // CREDIT MODAL POS
+    $(document).on('shown.bs.modal', '#pos-credit', function () {
+        getFechaServidor(function (data) {
+            $('#modal-date').val(data.fecha);  // Asignar solo la fecha (YYYY-MM-DD)
         });
     });
 
