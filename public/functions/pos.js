@@ -73,7 +73,9 @@ $(document).ready(function () {
                         const productCard = `
 
                         <button class="product-card" action="button" data-product="${product.producto_id}" data-desc="${product.nombre_producto}">
-                             ${productImage}
+                        ${product.cod_producto ? `<div class="item-cod">${product.cod_producto}</div>` : ''}
+                        ${productImage}
+                         
                             <div class="product-info">
                                 <p class="pos-stock">inv. ${parseFloat(product.cantidad)}</p>
                                 <span>${product.nombre_producto}</span>
@@ -184,6 +186,12 @@ $(document).ready(function () {
                         $('.pos-count-item').hide()
                         $('.pos-button-cash').attr('disabled', true);
                         $('.pos-button-credit').attr('disabled', true);
+
+                        // Detalle vacio
+                        gridContainer.append(` <div class="pos-empty-content">
+                        <h3><i class="fas fa-shopping-cart"></i></h3>
+                        <p>No hay items en el detalle</p>
+                        </div>`)
                     }
 
                 } catch (e) {
@@ -704,6 +712,7 @@ $(document).ready(function () {
 
         // Obtener el data-order
         const orderId = radio.data('order');
+        $("#pos-print-order").css('display', 'inline-block');
 
         $('#order_id').val(orderId);
         loadDetailPOS();
@@ -720,6 +729,7 @@ $(document).ready(function () {
         $('#order_id').val('');
         const radio = $('.order-item').find('.order-radio');
         radio.prop('checked', false).trigger('change');
+        $('#pos-print-order').css('display', 'none')
 
         // Cargar detalle
         loadDetailPOS();
@@ -806,14 +816,16 @@ $(document).ready(function () {
             data: data,
             successCallback: (res) => {
 
-                // Desactivar boton
-                $('.pos-button-cash').attr('disabled', true);
-
-                mysql_row_affected()
-                $('#order_id').val('') // quitar orden
-                loadDetailPOS()
-
-                printerInvoicePOS(res) // Imprimir
+                if (res > 0) {
+                    // Desactivar boton
+                    $('.pos-button-cash').attr('disabled', true);
+                    notifyAlert("Registro exitoso", "success", 1500)
+                    $('#order_id').val('') // quitar orden
+                    loadDetailPOS()
+                    printerInvoicePOS(res) // Imprimir
+                } else {
+                    notifyAlert("A ocurrido un error", "error");
+                }
 
             },
             errorCallback: (res) => {
@@ -826,7 +838,7 @@ $(document).ready(function () {
     // Factura a credito
     $('#invoiceCredit').on('submit', function (e) {
         e.preventDefault();
-    
+
         const data = {
             // Datos para la factura
             action: "factura_credito_pos",
@@ -843,12 +855,15 @@ $(document).ready(function () {
             data: data,
             successCallback: (res) => {
 
-                $('#pos-credit').modal('hide'); // cerrar modal
-
-                mysql_row_affected()
-                $('#order_id').val('') // quitar orden
-                loadDetailPOS()
-                printerInvoicePOS(res) // Imprimir
+                if (res > 0) {
+                    $('#pos-credit').modal('hide'); // cerrar modal
+                    notifyAlert("Registro exitoso", "success", 1500)
+                    $('#order_id').val('') // quitar orden
+                    loadDetailPOS()
+                    printerInvoicePOS(res) // Imprimir
+                } else {
+                    notifyAlert("A ocurrido un error", "error");
+                }
 
             },
             errorCallback: (res) => {
@@ -922,6 +937,75 @@ $(document).ready(function () {
             });
         }
     }
+
+
+    /**
+     * Evento para imprimir la orden de venta.
+     * Escucha el click en el botón con id "printOrder", obtiene los datos de la orden
+     * y envía la información al servidor de impresión.
+     */
+    $('#pos-print-order').on('click', (e) => {
+        e.preventDefault();
+
+        // Solicita los detalles de la orden de venta al servidor
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: {
+                action: "obtener_detalle_orden",
+                orderId: $('#order_id').val()
+            },
+            successCallback: (res) => {
+                const detail = JSON.parse(res)[0]; // Detalle de los productos/piezas/servicios
+                const data = JSON.parse(res)[1]; // Información general de la orden
+                const total = JSON.parse(res)[2]; // Totales
+
+                const totals = {
+                    subtotal: total.subtotal,
+                    discount: total.total_descuento,
+                    taxes: total.total_impuesto,
+                    total: total.total,
+                    orderId: $('#order_id').val()
+                };
+
+                // Envía los datos a la impresora
+                printOrder(detail, data, totals);
+            }
+        });
+
+        /**
+         * Envía la orden de venta al servidor de impresión.
+         * @param {Object} detail - Lista de ítems de la orden.
+         * @param {Object} orderData - Información general de la orden.
+         * @param {Object} orderTotal - Totales de la orden (subtotal, descuento, impuestos, total).
+         */
+        function printOrder(detail, orderData, orderTotal) {
+
+            $.ajax({
+                type: "POST",
+                url: PRINTER_SERVER + "orden_venta.php",
+                data: JSON.stringify({
+                    detail: detail,
+                    data: orderData,
+                    totals: orderTotal
+                }),
+                contentType: "application/json", // Enviamos JSON
+                dataType: "json", // Esperamos JSON de respuesta
+                success: function (res) {
+                    if (res.status === "success") {
+                        console.log("✅ Impresión completada:", res.message);
+                        notifyAlert(res.message || "Ticket impreso correctamente.")
+                    } else {
+                        console.warn("⚠️ Error en impresión:", res.message);
+                        notifyAlert(res.message || "Error al imprimir el ticket.", "error");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("❌ Error AJAX:", error);
+                    alertify.error("No se pudo conectar con el servidor de impresión.");
+                }
+            });
+        }
+    });
 
     /**============================================================= 
     * INICIAR FUNCIONES

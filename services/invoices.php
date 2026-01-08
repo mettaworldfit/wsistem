@@ -343,9 +343,10 @@ if ($_POST['action'] == "cargar_detalle_temporal") {
         'descuento' => number_format($row['descuento'] ?? 0, 2),
         'importe' => number_format(
           ($row['cantidad'] * $row['precio']) +
-          ($row['cantidad'] * $row['impuesto']) -
-          ($row['cantidad'] *$row['descuento']),
-          2),
+            ($row['cantidad'] * $row['impuesto']) -
+            ($row['cantidad'] * $row['descuento']),
+          2
+        ),
         'acciones' => '
         <a class="btn-action action-danger" onclick="deleteInvoiceDetail(\'' . $row['detalle_temporal_id'] . '\')">
             ' . BUTTON_ERASE . '
@@ -1066,7 +1067,7 @@ if ($_POST['action'] === "obtener_detalle_orden") {
   // Detalle
   $q1 = "SELECT df.precio,df.descuento,
   COALESCE(p.nombre_producto, s.nombre_servicio, pz.nombre_pieza) AS descripcion,
-  df.comanda_id,df.cantidad 
+  df.comanda_id,df.cantidad
   FROM detalle_facturas_ventas df
   LEFT JOIN detalle_ventas_con_productos dvp ON df.detalle_venta_id = dvp.detalle_venta_id
   LEFT JOIN productos p ON p.producto_id = dvp.producto_id
@@ -1084,13 +1085,25 @@ if ($_POST['action'] === "obtener_detalle_orden") {
   INNER JOIN usuarios u on u.usuario_id = co.usuario_id
   WHERE comanda_id = '$id'";
 
+  // Totales
+  $q3 = "SELECT SUM(cantidad * precio) AS subtotal,
+  SUM(IFNULL(descuento, 0) * cantidad) AS total_descuento,  -- Descuento total por cantidad
+  SUM(IFNULL(impuesto, 0) * cantidad) AS total_impuesto,    -- Impuesto total por cantidad
+  (SUM(cantidad * precio) 
+    - SUM(IFNULL(descuento, 0) * cantidad) 
+    + SUM(IFNULL(impuesto, 0) * cantidad)
+  ) AS total 
+  FROM detalle_facturas_ventas
+  WHERE comanda_id = '$id'";
+
   // Ejecutar las consultas
   $result1 = $db->query($q1)->fetch_all();
   $result2 = $db->query($q2)->fetch_assoc();
+  $result3 = $db->query($q3)->fetch_assoc();
 
   // Devolver los resultados
 
-  echo json_encode([$result1, $result2], JSON_UNESCAPED_UNICODE);
+  echo json_encode([$result1, $result2, $result3], JSON_UNESCAPED_UNICODE);
 }
 
 //Obtener datos de la orden *comanda*

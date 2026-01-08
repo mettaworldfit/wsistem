@@ -893,33 +893,25 @@ $(document).ready(function () {
     $('#printOrder').on('click', (e) => {
         e.preventDefault();
 
-        /**
-         * Objeto con los totales de la orden.
-         * Los valores numéricos se obtienen desde el DOM y se les eliminan las comas.
-         * @type {{subtotal: string, discount: string, taxes: string, total: string, orderId: string}}
-         */
-        const totals = {
-            subtotal: $('#in-subtotal').val().replace(/,/g, ""),
-            discount: $('#in-discount').val().replace(/,/g, ""),
-            taxes: $('#in-taxes').val().replace(/,/g, ""),
-            total: $('#in-total').val().replace(/,/g, ""),
-            orderId: $('#order_id').val()
-        };
-
         // Solicita los detalles de la orden de venta al servidor
         sendAjaxRequest({
             url: "services/invoices.php",
             data: {
                 action: "obtener_detalle_orden",
-                orderId: totals.orderId
+                orderId: $('#order_id').val()
             },
             successCallback: (res) => {
                 const detail = JSON.parse(res)[0]; // Detalle de los productos/piezas/servicios
                 const data = JSON.parse(res)[1]; // Información general de la orden
+                const total = JSON.parse(res)[2]; // totales
 
-                // console.log('Datos del detalle', detail);
-                // console.log('Datos de la orden', data);
-                //  console.log(totals);
+                const totals = {
+                    subtotal: total.subtotal,
+                    discount: total.total_descuento,
+                    taxes: total.total_impuesto,
+                    total: total.total,
+                    orderId: $('#order_id').val()
+                };
 
                 // Envía los datos a la impresora
                 printOrder(detail, data, totals);
@@ -950,7 +942,7 @@ $(document).ready(function () {
                         notifyAlert(res.message || "Ticket impreso correctamente.")
                     } else {
                         console.warn("⚠️ Error en impresión:", res.message);
-                        notifyAlert(res.message || "Error al imprimir el ticket.","error");
+                        notifyAlert(res.message || "Error al imprimir el ticket.", "error");
                     }
                 },
                 error: function (xhr, status, error) {
@@ -958,7 +950,6 @@ $(document).ready(function () {
                     alertify.error("No se pudo conectar con el servidor de impresión.");
                 }
             });
-
         }
     });
 

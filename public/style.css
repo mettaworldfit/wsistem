@@ -327,7 +327,7 @@ input[type="date"].form-custom-icon {
     }
 
     .input-div {
-        padding: 4px;
+        padding: 10px 4px;
     }
 }
 
@@ -868,7 +868,7 @@ span:hover #toggle {
 .wrap {
     float: right;
     width: 100%;
-    margin-top: 60px;
+    margin-top: 3.75rem;
     padding: 0 6px;
 }
 
@@ -889,6 +889,14 @@ span:hover #toggle {
     .wrap {
         width: 77%;
         padding: 0 19px;
+    }
+}
+
+@media (min-width: 1350px) {
+    .wrap {
+        width: 77%;
+        padding: 0 19px;
+        margin-top: 4.75rem;
     }
 }
 
@@ -1972,16 +1980,19 @@ span.alert-notify-lg p {
     width: 16px;
     height: 16px;
     border: none;
-    /* Sin bordes */
     background: transparent;
-    /* Sin fondo */
     font-size: 12pt;
-    /* Ícono más visible */
     color: #374151;
-    /* Gris oscuro elegante */
     cursor: pointer;
     transition: color 0.2s ease, transform 0.2s ease;
     text-decoration: none;
+}
+
+@media (min-width: 1350px) {
+    .btn-action {
+        width: 21px;
+        height: 21px;
+    }
 }
 
 
@@ -3352,6 +3363,14 @@ button.btn-del {
     font-size: 14px
 }
 
+@media (min-width: 1350px) {
+    .form-check-label {
+        margin-top: 0.8em;
+        font-weight: 400 !important;
+        font-size: 14pt;
+    }
+}
+
 span.select2-container--default {
     font-size: 14px
 }
@@ -3435,13 +3454,20 @@ span.select2-container--default {
 
 .product-grid {
     display: grid;
-    /* grid-template-columns: repeat(auto-fill, minmax(240px, 240px)); */
     grid-template-columns: repeat(auto-fill, minmax(200px, 200px));
     place-content: center;
     gap: 9px;
     padding: 20px 0;
     margin-top: 5em;
     margin-left: 2.9rem;
+}
+
+@media (min-width: 1350px) {
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 200px));
+        gap: 20px;
+    }
 }
 
 
@@ -3474,6 +3500,12 @@ button.product-card:hover {
     object-fit: contain;
 }
 
+.item-cod {
+    font-size: 8pt !important;
+    color: var(--color-primary);
+    margin: 0px;
+}
+
 .product-card .product-info {
     padding-top: 10px;
     /* padding: 10px 10px 5px 10px; */
@@ -3482,6 +3514,7 @@ button.product-card:hover {
 .product-card span {
     font-size: 9pt;
     margin: 10px 0;
+    color: #606060;
 }
 
 .product-card p {
@@ -3528,29 +3561,51 @@ p.pos-stock {
 }
 
 .pos-search-bar input {
-    width: 53%;
+    width: 50%;
     height: 36px;
     font-size: 9pt;
     padding-left: 30px;
-    /* Deja espacio para el ícono */
     margin-left: 4.5em;
     border-radius: 5px;
     background: #fff;
     box-sizing: border-box;
-    /* Asegura que el padding no afecte el ancho */
+}
+
+@media (min-width: 924px) {
+    .pos-search-bar input {
+        width: 53%;
+        height: 40px;
+        font-size: 10pt;
+    }
+
+    .pos-search-bar svg {
+        left: 4.3rem;
+        bottom: 29px;
+    }
+}
+
+@media (min-width: 1350px) {
+    .pos-search-bar input {
+        width: 51%;
+        height: 62px;
+        font-size: 13pt;
+        padding-left: 40px;
+        margin-left: 6.5em;
+    }
+
+    .pos-search-bar svg {
+        position: absolute;
+        left: 8rem;
+        font-size: 13pt;
+        bottom: 38px;
+        color: var(--text-color);
+    }
 }
 
 .pos-search-bar input:focus {
     outline: none;
     border: 1px solid var(--color-primary);
     /* Puedes cambiar el color al focus */
-}
-
-@media (min-width: 1250px) {
-    .pos-search-bar input {
-        height: 40px;
-        font-size: 10pt;
-    }
 }
 
 .pos-search-bar i {
@@ -3619,12 +3674,25 @@ p.pos-stock {
     width: 40%;
     display: flex;
     flex-direction: column;
-    height: 90%;
+    height: 95%;
     right: 0;
     background-color: #fff;
     border-left: 0.5px solid #ccc;
     z-index: 1;
 }
+
+@media (min-width: 924px) {
+    .pos-sidebar {
+        height: 90%;
+    }
+}
+
+@media (min-width: 1350px) {
+    .pos-sidebar {
+        height: 95%;
+    }
+}
+
 
 .pos-sidebar p {
     margin-bottom: 10px;
@@ -3633,6 +3701,12 @@ p.pos-stock {
 .pos-sidebar-header {
     display: flex;
     justify-content: space-between;
+}
+
+@media (min-width: 1350px) {
+    .pos-sidebar-header h5 {
+        font-size: 2.2em;
+    }
 }
 
 .pos-sidebar-header button {
@@ -3654,6 +3728,39 @@ p.pos-stock {
     width: 19px;
 }
 
+button#pos-print-order {
+    display: none;
+}
+
+.pos-empty-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+}
+
+@media (min-width: 924px) {
+    .pos-empty-content {
+        height: 46vh;
+    }
+}
+
+@media (min-width: 1350px) {
+    .pos-empty-content {
+        height: 60vh;
+    }
+}
+
+.pos-empty-content svg {
+    color: #ccc;
+}
+
+.pos-empty-content p {
+    color: var(--text-color);
+    font-size: 11pt;
+}
+
 /* pos factura data */
 
 .pos-section-invoice {
@@ -3662,10 +3769,14 @@ p.pos-stock {
     box-shadow: 1px 1px 4px 0px #ccc;
     background: #fff;
     align-self: flex-start;
-    /* position: fixed; */
     padding: 15px;
     z-index: 3;
+}
 
+@media (min-width: 1350px) {
+    .pos-section-invoice {
+        padding: 15px 15px 4rem 15px;
+    }
 }
 
 .pos-field-sm {
@@ -3732,6 +3843,19 @@ button.pos-button-cash {
     cursor: pointer;
 }
 
+@media (min-width: 1350px) {
+    button.pos-button-cash {
+        font-size: 1.5rem;
+        padding: 24px 17px;
+        border-radius: 10px;
+    }
+
+    button.pos-button-credit {
+        font-size: 1.5rem;
+        border-radius: 10px;
+    }
+}
+
 .pos-button-credit:disabled,
 .pos-button-cash:disabled {
     background-color: #ccc;
@@ -3763,6 +3887,15 @@ button.pos-count-item {
     cursor: pointer;
 }
 
+@media (min-width: 1350px) {
+    button.pos-count-item {
+        font-size: 1.5rem;
+        margin-top: 0.5rem;
+        padding: 24px 17px;
+        border-radius: 10px;
+    }
+}
+
 button.pos-count-item span {
     color: var(--color-primary);
 }
@@ -3791,7 +3924,8 @@ button.pos-count-item:focus {
 }
 
 .pos-section-summary {
-    padding: 15px;
+    /* padding: 15px; */
+    padding: 5px 15px 15px 15px;
     width: 100%;
     /* position: absolute; */
     align-self: flex-end;
@@ -3799,6 +3933,12 @@ button.pos-count-item:focus {
     /* border-top: 0.5px solid #ccc; */
     box-shadow: 1px -1px 4px 0px #ccc;
     background: #fff
+}
+
+@media (min-width: 1350px) {
+    .pos-section-summary {
+        padding: 2em 15px 3em 15px;
+    }
 }
 
 
@@ -3851,6 +3991,18 @@ span.item-price {
     font-weight: 500;
 }
 
+@media (min-width: 1350px) {
+    span.item-name {
+        width: 59%;
+        font-size: 12pt;
+    }
+
+    span.item-price {
+        font-size: 12pt;
+        font-weight: 600;
+    }
+}
+
 .pos-item {
     display: flex;
     justify-content: space-between;
@@ -3862,6 +4014,12 @@ span.item-price {
     background: #fff;
     transition: background-color 0.3s ease;
     cursor: pointer;
+}
+
+@media (min-width: 1350px) {
+    .pos-item-row {
+        padding: 1.5rem 10px;
+    }
 }
 
 .pos-item-row:hover {
@@ -3919,7 +4077,7 @@ span.close-window {
 .pos-product-edit {
     position: fixed;
     background: #fff;
-    width: 35%;
+    width: 58%;
     height: 100%;
     /* top: 0; */
     right: -100%;
@@ -3928,6 +4086,11 @@ span.close-window {
     /* Transición para el deslizamiento */
 }
 
+@media (min-width: 924px) {
+    .pos-product-edit {
+        width: 35%;
+    }
+}
 
 .item-thumb {
     border: 1px solid #ccc;
@@ -4024,15 +4187,22 @@ span.close-window {
 }
 
 .footer-summary {
-    width: 35%;
+    width: 58%;
     position: fixed;
     bottom: 0;
+}
+
+@media (min-width: 924px) {
+    .footer-summary {
+        width: 35%;
+    }
 }
 
 .price-content-pos {
     display: flex;
     flex-direction: column;
     width: 100%;
+    margin-bottom: 10px;
 }
 
 .window-summary {
@@ -4046,6 +4216,13 @@ span.close-window {
     padding: 3px 0px;
     font-size: 9pt;
     font-family: var(--font-primary);
+}
+
+@media (min-width: 1350px) {
+    .price-content-pos span {
+        padding: 5px 0px;
+        font-size: 1.4em;
+    }
 }
 
 .price-content-pos div {
@@ -4089,7 +4266,7 @@ div#pos-subtotal {
     flex-direction: column;
     background-color: #fff;
     /* overflow-y: auto; */
-    width: 5%;
+    width: 7%;
     height: 100%;
     position: fixed;
     left: 0;
@@ -4098,7 +4275,17 @@ div#pos-subtotal {
 }
 
 .pos-sidebar-order:hover {
-    width: 15%;
+    width: 25%;
+}
+
+@media (min-width: 924px) {
+    .pos-sidebar-order {
+        width: 5%;
+    }
+
+    .pos-sidebar-order:hover {
+        width: 15%;
+    }
 }
 
 input[type="radio"].order-radio {

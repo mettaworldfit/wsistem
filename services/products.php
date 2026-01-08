@@ -475,7 +475,7 @@ switch ($action) {
     $searchTerm = "%" . $search . "%";
 
     // Consulta para obtener los productos con paginación y búsqueda
-    $query = "SELECT p.nombre_producto,p.producto_id,p.cantidad,
+    $query = "SELECT p.cod_producto, p.nombre_producto,p.producto_id,p.cantidad,
      p.precio_unitario,p.precio_costo,p.imagen FROM productos p
     LEFT JOIN productos_con_categorias pc ON pc.producto_id = p.producto_id
     LEFT JOIN categorias c ON pc.categoria_id = c.categoria_id
