@@ -99,24 +99,30 @@ function deleteOrder(id) {
  * 
  * @param {number|string} data - Monto a devolver.
  */
-function cashback(data) {
-    alertify.alert(
-        `<div class="cashback-modal">
-            <div class="cashback-header">
-                <i class="fa fa-dollar-sign icon"></i>
-                <h2 class="title">Cambio a devolver</h2>
-            </div>
-            <div class="cashback-body">
-                <p class="amount heartbeat">$${data}</p>
-            </div>
-        </div>`
-    ).set({
-        basic: true,
-        movable: false,
-        closable: true,
-        transition: 'fade'
-    });
-}
+ function cashBack(data,timeout = 10000) {
+        const alert = alertify.alert(
+            `
+    <div class="cashback-modal">
+      <div class="cashback-header">
+        <i class="fa fa-hand-holding-usd cashback-icon"></i>
+        <span class="cashback-title">Cambio a devolver</span>
+      </div>
+      <div class="cashback-body">
+        <span class="cashback-currency">$</span>
+        <span class="cashback-amount">${parseFloat(data).toFixed(2)}</span>
+      </div>
+    </div>
+    `
+        ).set({
+            basic: true,
+            movable: false,
+            closable: false,
+            transition: 'fade'
+        });
+
+        // ⏱ Cerrar automáticamente
+        setTimeout(() => { alert.close(); }, timeout);
+    }
 
 // Total de la factura
 function calculateTotalInvoice(bonus = 0) {
@@ -179,12 +185,12 @@ function calculateTotalInvoice(bonus = 0) {
                 $('#credit-received').val('0.00');
 
                 // Insertar en el POS (Punto de venta)
-                if (discount > 0) {
+                if (discount.replace(/,/g, "") > 0) {
                     $('#pos-discount').css('display', 'flex')
                     $('#pos-subtotal').css('display', 'flex')
                 }
 
-                if (taxes > 0) {
+                if (taxes.replace(/,/g, "") > 0) {
                     $('#pos-taxes').css('display', 'flex')
                     $('#pos-subtotal').css('display', 'flex')
                 }
@@ -343,7 +349,7 @@ $(document).ready(function () {
                         console.log(res);
                         notifyAlert(res, 'error');
                     },
-                    verbose: true
+                    verbose: false
                 });
 
             } else {
@@ -351,6 +357,8 @@ $(document).ready(function () {
             }
         }, 300);  // 300 ms de espera entre cambios rápidos
     });
+
+   
 
     const validPages = [
         "invoices/addpurchase",

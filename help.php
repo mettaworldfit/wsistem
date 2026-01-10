@@ -2098,8 +2098,11 @@ class Help
 
       $db = Database::connect();
 
-      $query = "SELECT COUNT(DISTINCT co.comanda_id) AS total FROM comandas co
-              INNER JOIN detalle_facturas_ventas d ON co.comanda_id = d.comanda_id;";
+      $query = "SELECT COUNT(DISTINCT co.comanda_id) AS total
+      FROM comandas co
+      INNER JOIN detalle_facturas_ventas d 
+      ON co.comanda_id = d.comanda_id
+      WHERE d.factura_venta_id IS NULL";
 
       $result = $db->query($query);
       $data = $result->fetch_object();

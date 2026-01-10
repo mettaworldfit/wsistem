@@ -304,6 +304,27 @@ try {
 
       break;
 
+    case 'obtener_cliente_por_id':
+
+      $id = intval($_POST['id']);
+
+      $stmt = $db->prepare("SELECT cliente_id, nombre, apellidos FROM clientes WHERE cliente_id = ?");
+      $stmt->bind_param("i", $id);
+      $stmt->execute();
+      $res = $stmt->get_result();
+
+      if ($row = $res->fetch_assoc()) {
+        echo json_encode([
+          'id' => $row['cliente_id'],
+          'text' => $row['nombre'] . ($row['apellidos'] ? ' ' . $row['apellidos'] : '')
+        ]);
+      } else {
+        echo json_encode(null);
+      }
+      exit;
+
+      break;
+
     // Eliminar cliente, proveedor o bono
     case 'eliminar_cliente':
     case 'eliminar_proveedor':

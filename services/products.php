@@ -19,8 +19,8 @@ $defaultTinifyKey = "j6NYhPDxKlPVz6C0NyXrr5c6vVjNKvqj";
 
 // Obtener desde config si existe y no está vacía
 $tinify_API_KEY = !empty($config['tinify_API_KEY'])
-    ? $config['tinify_API_KEY']
-    : $defaultTinifyKey;
+  ? $config['tinify_API_KEY']
+  : $defaultTinifyKey;
 
 // Setear la key
 Tinify::setKey($tinify_API_KEY);
@@ -571,20 +571,33 @@ switch ($action) {
       }
 
       // Generar el input con el atributo disabled si el producto tiene variantes
-      $row['cant_input'] = '<input type="number" class="input-update input-quantity" 
-                   value="' . (intval($cantidad) == $cantidad ? number_format($cantidad, 0) : number_format($cantidad, 2)) . '" 
-                   data-id="' . $row['detalle_venta_id'] . '" 
-                   data-item-id="' . ($producto_id ? $producto_id : ($row['pieza_id'] ? $row['pieza_id'] : $row['servicio_id'])) . '" 
-                   data-item-type="' . ($producto_id ? 'producto' : ($row['pieza_id'] ? 'pieza' : 'servicio')) . '" 
-                   step="any" min="0"' . ($hasVariants ? 'disabled' : '') . ' />';
+      $row['cant_input'] = '
+      <div class="qty-control">
+        <button type="button" class="qty-btn qty-minus" ' . ($hasVariants ? 'disabled' : '') . '><i class="fas fa-minus"></i></button>
+
+        <input
+          type="number"
+          class="input-update input-quantity"
+          value="' . (intval($cantidad) == $cantidad ? number_format($cantidad, 0) : number_format($cantidad, 2)) . '"
+          data-id="' . $row['detalle_venta_id'] . '"
+          data-item-id="' . ($producto_id ? $producto_id : ($row['pieza_id'] ? $row['pieza_id'] : $row['servicio_id'])) . '"
+          data-item-type="' . ($producto_id ? 'producto' : ($row['pieza_id'] ? 'pieza' : 'servicio')) . '"
+          step="0.01"
+          min="0"
+          ' . ($hasVariants ? 'disabled' : '') . '
+        />
+
+        <button type="button" class="qty-btn qty-plus" ' . ($hasVariants ? 'disabled' : '') . '><i class="fas fa-plus"></i></button>
+      </div>';
+
 
       // Generar las acciones para cada producto
       $row['acciones'] = '
     <div class="pos-actions">
-        <a class="btn-action action-info" href="#" data-edit="' . $row['detalle_venta_id'] . '" title="editar" id="item-edit">
+        <a class="btn-action action-info" href="#" data-edit="' . $row['detalle_venta_id'] . '" title="Editar" id="item-edit">
             ' . BUTTON_EDIT . '
         </a>
-        <a class="btn-action action-danger" data-delete="' . $row['detalle_venta_id'] . '" id="item-delete">
+        <a class="btn-action action-danger" data-delete="' . $row['detalle_venta_id'] . '" title="Eliminar" id="item-delete">
             ' . BUTTON_DELETE . '
         </a>
     </div>';

@@ -76,6 +76,7 @@ $scriptsMap = [
         base_url . 'public/functions/services.js',
         base_url . 'public/functions/contacts.js',
         base_url . 'public/functions/price_lists.js',
+        base_url . 'public/functions/reports.js',
     ],
 
     // Reparación específica

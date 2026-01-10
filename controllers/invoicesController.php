@@ -41,6 +41,21 @@ class InvoicesController
     public function pos()
     {
         $this->check_permission('pos');
+
+        // Cierre de caja
+        $cashOpening = Help::getCashOpening(); // Obtener datos de la caja abierta
+        $tickets = Help::getIssuedInvoices(); // Total de tickets emitidos
+
+        $totalReal = Help::getTotalReal(); // Total real
+        $cash = Help::getDailySalesByPaymentMethod(1); // Efectivo
+        $credit = Help::getDailySalesByPaymentMethod(2); // Tarjeta de credido
+        $debit = Help::getDailySalesByPaymentMethod(3); // Tarjeta de debito
+        $card = $credit + $debit;
+        $transfers = Help::getDailySalesByPaymentMethod(4); // Tranferencias
+        $checks = Help::getDailySalesByPaymentMethod(5); // Cheques
+        $cashExpenses = Help::getOriginExpensesToday('caja'); // Total Origen de gastos
+        $externalExpenses = Help::getOriginExpensesToday('fuera_caja'); // Total Origen de gastos
+        
         require_once './views/invoices/pos.php';
     }
 

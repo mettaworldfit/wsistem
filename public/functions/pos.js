@@ -154,13 +154,20 @@ $(document).ready(function () {
 
                         var total = subtotal - descuentoTotal + impuestoTotal;
 
+                        // Construir el contenido del precio con los impuestos y descuentos solo si son mayores que 0
+                        var impuestoTexto = impuesto > 0 ? `/ + $${impuesto}` : '';
+                        var descuentoTexto = descuento > 0 ? `/ - $${descuento}` : '';
+
                         const items = `
                         <div class="pos-item-row">
                             <div class="pos-item">
-                                <span class="item-name">${detail.nombre}</span>
+                                <span class="item-name">
+                                    ${detail.nombre}
+                                    <p>${cantidad} x $${precio} ${impuestoTexto} ${descuentoTexto}</p>
+                                </span>
                                 ${detail.cant_input}
                                 <div class="item-crud">
-                                    <span class="item-price">$${total}</span>
+                                    <span class="item-price">$${format.format(total)}</span>
                                     ${detail.acciones}
                                 </div>
                             </div>
@@ -168,6 +175,7 @@ $(document).ready(function () {
                         `;
                         gridContainer.append(items);
                     });
+
 
                     // cargar resumen de venta
                     calculateTotalInvoice();
@@ -178,12 +186,15 @@ $(document).ready(function () {
                     var total_items = $('.pos-detail-item .pos-item-row').length;
 
                     if (total_items > 0) {
-                        $('.pos-count-item').css('display', 'flex')
+                        $('.pos-count-item').css('display', 'flex') // Total Items 
+                        $('#cash_received').val('')
+                        $('#cash_received').css('display', 'flex') // Dinero recibido
                         $('.pos-count-item p').text(total_items + ' Items');
                         $('.pos-button-cash').attr('disabled', false);
                         $('.pos-button-credit').attr('disabled', false);
                     } else {
-                        $('.pos-count-item').hide()
+                        $('.pos-count-item').hide() // Total Items 
+                        $('#cash_received').hide() // Dinero recibido
                         $('.pos-button-cash').attr('disabled', true);
                         $('.pos-button-credit').attr('disabled', true);
 
@@ -284,7 +295,6 @@ $(document).ready(function () {
     $("#list_price").change(function () {
         const list_id = $(this).val();
         updateToListPrice(list_id);
-
     });
 
     function updateToListPrice(listId, productId = 0) {
@@ -330,6 +340,27 @@ $(document).ready(function () {
         localStorage.setItem(STORAGE_KEY, $(this).val());
     });
 
+    // Actualizar cantidad
+    $(document).on('click', '.qty-plus', function () {
+        const input = $(this).siblings('.input-quantity');
+        let val = parseInt(input.val()) || 0;
+
+        input.val(val + 1).trigger('change');
+        setTimeout(() => { loadDetailPOS(); }, 700);
+    });
+
+    $(document).on('click', '.qty-minus', function () {
+        const input = $(this).siblings('.input-quantity');
+        let val = parseInt(input.val()) || 0;
+        const min = parseInt(input.attr('min')) || 0;
+
+        val = val - 1;
+        if (val < min) val = min;
+
+        input.val(val).trigger('change');
+        setTimeout(() => { loadDetailPOS(); }, 700);
+
+    });
 
     /**============================================================= 
     * VENTANA DE EDITAR
@@ -344,7 +375,7 @@ $(document).ready(function () {
         $('.pos-product-edit').css('right', '-100%'); // Ocultar la ventana deslizante
         $('.pos-customer-add').css('right', '-100%'); // Ventana agregar cliente
         $('.pos-order-add').css('right', '-100%'); // Ventana agregar order
-        $('.pos-info-window').css('right', '-100%'); // Ventana informacion de factura
+        $('.pos-config-window').css('right', '-100%'); // Ventana configuracion de factura
         $('.overlay').fadeOut(300); // Ocultar la capa de fondo negro
     }
 
@@ -439,7 +470,7 @@ $(document).ready(function () {
                     // Cambiar todos los textos de los spans dentro de .d-flex
                     $('.d-flex span').eq(0).text(data.tipo_item);
                     $('.d-flex span').eq(1).text(data.item);
-                    $('.d-flex span').eq(2).text('Sin categoria');
+                    $('.d-flex span').eq(2).text(data.nombre_categoria || 'Sin categoria');
 
                     const productImage = data.imagen && data.imagen !== ""
                         ? `<img src="${SITE_URL}public/uploads/${data.imagen}" 
@@ -468,7 +499,7 @@ $(document).ready(function () {
             errorCallback: (res) => {
                 console.error(res)
             },
-            verbose: true
+            verbose: false
         });
     });
 
@@ -532,7 +563,7 @@ $(document).ready(function () {
             url: "services/invoices.php",
             data: data,
             successCallback: (res) => {
-
+                console.log(res)
                 notifyAlert(res, 'success');
                 windowSummary(); // Calcular ventana editar
                 loadDetailPOS(); // Cargar detalle
@@ -616,33 +647,48 @@ $(document).ready(function () {
     }
 
     // Cargar clientes
-    $('#customer_id, #pos_customer_id, #modal-customer_id').select2({
-        placeholder: 'Selecciona un cliente',
-        allowClear: true, // Permite limpiar la selección
-        ajax: {
-            url: SITE_URL + 'services/contacts.php',
-            dataType: 'json',
-            method: 'POST',
-            data: function (params) {
-                return {
-                    action: 'obtener_clientes', // Acción que identificarás en el backend
-                    q: params.term // Aquí puedes pasar el término de búsqueda si lo deseas
-                };
-            },
-            processResults: function (data) {
+    function initClientSelect2(selector, selectedId = null) {
+        const $select = $(selector);
 
-                // Ajuste: Acceder a la propiedad correcta (nombre) en vez de "name"
-                return {
-                    results: data.results.map(function (client) {
-                        return {
-                            id: client.id, // El id del cliente
-                            text: client.nombre + (client.apellidos ? ' ' + client.apellidos : '') // Nombre completo
-                        };
-                    })
-                };
+        $select.select2({
+            placeholder: 'Selecciona un cliente',
+            allowClear: true, // Permite limpiar la selección
+            ajax: {
+                url: SITE_URL + 'services/contacts.php',
+                method: 'POST',
+                dataType: 'json',
+                data: params => ({
+                    action: 'obtener_clientes',
+                    q: params.term || ''
+                }),
+                processResults: data => ({
+                    results: data.results.map(c => ({
+                        id: c.id,
+                        text: c.nombre + (c.apellidos ? ' ' + c.apellidos : '')
+                    }))
+                })
             }
+        });
+
+        // Obtener nombre automáticamente por ID
+        if (selectedId) {
+            sendAjaxRequest({
+                url: 'services/contacts.php',
+                data: {
+                    action: 'obtener_cliente_por_id',
+                    id: selectedId
+                },
+                successCallback: (client) => {
+                    const data = JSON.parse(client);
+                    if (client) {
+                        const option = new Option(data.text, data.id, true, true);
+                        $select.append(option).trigger('change');
+                    }
+                },
+                verbose: true
+            });
         }
-    });
+    }
 
 
     /**============================================================= 
@@ -678,8 +724,8 @@ $(document).ready(function () {
                         const items = `
                     <div class="order-item">
                         <input type="radio" class="order-radio" name="order_select"
-                            id="order${element.comanda_id}" data-order="${element.comanda_id}"
-                            ${selectedOrderId == element.comanda_id ? 'checked' : ''}>  <!-- Marcar si es la orden seleccionada -->
+                            id="order${element.comanda_id}" data-order="${element.comanda_id}" data-client-id="${element.cliente_id}"
+                            ${selectedOrderId == element.comanda_id ? 'checked' : ''}>
 
                         <span>${element.total_items}</span>
                         <i class="fas fa-shopping-basket"></i>
@@ -715,9 +761,12 @@ $(document).ready(function () {
         $("#pos-print-order").css('display', 'inline-block');
 
         $('#order_id').val(orderId);
-        loadDetailPOS();
 
-        console.log('Orden seleccionada:', orderId);
+        // Obtener el ID del cliente
+        const customerId = radio.data('client-id')
+
+        initClientSelect2("#customer_id", customerId)
+        loadDetailPOS();
 
     });
 
@@ -778,6 +827,16 @@ $(document).ready(function () {
     })
 
     /**============================================================= 
+    *  VENTANA CONFIGURACION DE FACTURACION
+    ===============================================================*/
+
+    $('#pos-config').on('click', function () {
+
+        $('.pos-config-window').css('display', 'block').css('right', '0'); // Mostrar ventana deslizante desde la derecha
+        $('.overlay').css('display', 'block'); // Mostrar la capa de fondo negro con transparencia
+    });
+
+    /**============================================================= 
     * FACTURACION E IMPRESION
     ===============================================================*/
 
@@ -790,6 +849,7 @@ $(document).ready(function () {
             customer_id: $('#customer_id').val(),
             method_id: $('#method_id').val(),
             total_invoice: parseFloat($('#total_pos').val()),
+            cash_received: $('#cash_received').val() || 0
         };
 
         // Validación rápida
@@ -817,8 +877,21 @@ $(document).ready(function () {
             successCallback: (res) => {
 
                 if (res > 0) {
-                    // Desactivar boton
-                    $('.pos-button-cash').attr('disabled', true);
+
+                    // Dinero a devolver
+                    if (!isNaN(data.cash_received) && Number(data.cash_received) > 0) {
+
+                        const total = Number(data.total_invoice) || 0;
+                        const recibido = Number(data.cash_received) || 0;
+
+                        const cashback = recibido - total;
+
+                        if (cashback > 0) {
+                            cashBack(cashback, 15000);
+                        }
+                    }
+
+                    $('.pos-button-cash').attr('disabled', true); // Desactivar boton
                     notifyAlert("Registro exitoso", "success", 1500)
                     $('#order_id').val('') // quitar orden
                     loadDetailPOS()
@@ -856,6 +929,7 @@ $(document).ready(function () {
             successCallback: (res) => {
 
                 if (res > 0) {
+
                     $('#pos-credit').modal('hide'); // cerrar modal
                     notifyAlert("Registro exitoso", "success", 1500)
                     $('#order_id').val('') // quitar orden
@@ -1011,10 +1085,13 @@ $(document).ready(function () {
     * INICIAR FUNCIONES
     ===============================================================*/
 
-    // Cargar productos por primera vez
-    loadProductsPOS();
-    loadDetailPOS()
-    loadOrdersPOS();
+    loadProductsPOS();  // Cargar productos por primera vez
+    loadDetailPOS() // Cargar detalle
+    loadOrdersPOS(); // Cargar ordenes
+
+    initClientSelect2('#customer_id', 1);
+    initClientSelect2('#pos_customer_id');
+    initClientSelect2('#modal-customer_id', 1);
 
 
 }); // Ready
