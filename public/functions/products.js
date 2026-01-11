@@ -564,82 +564,73 @@ $(document).ready(function () {
 
 
 
-    // const scanner = new Html5Qrcode("reader");
-
-    // scanner.start(
-    //     { facingMode: "environment" },
-    //     { fps: 10, qrbox: 250 },
-    //     (code) => {
-    //         buscarProductoPorCodigo(code);
-    //         scanner.stop();
-    //     }
-    // );
 
 
 
 
-let scanner = new Html5Qrcode("reader");
-let scanning = false;
 
-$('#scannerProduct').on('click', function () {
+// let scanner = new Html5Qrcode("reader");
+// let scanning = false;
 
-    if (scanning) return;
+// $('#scannerProduct').on('click', function () {
 
-    $('#scanner-overlay').css('display', 'flex');
+//     if (scanning) return;
 
-    setTimeout(() => {
+//     $('#scanner-overlay').css('display', 'flex');
 
-        scanning = true;
+//     setTimeout(() => {
 
-        scanner.start(
-            {
-                facingMode: "user" // 📸 CÁMARA DELANTERA
-            },
-            {
-                fps: 6,
-                qrbox: function (viewfinderWidth, viewfinderHeight) {
-                    let size = Math.min(viewfinderWidth, viewfinderHeight) * 0.75;
-                    return { width: size, height: size };
-                },
-                aspectRatio: 1.777778,
-                disableFlip: false,
+//         scanning = true;
 
-                // 🔥 SOLO CÓDIGOS DE BARRAS
-                formatsToSupport: [
-                    Html5QrcodeSupportedFormats.CODE_128,
-                    Html5QrcodeSupportedFormats.EAN_13,
-                    Html5QrcodeSupportedFormats.EAN_8,
-                    Html5QrcodeSupportedFormats.UPC_A
-                ],
+//         scanner.start(
+//             {
+//                 facingMode: "user" // 📸 CÁMARA DELANTERA
+//             },
+//             {
+//                 fps: 6,
+//                 qrbox: function (viewfinderWidth, viewfinderHeight) {
+//                     let size = Math.min(viewfinderWidth, viewfinderHeight) * 0.75;
+//                     return { width: size, height: size };
+//                 },
+//                 aspectRatio: 1.777778,
+//                 disableFlip: false,
 
-                videoConstraints: {
-                    focusMode: "continuous"
-                }
-            },
-            (code) => {
-                $('#product_code').val(code);
-                stopScanner();
-            },
-            () => {}
-        ).catch(err => {
-            console.error("Error cámara:", err);
-            scanning = false;
-        });
+//                 // 🔥 SOLO CÓDIGOS DE BARRAS
+//                 formatsToSupport: [
+//                     Html5QrcodeSupportedFormats.CODE_128,
+//                     Html5QrcodeSupportedFormats.EAN_13,
+//                     Html5QrcodeSupportedFormats.EAN_8,
+//                     Html5QrcodeSupportedFormats.UPC_A
+//                 ],
 
-    }, 300);
-});
+//                 videoConstraints: {
+//                     focusMode: "continuous"
+//                 }
+//             },
+//             (code) => {
+//                 $('#product_code').val(code);
+//                 stopScanner();
+//             },
+//             () => {}
+//         ).catch(err => {
+//             console.error("Error cámara:", err);
+//             scanning = false;
+//         });
 
-function stopScanner() {
-    if (!scanning) return;
+//     }, 300);
+// });
 
-    scanner.stop().then(() => {
-        scanner.clear();
-        $('#scanner-overlay').hide();
-        scanning = false;
-    });
-}
+// function stopScanner() {
+//     if (!scanning) return;
 
-$('#closeScanner').on('click', stopScanner);
+//     scanner.stop().then(() => {
+//         scanner.clear();
+//         $('#scanner-overlay').hide();
+//         scanning = false;
+//     });
+// }
+
+// $('#closeScanner').on('click', stopScanner);
 
 
 

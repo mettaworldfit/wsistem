@@ -49,7 +49,7 @@
   <!-- Lazy loading -->
   <?php require_once "includes/lazy_load.php"; ?>
 
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <!-- <script src="https://unpkg.com/html5-qrcode"></script> -->
 
   <!-- Font-Awesome -->
 
