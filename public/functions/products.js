@@ -578,7 +578,6 @@ $(document).ready(function () {
 
 
 
-
 let scanner = new Html5Qrcode("reader");
 let scanning = false;
 
@@ -588,27 +587,34 @@ $('#scannerProduct').on('click', function () {
 
     $('#scanner-overlay').css('display', 'flex');
 
-    // 🔥 esperar a que el DOM se pinte
     setTimeout(() => {
 
         scanning = true;
 
         scanner.start(
-            { facingMode: "environment" },
             {
-                fps: 10,
-                qrbox: 250
+                facingMode: "environment"
+            },
+            {
+                fps: 6, // 🔥 menos fps = mejor enfoque
+                qrbox: function (viewfinderWidth, viewfinderHeight) {
+                    let size = Math.min(viewfinderWidth, viewfinderHeight) * 0.75;
+                    return { width: size, height: size };
+                },
+                aspectRatio: 1.777778, // 16:9
+                disableFlip: false,
+                videoConstraints: {
+                    focusMode: "continuous", // 🔥 autofocus
+                    advanced: [{ torch: false }]
+                }
             },
             (code) => {
                 $('#product_code').val(code);
                 stopScanner();
             }
-        ).catch(err => {
-            console.error(err);
-            scanning = false;
-        });
+        );
 
-    }, 300); // 🔥 ESTE DELAY SOLUCIONA TODO
+    }, 300);
 });
 
 function stopScanner() {
@@ -620,8 +626,6 @@ function stopScanner() {
         scanning = false;
     });
 }
-
-$('#closeScanner').on('click', stopScanner);
 
 
 
