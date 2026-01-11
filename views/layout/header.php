@@ -49,6 +49,8 @@
   <!-- Lazy loading -->
   <?php require_once "includes/lazy_load.php"; ?>
 
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
   <!-- Font-Awesome -->
 
   <link rel="preload" href="<?= base_url ?>public/font-awesome/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">

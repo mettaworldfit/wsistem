@@ -48,19 +48,32 @@
                 </div>
 
 
-                <div class="form-group col-sm-9">
+                <div class="form-group col-sm-8">
                     <label class="form-check-label label-nomb" for="">Nombre<span class="text-danger">*</span></label>
                     <input class="form-custom col-sm-12" type="text" name="name" id="product_name" placeholder=""
                         required>
                 </div>
 
-                <div class="form-group col-sm-3 mb-3">
+                <div class="form-group col-sm-4 mb-3">
                     <label class="form-check-label" for="">Código <a href="#" class="example-popover"
                             data-toggle="popover" title="Código producto"
                             data-content="Agrega un código único para identificar este producto. Ejemplo: CAS002"><i
                                 class="far fa-question-circle"></i></a></label>
-                    <input class="form-custom col-sm-12" type="text" name="product_code" placeholder=""
-                        id="product_code">
+                    <div class="scan-group">
+                        <input class="form-custom col-sm-10" type="text" name="product_code" placeholder="" id="product_code">
+
+                        <!-- Botón scanner -->
+                        <button type="button" class="btn-custom" id="scannerProduct">
+                            <i class="fas fa-camera"></i>
+                        </button>
+
+                        <!-- Overlay del scanner -->
+                        <div id="scanner-overlay">
+                            <div id="reader"></div>
+                            <button id="closeScanner">✕</button>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="form-group col-sm-5 mb-3">

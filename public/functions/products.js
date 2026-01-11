@@ -561,9 +561,75 @@ function toggleVariantFieldsListener() {
 
 $(document).ready(function () {
 
+
+
+
+    // const scanner = new Html5Qrcode("reader");
+
+    // scanner.start(
+    //     { facingMode: "environment" },
+    //     { fps: 10, qrbox: 250 },
+    //     (code) => {
+    //         buscarProductoPorCodigo(code);
+    //         scanner.stop();
+    //     }
+    // );
+
+
+
+
+
+let scanner = new Html5Qrcode("reader");
+let scanning = false;
+
+$('#scannerProduct').on('click', function () {
+
+    if (scanning) return;
+
+    $('#scanner-overlay').css('display', 'flex');
+
+    // 🔥 esperar a que el DOM se pinte
+    setTimeout(() => {
+
+        scanning = true;
+
+        scanner.start(
+            { facingMode: "environment" },
+            {
+                fps: 10,
+                qrbox: 250
+            },
+            (code) => {
+                $('#product_code').val(code);
+                stopScanner();
+            }
+        ).catch(err => {
+            console.error(err);
+            scanning = false;
+        });
+
+    }, 300); // 🔥 ESTE DELAY SOLUCIONA TODO
+});
+
+function stopScanner() {
+    if (!scanning) return;
+
+    scanner.stop().then(() => {
+        scanner.clear();
+        $('#scanner-overlay').hide();
+        scanning = false;
+    });
+}
+
+$('#closeScanner').on('click', stopScanner);
+
+
+
+
+
     /**============================================================= 
-   * FUNCIONES Y ACCIONES EN LAS VENTAS SECCION PRODUCTOS
-   ===============================================================*/
+    * FUNCIONES Y ACCIONES EN LAS VENTAS SECCION PRODUCTOS
+    ===============================================================*/
 
     // Funcion que maneja y muestra los inputs en las ventanas
     function handleProductModal() {
@@ -599,8 +665,8 @@ $(document).ready(function () {
     $('input[name="tipo"]').on('change', handleProductModal);
 
     /**============================================================= 
-   * FUNCIONES PARA MOSTRAR PRODUCTOS
-   ===============================================================*/
+    * FUNCIONES PARA MOSTRAR PRODUCTOS
+    ===============================================================*/
 
     // Inicializar el tipo de variante
     toggleVariantFieldsListener();
@@ -1161,7 +1227,7 @@ $(document).ready(function () {
         alertify.confirm("Eliminar producto", "¿Estas seguro que deseas eliminar " + productName + " ?",
             function () {
 
-                 unsetImagen(productId) // Eliminar imagen
+                unsetImagen(productId) // Eliminar imagen
 
                 sendAjaxRequest({
                     url: "services/products.php",
@@ -1185,8 +1251,8 @@ $(document).ready(function () {
     });
 
     /**============================================================= 
-   * MANEJO DE IMAGEN
-   ===============================================================*/
+    * MANEJO DE IMAGEN
+    ===============================================================*/
 
     // Eliminar imagen al cambiar o eliminar el producto 
     function unsetImagen(productId) {
@@ -1216,8 +1282,8 @@ $(document).ready(function () {
         // Verificamos si el ID del producto es válido (mayor que 0 y no vacío)
         if (productId && productId > 0) {
 
-             unsetImagen(productId) // Elimina la imagen anterior
-             uploadImage(productId); // Guardar imagen
+            unsetImagen(productId) // Elimina la imagen anterior
+            uploadImage(productId); // Guardar imagen
         }
     });
 
