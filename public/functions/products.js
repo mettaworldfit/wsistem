@@ -593,26 +593,38 @@ $('#scannerProduct').on('click', function () {
 
         scanner.start(
             {
-                facingMode: "environment"
+                facingMode: "user" // 📸 CÁMARA DELANTERA
             },
             {
-                fps: 6, // 🔥 menos fps = mejor enfoque
+                fps: 6,
                 qrbox: function (viewfinderWidth, viewfinderHeight) {
                     let size = Math.min(viewfinderWidth, viewfinderHeight) * 0.75;
                     return { width: size, height: size };
                 },
-                aspectRatio: 1.777778, // 16:9
+                aspectRatio: 1.777778,
                 disableFlip: false,
+
+                // 🔥 SOLO CÓDIGOS DE BARRAS
+                formatsToSupport: [
+                    Html5QrcodeSupportedFormats.CODE_128,
+                    Html5QrcodeSupportedFormats.EAN_13,
+                    Html5QrcodeSupportedFormats.EAN_8,
+                    Html5QrcodeSupportedFormats.UPC_A
+                ],
+
                 videoConstraints: {
-                    focusMode: "continuous", // 🔥 autofocus
-                    advanced: [{ torch: false }]
+                    focusMode: "continuous"
                 }
             },
             (code) => {
                 $('#product_code').val(code);
                 stopScanner();
-            }
-        );
+            },
+            () => {}
+        ).catch(err => {
+            console.error("Error cámara:", err);
+            scanning = false;
+        });
 
     }, 300);
 });
@@ -626,6 +638,8 @@ function stopScanner() {
         scanning = false;
     });
 }
+
+$('#closeScanner').on('click', stopScanner);
 
 
 
