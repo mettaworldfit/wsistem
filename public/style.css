@@ -111,7 +111,7 @@ input:disabled {
     padding-top: 1px;
     cursor: pointer;
     font-size: 12px;
-    /* Tamaño base para pantallas pequeñas */
+    /* TamaÃƒÆ’Ã‚Â±o base para pantallas pequeÃƒÆ’Ã‚Â±as */
 }
 
 
@@ -131,7 +131,7 @@ input:disabled {
     top: 2px;
     left: 13px;
     height: 16px;
-    /* Tamaño base pequeño */
+    /* TamaÃƒÆ’Ã‚Â±o base pequeÃƒÆ’Ã‚Â±o */
     width: 16px;
     background: #e2e2e2;
     border: 0 solid #000;
@@ -141,7 +141,7 @@ input:disabled {
 }
 
 
-/* Estilo cuando el checkbox es hover o está en foco */
+/* Estilo cuando el checkbox es hover o estÃƒÆ’Ã‚Â¡ en foco */
 
 .control:hover input~.control_indicator,
 .control input:focus~.control_indicator {
@@ -149,14 +149,14 @@ input:disabled {
 }
 
 
-/* Estilo cuando el checkbox está marcado */
+/* Estilo cuando el checkbox estÃƒÆ’Ã‚Â¡ marcado */
 
 .control input:checked~.control_indicator {
     background: var(--color-primary);
 }
 
 
-/* Estilo cuando el checkbox está marcado y tiene foco o está en hover */
+/* Estilo cuando el checkbox estÃƒÆ’Ã‚Â¡ marcado y tiene foco o estÃƒÆ’Ã‚Â¡ en hover */
 
 .control:hover input:not([disabled]):checked~.control_indicator,
 .control input:checked:focus~.control_indicator {
@@ -164,7 +164,7 @@ input:disabled {
 }
 
 
-/* Estilo cuando el checkbox está deshabilitado */
+/* Estilo cuando el checkbox estÃƒÆ’Ã‚Â¡ deshabilitado */
 
 .control input:disabled~.control_indicator {
     background: #e6e6e6;
@@ -183,7 +183,7 @@ input:disabled {
 }
 
 
-/* Estilo para el checkmark cuando el checkbox está marcado */
+/* Estilo para el checkmark cuando el checkbox estÃƒÆ’Ã‚Â¡ marcado */
 
 .control input:checked~.control_indicator:after {
     display: block;
@@ -205,24 +205,22 @@ input:disabled {
 @media (min-width: 1340px) {
     .control {
         font-size: 14px;
-        /* Aumentar el tamaño del texto para pantallas grandes */
+        /* Aumentar el tamaÃƒÆ’Ã‚Â±o del texto para pantallas grandes */
     }
-
     .control_indicator {
         top: 2px;
         left: 11px;
-        /* Ajustar posición */
+        /* Ajustar posiciÃƒÆ’Ã‚Â³n */
         height: 18px;
-        /* Aumentar el tamaño */
+        /* Aumentar el tamaÃƒÆ’Ã‚Â±o */
         width: 18px;
-        /* Aumentar el tamaño */
+        /* Aumentar el tamaÃƒÆ’Ã‚Â±o */
     }
-
     .control-checkbox .control_indicator:after {
         left: 5px;
-        /* Ajustar posición del checkmark */
+        /* Ajustar posiciÃƒÆ’Ã‚Â³n del checkmark */
         width: 3px;
-        /* Ajuste pequeño */
+        /* Ajuste pequeÃƒÆ’Ã‚Â±o */
     }
 }
 
@@ -325,9 +323,8 @@ input[type="date"].form-custom-icon {
         padding: 6px 0 6px 5px;
         font-size: 11pt
     }
-
     .input-div {
-        padding: 10px 4px;
+        padding: 2px 4px;
     }
 }
 
@@ -369,7 +366,7 @@ input[type="date"].form-custom-icon {
 }
 
 
-/* Triángulo */
+/* TriÃƒÆ’Ã‚Â¡ngulo */
 
 [data-title]:before {
     content: "";
@@ -451,7 +448,6 @@ p.list_db {
         padding: 12px;
         margin-left: 10px
     }
-
     .btn-custom:first-child {
         margin-left: 0
     }
@@ -461,7 +457,6 @@ p.list_db {
     .btn-custom {
         margin-left: 10px
     }
-
     .btn-custom:first-child {
         margin-left: 0
     }
@@ -948,7 +943,6 @@ span:hover #toggle {
         display: block;
         width: 24.8%;
     }
-
     .admin-bar {
         height: 75px;
         line-height: 75px;
@@ -1042,11 +1036,9 @@ ul#search_result li:hover {
     section.content-bar {
         width: 83%
     }
-
     ul#search_result {
         width: 640px;
     }
-
     ul#search_result {
         width: 100%;
         left: 0;
@@ -1117,7 +1109,6 @@ img.nav-icon {
     .nav-container {
         width: 38%;
     }
-
     img.nav-icon {
         width: 70px;
     }
@@ -1313,7 +1304,6 @@ span.alert-notify-lg p {
         line-height: 16px;
         margin: 15px 0 0 11px;
     }
-
     span.alert-notify-md p {
         width: 17px;
         height: 17px;
@@ -1321,7 +1311,6 @@ span.alert-notify-lg p {
         margin: 14px 0 0 12px;
         font-size: 9px;
     }
-
     span.alert-notify-lg p {
         width: 21px;
         height: 21px;
@@ -1565,10 +1554,9 @@ span.alert-notify-lg p {
 
 @media (min-width:1340px) {
     .accordion .link {
-        padding: 30px 15px 30px 42px;
-        font-size: 13px;
+        padding: 26px 15px 26px 42px;
+        font-size: 10pt;
     }
-
     .accordion .link a {
         font-size: 13px;
     }
@@ -1667,7 +1655,7 @@ span.alert-notify-lg p {
 
 @media (min-width: 1340px) {
     .submenu li {
-        font-size: 14px;
+        font-size: 10pt;
         padding: 9px 15px 9px 0px;
     }
 }
@@ -1765,7 +1753,6 @@ span.alert-notify-lg p {
     .menu-movil {
         display: none
     }
-
     #menuToggle {
         display: none
     }
@@ -1784,7 +1771,7 @@ span.alert-notify-lg p {
 }
 
 
-/* Estilos para la sección de usuario */
+/* Estilos para la secciÃƒÆ’Ã‚Â³n de usuario */
 
 .user-section {
     padding: 0px 10px;
@@ -1913,7 +1900,6 @@ span.alert-notify-lg p {
     .section-wrapper {
         margin: 31px 0px 10px 0px;
     }
-
     .section-wrapper h1 {
         font-size: 18pt
     }
@@ -1996,13 +1982,13 @@ span.alert-notify-lg p {
 }
 
 
-/* Hover con cambio de color y sutil animación */
+/* Hover con cambio de color y sutil animaciÃƒÆ’Ã‚Â³n */
 
 .btn-action:hover {
     color: #111827;
-    /* Más oscuro */
+    /* MÃƒÆ’Ã‚Â¡s oscuro */
     transform: scale(1.15);
-    /* Ligerísimo zoom */
+    /* LigerÃƒÆ’Ã‚Â­simo zoom */
 }
 
 
@@ -2017,7 +2003,7 @@ span.alert-notify-lg p {
 
 .action-info:hover {
     color: #0284c7;
-    /* Azul más fuerte al pasar */
+    /* Azul mÃƒÆ’Ã‚Â¡s fuerte al pasar */
 }
 
 .action-danger {
@@ -2094,23 +2080,18 @@ span.alert-notify-lg p {
     .action-paid {
         font-size: 18px;
     }
-
     .action-toggle {
         font-size: 18px;
     }
-
     .action-view {
         font-size: 18px;
     }
-
     .action-edit {
         font-size: 18px;
     }
-
     .action-delete {
         font-size: 18px;
     }
-
     .action-active {
         font-size: 18px;
     }
@@ -2238,7 +2219,6 @@ table#variantList {
     .table-custom thead th {
         font-size: 10pt
     }
-
     .table-custom tbody td {
         font-size: 10pt
     }
@@ -2360,11 +2340,9 @@ textarea:focus {
     0% {
         transform: rotate(0deg)
     }
-
     50% {
         transform: rotate(22.5deg)
     }
-
     100% {
         transform: rotate(45deg)
     }
@@ -2503,7 +2481,6 @@ textarea:focus {
 }
 
 @media (min-width:1350px) {
-
     .head-content,
     .head-content h6 {
         font-size: 12pt
@@ -2598,6 +2575,7 @@ textarea:focus {
     }
 }
 
+
 /* imagen del producto */
 
 div#product-content-img {
@@ -2621,7 +2599,6 @@ div#product-content-img svg {
     margin: 0 auto;
     text-align: center;
 }
-
 
 .row-price {
     display: flex;
@@ -2679,7 +2656,6 @@ div#product-content-img svg {
     .radio-item label {
         font-size: 12px
     }
-
     .select2-container--default .select2-selection--single .select2-selection__rendered {
         font-size: 11px !important
     }
@@ -2776,16 +2752,13 @@ a.button-404:hover {
     .grid-container {
         grid-template-columns: repeat(6, 1fr);
     }
-
     .card-grid:nth-child(7) {
         grid-column: 1 / 4 !important;
     }
-
     .card-grid:nth-child(8) {
         grid-column: 4 / 7 !important;
         grid-row: 1 / 3;
     }
-
     .card-grid:last-child {
         grid-column: 4 / 7 !important;
     }
@@ -2795,11 +2768,9 @@ a.button-404:hover {
     .card-grid:nth-child(7) {
         height: 350px !important;
     }
-
     .card-grid:nth-child(8) {
         height: 350px !important;
     }
-
     .card-grid:last-child {
         height: 350px !important;
     }
@@ -2809,11 +2780,9 @@ a.button-404:hover {
     .card-grid:nth-child(7) {
         height: 420px !important;
     }
-
     .card-grid:nth-child(8) {
         height: 420px !important;
     }
-
     .card-grid:last-child {
         height: 420px !important;
     }
@@ -2939,11 +2908,10 @@ a.button-404:hover {
 
 @media (min-width: 1350px) {
     .card-grid p {
-        font-size: 11pt;
+        font-size: 10pt;
     }
-
     .card-grid span {
-        font-size: 25pt;
+        font-size: 21pt;
     }
 }
 
@@ -2986,7 +2954,6 @@ a.button-404:hover {
     0% {
         transform: rotate(0deg);
     }
-
     100% {
         transform: rotate(360deg);
     }
@@ -3058,7 +3025,6 @@ li.paginate_button.page-item {
 }
 
 @media (max-width:1340px) {
-
     .add_variant a,
     .add_variant_to_product a,
     .add_price_list a,
@@ -3066,7 +3032,6 @@ li.paginate_button.page-item {
     .add_list_to_product a {
         font-size: 11px
     }
-
     .add_price_list,
     .add_variant,
     .add_list_to_product,
@@ -3096,48 +3061,49 @@ li.paginate_button.page-item {
 ============================================ */
 
 .cashback-modal {
-  text-align: center;
-  padding: 10px 20px;
+    text-align: center;
+    padding: 10px 20px;
 }
 
 .cashback-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 10px;
 }
 
 .cashback-icon {
-  font-size: 22px;
-  color: #28a745;
+    font-size: 22px;
+    color: #28a745;
 }
 
 .cashback-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
 }
 
 .cashback-body {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 4px;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
 }
 
 .cashback-currency {
-  font-size: 20px;
-  font-weight: bold;
-  color: #444;
+    font-size: 20px;
+    font-weight: bold;
+    color: #444;
 }
 
 .cashback-amount {
-  font-size: 34px;
-  font-weight: 700;
-  color: #28a745;
-  letter-spacing: -1px;
+    font-size: 34px;
+    font-weight: 700;
+    color: #28a745;
+    letter-spacing: -1px;
 }
+
 
 /*======================================================================
   CIERRE DE CAJA MODAL
@@ -3161,7 +3127,6 @@ li.paginate_button.page-item {
 }
 
 @media (min-width: 1340px) {
-
     .grid-form-user,
     .grid-form-date {
         grid-template-columns: 1fr;
@@ -3195,7 +3160,6 @@ li.paginate_button.page-item {
 }
 
 @media (min-width: 1340px) {
-
     .grid-cash-closing,
     .grid-summary {
         grid-template-columns: 1fr;
@@ -3204,9 +3168,10 @@ li.paginate_button.page-item {
 
 legend.summary-legend {
     font-size: 11pt;
-    font-weight: 500;
+    font-weight: 600;
     padding-bottom: 8px;
     border-bottom: 1px solid #d7d7d7;
+    font-family: var(--font-primary);
 }
 
 legend.cash-closing-legend {
@@ -3228,6 +3193,7 @@ legend.cash-closing-legend {
 .form-field label {
     margin: 5px 0px;
     font-size: 9pt;
+    font-family: var(--font-primary);
 }
 
 .form-field input {
@@ -3236,6 +3202,21 @@ legend.cash-closing-legend {
     text-align: end;
     color: black;
     font-size: 10pt;
+    font-family: var(--font-primary);
+}
+
+@media (min-width: 1350px) {
+    .form-field {
+        border-radius: 3px;
+        padding: 6px 8px 6px 7px;
+    }
+    .form-field label {
+        font-size: 10pt;
+    }
+    .form-field input {
+        color: black;
+        font-size: 11pt;
+    }
 }
 
 .grid-observaciones {
@@ -3248,8 +3229,17 @@ legend.cash-closing-legend {
 }
 
 .form-closing {
-    padding: 2px 5px;
-    font-size: 13pt;
+    padding: 3px 5px;
+    font-size: 10pt;
+    font-weight: 600;
+    font-family: var(--font-primary);
+}
+
+@media (min-width: 1350px) {
+    .form-closing {
+        padding: 9px 6px;
+        font-size: 11pt;
+    }
 }
 
 .field-active {
@@ -3349,7 +3339,7 @@ button.btn-del {
     .form-check-label {
         margin-top: 0.8em;
         font-weight: 400 !important;
-        font-size: 14pt;
+        font-size: 11pt;
     }
 }
 
@@ -3367,7 +3357,6 @@ span.select2-container--default {
     .modal-dialog {
         max-width: 1100px !important;
     }
-
     .modal-cashClosing {
         min-width: 830px !important;
         margin: 1.75rem auto;
@@ -3394,7 +3383,9 @@ span.select2-container--default {
   PUNTO DE VENTA POS
 ================================================== */
 
+
 /* Contenedor principal */
+
 .pos-wrap {
     position: relative;
     display: grid;
@@ -3402,6 +3393,7 @@ span.select2-container--default {
     overflow: hidden;
     /* margin-top: 0.8rem; */
 }
+
 
 /* Productos */
 
@@ -3411,7 +3403,8 @@ span.select2-container--default {
 }
 
 
-/* Personalización del scroll */
+/* PersonalizaciÃƒÆ’Ã‚Â³n del scroll */
+
 .pos-product-section::-webkit-scrollbar {
     width: 3px;
     /* Ancho del scrollbar */
@@ -3431,7 +3424,7 @@ span.select2-container--default {
 
 .pos-product-section::-webkit-scrollbar-thumb:hover {
     background: #555;
-    /* Color cuando el thumb está en hover */
+    /* Color cuando el thumb estÃƒÆ’Ã‚Â¡ en hover */
 }
 
 .product-grid {
@@ -3488,6 +3481,12 @@ button.product-card:hover {
     margin: 0px;
 }
 
+@media (min-width: 1350px) {
+    .item-cod {
+        font-size: 9pt !important;
+    }
+}
+
 .product-card .product-info {
     padding-top: 10px;
     /* padding: 10px 10px 5px 10px; */
@@ -3497,6 +3496,13 @@ button.product-card:hover {
     font-size: 9pt;
     margin: 10px 0;
     color: #606060;
+}
+
+@media (min-width: 1350px) {
+    .product-card span {
+        font-size: 10pt;
+        font-weight: 600;
+    }
 }
 
 .product-card p {
@@ -3513,6 +3519,12 @@ p.pos-stock {
     margin: 0;
     font-size: 9pt;
     color: var(--color-primary);
+}
+
+@media (min-width: 1350px) {
+    p.pos-stock {
+        font-size: 10pt;
+    }
 }
 
 
@@ -3559,7 +3571,6 @@ p.pos-stock {
         height: 40px;
         font-size: 10pt;
     }
-
     .pos-search-bar svg {
         left: 4.3rem;
         bottom: 29px;
@@ -3568,18 +3579,17 @@ p.pos-stock {
 
 @media (min-width: 1350px) {
     .pos-search-bar input {
-        width: 51%;
-        height: 62px;
-        font-size: 13pt;
-        padding-left: 40px;
+        width: 50%;
+        height: 44px;
+        font-size: 11pt;
+        padding-left: 37px;
         margin-left: 6.5em;
     }
-
     .pos-search-bar svg {
         position: absolute;
-        left: 8rem;
+        left: 6.7rem;
         font-size: 13pt;
-        bottom: 38px;
+        bottom: 30px;
         color: var(--text-color);
     }
 }
@@ -3594,16 +3604,16 @@ p.pos-stock {
     position: absolute;
     top: 50%;
     left: 8px;
-    /* Ajusta esta propiedad para mover el ícono dentro del campo */
+    /* Ajusta esta propiedad para mover el ÃƒÆ’Ã‚Â­cono dentro del campo */
     font-size: 14px;
     transform: translateY(-50%);
     color: var(--text-color);
     pointer-events: none;
-    /* Hace que el ícono no interfiera con el clic en el input */
+    /* Hace que el ÃƒÆ’Ã‚Â­cono no interfiera con el clic en el input */
 }
 
 
-/* Paginación */
+/* PaginaciÃƒÆ’Ã‚Â³n */
 
 #pagination {
     display: flex;
@@ -3675,7 +3685,6 @@ p.pos-stock {
     }
 }
 
-
 .pos-sidebar p {
     margin-bottom: 10px;
 }
@@ -3687,7 +3696,7 @@ p.pos-stock {
 
 @media (min-width: 1350px) {
     .pos-sidebar-header h5 {
-        font-size: 2.2em;
+        font-size: 1.4em;
     }
 }
 
@@ -3743,6 +3752,7 @@ button#pos-print-order {
     font-size: 11pt;
 }
 
+
 /* pos factura data */
 
 .pos-section-invoice {
@@ -3757,7 +3767,7 @@ button#pos-print-order {
 
 @media (min-width: 1350px) {
     .pos-section-invoice {
-        padding: 15px 15px 4rem 15px;
+        padding: 15px 15px 2rem 15px;
     }
 }
 
@@ -3827,13 +3837,12 @@ button.pos-button-cash {
 
 @media (min-width: 1350px) {
     button.pos-button-cash {
-        font-size: 1.5rem;
-        padding: 24px 17px;
+        font-size: 1.1rem;
+        padding: 14px 17px;
         border-radius: 10px;
     }
-
     button.pos-button-credit {
-        font-size: 1.5rem;
+        font-size: 1.1rem;
         border-radius: 10px;
     }
 }
@@ -3871,9 +3880,9 @@ button.pos-count-item {
 
 @media (min-width: 1350px) {
     button.pos-count-item {
-        font-size: 1.5rem;
+        font-size: 1.1rem;
         margin-top: 0.5rem;
-        padding: 24px 17px;
+        padding: 14px 17px;
         border-radius: 10px;
     }
 }
@@ -3928,7 +3937,16 @@ input#cash_received {
 
 @media (min-width: 1350px) {
     .pos-section-summary {
-        padding: 2em 15px 3em 15px;
+        padding: 0.2em 15px 3em 15px;
+    }
+    input#cash_received {
+        display: none;
+        width: 41%;
+        font-size: 12pt;
+        font-weight: 600;
+        margin-top: 8px;
+        border-radius: 10px;
+        border: 1px solid;
     }
 }
 
@@ -3989,12 +4007,11 @@ span.item-price {
 
 @media (min-width: 1350px) {
     span.item-name {
-        width: 59%;
-        font-size: 12pt;
+        width: 52%;
+        font-size: 9pt;
     }
-
     span.item-price {
-        font-size: 12pt;
+        font-size: 10pt;
     }
 }
 
@@ -4013,7 +4030,7 @@ span.item-price {
 
 @media (min-width: 1350px) {
     .pos-item-row {
-        padding: 1.5rem 10px;
+        padding: 0.5rem 10px;
     }
 }
 
@@ -4041,23 +4058,24 @@ span.item-price {
     gap: 5px;
 }
 
+
 /* Input para controlar la cantidades */
 
 .qty-control {
-  display: flex;
-  align-items: center;
-  gap: 3px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
 }
 
 .qty-btn {
-  width: 24px;
-  height: 24px;
-  font-size: 7pt;
-  border: none;
-  background: var(--background);
-  font-weight: bold;
-  color: var(--color-primary);
-  cursor: pointer;
+    width: 24px;
+    height: 24px;
+    font-size: 7pt;
+    border: none;
+    background: var(--background);
+    font-weight: bold;
+    color: var(--color-primary);
+    cursor: pointer;
 }
 
 .qty-btn:focus {
@@ -4065,14 +4083,15 @@ span.item-price {
 }
 
 .qty-btn:disabled {
-  opacity: .5;
-  cursor: not-allowed;
+    opacity: .5;
+    cursor: not-allowed;
 }
 
 .input-quantity {
-  width: 40px;
-  text-align: center;
+    width: 40px;
+    text-align: center;
 }
+
 
 /* Editar item */
 
@@ -4110,7 +4129,7 @@ span.close-window {
     right: -100%;
     z-index: 4;
     transition: right 0.5s ease;
-    /* Transición para el deslizamiento */
+    /* TransiciÃƒÆ’Ã‚Â³n para el deslizamiento */
 }
 
 @media (min-width: 924px) {
@@ -4151,6 +4170,13 @@ span.close-window {
     padding: 10px 0px;
 }
 
+@media (min-width: 1350px) {
+    .item-thumb svg {
+        width: 50%;
+        padding: 20px 0px;
+    }
+}
+
 .item-info {
     display: flex;
     align-items: center;
@@ -4185,7 +4211,21 @@ span.close-window {
     color: #9E9E9E;
 }
 
+@media (min-width: 1350px) {
+    .item-info span:first-child {
+        font-size: 15pt;
+    }
+    .item-info span:nth-child(2) {
+        font-size: 10pt;
+    }
+    .item-info span:nth-child(3) {
+        font-size: 10pt;
+    }
+}
+
+
 /* inputs */
+
 .input-row-one {
     display: flex;
     align-items: flex-end;
@@ -4249,7 +4289,7 @@ span.close-window {
 @media (min-width: 1350px) {
     .price-content-pos span {
         padding: 5px 0px;
-        font-size: 1.4em;
+        font-size: 0.9em;
     }
 }
 
@@ -4287,6 +4327,7 @@ div#pos-subtotal {
     display: none;
 }
 
+
 /* barra de ordenes */
 
 .pos-sidebar-order {
@@ -4310,7 +4351,6 @@ div#pos-subtotal {
     .pos-sidebar-order {
         width: 5%;
     }
-
     .pos-sidebar-order:hover {
         width: 15%;
     }
@@ -4319,6 +4359,7 @@ div#pos-subtotal {
 input[type="radio"].order-radio {
     display: none;
 }
+
 
 /* item */
 
@@ -4346,12 +4387,16 @@ input[type="radio"].order-radio {
     right: 6px;
 }
 
+
 /* Hover item */
+
 .order-item:hover {
     background-color: #f5f5f5;
 }
 
+
 /* Item seleccionado */
+
 .order-item:has(.order-radio:checked) {
     border: 1px solid var(--color-primary);
 }
@@ -4359,6 +4404,7 @@ input[type="radio"].order-radio {
 .order-item:has(.order-radio:checked) svg {
     color: var(--color-primary);
 }
+
 
 /* icono */
 
@@ -4382,13 +4428,12 @@ input[type="radio"].order-radio {
     opacity: 0;
     max-width: 0;
     transform: translateX(-10px);
-    transition:
-        opacity 0.25s ease,
-        max-width 0.3s ease,
-        transform 0.25s ease;
+    transition: opacity 0.25s ease, max-width 0.3s ease, transform 0.25s ease;
 }
 
+
 /* Mostrar texto solo en hover del sidebar */
+
 .pos-sidebar-order:hover .order-radio-label {
     opacity: 1;
     padding-left: 4px;
@@ -4408,6 +4453,7 @@ input[type="radio"].order-radio {
     margin-top: 3rem; */
 }
 
+
 /* scroll */
 
 .sidebar_order {
@@ -4420,17 +4466,23 @@ input[type="radio"].order-radio {
     /* visible */
 }
 
+
 /* Scrollbar */
+
 .sidebar_order::-webkit-scrollbar {
     width: 2px;
 }
 
+
 /* Track */
+
 .sidebar_order::-webkit-scrollbar-track {
     background: transparent;
 }
 
+
 /* Thumb oculto */
+
 .sidebar_order::-webkit-scrollbar-thumb {
     background-color: #555;
     border-radius: 10px;
@@ -4438,7 +4490,9 @@ input[type="radio"].order-radio {
     transition: opacity 0.3s ease;
 }
 
+
 /* Mostrar solo en hover */
+
 .sidebar_order:hover::-webkit-scrollbar-thumb {
     opacity: 1;
 }
@@ -4490,6 +4544,7 @@ button.btn-pos_home:focus {
 
 
 /* Ventana agregar cliente */
+
 .pos-customer-add {
     position: fixed;
     background: #fff;
@@ -4508,7 +4563,9 @@ button.btn-pos_home:focus {
     bottom: 0;
 }
 
+
 /* Ventana agrega orden nueva */
+
 .pos-order-add {
     position: fixed;
     background: #fff;
@@ -4518,7 +4575,6 @@ button.btn-pos_home:focus {
     z-index: 5;
     transition: right 0.5s ease;
 }
-
 
 .modal-product_info {
     position: relative;
@@ -4573,6 +4629,7 @@ button.btn-pos_home:focus {
     margin-left: 5px;
 }
 
+
 /* configuracion de la factura */
 
 .pos-config-window {
@@ -4594,7 +4651,6 @@ button.btn-pos_home:focus {
 }
 
 
-
 /* Scanner */
 
 #scanner-overlay {
@@ -4603,7 +4659,7 @@ button.btn-pos_home:focus {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.85);
+    background: rgba(0, 0, 0, 0.85);
     display: none;
     justify-content: center;
     align-items: center;
@@ -4613,11 +4669,10 @@ button.btn-pos_home:focus {
 #reader {
     width: 100%;
     max-width: 320px;
-    height: 320px;     /* ⚠️ OBLIGATORIO */
+    height: 320px;
     margin: auto;
     background: #000;
 }
-
 
 #closeScanner {
     position: absolute;
@@ -4639,4 +4694,3 @@ button.btn-pos_home:focus {
     align-items: center;
     /* align-self: center; */
 }
-

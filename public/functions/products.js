@@ -102,7 +102,7 @@ function disableProduct(product_id) {
     alertify.confirm(
         "<i class='text-warning fas fa-exclamation-circle'></i> Desactivar producto",
         "¿Desea desactivar este producto? ",
-        function () {
+        function() {
             sendAjaxRequest({
                 url: "services/products.php",
                 data: {
@@ -112,7 +112,7 @@ function disableProduct(product_id) {
                 successCallback: () => dataTablesInstances['products'].ajax.reload(null, false) // Actualizar datatable
             })
         },
-        function () { }
+        function() {}
     );
 }
 
@@ -121,7 +121,7 @@ function disableProduct(product_id) {
 function enableProduct(product_id) {
 
     alertify.confirm("Activar producto", "¿Desea activar este producto? ",
-        function () {
+        function() {
 
             sendAjaxRequest({
                 url: "services/products.php",
@@ -134,7 +134,7 @@ function enableProduct(product_id) {
             })
 
         },
-        function () { }
+        function() {}
     );
 }
 
@@ -245,7 +245,7 @@ function addVariantDb() {
                 const today = new Date();
                 const year = today.getFullYear();
                 const month = String(today.getMonth() + 1).padStart(2, '0'); // Mes: 01–12
-                const day = String(today.getDate()).padStart(2, '0');        // Día: 01–31
+                const day = String(today.getDate()).padStart(2, '0'); // Día: 01–31
 
                 const formattedDate = `${year}-${month}-${day}`;
 
@@ -270,7 +270,7 @@ function addVariantDb() {
                 $('#variantList').DataTable().draw();
 
 
-                setTimeout(function () {
+                setTimeout(function() {
                     calculateAverageProductCost(); // Recalcular el costo promedio
                     editProduct(); // Editar producto tras agregar variante
                     toggleVariantFieldsListener(); // Actualizar tipo de variante
@@ -464,10 +464,10 @@ function renderVariantDb(storageKey = "variantes", outputSelector = "#variant_li
     // Loop de las variantes del producto en localStorage 
     table.forEach((element, index) => {
 
-        // Calcular costo promedio del producto
-        totalCost += parseFloat(element.cost) || 0;
+                // Calcular costo promedio del producto
+                totalCost += parseFloat(element.cost) || 0;
 
-        let rowHTML = `
+                let rowHTML = `
         <tr>
             <td>${element.provider}</td>
             ${element.type === 'dispositivo' ? `
@@ -563,74 +563,68 @@ $(document).ready(function () {
 
 
 
+let scanner = new Html5Qrcode("reader");
+let scanning = false;
 
+$('#scannerProduct').on('click', function () {
 
+    if (scanning) return;
 
+    $('#scanner-overlay').css('display', 'flex');
 
+    setTimeout(() => {
 
+        scanning = true;
 
-// let scanner = new Html5Qrcode("reader");
-// let scanning = false;
+        scanner.start(
+            {
+                facingMode: "user" // 📸 CÁMARA DELANTERA
+            },
+            {
+                fps: 6,
+                qrbox: function (viewfinderWidth, viewfinderHeight) {
+                    let size = Math.min(viewfinderWidth, viewfinderHeight) * 0.75;
+                    return { width: size, height: size };
+                },
+                aspectRatio: 1.777778,
+                disableFlip: false,
 
-// $('#scannerProduct').on('click', function () {
+                // 🔥 SOLO CÓDIGOS DE BARRAS
+                formatsToSupport: [
+                    Html5QrcodeSupportedFormats.CODE_128,
+                    Html5QrcodeSupportedFormats.EAN_13,
+                    Html5QrcodeSupportedFormats.EAN_8,
+                    Html5QrcodeSupportedFormats.UPC_A
+                ],
 
-//     if (scanning) return;
+                videoConstraints: {
+                    focusMode: "continuous"
+                }
+            },
+            (code) => {
+                $('#product_code').val(code);
+                stopScanner();
+            },
+            () => {}
+        ).catch(err => {
+            console.error("Error cámara:", err);
+            scanning = false;
+        });
 
-//     $('#scanner-overlay').css('display', 'flex');
+    }, 300);
+});
 
-//     setTimeout(() => {
+function stopScanner() {
+    if (!scanning) return;
 
-//         scanning = true;
+    scanner.stop().then(() => {
+        scanner.clear();
+        $('#scanner-overlay').hide();
+        scanning = false;
+    });
+}
 
-//         scanner.start(
-//             {
-//                 facingMode: "user" // 📸 CÁMARA DELANTERA
-//             },
-//             {
-//                 fps: 6,
-//                 qrbox: function (viewfinderWidth, viewfinderHeight) {
-//                     let size = Math.min(viewfinderWidth, viewfinderHeight) * 0.75;
-//                     return { width: size, height: size };
-//                 },
-//                 aspectRatio: 1.777778,
-//                 disableFlip: false,
-
-//                 // 🔥 SOLO CÓDIGOS DE BARRAS
-//                 formatsToSupport: [
-//                     Html5QrcodeSupportedFormats.CODE_128,
-//                     Html5QrcodeSupportedFormats.EAN_13,
-//                     Html5QrcodeSupportedFormats.EAN_8,
-//                     Html5QrcodeSupportedFormats.UPC_A
-//                 ],
-
-//                 videoConstraints: {
-//                     focusMode: "continuous"
-//                 }
-//             },
-//             (code) => {
-//                 $('#product_code').val(code);
-//                 stopScanner();
-//             },
-//             () => {}
-//         ).catch(err => {
-//             console.error("Error cámara:", err);
-//             scanning = false;
-//         });
-
-//     }, 300);
-// });
-
-// function stopScanner() {
-//     if (!scanning) return;
-
-//     scanner.stop().then(() => {
-//         scanner.clear();
-//         $('#scanner-overlay').hide();
-//         scanning = false;
-//     });
-// }
-
-// $('#closeScanner').on('click', stopScanner);
+$('#closeScanner').on('click', stopScanner);
 
 
 
