@@ -1355,3 +1355,15 @@ if ($_POST['action'] == "devolver_datos_impresion") {
     JSON_UNESCAPED_UNICODE
   ]);
 }
+
+
+if ($_POST['action'] == "obtener_orden_info_pos") {
+
+  $db = Database::connect();
+  $order_id = $_POST['order_id'];
+
+  $sql = "SELECT * FROM comandas WHERE comanda_id = '$order_id'";
+  // $data = $db->query($sql)->fetch_assoc();
+
+  echo jsonQueryResult($db, $sql);
+}

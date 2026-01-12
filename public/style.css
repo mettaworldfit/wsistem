@@ -3719,6 +3719,7 @@ p.pos-stock {
     width: 19px;
 }
 
+button#pos-order-update,
 button#pos-print-order {
     display: none;
 }
@@ -4650,10 +4651,30 @@ button.btn-pos_home:focus {
     bottom: 0;
 }
 
+/* Datos de la orden de compra */
+
+.pos-order-window {
+    position: fixed;
+    background: #fff;
+    width: 40%;
+    height: 100%;
+    right: -100%;
+    z-index: 5;
+    transition: right 0.5s ease;
+}
+
+.footer-order_window {
+    border-top: 1px solid #ccc;
+    margin-top: 15px;
+    position: fixed;
+    width: 40%;
+    bottom: 0;
+}
+
 
 /* Scanner */
 
-#scanner-overlay {
+/* #scanner-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -4672,7 +4693,27 @@ button.btn-pos_home:focus {
     height: 320px;
     margin: auto;
     background: #000;
+} */
+
+#scanner-overlay {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    inset: 0; /* top:0; right:0; bottom:0; left:0; */
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
 }
+
+#reader {
+    width: 90vw;   /* ancho 90% de la pantalla */
+    max-width: 600px;  /* no demasiado grande en pantallas grandes */
+    height: 60vh;  /* altura 60% de la pantalla */
+    max-height: 450px; 
+    background-color: #000; /* opcional, para ver el área */
+    border-radius: 8px;
+}
+
 
 #closeScanner {
     position: absolute;

@@ -39,17 +39,18 @@
             <div class="pos-sidebar-header">
                 <h5>Factura de venta</h5>
                 <div>
-                    <?php if (empty($cashOpening)): ?>
-                        <button type="button" data-toggle="modal" data-target="#modalCashOpening" data-title="Abrir caja">
-                            <i class="fas fa-door-open"></i>
-                        </button>
-                    <?php endif; ?>
 
-                    <?php if ($cashOpening): ?>
-                        <button type="button" data-toggle="modal" data-target="#modalCashClosing" data-title="Cerrar caja" id="cash_closing">
-                            <i class="fas fa-door-closed"></i>
-                        </button>
-                    <?php endif; ?>
+                    <button type="button" id="pos-order-update" data-title="Orden de compra">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket-icon lucide-shopping-basket">
+                            <path d="m15 11-1 9" />
+                            <path d="m19 11-4-7" />
+                            <path d="M2 11h20" />
+                            <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4" />
+                            <path d="M4.5 15.5h15" />
+                            <path d="m5 11 4-7" />
+                            <path d="m9 11 1 9" />
+                        </svg>
+                    </button>
 
                     <button type="button" id="pos-print-order" data-title="Imprimir orden">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-printer-icon lucide-printer">
@@ -58,6 +59,26 @@
                             <rect x="6" y="14" width="12" height="8" rx="1" />
                         </svg>
                     </button>
+
+                    <?php if (empty($cashOpening)): ?>
+                        <button type="button" data-toggle="modal" data-target="#modalCashOpening" data-title="Abrir caja">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock-keyhole-open-icon lucide-lock-keyhole-open">
+                                <circle cx="12" cy="16" r="1" />
+                                <rect width="18" height="12" x="3" y="10" rx="2" />
+                                <path d="M7 10V7a5 5 0 0 1 9.33-2.5" />
+                            </svg>
+                        </button>
+                    <?php endif; ?>
+
+                    <?php if ($cashOpening): ?>
+                        <button type="button" data-toggle="modal" data-target="#modalCashClosing" data-title="Cerrar caja" id="cash_closing">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock-keyhole-icon lucide-lock-keyhole">
+                                <circle cx="12" cy="16" r="1" />
+                                <rect x="3" y="10" width="18" height="12" rx="2" />
+                                <path d="M7 10V7a5 5 0 0 1 10 0v3" />
+                            </svg>
+                        </button>
+                    <?php endif; ?>
 
                     <button type="button" id="pos-config" data-title="Ajustes">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sliders-horizontal-icon lucide-sliders-horizontal">
@@ -334,6 +355,105 @@
                 <form action="" method="POST" id="configForm">
 
                     <div class="footer-config_window">
+                        <!-- Botones -->
+                        <div class="footer-btn-container">
+                            <button class="btn-custom btn-red" type="button" id="cancel-window">
+                                <i class="fas fa-window-close"></i>
+                                <p>Cancelar</p>
+                            </button>
+
+                            <button class="btn-custom btn-green" type="submit" id="">
+                                <i class="fas fa-plus"></i>
+                                <p>Guardar</p>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div> <!-- end -->
+
+        <!-- Datos de la orden -->
+        <div class="pos-order-window">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Datos de la orden
+                </h5>
+                <button type="button" class="close" id="close-window">
+                    <span class="close-window">x</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form action="" method="POST" id="updateOrderForm">
+
+                    <div class="row">
+                        <div class="form-group col-sm-8">
+                            <label class="form-check-label" for="">Cliente<span class="text-danger">*</span></label>
+                            <div class="input-div">
+                                <div class="i b-right">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <select class="form-custom-icon" name="cliente" id="pos_edit_customer" required>
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-sm-12">
+                            <label class="form-check-label" for="">Dirección de entrega</label>
+                            <textarea class="form-custom" name="" value="" id="pos_edit_direction" cols="30" rows="3"
+                                maxlength="254" placeholder="Dirección completa"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row">
+
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Nombre del receptor</span></label>
+                            <div class="input-div">
+                                <div class="i">
+                                    <i class="fas fa-user-tag"></i>
+                                </div>
+                                <input class="form-custom-icon b-left" type="text" name="receptor" id="pos_edit_fullname">
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Teléfono</label>
+                            <div class="input-div">
+                                <div class="i b-right">
+                                    <i class="fas fa-phone-alt"></i>
+                                </div>
+                                <input class="form-custom-icon b-left" type="text" name="telefono" id="pos_edit_tel">
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-4">
+                            <label class="form-check-label" for="">Tipo de entrega</label>
+                            <div class="input-div">
+                                <div class="i b-right">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <select class="form-custom-icon search" name="entrega" id="pos_edit_delivery">
+                                    <option value="-" selected>Nínguno</option>
+                                    <option value="envio">Envío</option>
+                                    <option value="retiro">Retiro</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-sm-12">
+                            <label class="form-check-label" for="">Comentarios o instrucciones especiales</label>
+                            <textarea class="form-custom" name="" value="" id="pos_edit_comment" cols="30" rows="3"
+                                maxlength="254" placeholder="Observaciones"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="footer-order_window">
                         <!-- Botones -->
                         <div class="footer-btn-container">
                             <button class="btn-custom btn-red" type="button" id="cancel-window">

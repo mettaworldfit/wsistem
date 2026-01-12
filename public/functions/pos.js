@@ -376,6 +376,7 @@ $(document).ready(function () {
         $('.pos-customer-add').css('right', '-100%'); // Ventana agregar cliente
         $('.pos-order-add').css('right', '-100%'); // Ventana agregar order
         $('.pos-config-window').css('right', '-100%'); // Ventana configuracion de factura
+        $('.pos-order-window').css('right', '-100%'); // Ventana de informacion de la orden de compra
         $('.overlay').fadeOut(300); // Ocultar la capa de fondo negro
     }
 
@@ -758,7 +759,8 @@ $(document).ready(function () {
 
         // Obtener el data-order
         const orderId = radio.data('order');
-        $("#pos-print-order").css('display', 'inline-block');
+        $("#pos-print-order").css('display', 'inline-block'); // Boton imprimir
+        $("#pos-order-update").css('display', 'inline-block'); // Boton datos de la orden
 
         $('#order_id').val(orderId);
 
@@ -778,7 +780,10 @@ $(document).ready(function () {
         $('#order_id').val('');
         const radio = $('.order-item').find('.order-radio');
         radio.prop('checked', false).trigger('change');
+
+        // Botones del sidebar
         $('#pos-print-order').css('display', 'none')
+        $('#pos-order-update').css('display', 'none')
 
         // Cargar detalle
         loadDetailPOS();
@@ -835,6 +840,112 @@ $(document).ready(function () {
         $('.pos-config-window').css('display', 'block').css('right', '0'); // Mostrar ventana deslizante desde la derecha
         $('.overlay').css('display', 'block'); // Mostrar la capa de fondo negro con transparencia
     });
+
+    /**============================================================= 
+    *  VENTANA DATOS DE LA ORDEN DE COMPRA
+    ===============================================================*/
+
+    $('#pos-order-update').on('click', function () {
+
+        $('.pos-order-window').css('display', 'block').css('right', '0'); // Mostrar ventana deslizante desde la derecha
+        $('.overlay').css('display', 'block'); // Mostrar la capa de fondo negro con transparencia
+
+        var orderId = $('#order_id').val() || 0;
+
+        getOrderInfo(orderId);
+    });
+
+    // Obtener datos de la orden
+    function getOrderInfo(orderId) {
+
+        const data = {
+            action: "obtener_orden_info_pos",
+            order_id: orderId,
+        };
+
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: data,
+            successCallback: (order) => {
+
+                try {
+                    var data = JSON.parse(order)[0];
+
+                    // Cargar datos
+                    initClientSelect2('#pos_edit_customer', data.cliente_id);
+                    $('#pos_edit_direction').val(data.direccion_entrega);
+                    $('#pos_edit_fullname').val(data.nombre_receptor);
+                    $('#pos_edit_tel').val(data.telefono_receptor);
+                    $('#pos_edit_comment').val(data.observacion);
+
+                    const select = $('#pos_edit_delivery');
+
+                    let entrega = (data.tipo_entrega || '-')
+                        .toString()
+                        .trim()
+                        .toLowerCase();
+
+                    // 🔎 si no existe, lo crea
+                    if (select.find('option[value="' + entrega + '"]').length === 0) {
+                        select.append(
+                            $('<option>', {
+                                value: entrega,
+                                text: entrega === '-' ? 'Ninguno' : entrega.charAt(0).toUpperCase() + entrega.slice(1)
+                            })
+                        );
+                    }
+
+                    // ✅ seleccionar
+                    select.val(entrega).trigger('change');
+
+
+                } catch (error) {
+                    console.error("Error al obtener datos en la venta: ", error)
+                }
+
+            },
+            errorCallback: (error) => {
+                console.error(error)
+            }
+        })
+    }
+
+    // Actualizar datos
+
+    $('#updateOrderForm').on('submit', function (e) {
+        e.preventDefault();
+
+        const data = {
+            action: "editar_orden",
+            order_id: $('#order_id').val() || 0,
+            customer_id: $('#pos_edit_customer').val(),
+            name: $('#pos_edit_fullname').val(),
+            tel: $('#pos_edit_tel').val(),
+            direction: $('#pos_edit_direction').val(),
+            observation: $('#pos_edit_comment').val(),
+            delivery: $('#pos_edit_delivery').val()
+        }
+
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: data,
+            successCallback: (res) => {
+          
+                if(res === "ready") {
+                    loadOrdersPOS();
+
+                    notifyAlert("Datos actualizados correctamente","success",1500)
+                } else {
+                    notifyAlert("Ha ocurrido un problema","error")
+                }
+
+            },
+            errorCallback: (e) => console.error(e),
+            verbose: false
+        });
+
+
+    })
 
     /**============================================================= 
     * FACTURACION E IMPRESION
@@ -1092,6 +1203,8 @@ $(document).ready(function () {
     initClientSelect2('#customer_id', 1);
     initClientSelect2('#pos_customer_id');
     initClientSelect2('#modal-customer_id', 1);
+
+
 
 
 }); // Ready
