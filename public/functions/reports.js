@@ -61,10 +61,67 @@ $(document).ready(function () {
         window.location.href = url.toString();
     })
 
+
+    /**============================================================= 
+    * FUNCIONES Y EVENTOS DEL CIERRE DE CAJA 
+    ===============================================================*/
+
+    // Obtener datos del cierre de caja al abrir
+    $("#modalCashClosing").on("show.bs.modal", function () {
+
+        sendAjaxRequest({
+            url: "services/reports.php",
+            data: {
+                action: "obtener_datos_caja"
+            },
+            successCallback: (res) => {
+
+                const data = JSON.parse(res)
+                console.log(data)
+
+                // Datos
+                $('#closingId').val(data['caja']['apertura'].cierre_id);
+                $('#tickets_invoices').val(data['ventas']['tickets_emitidos'].total_facturas);
+                $('#tickets_payments').val(data['ventas']['tickets_emitidos'].total_pagos);
+                $('#opening_date').val(data['caja']['apertura'].fecha_apertura);
+
+                // Header
+                $('#total').val(data['caja']['total_real']);
+
+                // Resumen
+                $('#initial_balance').val(data['caja']['apertura'].saldo_inicial);
+                $('#input_initial_balance').val(format.format(data['caja']['apertura'].saldo_inicial));
+                $('#cash_income').val(format.format(data['ventas']['pagos']['efectivo']));
+                $('#card_income').val(format.format(data['ventas']['pagos']['tarjeta_total']));
+                $('#transfer_income').val(format.format(data['ventas']['pagos']['transferencias']));
+                $('#check_income').val(format.format(data['ventas']['pagos']['cheques']))
+                $('#external_expenses').val(format.format(data['gastos']['desde_caja']));
+                $('#cash_expenses').val(format.format(data['gastos']['fuera_caja']));
+
+                // Calcular
+                calculateExpectedTotal()
+            },
+            errorCallback: (res) => {
+                console.error(res)
+                notifyAlert(res, 'error')
+            }, verbose: false
+        });
+
+    })
+
+
     /**
-    * Calcula el total esperado al cierre de caja.
-    * Fórmula: initial_balance + cash_income + otros_ingresos - cash_expenses - withdrawals
-    */
+     * Calcula el total esperado al cierre de caja.
+     *
+     * Fórmula aplicada:
+     * totalEsperado = saldoInicial + ingresosEfectivo - gastosCaja - retiros - reembolsos
+     *
+     * Los valores se obtienen desde inputs del DOM.
+     * Si un campo está vacío o contiene un valor inválido, se toma como 0.
+     *
+     * @function calculateExpectedTotal
+     * @returns {void}
+     */
     function calculateExpectedTotal() {
         // Obtener los valores de cada campo (si está vacío se usa 0)
         const saldoInicial = parseFloat($('#initial_balance').val()) || 0;
@@ -89,7 +146,25 @@ $(document).ready(function () {
     $('#initial_balance, #cash_income, #cash_expenses, #withdrawals, #refund').on('input', calculateExpectedTotal);
 
 
-    // Calcular diferencia
+    /**
+     * Calcula y actualiza la diferencia entre el total real y el total esperado
+     * en el cierre de caja.
+     *
+     * Fórmula aplicada:
+     * diferencia = totalReal - totalEsperado
+     *
+     * - Si la diferencia es positiva → sobrante (+)
+     * - Si la diferencia es negativa → faltante (-)
+     * - Si es cero → balanceado
+     *
+     * Además:
+     * - Aplica formato monetario
+     * - Muestra signo correspondiente
+     * - Cambia el color del campo según el resultado
+     *
+     * @function updateDifference
+     * @returns {void}
+     */
     function updateDifference() {
         const valReal = parseFloat($('#current_total').val()) || 0;
         const valEsperado = parseFloat($('#total_expected').val().replace(/,/g, "")) || 0;
@@ -119,15 +194,167 @@ $(document).ready(function () {
     $('#current_total,#initial_balance').on('input', updateDifference);
     $('#cash_expenses,#withdrawals, #refund').on('input', updateDifference);
 
+    /**============================================================= 
+    * FACTURACION E IMPRESION DEL CIERRE DE CAJA
+    ===============================================================*/
+
+    // Abrir caja
+    $('#formCashOpening').on('submit', function (e) {
+        e.preventDefault()
+
+        const btn = $('#btnOpenCash');
+
+        // Evitar doble ejecución
+        if (btn.prop('disabled')) return;
+
+        btn.prop('disabled', true).text('Abriendo...');
+
+        let OpeningDateRaw = $('#opening').val();
+        let localDate = new Date(OpeningDateRaw);
+
+        let formattedOpeningDate = localDate.getFullYear() + '-' +
+            String(localDate.getMonth() + 1).padStart(2, '0') + '-' +
+            String(localDate.getDate()).padStart(2, '0') + ' ' +
+            String(localDate.getHours()).padStart(2, '0') + ':' +
+            String(localDate.getMinutes()).padStart(2, '0') + ':00';
+
+        const data = {
+            action: "abrir_caja",
+            initial_balance: parseFloat($('#cash_initial').val()) || 0,
+            opening_date: formattedOpeningDate,
+        };
+
+        sendAjaxRequest({
+            url: "services/reports.php",
+            data,
+            successCallback: () => {
+                $('.float-right').load(window.location.href + ' .float-right > *');
+                $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
+                
+                $('#modalCashOpening').modal('hide');
+               
+                notifyAlert("Datos registrados correctamente")
+            },
+            errorCallback: (res) => {
+                btn.prop('disabled', false).text('Abrir caja');
+                mysql_error(res);
+            },
+            verbose: false
+        });
+    })
 
 
+    // Cierre de caja
+    $('#formCashClosing').on('submit', function (e) {
+        e.preventDefault()
+
+        function formatDate(dateString) {
+            let localDate = new Date(dateString);
+
+            // Formatear a "YYYY-MM-DD HH:MM:SS"
+            let formattedDate = localDate.getFullYear() + '-' +
+                String(localDate.getMonth() + 1).padStart(2, '0') + '-' +
+                String(localDate.getDate()).padStart(2, '0') + ' ' +
+                String(localDate.getHours()).padStart(2, '0') + ':' +
+                String(localDate.getMinutes()).padStart(2, '0') + ':' +
+                '00'; // segundos fijos
+
+            return formattedDate;
+        }
+
+        const data = {
+            // Datos de impresion
+            tickets_invoices: $('#tickets_invoices').val(),
+            tickets_payments: $('#tickets_payments').val(),
+            difference: $('#total_difference').val().replace(/,/g, ""),
+            total_expected: $('#total_expected').val().replace(/,/g, ""),
+            user_name: $('#user_name').val(),
+            opening_date: formatDate($('#opening_date').val()),
+
+            // Datos para guardar
+            action: "cierre_caja",
+            user_id: $('#user_id').val(),
+            closing_date: formatDate($('#closing_date').val()), // closing_date
+            initial_balance: parseFloat($('#initial_balance').val()) || 0,
+            cash_income: parseFloat($('#cash_income').val().replace(/,/g, "")) || 0,
+            card_income: parseFloat($('#card_income').val().replace(/,/g, "")) || 0,
+            transfer_income: parseFloat($('#transfer_income').val().replace(/,/g, "")) || 0,
+            check_income: parseFloat($('#check_income').val().replace(/,/g, "")) || 0,
+            cash_expenses: parseFloat($('#cash_expenses').val().replace(/,/g, "")) || 0,
+            external_expenses: parseFloat($('#external_expenses').val().replace(/,/g, "")) || 0,
+            withdrawals: parseFloat($('#withdrawals').val()) || 0,
+            refunds: parseFloat($('#refund').val().replace(/,/g, "")) || 0,
+            total: parseFloat($('#total').val().replace(/,/g, "")) || 0,
+            current_total: $('#current_total').val(),
+            notes: $('#notes').val() || ""
+        };
+
+        sendAjaxRequest({
+            url: "services/reports.php",
+            data: data,
+            successCallback: (res) => {
+                $('.float-right').load(window.location.href + ' .float-right > *');
+                $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
+            
+                notifyAlert("Datos registrados correctamente")
+
+                $('#modalCashClosing').modal('hide'); // Cerrar ventana
+
+                printerClosing(data, res)
+                // sendCashClosing(res) // Enviar el cierr de caja por correo
+            },
+            errorCallback: (res) => mysql_error(res),
+            verbose: false
+        })
+    })
+
+    // Imprimir cierre
+    function printerClosing(data, cierre_id) {
+        $.ajax({
+            type: "POST",
+            url: PRINTER_SERVER + "cierre_caja.php",
+            data: JSON.stringify({
+                data: data,
+                id: cierre_id
+            }),
+            contentType: "application/json", // Enviamos JSON
+            dataType: "json", // Esperamos JSON de respuesta
+            success: function (res) {
+
+                if (res.success) {
+                    console.log("✅ Impresión completada:", res.message);
+                } else {
+                    console.warn("⚠️ Error en impresión:", res.message);
+                   // notifyAlert(res.message || "Error al imprimir", "error");
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("❌ Error AJAX:", error);
+              //  notifyAlert("No se pudo conectar con el servidor de impresión.", "error");
+            }
+        });
+    }
+
+    // Enviar cierre de caja por correo
+    function sendCashClosing(id) {
+        var url = SITE_URL + 'src/phpmailer/cierre_caja.php?id=' + id;
+
+        fetch(url)
+            .then(response => response.text())
+            .then(data => {
+                console.log("Respuesta:", data);
+
+                // Recargar la página después del envío
+                if (data.includes("enviado correctamente") || data.includes("ok")) {
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error("Error al ejecutar cierre_caja.php:", error);
+            });
+    }
 
 }); // Ready
-
-
-/**============================================================= 
-* FUNCIONES DEL CIERRE DE CAJA
-===============================================================*/
 
 // Generar cierre pdf
 function generateCashClosingPDF(id) {
@@ -142,158 +369,6 @@ function generateCashClosingPDF(id) {
     var url = SITE_URL + 'src/pdf/cierre_caja.php?id=' + id;
     window.open(url, 'ciere_caja', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
 
-}
-
-// Abrir caja
-function cashOpening() {
-
-    const btn = $('#btnOpenCash');
-
-    // Evitar doble ejecución
-    if (btn.prop('disabled')) return;
-
-    btn.prop('disabled', true).text('Abriendo...');
-
-    let OpeningDateRaw = $('#opening').val();
-    let localDate = new Date(OpeningDateRaw);
-
-    let formattedOpeningDate = localDate.getFullYear() + '-' +
-        String(localDate.getMonth() + 1).padStart(2, '0') + '-' +
-        String(localDate.getDate()).padStart(2, '0') + ' ' +
-        String(localDate.getHours()).padStart(2, '0') + ':' +
-        String(localDate.getMinutes()).padStart(2, '0') + ':00';
-
-    const data = {
-        action: "abrir_caja",
-        initial_balance: parseFloat($('#cash_initial').val()) || 0,
-        opening_date: formattedOpeningDate,
-    };
-
-    sendAjaxRequest({
-        url: "services/reports.php",
-        data,
-        successCallback: () => {
-            $('.float-right').load(window.location.href + ' .float-right > *');
-            $('#modalCashOpening').modal('hide');
-            setTimeout(() => location.reload(), 900);
-            mysql_row_affected();
-        },
-        errorCallback: (res) => {
-            btn.prop('disabled', false).text('Abrir caja');
-            mysql_error(res);
-        },
-        verbose: false
-    });
-}
-
-
-// Cierre de caja
-function cashClosing() {
-
-    function formatDate(dateString) {
-        let localDate = new Date(dateString);
-
-        // Formatear a "YYYY-MM-DD HH:MM:SS"
-        let formattedDate = localDate.getFullYear() + '-' +
-            String(localDate.getMonth() + 1).padStart(2, '0') + '-' +
-            String(localDate.getDate()).padStart(2, '0') + ' ' +
-            String(localDate.getHours()).padStart(2, '0') + ':' +
-            String(localDate.getMinutes()).padStart(2, '0') + ':' +
-            '00'; // segundos fijos
-
-        return formattedDate;
-    }
-
-
-    const data = {
-        // Datos de impresion
-        tickets_invoices: $('#tickets_invoices').val(),
-        tickets_payments: $('#tickets_payments').val(),
-        difference: $('#total_difference').val().replace(/,/g, ""),
-        total_expected: $('#total_expected').val().replace(/,/g, ""),
-        user_name: $('#user_name').val(),
-        opening_date: formatDate($('#opening_date').val()),
-
-
-        // Datos para guardar
-        action: "cierre_caja",
-        user_id: $('#user_id').val(),
-        closing_date: formatDate($('#closing_date').val()), // closing_date
-        initial_balance: parseFloat($('#initial_balance').val()) || 0,
-        cash_income: parseFloat($('#cash_income').val().replace(/,/g, "")) || 0,
-        card_income: parseFloat($('#card_income').val().replace(/,/g, "")) || 0,
-        transfer_income: parseFloat($('#transfer_income').val().replace(/,/g, "")) || 0,
-        check_income: parseFloat($('#check_income').val().replace(/,/g, "")) || 0,
-        cash_expenses: parseFloat($('#cash_expenses').val().replace(/,/g, "")) || 0,
-        external_expenses: parseFloat($('#external_expenses').val().replace(/,/g, "")) || 0,
-        withdrawals: parseFloat($('#withdrawals').val()) || 0,
-        refunds: parseFloat($('#refund').val().replace(/,/g, "")) || 0,
-        total: parseFloat($('#total').val().replace(/,/g, "")) || 0,
-        current_total: $('#current_total').val(),
-        notes: $('#notes').val() || ""
-    };
-
-    sendAjaxRequest({
-        url: "services/reports.php",
-        data: data,
-        successCallback: (res) => {
-            $('.float-right').load(window.location.href + ' .float-right > *');
-            mysql_row_affected()
-
-            $('#modalCashClosing').modal('hide'); // Cerrar ventana
-
-            printerClosing(data, res)
-            // sendCashClosing(res) // Enviar el cierr de caja por correo
-        },
-        errorCallback: (res) => mysql_error(res),
-        verbose: false
-    })
-}
-
-function printerClosing(data, cierre_id) {
-    $.ajax({
-        type: "POST",
-        url: PRINTER_SERVER + "cierre_caja.php",
-        data: JSON.stringify({
-            data: data,
-            id: cierre_id
-        }),
-        contentType: "application/json", // Enviamos JSON
-        dataType: "json", // Esperamos JSON de respuesta
-        success: function (res) {
-    
-            if (res.success) {
-                console.log("✅ Impresión completada:", res.message);
-            } else {
-                console.warn("⚠️ Error en impresión:", res.message);
-                notifyAlert(res.message || "Error al imprimir","error");
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error("❌ Error AJAX:", error);
-            notifyAlert("No se pudo conectar con el servidor de impresión.","error");
-        }
-    });
-}
-
-
-// Enviar cierre de caja por correo
-function sendCashClosing(id) {
-    var url = SITE_URL + 'src/phpmailer/cierre_caja.php?id=' + id;
-
-    fetch(url)
-        .then(response => response.text())
-        .then(data => {
-            console.log("Respuesta:", data);
-
-            // Recargar la página después del envío
-            if (data.includes("enviado correctamente") || data.includes("ok")) {
-                location.reload();
-            }
-        })
-        .catch(error => {
-            console.error("Error al ejecutar cierre_caja.php:", error);
-        });
 }
 
 // Eliminar cierre de caja
@@ -336,7 +411,6 @@ function Query() {
         getMonthlySalesDetails()
     }
 }
-
 
 // Funciones de consultas
 

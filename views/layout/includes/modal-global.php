@@ -136,7 +136,6 @@
                     </div>
 
                     <div class="row">
-
                         <div class="form-group col-sm-12">
                             <label class="form-check-label" for="">Nombre del modelo<span
                                     class="text-danger">*</span></label>
@@ -243,7 +242,6 @@
                             <p>Crear servicio</p>
                         </button>
                     </div>
-
                 </form>
             </div> <!-- Body -->
         </div>

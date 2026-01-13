@@ -60,18 +60,6 @@ class ReportsController
         // Obtener los datos necesarios para el cierre de caja
         $cashOpening = Help::getCashOpening(); // Obtener datos de la caja abierta
 
-        $tickets = Help::getIssuedInvoices(); // Total de tickets emitidos
-        $totalReal = Help::getTotalReal(); // Total real
-        $cash = Help::getDailySalesByPaymentMethod(1); // Efectivo
-        $credit = Help::getDailySalesByPaymentMethod(2); // Tarjeta de crédito
-        $debit = Help::getDailySalesByPaymentMethod(3); // Tarjeta de débito
-        $card = $credit + $debit;
-        $transfers = Help::getDailySalesByPaymentMethod(4); // Transferencias
-        $checks = Help::getDailySalesByPaymentMethod(5); // Cheques
-        $totalExpenses = Help::getExpensesToday(); // Total gastado hoy
-        $cashExpenses = Help::getOriginExpensesToday('caja'); // Total Origen de gastos
-        $externalExpenses = Help::getOriginExpensesToday('fuera_caja'); // Total Origen de gastos
-
         // Mostrar la vista de cierre de caja
         require_once './views/reports/cash_closing.php';
     }

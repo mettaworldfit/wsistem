@@ -345,9 +345,9 @@ if ($_POST['action'] == "index_ventas_hoy") {
                 'recibido' => '<span class="text-success">' . number_format($row['recibido'], 2) . '</span>',
                 'pendiente' => '<span class="text-danger">' . number_format($row['pendiente'], 2) . '</span>',
                 // 'estado' => $hasDetails ? '<p class="' . $row['estado'] . '">' . $row['estado'] . '</p>' : '<p class="no-details">N/D</p>',
-                'estado' => $hasDetails 
-                ? '<p class="' . ($row['estado'] ?? 'sin-estado') . '">' . ($row['estado'] ?? 'N/D') . '</p>' 
-                : '<p class="no-details">N/D</p>',
+                'estado' => $hasDetails
+                    ? '<p class="' . ($row['estado'] ?? 'sin-estado') . '">' . ($row['estado'] ?? 'N/D') . '</p>'
+                    : '<p class="no-details">N/D</p>',
                 'acciones' => $acciones
             ];
         }
@@ -503,5 +503,39 @@ if ($_POST['action'] == "piezas_vendidas") {
     }
 
     echo json_encode($arr, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// Obtener datos de JSON del cierre
+if ($_POST['action'] === 'obtener_datos_caja') {
+    $db = Database::connect();
+
+    $data = [
+        'caja' => [
+            'apertura' => Help::getCashOpening(),
+            'total_real' => Help::getTotalReal(),
+        ],
+
+        'ventas' => [
+            'tickets_emitidos' => Help::getIssuedInvoices(),
+
+            'pagos' => [
+                'efectivo'      => Help::getDailySalesByPaymentMethod(1),
+                'tarjeta_credito' => Help::getDailySalesByPaymentMethod(2),
+                'tarjeta_debito'  => Help::getDailySalesByPaymentMethod(3),
+                'tarjeta_total'   => Help::getDailySalesByPaymentMethod(2)
+                                     + Help::getDailySalesByPaymentMethod(3),
+                'transferencias' => Help::getDailySalesByPaymentMethod(4),
+                'cheques'        => Help::getDailySalesByPaymentMethod(5),
+            ]
+        ],
+
+        'gastos' => [
+            'desde_caja'  => Help::getOriginExpensesToday('caja'),
+            'fuera_caja'  => Help::getOriginExpensesToday('fuera_caja'),
+        ]
+    ];
+
+    echo json_encode($data);
     exit;
 }

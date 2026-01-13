@@ -763,16 +763,16 @@
             </div>
 
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); cashClosing();">
-                    <input type="hidden" name="id" value="<?= $cashOpening->cierre_id ?>" id="closingId">
-                    <input type="hidden" name="" value="<?= $tickets->total_facturas ?>" id="tickets_invoices">
-                    <input type="hidden" name="" value="<?= $tickets->total_pagos ?>" id="tickets_payments">
+                <form action="" method="POST" id="formCashClosing">
+                    <input type="hidden" name="id" value="" id="closingId">
+                    <input type="hidden" name="" value="" id="tickets_invoices">
+                    <input type="hidden" name="" value="" id="tickets_payments">
                     <input type="hidden" name="" value="<?= ucwords($_SESSION['identity']->nombre) ?> <?= ucwords($_SESSION['identity']->apellidos ?? '') ?>" id="user_name">
 
                     <div class="row col-sm-12 invoice-head-modal">
                         <div class="col-sm-3 head-content">
                             <h6>Total Vendido</h6>
-                            <input type="text" class="invisible-input text-success" value="<?= number_format($totalReal ?? 0) ?>" id="total" disabled>
+                            <input type="text" class="invisible-input text-success" value="" id="total" disabled>
                         </div>
 
                         <div class="col-sm-3 head-content">
@@ -805,7 +805,7 @@
                         <div class="grid-form-date">
                             <div class="grid-date-field">
                                 <label class="">Fecha Apertura:</label>
-                                <input type="datetime-local" class="form-custom color-black" value="<?= $cashOpening->fecha_apertura ?? '' ?>" id="opening_date" disabled required>
+                                <input type="datetime-local" class="form-custom color-black" value="" id="opening_date" disabled required>
                             </div>
 
                             <div class="grid-date-field">
@@ -816,48 +816,45 @@
                         </div>
                     </div>
 
-
                     <!-- Información detallada -->
                     <div class="grid-form">
-
                         <div class="grid-summary">
-
                             <legend class="summary-legend">Resumen de cierre</legend>
 
                             <div class="form-field field-plus">
                                 <label class="">+ Saldo Apertura:</label>
-                                <input type="hidden" class="form-custom" id="initial_balance" value="<?= $cashOpening->saldo_inicial ?? 0.00 ?>">
-                                <input type="text" class="" id="" value="<?= number_format($cashOpening->saldo_inicial ?? 0.00, 2) ?>" readonly disabled>
+                                <input type="hidden" class="form-custom" id="initial_balance" value="">
+                                <input type="text" class="" id="input_initial_balance" value="" readonly disabled>
                             </div>
 
                             <div class="form-field">
                                 <label class="">+ Ingresos Efectivo:</label>
-                                <input type="text" class="" id="cash_income" value="<?= number_format($cash ?? 0.00, 2) ?>" readonly disabled>
+                                <input type="text" class="" id="cash_income" value="" readonly disabled>
                             </div>
 
                             <div class="form-field">
                                 <label class="">+ Ingresos Tarjeta:</label>
-                                <input type="text" class="" id="card_income" value="<?= number_format($card ?? 0.00, 2) ?>" readonly disabled>
+                                <input type="text" class="" id="card_income" value="" readonly disabled>
                             </div>
 
                             <div class="form-field">
                                 <label class="">+ Ingresos Transferencia:</label>
-                                <input type="text" class="" id="transfer_income" value="<?= number_format($transfers ?? 0.00, 2) ?>" readonly disabled>
+                                <input type="text" class="" id="transfer_income" value="" readonly disabled>
                             </div>
 
                             <div class="form-field">
                                 <label class="">+ Ingresos Cheques:</label>
-                                <input type="text" class="" id="check_income" value="<?= number_format($checks ?? 0.00, 2) ?>" readonly disabled>
+                                <input type="text" class="" id="check_income" value="" readonly disabled>
                             </div>
 
                             <div class="form-field field-subtraction">
                                 <label class="">- Gastos externos:</label>
-                                <input type="text" class="" id="external_expenses" value="<?= number_format($externalExpenses ?? 0.00, 2) ?>" disabled>
+                                <input type="text" class="" id="external_expenses" value="" disabled>
                             </div>
 
                             <div class="form-field field-subtraction">
                                 <label class="">- Gastos internos:</label>
-                                <input type="text" class="" id="cash_expenses" value="<?= number_format($cashExpenses ?? 0.00, 2) ?>" disabled>
+                                <input type="text" class="" id="cash_expenses" value="" disabled>
                             </div>
 
                             <div class="form-field field-subtraction-active">
@@ -881,7 +878,7 @@
 
                             <div class="field-cash-closing">
                                 <label class="fw-bold">Total efectivo en caja:</label>
-                                <input type="number" class="form-custom form-closing fw-bold" id="current_total" value="" required>
+                                <input type="number" class="form-custom form-closing fw-bold" id="current_total" value="" step="0.01" min="0" inputmode="decimal" required>
                             </div>
                         </div> <!-- grid-cash-closing-->
 
@@ -905,7 +902,6 @@
     </div>
 </div>
 
-
 <!-- Modal: Abrir caja -->
 <div class="modal fade" id="modalCashOpening" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -918,8 +914,7 @@
                 </button>
             </div>
             <div class="modal-body">
-
-                <form action="" onsubmit="event.preventDefault(); cashOpening();">
+                <form action="" method="POST" id="formCashOpening">
 
                     <div class="form-group col-sm-12">
                         <p class="title-info">
@@ -928,14 +923,12 @@
                     </div>
 
                     <div class="row col-md-12">
-
                         <div class="form-group col-md-6">
                             <label for="saldo_inicial" class="form-check-label label-nomb">Saldo Inicial:<span class="text-danger">*</span></label>
                             <input class="form-custom" type="number" name="saldo_inicial" id="cash_initial" required>
                         </div>
 
                         <div class="form-group col-md-6">
-
                             <?php
                             date_default_timezone_set('America/Santo_Domingo');
                             $datetimeRD = date('Y-m-d\TH:i');
@@ -943,9 +936,7 @@
                             <label for="fecha_apertura" class="form-check-label label-nomb">Fecha apertura:<span class="text-danger">*</span></label>
                             <input class="form-custom" type="datetime-local" name="fecha_apertura" value="<?= $datetimeRD ?>" id="opening" required>
                         </div>
-
                     </div> <!-- Row col-md-12 -->
-
 
                     <div class="mt-4 modal-footer">
                         <button type="button" class="btn-custom btn-red" data-dismiss="modal">
@@ -958,9 +949,7 @@
                             <p>Abrir caja</p>
                         </button>
                     </div>
-
                 </form>
-
             </div> <!-- Body -->
         </div>
     </div>

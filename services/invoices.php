@@ -1186,17 +1186,17 @@ if ($_POST['action'] == "agregar_detalle_pos") {
   $procedure = null;
 
   // PRODUCTO
-  if (!empty($_POST['product_id'])) {
+  if (isset($_POST['product_id']) && (int)$_POST['product_id'] !== 0) {
     $item_id = (int) $_POST['product_id'];
     $procedure = 'pos_agregar_producto';
 
     // PIEZA
-  } elseif (!empty($_POST['piece_id'])) {
+  } elseif (isset($_POST['piece_id']) && (int)$_POST['piece_id'] !== 0) {
     $item_id = (int) $_POST['piece_id'];
     $procedure = 'pos_agregar_pieza';
 
     // SERVICIO
-  } elseif (!empty($_POST['service_id'])) {
+  } elseif (isset($_POST['service_id']) && (int)$_POST['service_id'] !== 0) {
     $item_id = (int) $_POST['service_id'];
     $procedure = 'pos_agregar_servicio';
   }

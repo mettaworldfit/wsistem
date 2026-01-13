@@ -228,8 +228,8 @@ $(document).ready(function () {
 
         var order_id = $('#order_id').val() || 0;
         var price_list = $('#list_price').val();
-        var productId = $(this).data('producto');
-        var serviceId = $(this).data('servicio');
+        var productId = $(this).data('producto') || 0;
+        var serviceId = $(this).data('servicio') || 0;
         var productName = $(this).data('desc');
         var priceOut = $(this).find('#price_out').val();
         var cost = $(this).find('#cost').val();
@@ -1194,6 +1194,8 @@ $(document).ready(function () {
             });
         }
     });
+
+
 
     /**============================================================= 
     * INICIAR FUNCIONES
