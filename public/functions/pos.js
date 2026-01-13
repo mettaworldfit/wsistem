@@ -27,23 +27,23 @@ $(document).ready(function () {
 
 
     /**============================================================= 
-     * CARGAR PRODUCTOS
+     * CARGAR ARTICULOS
     ===============================================================*/
 
     let currentPage = 1; // Página actual
-    const pageSize = 15; // Cantidad de productos por página
+    const pageSize = 15; // Cantidad de articulos por página
 
-    // Función para cargar productos
-    function loadProductsPOS(search = '', page = 1) {
+    // Función para cargar articulos
+    function loadItemsPOS(search = '', page = 1) {
         const start = (page - 1) * pageSize; // Calcular el índice de inicio
 
         sendAjaxRequest({
             url: 'services/products.php',
             data: {
-                action: 'pos',
+                action: 'obtener_articulos_pos',
                 draw: currentPage, // Número de solicitud (lo mismo que DataTables)
                 start: start, // Índice del primer registro (inicio)
-                length: pageSize, // Cantidad de productos por página
+                length: pageSize, // Cantidad de articulos por página
                 search: search, // Término de búsqueda
                 orderColumn: 0, // Índice de la columna de ordenación (por ejemplo, 0 = nombre)
                 orderDir: 'asc' // Dirección de ordenación ('asc' o 'desc')
@@ -52,18 +52,18 @@ $(document).ready(function () {
                 try {
                     const data = JSON.parse(response);
 
-                    // Limpiar el grid antes de agregar los nuevos productos
+                    // Limpiar el grid antes de agregar los nuevos articulos
                     const gridContainer = $('#product-grid');
                     gridContainer.empty();
 
-                    // Agregar los productos a la cuadrícula
-                    data.data.forEach(product => {
+                    // Agregar los articulos a la cuadrícula
+                    data.data.forEach(item => {
 
                         // Construir imagen si existe, de lo contrario mostrar ícono SVG
-                        const productImage = product.imagen && product.imagen !== ""
-                            ? `<img src="${SITE_URL}public/uploads/${product.imagen}" 
+                        const productImage = item.imagen && item.imagen !== ""
+                            ? `<img src="${SITE_URL}public/uploads/${item.imagen}" 
                                 onerror="this.onerror=null; this.src='${SITE_URL}public/imagen/sistem/no-imagen.png';" 
-                                alt="Imagen del producto">`
+                                alt="Imagen del item">`
                             : `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags">
                                 <path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" />
                                 <path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" />
@@ -72,17 +72,20 @@ $(document).ready(function () {
 
                         const productCard = `
 
-                        <button class="product-card" action="button" data-product="${product.producto_id}" data-desc="${product.nombre_producto}">
-                        ${product.cod_producto ? `<div class="item-cod">${product.cod_producto}</div>` : ''}
+                        <button class="product-card" action="button" data-${item.tipo}="${item.item_id}" data-desc="${item.nombre}">
+                        ${item.codigo ? `<div class="item-cod">${item.codigo}</div>` : ''}
                         ${productImage}
                          
                             <div class="product-info">
-                                <p class="pos-stock">inv. ${parseFloat(product.cantidad)}</p>
-                                <span>${product.nombre_producto}</span>
-                                <p class="pos-price">$${format.format(product.precio_unitario)}</p>
+                                ${item.tipo === 'servicio'
+                                ? `<p class="pos-stock servicio">Servicio</p>`
+                                : `<p class="pos-stock">inv. ${parseFloat(item.stock)}</p>`
+                            }
+                                <span>${item.nombre}</span>
+                                <p class="pos-price">$${format.format(item.precio)}</p>
                             </div>
-                            <input type="hidden" id="price_out" value="${product.precio_unitario}">
-                                <input type="hidden" id="cost" value="${product.precio_costo}">
+                            <input type="hidden" id="price_out" value="${item.precio}">
+                                <input type="hidden" id="cost" value="${item.costo}">
                                 </button>
                                 `;
                         gridContainer.append(productCard);
@@ -92,7 +95,7 @@ $(document).ready(function () {
                     $('#search-input').trigger('focus');
 
                 } catch (e) {
-                    console.error("Error al analizar la respuesta JSON del producto:", e);
+                    console.error("Error al analizar la respuesta JSON de los items:", e);
                 }
             },
             errorCallback: (res) => {
@@ -108,7 +111,7 @@ $(document).ready(function () {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 currentPage = 1;
-                loadProductsPOS($(this).val().trim(), currentPage);
+                loadItemsPOS($(this).val().trim(), currentPage);
 
                 // Limpiar para siguiente escaneo
                 $(this).val("");
@@ -116,7 +119,7 @@ $(document).ready(function () {
         })
         .on('input', function () {
             currentPage = 1;
-            loadProductsPOS($(this).val().trim(), currentPage);
+            loadItemsPOS($(this).val().trim(), currentPage);
         });
 
 
@@ -179,7 +182,7 @@ $(document).ready(function () {
 
                     // cargar resumen de venta
                     calculateTotalInvoice();
-                    loadProductsPOS($('#search-input').val());
+                    loadItemsPOS($('#search-input').val());
                     loadOrdersPOS(); // Cargar ordenes
 
                     // Mostrar total de items en el detalle
@@ -225,7 +228,8 @@ $(document).ready(function () {
 
         var order_id = $('#order_id').val() || 0;
         var price_list = $('#list_price').val();
-        var productId = $(this).data('product');
+        var productId = $(this).data('producto');
+        var serviceId = $(this).data('servicio');
         var productName = $(this).data('desc');
         var priceOut = $(this).find('#price_out').val();
         var cost = $(this).find('#cost').val();
@@ -234,9 +238,9 @@ $(document).ready(function () {
             url: "services/invoices.php",
             data: {
                 action: "agregar_detalle_pos",
-                product_id: productId,
+                product_id: productId || 0,
                 piece_id: 0,
-                service_id: 0,
+                service_id: serviceId || 0,
                 description: productName,
                 quantity: 1,
                 price: priceOut,
@@ -685,8 +689,7 @@ $(document).ready(function () {
                         const option = new Option(data.text, data.id, true, true);
                         $select.append(option).trigger('change');
                     }
-                },
-                verbose: true
+                }
             });
         }
     }
@@ -930,13 +933,13 @@ $(document).ready(function () {
             url: "services/invoices.php",
             data: data,
             successCallback: (res) => {
-          
-                if(res === "ready") {
+
+                if (res === "ready") {
                     loadOrdersPOS();
 
-                    notifyAlert("Datos actualizados correctamente","success",1500)
+                    notifyAlert("Datos actualizados correctamente", "success", 1500)
                 } else {
-                    notifyAlert("Ha ocurrido un problema","error")
+                    notifyAlert("Ha ocurrido un problema", "error")
                 }
 
             },
@@ -1196,7 +1199,7 @@ $(document).ready(function () {
     * INICIAR FUNCIONES
     ===============================================================*/
 
-    loadProductsPOS();  // Cargar productos por primera vez
+    loadItemsPOS();  // Cargar productos por primera vez
     loadDetailPOS() // Cargar detalle
     loadOrdersPOS(); // Cargar ordenes
 

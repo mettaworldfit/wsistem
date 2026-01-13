@@ -2563,179 +2563,224 @@ END $$
 DELIMITER ;
 
 
-DROP PROCEDURE IF EXISTS `pos_agregar_producto`;
+
+DROP PROCEDURE IF EXISTS `pos_agregar_servicio`;
 DELIMITER $$
-CREATE PROCEDURE `pos_agregar_producto`(
+
+CREATE PROCEDURE `pos_agregar_servicio`(
     IN p_comanda_id INT,
     IN p_usuario_id INT,
     IN p_cantidad DECIMAL(10,2),
     IN p_costo DECIMAL(10,2),
     IN p_precio DECIMAL(10,2),
-    IN p_producto_id INT,
-    IN p_pieza_id INT,
     IN p_servicio_id INT
 )
 BEGIN
+    DECLARE v_detalle_id INT;
+    DECLARE v_cantidad_existente DECIMAL(10,2);
+    DECLARE v_comanda_exists INT DEFAULT 1;
 
-  DECLARE v_detalle_id INT;
-  DECLARE v_comanda_exists INT;
-  DECLARE v_cantidad_existente DECIMAL(10,2);
-  DECLARE v_stock_disponible DECIMAL(10,2);
-  
-  
-   -- 1. Verificar si el comanda_id existe en la tabla comandas
-  SELECT COUNT(*) INTO v_comanda_exists
-  FROM comandas
-  WHERE comanda_id = p_comanda_id;
+    -- Validar comanda SOLO si viene
+    IF p_comanda_id IS NOT NULL THEN
+        SELECT COUNT(*) INTO v_comanda_exists
+        FROM comandas
+        WHERE comanda_id = p_comanda_id;
 
-  -- Si no existe, asignar al usuario para factura rapida
-  IF v_comanda_exists = 0 THEN
-    SELECT 'Error: No existe orden seleccionada' AS msg;
-  END IF;
+        IF v_comanda_exists = 0 THEN
+            SELECT 'Error: No existe orden seleccionada' AS msg;
+        END IF;
+    END IF;
 
-  -- 1. Obtener la cantidad actual de detalle
-  SELECT d.cantidad INTO v_cantidad_existente
-  FROM detalle_facturas_ventas d
-  INNER JOIN detalle_ventas_con_productos dp 
-      ON dp.detalle_venta_id = d.detalle_venta_id
-  WHERE dp.producto_id = p_producto_id AND d.comanda_id = p_comanda_id LIMIT 1;
+    -- Buscar detalle existente
+    SELECT d.cantidad
+    INTO v_cantidad_existente
+    FROM detalle_facturas_ventas d
+    INNER JOIN detalle_ventas_con_servicios ds
+        ON ds.detalle_venta_id = d.detalle_venta_id
+    WHERE ds.servicio_id = p_servicio_id
+      AND (
+            (p_comanda_id IS NULL AND d.comanda_id IS NULL AND d.factura_venta_id IS NULL)
+         OR (p_comanda_id IS NOT NULL AND d.comanda_id = p_comanda_id)
+      )
+    LIMIT 1;
 
-  -- 2. Obtener el stock disponible del producto
-  SELECT cantidad INTO v_stock_disponible
-  FROM productos WHERE producto_id = p_producto_id LIMIT 1;
-    
-  -- Verificar que la cantidad no exceda el stock disponible
-  IF p_cantidad > v_stock_disponible THEN
-    SELECT 'Error: No hay suficiente stock disponible.' AS msg;
-  ELSE
-    -- 3. Verificar si ya existe el detalle para este producto y comanda
-    IF EXISTS (SELECT 1 
-               FROM detalle_facturas_ventas d 
-               INNER JOIN detalle_ventas_con_productos dp 
-               ON dp.detalle_venta_id = d.detalle_venta_id 
-               WHERE dp.producto_id = p_producto_id 
-               AND d.comanda_id = p_comanda_id) THEN
+    -- ¿Existe ya?
+    IF EXISTS (
+        SELECT 1
+        FROM detalle_facturas_ventas d
+        INNER JOIN detalle_ventas_con_servicios ds
+            ON ds.detalle_venta_id = d.detalle_venta_id
+        WHERE ds.servicio_id = p_servicio_id
+          AND (
+                (p_comanda_id IS NULL AND d.comanda_id IS NULL AND d.factura_venta_id IS NULL)
+             OR (p_comanda_id IS NOT NULL AND d.comanda_id = p_comanda_id)
+          )
+    ) THEN
 
-      -- Si ya existe, obtener el detalle_venta_id
-      SELECT d.detalle_venta_id INTO v_detalle_id
-      FROM detalle_facturas_ventas d
-      INNER JOIN detalle_ventas_con_productos dp 
-          ON dp.detalle_venta_id = d.detalle_venta_id
-      WHERE dp.producto_id = p_producto_id AND d.comanda_id = p_comanda_id LIMIT 1;
+        -- Obtener detalle
+        SELECT d.detalle_venta_id
+        INTO v_detalle_id
+        FROM detalle_facturas_ventas d
+        INNER JOIN detalle_ventas_con_servicios ds
+            ON ds.detalle_venta_id = d.detalle_venta_id
+        WHERE ds.servicio_id = p_servicio_id
+          AND (
+                (p_comanda_id IS NULL AND d.comanda_id IS NULL AND d.factura_venta_id IS NULL)
+             OR (p_comanda_id IS NOT NULL AND d.comanda_id = p_comanda_id)
+          )
+        LIMIT 1;
 
-      -- Actualizar la cantidad (sumando la cantidad existente)
-      UPDATE detalle_facturas_ventas 
-      SET cantidad = v_cantidad_existente + p_cantidad 
-      WHERE detalle_venta_id = v_detalle_id;
+        -- Actualizar cantidad
+        UPDATE detalle_facturas_ventas
+        SET cantidad = v_cantidad_existente + p_cantidad
+        WHERE detalle_venta_id = v_detalle_id;
 
-      -- Mostrar mensaje indicando que se incrementó el detalle
-      SELECT 'Detalle incrementado' AS msg;
+        SELECT 'Detalle de servicio incrementado' AS msg;
 
-    ELSE 
-      -- Si el producto no existe, insertar un nuevo detalle
-      INSERT INTO detalle_facturas_ventas (comanda_id, usuario_id, cantidad, costo, precio, fecha)
-      VALUES (p_comanda_id, p_usuario_id, p_cantidad, p_costo, p_precio, CURDATE());
-        
-         -- Obtener el detalle_venta_id del nuevo registro
-      SET v_detalle_id = LAST_INSERT_ID();
+    ELSE
 
-      -- Insertar el producto en detalle_ventas_con_productos
-      INSERT INTO detalle_ventas_con_productos (detalle_venta_id, producto_id, comanda_id)
-      VALUES (v_detalle_id, p_producto_id, p_comanda_id);
+        -- Insertar nuevo detalle
+        INSERT INTO detalle_facturas_ventas (
+            comanda_id,
+            usuario_id,
+            cantidad,
+            costo,
+            precio,
+            fecha
+        )
+        VALUES (
+            p_comanda_id,
+            p_usuario_id,
+            p_cantidad,
+            p_costo,
+            p_precio,
+            CURDATE()
+        );
 
-      -- Mostrar mensaje indicando que se creó un nuevo detalle
-      SELECT 'Nuevo detalle creado' AS msg;
+        SET v_detalle_id = LAST_INSERT_ID();
+
+        INSERT INTO detalle_ventas_con_servicios (
+            detalle_venta_id,
+            servicio_id,
+            comanda_id
+        )
+        VALUES (
+            v_detalle_id,
+            p_servicio_id,
+            p_comanda_id
+        );
+
+        SELECT 'Nuevo detalle de servicio creado' AS msg;
 
     END IF;
-  END IF;
-
 END$$
 DELIMITER ;
 
 
-
-DROP PROCEDURE IF EXISTS `pos_agregar_producto_sin`;
+DROP PROCEDURE IF EXISTS pos_agregar_producto;
 DELIMITER $$
-CREATE PROCEDURE `pos_agregar_producto_sin`(
-    IN p_comanda_id INT,
+
+CREATE PROCEDURE pos_agregar_producto(
+    IN p_comanda_id INT,          -- NULL = venta rápida
     IN p_usuario_id INT,
     IN p_cantidad DECIMAL(10,2),
     IN p_costo DECIMAL(10,2),
     IN p_precio DECIMAL(10,2),
-    IN p_producto_id INT,
-    IN p_pieza_id INT,
-    IN p_servicio_id INT
+    IN p_producto_id INT
 )
 BEGIN
+    DECLARE v_detalle_id INT;
+    DECLARE v_cantidad_existente DECIMAL(10,2) DEFAULT 0;
+    DECLARE v_stock_disponible DECIMAL(10,2);
+    DECLARE v_comanda_exists INT DEFAULT 1;
 
-  DECLARE v_detalle_id INT;
-  DECLARE v_cantidad_existente DECIMAL(10,2);
-  DECLARE v_stock_disponible DECIMAL(10,2);
+    /* =========================
+       Validar comanda (si aplica)
+    ========================== */
+    IF p_comanda_id IS NOT NULL THEN
+        SELECT COUNT(*) INTO v_comanda_exists
+        FROM comandas
+        WHERE comanda_id = p_comanda_id;
 
-  -- 1. Obtener la cantidad actual de detalle
-  SELECT d.cantidad INTO v_cantidad_existente
-  FROM detalle_facturas_ventas d
-  INNER JOIN detalle_ventas_con_productos dp 
-      ON dp.detalle_venta_id = d.detalle_venta_id
-  WHERE dp.producto_id = p_producto_id 
-  AND d.usuario_id = p_usuario_id AND d.comanda_id IS NULL
-  AND d.factura_venta_id IS NULL LIMIT 1;
+        IF v_comanda_exists = 0 THEN
+            SELECT 'Error: No existe la comanda seleccionada' AS msg;
+        END IF;
+    END IF;
 
-  -- 2. Obtener el stock disponible del producto
-  SELECT cantidad INTO v_stock_disponible
-  FROM productos WHERE producto_id = p_producto_id LIMIT 1;
-    
-  -- Verificar que la cantidad no exceda el stock disponible
-  IF p_cantidad > v_stock_disponible THEN
-    SELECT 'Error: No hay suficiente stock disponible.' AS msg;
-  ELSE
-    -- 3. Verificar si ya existe el detalle para este producto y comanda
-    IF EXISTS (SELECT 1 
-               FROM detalle_facturas_ventas d 
-               INNER JOIN detalle_ventas_con_productos dp 
-               ON dp.detalle_venta_id = d.detalle_venta_id 
-               WHERE dp.producto_id = p_producto_id 
-  AND d.usuario_id = p_usuario_id 
-  AND d.comanda_id IS NULL
-  AND d.factura_venta_id IS NULL
-LIMIT 1) THEN
+    /* =========================
+       Obtener stock disponible
+    ========================== */
+    SELECT cantidad INTO v_stock_disponible
+    FROM productos
+    WHERE producto_id = p_producto_id
+    LIMIT 1;
 
-      -- Si ya existe, obtener el detalle_venta_id
-      SELECT d.detalle_venta_id INTO v_detalle_id
-      FROM detalle_facturas_ventas d
-      INNER JOIN detalle_ventas_con_productos dp 
-          ON dp.detalle_venta_id = d.detalle_venta_id
-      WHERE dp.producto_id = p_producto_id 
-  AND d.usuario_id = p_usuario_id 
-  AND d.comanda_id IS NULL
-  AND d.factura_venta_id IS NULL
-LIMIT 1;
+    IF p_cantidad > v_stock_disponible THEN
+        SELECT 'Error: No hay suficiente stock disponible' AS msg;
+    END IF;
 
-      -- Actualizar la cantidad (sumando la cantidad existente)
-      UPDATE detalle_facturas_ventas 
-      SET cantidad = v_cantidad_existente + p_cantidad 
-      WHERE detalle_venta_id = v_detalle_id;
+    /* =========================
+       Obtener detalle existente
+    ========================== */
+    SELECT d.detalle_venta_id, d.cantidad
+    INTO v_detalle_id, v_cantidad_existente
+    FROM detalle_facturas_ventas d
+    INNER JOIN detalle_ventas_con_productos dp
+        ON dp.detalle_venta_id = d.detalle_venta_id
+    WHERE dp.producto_id = p_producto_id
+      AND (
+            (p_comanda_id IS NULL AND d.comanda_id IS NULL AND d.factura_venta_id IS NULL AND d.usuario_id = p_usuario_id)
+         OR (p_comanda_id IS NOT NULL AND d.comanda_id = p_comanda_id)
+      )
+    LIMIT 1;
 
-      -- Mostrar mensaje indicando que se incrementó el detalle
-      SELECT 'Detalle incrementado' AS msg;
+    /* =========================
+       Si existe → actualizar
+    ========================== */
+    IF v_detalle_id IS NOT NULL THEN
 
-    ELSE 
-      -- Si el producto no existe, insertar un nuevo detalle
-      INSERT INTO detalle_facturas_ventas (usuario_id, cantidad, costo, precio, fecha)
-      VALUES (p_usuario_id, p_cantidad, p_costo, p_precio, CURDATE());
-        
-         -- Obtener el detalle_venta_id del nuevo registro
-      SET v_detalle_id = LAST_INSERT_ID();
+        UPDATE detalle_facturas_ventas
+        SET cantidad = v_cantidad_existente + p_cantidad
+        WHERE detalle_venta_id = v_detalle_id;
 
-      -- Insertar el producto en detalle_ventas_con_productos
-      INSERT INTO detalle_ventas_con_productos (detalle_venta_id, producto_id)
-      VALUES (v_detalle_id, p_producto_id);
+        SELECT 'Detalle incrementado' AS msg;
 
-      -- Mostrar mensaje indicando que se creó un nuevo detalle
-      SELECT 'Nuevo detalle creado' AS msg;
+    /* =========================
+       Si no existe → insertar
+    ========================== */
+    ELSE
+
+        INSERT INTO detalle_facturas_ventas (
+            comanda_id,
+            usuario_id,
+            cantidad,
+            costo,
+            precio,
+            fecha
+        ) VALUES (
+            p_comanda_id,
+            p_usuario_id,
+            p_cantidad,
+            p_costo,
+            p_precio,
+            CURDATE()
+        );
+
+        SET v_detalle_id = LAST_INSERT_ID();
+
+        INSERT INTO detalle_ventas_con_productos (
+            detalle_venta_id,
+            producto_id,
+            comanda_id
+        ) VALUES (
+            v_detalle_id,
+            p_producto_id,
+            p_comanda_id
+        );
+
+        SELECT 'Nuevo detalle creado' AS msg;
 
     END IF;
-  END IF;
 
 END$$
 DELIMITER ;
@@ -2832,6 +2877,32 @@ BEGIN
     ELSE
         -- Si no hay suficiente stock o si no es un servicio
         SELECT 'Error: No hay suficiente stock disponible' AS msg;
+    END IF;
+
+END $$
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `pos_eliminar_todo`;
+DELIMITER $$
+CREATE PROCEDURE `pos_eliminar_todo` (IN _comanda_id INT, IN _usuario_id INT)
+BEGIN
+
+     DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
+     DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+
+    -- Si _comanda_id es mayor a 0, eliminar registros específicos
+    IF _comanda_id > 0 THEN
+        DELETE FROM detalle_facturas_ventas WHERE comanda_id = _comanda_id;
+        SELECT 'Registros eliminados por comanda_id' as msg;
+    ELSE 
+        -- Si _comanda_id es 0 o menor, eliminar registros donde usuario_id coincida y otros campos sean nulos
+        DELETE FROM detalle_facturas_ventas 
+        WHERE usuario_id = _usuario_id 
+        AND comanda_id IS NULL 
+        AND factura_venta_id IS NULL;
+        
+        SELECT 'Registros eliminados por usuario_id' as msg;
     END IF;
 
 END $$

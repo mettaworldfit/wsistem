@@ -456,7 +456,7 @@ switch ($action) {
     echo handleProcedureAction($db, 'pr_eliminarVariante', [$_POST['id']]);
     break;
 
-  case 'pos':
+  case 'obtener_articulos_pos':
 
     // Recibir parámetros de la solicitud
     $draw = isset($_POST['draw']) ? (int) $_POST['draw'] : 1;  // Número de solicitud (para seguimiento)
@@ -465,7 +465,7 @@ switch ($action) {
     $search = isset($_POST['search']) ? $_POST['search'] : ''; // Término de búsqueda
 
     // Columnas para ordenamiento
-    $columns = ['nombre_producto', 'cod_producto', 'precio_unitario'];  // Ajusta las columnas según tu base de datos
+    $columns = ['nombre', 'codigo', 'precio'];  // Ajusta las columnas según tu base de datos
     $orderColumn = isset($_POST['orderColumn']) ? (int) $_POST['orderColumn'] : 0;
     $orderDir = isset($_POST['orderDir']) ? $_POST['orderDir'] : 'asc';
     $orderBy = $columns[$orderColumn];
@@ -474,13 +474,46 @@ switch ($action) {
     // Termino de búsqueda
     $searchTerm = "%" . $search . "%";
 
-    // Consulta para obtener los productos con paginación y búsqueda
-    $query = "SELECT p.cod_producto, p.nombre_producto,p.producto_id,p.cantidad,
-     p.precio_unitario,p.precio_costo,p.imagen FROM productos p
-    LEFT JOIN productos_con_categorias pc ON pc.producto_id = p.producto_id
-    LEFT JOIN categorias c ON pc.categoria_id = c.categoria_id
-    WHERE p.nombre_producto LIKE '$searchTerm' OR p.cod_producto LIKE '$searchTerm' OR c.nombre_categoria LIKE '$searchTerm' 
-    ORDER BY $orderBy $orderDir LIMIT $start, $length";
+    // Consulta para obtener los articulos con paginación y búsqueda
+    $query = "SELECT *
+FROM (
+    SELECT 
+        p.producto_id        AS item_id,
+        'producto'           AS tipo,
+        p.cod_producto       AS codigo,
+        p.nombre_producto    AS nombre,
+        p.cantidad           AS stock,
+        p.precio_unitario    AS precio,
+        p.precio_costo       AS costo,
+        p.imagen             AS imagen,
+        c.nombre_categoria   AS categoria
+    FROM productos p
+    LEFT JOIN productos_con_categorias pc 
+        ON pc.producto_id = p.producto_id
+    LEFT JOIN categorias c 
+        ON pc.categoria_id = c.categoria_id
+
+    UNION ALL
+
+    SELECT
+        s.servicio_id        AS item_id,
+        'servicio'           AS tipo,
+        NULL                 AS codigo,
+        s.nombre_servicio    AS nombre,
+        NULL                 AS stock,
+        s.precio             AS precio,
+        s.costo              AS costo,
+        NULL                 AS imagen,
+        NULL                 AS categoria
+    FROM servicios s
+) AS items
+WHERE 
+    items.nombre   LIKE '$searchTerm'
+    OR items.codigo LIKE '$searchTerm'
+    OR items.categoria LIKE '$searchTerm'
+ORDER BY $orderBy $orderDir
+LIMIT $start, $length
+";
     $result = $db->query($query);
 
     // Verificar si hay resultados

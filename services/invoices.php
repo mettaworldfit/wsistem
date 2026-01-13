@@ -1176,20 +1176,48 @@ if ($_POST['action'] == "agregar_detalle_pos") {
 
   $db = Database::connect();
 
-  $params = [
-    (int) ($_POST['order_id'] ?? 0), // Usamos el valor de order_id o 0 si no está presente
-    (int) $_SESSION['identity']->usuario_id,
-    $_POST['quantity'] ?? 0,
-    $_POST['cost'] ?? 0,
-    $_POST['price'],
-    (int) $_POST['product_id'] ?? 0,
-    (int)$_POST['piece_id'] ?? 0,
-    (int)$_POST['service_id'] ?? 0
-  ];
+  $order_id   = !empty($_POST['order_id']) ? (int) $_POST['order_id'] : null;
+  $usuario_id = (int) $_SESSION['identity']->usuario_id;
+  $cantidad   = $_POST['quantity'] ?? 0;
+  $costo      = $_POST['cost'] ?? 0;
+  $precio     = $_POST['price'] ?? 0;
 
-  $procedure = ($_POST['order_id'] > 0) ? 'pos_agregar_producto' : 'pos_agregar_producto_sin';
+  $item_id   = null;
+  $procedure = null;
 
-  echo handleProcedureAction($db, $procedure, $params);
+  // PRODUCTO
+  if (!empty($_POST['product_id'])) {
+    $item_id = (int) $_POST['product_id'];
+    $procedure = 'pos_agregar_producto';
+
+    // PIEZA
+  } elseif (!empty($_POST['piece_id'])) {
+    $item_id = (int) $_POST['piece_id'];
+    $procedure = 'pos_agregar_pieza';
+
+    // SERVICIO
+  } elseif (!empty($_POST['service_id'])) {
+    $item_id = (int) $_POST['service_id'];
+    $procedure = 'pos_agregar_servicio';
+  }
+
+  // 🔒 VALIDACIÓN FINAL
+  if ($item_id === null || $procedure === null) {
+    echo json_encode([
+      'status' => 'error',
+      'msg' => 'Debe enviar producto, pieza o servicio válido'
+    ]);
+    exit;
+  }
+
+  echo handleProcedureAction($db, $procedure, $params = [
+    $order_id,
+    $usuario_id,
+    $cantidad,
+    $costo,
+    $precio,
+    $item_id
+  ]);
 }
 
 // Obtener datos de la venta editar del pos 
