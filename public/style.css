@@ -4780,3 +4780,7 @@ button.btn-pos_home:focus {
     border-radius: 3px;
     background-color: var(--color-primary)
 }
+
+.btn-scanner:focus {
+    outline: none;
+}
