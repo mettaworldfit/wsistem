@@ -571,7 +571,7 @@ $(document).ready(function () {
 
     $('#scannerProduct').on('click', function () {
 
-        // 🔓 Autorizar audio (CLAVE para iOS)
+        // 🔓 Autorizar audio (iOS)
         scanAudio.muted = true;
         scanAudio.play().then(() => {
             scanAudio.pause();
@@ -585,52 +585,43 @@ $(document).ready(function () {
             scanner = new Html5Qrcode("reader");
         }
 
-        $('#scanner-overlay').css('display', 'flex');
+        // ⚠️ Mostrar primero
+        $('#scanner-overlay').show();
 
-        setTimeout(() => {
+        scanning = true;
 
-            scanning = true;
+        scanner.start(
+            { facingMode: "environment" }, // ✅ iOS compatible
+            {
+                fps: 20,
+                qrbox: { width: 240, height: 140 },
+                disableFlip: true,
+                formatsToSupport: [
+                    Html5QrcodeSupportedFormats.CODE_128,
+                    Html5QrcodeSupportedFormats.EAN_13,
+                    Html5QrcodeSupportedFormats.EAN_8,
+                    Html5QrcodeSupportedFormats.UPC_A,
+                    Html5QrcodeSupportedFormats.UPC_E,
+                    Html5QrcodeSupportedFormats.CODE_39
+                ]
+            },
+            (decodedText) => {
 
-            scanner.start(
-                { facingMode: "environment" },
-                {
-                    fps: 25,
-                    qrbox: { width: 250, height: 150 },
-                    aspectRatio: 1.777778,
-                    disableFlip: true,
-                    formatsToSupport: [
-                        Html5QrcodeSupportedFormats.CODE_128,
-                        Html5QrcodeSupportedFormats.EAN_13,
-                        Html5QrcodeSupportedFormats.EAN_8,
-                        Html5QrcodeSupportedFormats.UPC_A,
-                        Html5QrcodeSupportedFormats.UPC_E,
-                        Html5QrcodeSupportedFormats.CODE_39
-                    ]
-                },
-                (decodedText) => {
+                if (!scanning) return;
 
-                    // 🔒 Evitar doble lectura
-                    if (!scanning) return;
+                scanAudio.currentTime = 0;
+                scanAudio.play();
 
-                    // 🔊 Sonido escáner
-                    scanAudio.currentTime = 0;
-                    scanAudio.play();
+                $('#product_code').val(decodedText).trigger('change');
+                navigator.vibrate?.(100);
 
-                    // 📥 Insertar código
-                    $('#product_code').val(decodedText).trigger('change');
-
-                    // 📳 Vibración (móvil)
-                    navigator.vibrate?.(100);
-
-                    stopScanner();
-                },
-                () => { }
-            ).catch(err => {
-                console.error("Error cámara:", err);
-                scanning = false;
-            });
-
-        }, 200);
+                stopScanner();
+            }
+        ).catch(err => {
+            scanning = false;
+            alert("iPhone no pudo acceder a la cámara.\nVerifica HTTPS y permisos.");
+            console.error(err);
+        });
     });
 
     function stopScanner() {
@@ -646,10 +637,7 @@ $(document).ready(function () {
         });
     }
 
-    // ❌ BOTÓN SALIR
-    $('#closeScanner').on('click', function () {
-        stopScanner();
-    });
+    $('#closeScanner').on('click', stopScanner);
 
 
 
