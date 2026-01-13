@@ -567,8 +567,17 @@ $(document).ready(function () {
 
     let scanner = null;
     let scanning = false;
+    let scanAudio = document.getElementById('scanSound');
 
     $('#scannerProduct').on('click', function () {
+
+        // 🔓 Autorizar audio (CLAVE para iOS)
+        scanAudio.muted = true;
+        scanAudio.play().then(() => {
+            scanAudio.pause();
+            scanAudio.currentTime = 0;
+            scanAudio.muted = false;
+        }).catch(() => { });
 
         if (scanning) return;
 
@@ -583,20 +592,12 @@ $(document).ready(function () {
             scanning = true;
 
             scanner.start(
+                { facingMode: "environment" },
                 {
-                    // 📸 SIEMPRE cámara trasera
-                    facingMode: { exact: "environment" }
-                },
-                {
-                    fps: 30, // 🔥 más rápido
-                    qrbox: (w, h) => {
-                        let size = Math.min(w, h) * 0.6;
-                        return { width: size, height: size };
-                    },
+                    fps: 25,
+                    qrbox: { width: 250, height: 150 },
                     aspectRatio: 1.777778,
                     disableFlip: true,
-
-                    // 🔥 SOLO CÓDIGOS DE BARRAS
                     formatsToSupport: [
                         Html5QrcodeSupportedFormats.CODE_128,
                         Html5QrcodeSupportedFormats.EAN_13,
@@ -604,30 +605,29 @@ $(document).ready(function () {
                         Html5QrcodeSupportedFormats.UPC_A,
                         Html5QrcodeSupportedFormats.UPC_E,
                         Html5QrcodeSupportedFormats.CODE_39
-                    ],
+                    ]
                 },
                 (decodedText) => {
-                    // ✅ Inserta el código detectado
+
+                    // 🔒 Evitar doble lectura
+                    if (!scanning) return;
+
+                    // 🔊 Sonido escáner
+                    scanAudio.currentTime = 0;
+                    scanAudio.play();
+
+                    // 📥 Insertar código
                     $('#product_code').val(decodedText).trigger('change');
 
-                    // 🔊 feedback rápido
+                    // 📳 Vibración (móvil)
                     navigator.vibrate?.(100);
 
                     stopScanner();
                 },
                 () => { }
             ).catch(err => {
-                console.warn("No se pudo usar cámara trasera, intentando automática...");
-
-                // 🔁 Fallback si exact no funciona
-                scanner.start(
-                    { facingMode: "environment" },
-                    { fps: 30 },
-                    (code) => {
-                        $('#product_code').val(code).trigger('change');
-                        stopScanner();
-                    }
-                );
+                console.error("Error cámara:", err);
+                scanning = false;
             });
 
         }, 200);
@@ -636,16 +636,22 @@ $(document).ready(function () {
     function stopScanner() {
         if (!scanner || !scanning) return;
 
+        scanning = false;
+
         scanner.stop().then(() => {
             scanner.clear();
             $('#scanner-overlay').hide();
-            scanning = false;
         }).catch(() => {
-            scanning = false;
+            $('#scanner-overlay').hide();
         });
     }
 
-    $('#closeScanner').on('click', stopScanner);
+    // ❌ BOTÓN SALIR
+    $('#closeScanner').on('click', function () {
+        stopScanner();
+    });
+
+
 
 
 

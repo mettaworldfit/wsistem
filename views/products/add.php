@@ -72,6 +72,11 @@
                             <div id="reader"></div>
                             <button id="closeScanner">✕</button>
                         </div>
+
+                        <audio id="scanSound" preload="auto">
+                            <source src="<?= base_url ?>public/sounds/beep.mp3" type="audio/mpeg">
+                        </audio>
+
                     </div>
 
                 </div>
