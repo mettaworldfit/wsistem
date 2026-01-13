@@ -564,42 +564,12 @@ $(document).ready(function () {
     /**============================================================= 
    * LECTOR DE CODIGO DE BARRA 
    ===============================================================*/
-
-    let audioCtx = null;
-
-    function playBeep() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-
-        oscillator.type = 'square';
-        oscillator.frequency.value = 900; // sonido tipo scanner
-        gainNode.gain.value = 0.2;
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.12);
-    }
-
+   
 
     let scanner = null;
     let scanning = false;
-    let scanAudio = document.getElementById('scanSound');
 
     $('#scannerProduct').on('click', function () {
-
-        // // 🔓 Autorizar audio (CLAVE para iOS)
-        // scanAudio.muted = true;
-        // scanAudio.play().then(() => {
-        //     scanAudio.pause();
-        //     scanAudio.currentTime = 0;
-        //     scanAudio.muted = false;
-        // }).catch(() => { });
 
         if (scanning) return;
 
@@ -634,11 +604,6 @@ $(document).ready(function () {
                     // 🔒 Evitar doble lectura
                     if (!scanning) return;
 
-                    // 🔊 Sonido escáner
-                    // scanAudio.currentTime = 0;
-                    // scanAudio.play();
-                     playBeep(); // 🔊 SIEMPRE SUENA
-
                     // 📥 Insertar código
                     $('#product_code').val(decodedText).trigger('change');
 
@@ -650,6 +615,7 @@ $(document).ready(function () {
                 () => { }
             ).catch(err => {
                 console.error("Error cámara:", err);
+                alert("Error cámara:", err)
                 scanning = false;
             });
 
