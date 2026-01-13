@@ -63,7 +63,7 @@
                         <input class="form-custom col-sm-10" type="text" name="product_code" placeholder="" id="product_code">
 
                         <!-- Botón scanner -->
-                        <button type="button" class="btn-custom" id="scannerProduct">
+                        <button type="button" class="btn-scanner" id="scannerProduct" data-title="Scannear">
                             <i class="fas fa-camera"></i>
                         </button>
 

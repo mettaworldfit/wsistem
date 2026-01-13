@@ -53,19 +53,31 @@
                     </div>
 
 
-                    <div class="form-group col-sm-9">
+                    <div class="form-group col-sm-8">
                         <label class="form-check-label label-nomb" for="">Nombre<span class="text-danger">*</span></label>
                         <input class="form-custom col-sm-12" type="text" name="name"
                             value="<?= $element->nombre_producto ?>" id="product_name" placeholder="" required>
                     </div>
 
-                    <div class="form-group col-sm-3 mb-3">
+                    <div class="form-group col-sm-4 mb-3">
                         <label class="form-check-label" for="">Código <a href="#" class="example-popover"
                                 data-toggle="popover" title="Código producto"
                                 data-content="Agrega un código único para identificar este producto. Ejemplo: CAS002"><i
                                     class="far fa-question-circle"></i></a></label>
-                        <input class="form-custom col-sm-12" type="text" name="product_code"
-                            value="<?= $element->cod_producto ?>" placeholder="" id="product_code">
+                        <div class="scan-group">
+                            <input class="form-custom col-sm-10" type="text" name="product_code" value="<?= $element->cod_producto ?>" id="product_code">
+
+                            <!-- Botón scanner -->
+                            <button type="button" class="btn-scanner" id="scannerProduct" data-title="Scannear">
+                                <i class="fas fa-camera"></i>
+                            </button>
+
+                            <!-- Overlay del scanner -->
+                            <div id="scanner-overlay">
+                                <div id="reader"></div>
+                                <button id="closeScanner">✕</button>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group col-sm-5 mb-3">
@@ -422,7 +434,7 @@
                         <!-- Aquí se mostrará el mensaje de éxito o error -->
                         <div id="product-content-img">
                             <?php if ($element->imagen != "") : ?>
-                              <img src="<?= dir_root.$element->imagen ?>" onerror="this.onerror=null; this.src='<?= base_url ?>public/imagen/sistem/no-imagen.png';" alt="">
+                                <img src="<?= dir_root . $element->imagen ?>" onerror="this.onerror=null; this.src='<?= base_url ?>public/imagen/sistem/no-imagen.png';" alt="">
                             <?php else: ?>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags">
                                     <path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" />
