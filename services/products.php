@@ -721,10 +721,17 @@ LIMIT $start, $length
             $target_file_webp = $target_dir . pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
             $source->toFile($target_file_webp); // Guardar la imagen comprimida en WebP
             $response['success'] = "La imagen ha sido comprimida y convertida a WebP con éxito en: " . $target_file_webp;
+
+            // Establecer la ruta de la imagen para la base de datos
+            $image_path = $target_file_webp;  // Ruta relativa a la carpeta de imágenes
+      
           } else {
             // Si la imagen ya es WebP, JFIF o AVIF, guardarla tal cual
             move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file);
             $response['success'] = "La imagen ha sido subida exitosamente: " . $target_file;
+
+             // Establecer la ruta de la imagen para la base de datos
+             $image_path = $dir_name . pathinfo($file_name, PATHINFO_FILENAME) . '.' . $imageFileType;  // Ruta relativa a la carpeta de imágenes
           }
         } catch (Exception $e) {
           $response['error'] = "Hubo un error al comprimir y convertir la imagen: " . $e->getMessage();
@@ -761,12 +768,12 @@ LIMIT $start, $length
       }
 
       // Actualizar el producto en la base de datos con la ruta de la imagen
-      // $sql = "UPDATE productos SET imagen = '$image_path' WHERE producto_id = $product_id";
-      // if (mysqli_query($db, $sql)) {
-      //   $response['success'] = "El producto ha sido actualizado con la imagen.";
-      // } else {
-      //   $response['error'] = "Error al actualizar el producto en la base de datos: " . mysqli_error($db);
-      // }
+      $sql = "UPDATE productos SET imagen = '$image_path' WHERE producto_id = $product_id";
+      if (mysqli_query($db, $sql)) {
+        $response['success'] = "El producto ha sido actualizado con la imagen.";
+      } else {
+        $response['error'] = "Error al actualizar el producto en la base de datos: " . mysqli_error($db);
+      }
     } else {
       $response['error'] = "Hubo un error al subir la imagen.";
     }
