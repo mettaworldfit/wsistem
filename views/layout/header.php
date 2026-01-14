@@ -186,11 +186,10 @@
 
           <!-- buscador -->
           <div class="explorer">
-            <!-- <i class="fas fa-search"></i> -->
-            <input type="text" class="form-custom" name="" placeholder="Buscador global" id="keyword">
+            <input type="text" class="form-custom" name="" placeholder="Buscar producto, contactos, ordenes y facturas" id="keyword">
 
             <!-- Botón scanner -->
-            <button type="button" class="btn-scan_explorer" id="scannerExplorer">
+            <button type="button" class="scanner-svg" id="scannerExplorer">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scan-barcode-icon lucide-scan-barcode">
                 <path d="M3 7V5a2 2 0 0 1 2-2h2" />
                 <path d="M17 3h2a2 2 0 0 1 2 2v2" />

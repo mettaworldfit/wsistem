@@ -1053,7 +1053,7 @@ $(document).ready(function () {
     let scanner = null;
     let scanning = false;
 
-    $('#scannerProduct,#scannerExplorer').on('click', function () {
+    $('#scannerProduct, #scannerExplorer, #scannerPos').on('click', function () {
 
         if (scanning) return;
 
@@ -1090,10 +1090,12 @@ $(document).ready(function () {
                     if (!scanning) return;
 
                     // 📥 Insertar código
-                    if (!pageURL.includes("products/add")) {
-                        $('#keyword').val(decodedText).trigger('change');
-                    } else {
+                    if (pageURL.includes("products/add")) {
                         $('#product_code').val(decodedText).trigger('change');
+                    } else if (pageURL.includes("invoices/pos")) {
+                        $('#search-input').val(decodedText).trigger('change');
+                    } else {
+                        $('#keyword').val(decodedText).trigger('change');
                     }
 
                     // 📳 Vibración (móvil)
