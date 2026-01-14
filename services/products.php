@@ -767,8 +767,12 @@ LIMIT $start, $length
         // }
       }
 
+      // Depuración: Verificar si $image_path tiene valor
+echo "Ruta de la imagen: " . $image_path;  // Esto debería mostrar la ruta completa de la imagen
+
+
       // Actualizar el producto en la base de datos con la ruta de la imagen
-      $sql = "UPDATE productos SET imagen = '$image_path' WHERE producto_id = $product_id";
+      $sql = "UPDATE productos SET imagen = '$image_path' WHERE producto_id = '$product_id'";
       if (mysqli_query($db, $sql)) {
         $response['success'] = "El producto ha sido actualizado con la imagen.";
       } else {
