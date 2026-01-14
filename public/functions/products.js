@@ -565,80 +565,79 @@ $(document).ready(function () {
    * LECTOR DE CODIGO DE BARRA 
    ===============================================================*/
    
+    // let scanner = null;
+    // let scanning = false;
 
-    let scanner = null;
-    let scanning = false;
+    // $('#scannerProduct').on('click', function () {
 
-    $('#scannerProduct').on('click', function () {
+    //     if (scanning) return;
 
-        if (scanning) return;
+    //     if (!scanner) {
+    //         scanner = new Html5Qrcode("reader");
+    //     }
 
-        if (!scanner) {
-            scanner = new Html5Qrcode("reader");
-        }
+    //     $('#scanner-overlay').css('display', 'flex');
 
-        $('#scanner-overlay').css('display', 'flex');
+    //     setTimeout(() => {
 
-        setTimeout(() => {
+    //         scanning = true;
 
-            scanning = true;
+    //         scanner.start(
+    //             { facingMode: "environment" },
+    //             {
+    //                 fps: 25,
+    //                 qrbox: { width: 250, height: 150 },
+    //                 aspectRatio: 1.777778,
+    //                 disableFlip: true,
+    //                 formatsToSupport: [
+    //                     Html5QrcodeSupportedFormats.CODE_128,
+    //                     Html5QrcodeSupportedFormats.EAN_13,
+    //                     Html5QrcodeSupportedFormats.EAN_8,
+    //                     Html5QrcodeSupportedFormats.UPC_A,
+    //                     Html5QrcodeSupportedFormats.UPC_E,
+    //                     Html5QrcodeSupportedFormats.CODE_39
+    //                 ]
+    //             },
+    //             (decodedText) => {
 
-            scanner.start(
-                { facingMode: "environment" },
-                {
-                    fps: 25,
-                    qrbox: { width: 250, height: 150 },
-                    aspectRatio: 1.777778,
-                    disableFlip: true,
-                    formatsToSupport: [
-                        Html5QrcodeSupportedFormats.CODE_128,
-                        Html5QrcodeSupportedFormats.EAN_13,
-                        Html5QrcodeSupportedFormats.EAN_8,
-                        Html5QrcodeSupportedFormats.UPC_A,
-                        Html5QrcodeSupportedFormats.UPC_E,
-                        Html5QrcodeSupportedFormats.CODE_39
-                    ]
-                },
-                (decodedText) => {
+    //                 // 🔒 Evitar doble lectura
+    //                 if (!scanning) return;
 
-                    // 🔒 Evitar doble lectura
-                    if (!scanning) return;
+    //                 // 📥 Insertar código
+    //                 $('#product_code').val(decodedText).trigger('change');
 
-                    // 📥 Insertar código
-                    $('#product_code').val(decodedText).trigger('change');
+    //                 // 📳 Vibración (móvil)
+    //                 navigator.vibrate?.(100);
 
-                    // 📳 Vibración (móvil)
-                    navigator.vibrate?.(100);
+    //                 stopScanner();
+    //             },
+    //             () => { }
+    //         ).catch(err => {
+    //             console.error("Error cámara:", err);
+    //             alert("Error cámara:", err)
+    //             scanning = false;
+    //         });
 
-                    stopScanner();
-                },
-                () => { }
-            ).catch(err => {
-                console.error("Error cámara:", err);
-                alert("Error cámara:", err)
-                scanning = false;
-            });
+    //     }, 200);
+    // });
 
-        }, 200);
-    });
+    // function stopScanner() {
+    //     if (!scanner || !scanning) return;
 
-    function stopScanner() {
-        if (!scanner || !scanning) return;
+    //     scanning = false;
 
-        scanning = false;
+    //     scanner.stop().then(() => {
+    //         scanner.clear();
+    //         $('#scanner-overlay').hide();
+    //     }).catch(() => {
+    //         $('#scanner-overlay').hide();
+    //     });
+    // }
 
-        scanner.stop().then(() => {
-            scanner.clear();
-            $('#scanner-overlay').hide();
-        }).catch(() => {
-            $('#scanner-overlay').hide();
-        });
-    }
-
-    // ❌ BOTÓN SALIR
-    $('#closeScanner').on('click', function () {
-        stopScanner();
-    });
+    // // ❌ BOTÓN SALIR
+    // $('#closeScanner').on('click', function () {
+    //     stopScanner();
+    // });
 
 
 

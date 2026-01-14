@@ -51,7 +51,7 @@
 
   <!-- HTML5-QRcode -->
   <script src="https://unpkg.com/html5-qrcode"></script>
-  
+
   <!-- Font-Awesome -->
 
   <link rel="preload" href="<?= base_url ?>public/font-awesome/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -93,7 +93,7 @@
 
   <?php if (isset($_SESSION['admin']) || isset($_SESSION['identity'])): ?>
 
-       <?php require_once 'includes/sidebar.php'; ?>
+    <?php require_once 'includes/sidebar.php'; ?>
 
     <!-- ================ HEADER ==================== -->
 
@@ -186,8 +186,28 @@
 
           <!-- buscador -->
           <div class="explorer">
-            <i class="fas fa-search"></i>
-            <input type="text" class="form-custom" name="" placeholder="Clientes / proveedores / productos / piezas / facturas / ordenes" id="keyword">
+            <!-- <i class="fas fa-search"></i> -->
+            <input type="text" class="form-custom" name="" placeholder="Buscador global" id="keyword">
+
+            <!-- Botón scanner -->
+            <button type="button" class="btn-scan_explorer" id="scannerExplorer">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scan-barcode-icon lucide-scan-barcode">
+                <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+                <path d="M8 7v10" />
+                <path d="M12 7v10" />
+                <path d="M17 7v10" />
+              </svg>
+            </button>
+
+            <!-- Overlay del scanner -->
+            <div id="scanner-overlay">
+              <div id="reader"></div>
+              <button id="closeScanner">✕</button>
+            </div>
+
             <ul id="search_result"></ul>
           </div>
 

@@ -950,54 +950,54 @@ $(document).ready(function () {
     });
 
 
-   $(function () {
+    $(function () {
 
-    // Función que obtiene la fecha desde el servidor vía AJAX
-    function getFechaServidor(callback) {
-        sendAjaxRequest({
-            url: "services/config.php",
-            data: {
-                action: 'fecha_actual'
-            },
-            successCallback: (res) => {
-                const data = JSON.parse(res);  // Convertir JSON a objeto
-                callback(data);  // Pasar el objeto con ambas fechas
-            }
+        // Función que obtiene la fecha desde el servidor vía AJAX
+        function getFechaServidor(callback) {
+            sendAjaxRequest({
+                url: "services/config.php",
+                data: {
+                    action: 'fecha_actual'
+                },
+                successCallback: (res) => {
+                    const data = JSON.parse(res);  // Convertir JSON a objeto
+                    callback(data);  // Pasar el objeto con ambas fechas
+                }
+            });
+        }
+
+        // CASH MODAL
+        $(document).on('shown.bs.modal', '#cash_invoice', function () {
+            getFechaServidor(function (data) {
+                $('#cash-in-date').val(data.fecha);  // Asignar solo la fecha (YYYY-MM-DD)
+            });
         });
-    }
 
-    // CASH MODAL
-    $(document).on('shown.bs.modal', '#cash_invoice', function () {
-        getFechaServidor(function (data) {
-            $('#cash-in-date').val(data.fecha);  // Asignar solo la fecha (YYYY-MM-DD)
+        // CREDIT MODAL
+        $(document).on('shown.bs.modal', '#credit_invoice', function () {
+            getFechaServidor(function (data) {
+                $('#credit-in-date').val(data.fecha);  // Asignar solo la fecha (YYYY-MM-DD)
+            });
         });
-    });
 
-    // CREDIT MODAL
-    $(document).on('shown.bs.modal', '#credit_invoice', function () {
-        getFechaServidor(function (data) {
-            $('#credit-in-date').val(data.fecha);  // Asignar solo la fecha (YYYY-MM-DD)
+        // CREDIT MODAL POS
+        $(document).on('shown.bs.modal', '#pos-credit', function () {
+            getFechaServidor(function (data) {
+                $('#modal-date').val(data.fecha);  // Asignar solo la fecha (YYYY-MM-DD)
+            });
         });
-    });
 
-    // CREDIT MODAL POS
-    $(document).on('shown.bs.modal', '#pos-credit', function () {
-        getFechaServidor(function (data) {
-            $('#modal-date').val(data.fecha);  // Asignar solo la fecha (YYYY-MM-DD)
+        // CIERRE DE CAJA
+        $(document).on('shown.bs.modal', '#modalCashClosing', function () {
+            getFechaServidor(function (data) {
+                console.log("Fecha y hora del servidor (Cierre de Caja):", data.fecha_completa);  // Fecha completa
+                var fechaFormateada = data.fecha_completa.replace(' ', 'T').slice(0, 16);  // Reemplazar espacio por T y recortar a YYYY-MM-DDTHH:MM
+                $('#closing_date').val(fechaFormateada);  // Asignar el valor formateado al input
+            });
         });
-    });
 
-    // CIERRE DE CAJA
-   $(document).on('shown.bs.modal', '#modalCashClosing', function () {
-    getFechaServidor(function (data) {
-        console.log("Fecha y hora del servidor (Cierre de Caja):", data.fecha_completa);  // Fecha completa
-        var fechaFormateada = data.fecha_completa.replace(' ', 'T').slice(0, 16);  // Reemplazar espacio por T y recortar a YYYY-MM-DDTHH:MM
-        $('#closing_date').val(fechaFormateada);  // Asignar el valor formateado al input
-    });
-});
- 
 
-});
+    });
 
 
 
@@ -1044,6 +1044,91 @@ $(document).ready(function () {
 
     addKeyboardCommandForModal('Ctrl+3', 'add_detail');
     addKeyboardCommandForModal('Ctrl+0', 'create_customer');
+
+
+    /**============================================================= 
+    * LECTOR DE CODIGO DE BARRA 
+    ===============================================================*/
+
+    let scanner = null;
+    let scanning = false;
+
+    $('#scannerProduct,#scannerExplorer').on('click', function () {
+
+        if (scanning) return;
+
+        if (!scanner) {
+            scanner = new Html5Qrcode("reader");
+        }
+
+        $('#scanner-overlay').css('display', 'flex');
+
+        setTimeout(() => {
+
+            scanning = true;
+
+            scanner.start(
+                { facingMode: "environment" }, // Este es el objeto correcto con solo una clave
+                {
+                    fps: 15,
+                    qrbox: (vw, vh) => {
+                        const width = Math.min(vw * 0.9, 480); // Ajustar tamaño dinámico
+                        return { width, height: width / 2 };
+                    },
+                    disableFlip: true,
+                    formatsToSupport: [
+                        Html5QrcodeSupportedFormats.CODE_128,
+                        Html5QrcodeSupportedFormats.EAN_13,
+                        Html5QrcodeSupportedFormats.EAN_8,
+                        Html5QrcodeSupportedFormats.UPC_A,
+                        Html5QrcodeSupportedFormats.CODE_39
+                    ]
+                },
+                (decodedText) => {
+
+                    // 🔒 Evitar doble lectura
+                    if (!scanning) return;
+
+                    // 📥 Insertar código
+                    if (!pageURL.includes("products/add")) {
+                        $('#keyword').val(decodedText).trigger('change');
+                    } else {
+                        $('#product_code').val(decodedText).trigger('change');
+                    }
+
+                    // 📳 Vibración (móvil)
+                    navigator.vibrate?.(100);
+
+                    stopScanner();
+                },
+                () => { }
+            ).catch(err => {
+                console.error("Error cámara:", err);
+                alert("Error cámara:", err)
+                scanning = false;
+            });
+
+        }, 200);
+    });
+
+    function stopScanner() {
+        if (!scanner || !scanning) return;
+
+        scanning = false;
+
+        scanner.stop().then(() => {
+            scanner.clear();
+            $('#scanner-overlay').hide();
+        }).catch(() => {
+            $('#scanner-overlay').hide();
+        });
+    }
+
+    // ❌ BOTÓN SALIR
+    $('#closeScanner').on('click', function () {
+        stopScanner();
+    });
+
 
 
 
