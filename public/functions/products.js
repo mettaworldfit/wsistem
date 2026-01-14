@@ -1048,8 +1048,7 @@ $(document).ready(function () {
                     if (localStorage.getItem("variantes")) assignProductVariant(res);
 
                     uploadImage(res) // Subir imagen
-                    console.log(res)
-
+                    
                     $('#last_product_edit').show().attr('href', `${SITE_URL}/products/edit&id=${res}`);
                     resetProductForm();
                     mysql_row_affected();
@@ -1241,7 +1240,7 @@ $(document).ready(function () {
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    console.log(response)
+        
                     try {
                         var data = JSON.parse(response)
 

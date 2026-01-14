@@ -671,15 +671,13 @@ LIMIT $start, $length
       // Verificar si la carpeta existe, si no, crearla
       if (!file_exists($target_dir)) {
         if (!mkdir($target_dir, 0777, true)) {
-          $response['error'] = "Hubo un error al intentar crear la carpeta.";
-          echo json_encode($response);
-          exit;
+          $response['error'][] = "Hubo un error al intentar crear la carpeta: " . $target_dir;
         } else {
-          $response['success'] = "La carpeta fue creada con éxito: " . $target_dir;
+          $response['success'][] = "La carpeta fue creada con éxito: " . $target_dir;
         }
       } else {
         // Si la carpeta ya existe, devolver la ruta
-        $response['info'] = "La carpeta ya existe: " . $target_dir;
+        $response['info'][] = "La carpeta ya existe: " . $target_dir;
       }
 
       // Obtener el nombre del archivo y la extensión
@@ -689,14 +687,14 @@ LIMIT $start, $length
 
       // Verificar si el archivo es una imagen
       if (getimagesize($_FILES["product_image"]["tmp_name"]) === false) {
-        $response['error'] = "El archivo no es una imagen.";
+        $response['error'][] = "El archivo no es una imagen.";
         echo json_encode($response);
         exit;
       }
 
       // Verificar el tamaño de la imagen (2 MB máximo)
       if ($_FILES["product_image"]["size"] > 2000000) {
-        $response['error'] = "Error archivo demasiado grande.";
+        $response['error'][] = "Error archivo demasiado grande.";
         echo json_encode($response);
         exit;
       }
@@ -704,7 +702,7 @@ LIMIT $start, $length
       // Verificar la extensión de la imagen
       $allowed_types = ["jpg", "jpeg", "png", "webp", "avif", "jfif"];
       if (!in_array($imageFileType, $allowed_types)) {
-        $response['error'] = "Error solo se permiten imágenes JPG, JPEG, PNG, AVIF, WEBP, JFIF.";
+        $response['error'][] = "Error solo se permiten imágenes JPG, JPEG, PNG, AVIF, WEBP, JFIF.";
         echo json_encode($response);
         exit;
       }
@@ -720,69 +718,65 @@ LIMIT $start, $length
           if ($imageFileType !== 'webp' && $imageFileType !== 'avif' && $imageFileType !== 'jfif') {
             $target_file_webp = $target_dir . pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
             $source->toFile($target_file_webp); // Guardar la imagen comprimida en WebP
-            $response['success'] = "La imagen ha sido comprimida y convertida a WebP con éxito en: " . $target_file_webp;
+            $response['success'][] = "La imagen ha sido comprimida y convertida a WebP con éxito en: " . $target_file_webp;
 
             // Establecer la ruta de la imagen para la base de datos
             $image_path = $target_file_webp;  // Ruta relativa a la carpeta de imágenes
-      
+
           } else {
             // Si la imagen ya es WebP, JFIF o AVIF, guardarla tal cual
             move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file);
-            $response['success'] = "La imagen ha sido subida exitosamente: " . $target_file;
+            $response['success'][] = "La imagen ha sido subida exitosamente: " . $target_file;
 
-             // Establecer la ruta de la imagen para la base de datos
-             $image_path = $dir_name . pathinfo($file_name, PATHINFO_FILENAME) . '.' . $imageFileType;  // Ruta relativa a la carpeta de imágenes
+            // Establecer la ruta de la imagen para la base de datos
+            $image_path = $dir_name . pathinfo($file_name, PATHINFO_FILENAME) . '.' . $imageFileType;  // Ruta relativa a la carpeta de imágenes
           }
         } catch (Exception $e) {
-          $response['error'] = "Hubo un error al comprimir y convertir la imagen: " . $e->getMessage();
+          $response['error'][] = "Hubo un error al comprimir y convertir la imagen: " . $e->getMessage();
           echo json_encode($response);
           exit;
         }
       } else {
         // Si estamos en localhost, no comprimir la imagen, solo moverla si es AVIF, JFIF o WEBP
-        // if ($imageFileType === 'webp' || $imageFileType === 'avif' || $imageFileType === 'jfif') {
-        //   // Si la imagen es AVIF o WEBP, simplemente moverla
-        //   move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file);
-        //   $response['success'] = "La imagen ha sido subida exitosamente: " . $target_file;
+        if ($imageFileType === 'webp' || $imageFileType === 'avif' || $imageFileType === 'jfif') {
+          // Si la imagen es AVIF, JFIF o WEBP, simplemente moverla
+          move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file);
+          $response['success'][] = "La imagen ha sido subida exitosamente: " . $target_file;
 
-        //   // Establecer la ruta de la imagen para la base de datos
-        //   $image_path = $dir_name . pathinfo($file_name, PATHINFO_FILENAME) . '.' . $imageFileType;  // Ruta relativa a la carpeta de imágenes
+          // Establecer la ruta de la imagen para la base de datos
+          $image_path = $dir_name . pathinfo($file_name, PATHINFO_FILENAME) . '.' . $imageFileType;  // Ruta relativa a la carpeta de imágenes
 
-        // } else {
-        //   // Si la imagen no es AVIF,WEBP ni JFIF, convertirla a WebP
-        //   $image_tmp = $_FILES["product_image"]["tmp_name"];
-        //   $image_info = getimagesize($image_tmp);
-        //   $image_type = $image_info[2];
+        } else {
+          // Si la imagen no es AVIF,WEBP ni JFIF, convertirla a WebP
+          $image_tmp = $_FILES["product_image"]["tmp_name"];
+          $image_info = getimagesize($image_tmp);
+          $image_type = $image_info[2];
 
-        //   if ($image_type == IMAGETYPE_JPEG || $image_type == IMAGETYPE_PNG) {
-        //     $image = imagecreatefromstring(file_get_contents($image_tmp));
-        //     $webp_file = $target_dir . pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
-        //     imagewebp($image, $webp_file); // Guardar la imagen como WebP
-        //     imagedestroy($image);
-        //     $response['success'] = "La imagen ha sido convertida a WebP y subida: " . $webp_file;
+          if ($image_type == IMAGETYPE_JPEG || $image_type == IMAGETYPE_PNG) {
+            $image = imagecreatefromstring(file_get_contents($image_tmp));
+            $webp_file = $target_dir . pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
+            imagewebp($image, $webp_file); // Guardar la imagen como WebP
+            imagedestroy($image);
+            $response['success'][] = "La imagen ha sido convertida a WebP y subida: " . $webp_file;
 
-        //     // Establecer la ruta de la imagen para la base de datos
-        //     $image_path = $dir_name . pathinfo($file_name, PATHINFO_FILENAME) . '.webp';  // Ruta relativa a la carpeta de imágenes
-        //   }
-        // }
+            // Establecer la ruta de la imagen para la base de datos
+            $image_path = $dir_name . pathinfo($file_name, PATHINFO_FILENAME) . '.webp';  // Ruta relativa a la carpeta de imágenes
+          }
+        }
       }
-
-      // Depuración: Verificar si $image_path tiene valor
-echo "Ruta de la imagen: " . $image_path;  // Esto debería mostrar la ruta completa de la imagen
-
 
       // Actualizar el producto en la base de datos con la ruta de la imagen
       $sql = "UPDATE productos SET imagen = '$image_path' WHERE producto_id = '$product_id'";
       if (mysqli_query($db, $sql)) {
-        $response['success'] = "El producto ha sido actualizado con la imagen.";
+        $response['success'][] = "El producto ha sido actualizado con la imagen.";
       } else {
-        $response['error'] = "Error al actualizar el producto en la base de datos: " . mysqli_error($db);
+        $response['error'][] = "Error al actualizar el producto en la base de datos: " . mysqli_error($db);
       }
     } else {
-      $response['error'] = "Hubo un error al subir la imagen.";
+      $response['error'][] = "Hubo un error al subir la imagen.";
     }
 
-    echo json_encode($response);  // Devolver la respuesta en formato JSON
+    echo json_encode($response);  // Devolver todas las respuestas en formato JSON
 
     break;
 
