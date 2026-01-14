@@ -980,9 +980,9 @@ section.content-bar {
 /* Buscador */
 
 .explorer {
-    display: flex;
+    /* display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: center; */
     position: relative;
     margin-left: 2.5em;
     width: 100%;
@@ -1008,7 +1008,6 @@ section.content-bar {
     position: absolute;
     width: 20px;
     height: 20px;
-    top: 53%;
     left: 6px;
     font-size: 14px;
     transform: translateY(-50%);
@@ -1017,6 +1016,7 @@ section.content-bar {
 
 .btn-scan_explorer {
     position: absolute;
+    top: 53%;
     left: 0;
     border: none;
 }
