@@ -1108,7 +1108,7 @@ $(document).ready(function () {
                     if (!scanning) return;
 
                     // 📥 Insertar código
-                    if (pageURL.includes("products/add")) {
+                    if (pageURL.includes("products/add") || pageURL.includes("products/edit")) {
                         $('#product_code').val(decodedText).trigger('change');
                     } else if (pageURL.includes("invoices/pos")) {
                         $('#search-input').val(decodedText).trigger('change');
