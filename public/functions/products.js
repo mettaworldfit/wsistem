@@ -708,6 +708,7 @@ $(document).ready(function () {
         // Rellenar campos del formulario con los datos del producto
         $("#select2-variant_id-container").empty();
         $("#product_id").val(product.IDproducto);
+        $("#product").val(product.IDproducto);
         //  $("#code").val(product.cod_producto);
         $("#stock").val(product.cantidad);
         $("#quantity").val(1);
@@ -812,7 +813,7 @@ $(document).ready(function () {
                 $('#select2-product-container').append(data[0].nombre_producto)
 
                 validateProductQuantity(); // Calcular precios   
-            }
+            },verbose: true
         })
     }
 
