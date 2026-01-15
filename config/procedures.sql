@@ -2679,7 +2679,6 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS pos_agregar_producto;
 DELIMITER $$
-
 CREATE PROCEDURE pos_agregar_producto(
     IN p_comanda_id INT,          -- NULL = venta rápida
     IN p_usuario_id INT,
@@ -2689,38 +2688,42 @@ CREATE PROCEDURE pos_agregar_producto(
     IN p_producto_id INT
 )
 BEGIN
-    DECLARE v_detalle_id INT;
+    DECLARE v_detalle_id INT DEFAULT NULL;
     DECLARE v_cantidad_existente DECIMAL(10,2) DEFAULT 0;
-    DECLARE v_stock_disponible DECIMAL(10,2);
+    DECLARE v_stock_disponible DECIMAL(10,2) DEFAULT 0;
     DECLARE v_comanda_exists INT DEFAULT 1;
 
     /* =========================
        Validar comanda (si aplica)
     ========================== */
     IF p_comanda_id IS NOT NULL THEN
-        SELECT COUNT(*) INTO v_comanda_exists
+        SELECT COUNT(*)
+        INTO v_comanda_exists
         FROM comandas
         WHERE comanda_id = p_comanda_id;
 
         IF v_comanda_exists = 0 THEN
-            SELECT 'Error: No existe la comanda seleccionada' AS msg;
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'No existe la comanda seleccionada';
         END IF;
     END IF;
 
     /* =========================
        Obtener stock disponible
     ========================== */
-    SELECT cantidad INTO v_stock_disponible
+    SELECT cantidad
+    INTO v_stock_disponible
     FROM productos
     WHERE producto_id = p_producto_id
     LIMIT 1;
 
-    IF p_cantidad > v_stock_disponible THEN
-        SELECT 'Error: No hay suficiente stock disponible' AS msg;
+    IF v_stock_disponible IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Producto no encontrado';
     END IF;
 
     /* =========================
-       Obtener detalle existente
+       Buscar detalle existente
     ========================== */
     SELECT d.detalle_venta_id, d.cantidad
     INTO v_detalle_id, v_cantidad_existente
@@ -2729,10 +2732,22 @@ BEGIN
         ON dp.detalle_venta_id = d.detalle_venta_id
     WHERE dp.producto_id = p_producto_id
       AND (
-            (p_comanda_id IS NULL AND d.comanda_id IS NULL AND d.factura_venta_id IS NULL AND d.usuario_id = p_usuario_id)
-         OR (p_comanda_id IS NOT NULL AND d.comanda_id = p_comanda_id)
+            (p_comanda_id IS NULL 
+                AND d.comanda_id IS NULL 
+                AND d.factura_venta_id IS NULL 
+                AND d.usuario_id = p_usuario_id)
+         OR (p_comanda_id IS NOT NULL 
+                AND d.comanda_id = p_comanda_id)
       )
     LIMIT 1;
+
+    /* =========================
+       Validar stock real
+    ========================== */
+    IF (v_cantidad_existente + p_cantidad) > v_stock_disponible THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'No hay suficiente stock disponible';
+    END IF;
 
     /* =========================
        Si existe → actualizar
@@ -2743,7 +2758,7 @@ BEGIN
         SET cantidad = v_cantidad_existente + p_cantidad
         WHERE detalle_venta_id = v_detalle_id;
 
-        SELECT 'Detalle incrementado' AS msg;
+        SELECT 'Detalle incrementado correctamente' AS msg;
 
     /* =========================
        Si no existe → insertar
@@ -2778,7 +2793,7 @@ BEGIN
             p_comanda_id
         );
 
-        SELECT 'Nuevo detalle creado' AS msg;
+        SELECT 'Nuevo detalle creado correctamente' AS msg;
 
     END IF;
 

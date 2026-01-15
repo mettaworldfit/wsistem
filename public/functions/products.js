@@ -25,6 +25,8 @@ function editProduct() {
         return;
     }
 
+   console.log($("#product_code").val())
+
     // Enviar datos al servidor para actualizar el producto
     sendAjaxRequest({
         url: "services/products.php", // Archivo PHP que procesa la acción
@@ -57,7 +59,7 @@ function editProduct() {
             } else {
                 mysql_error(res); // Mostrar cualquier otro error
             }
-        }
+        }, verbose: true
     });
 }
 

@@ -232,45 +232,57 @@ function handleDeletionAction(mysqli $db, int $id, string $procedureName): strin
 
 function handleProcedureAction(mysqli $db, string $procedure, array $params): string
 {
-    // Escapar los parámetros
+    // Escapar los parámetros, pero asegurándonos de que 'codigo' siempre sea tratado como una cadena
     $escapedParams = array_map(function ($param) use ($db) {
-        if (is_numeric($param)) {
+        // Asegurar que 'codigo' siempre sea tratado como cadena de texto
+        if (is_numeric($param) && !is_string($param)) {
+            // Si es numérico, devolverlo tal cual
             return $param;
-        } elseif (!empty($param)) {
+        } elseif (is_string($param)) {
+            // Si es una cadena, escapar el valor
             return "'" . $db->real_escape_string($param) . "'";
+        } elseif (empty($param)) {
+            // Si el valor está vacío, devolver NULL
+            return "NULL";
         } else {
-            return "NULL"; // Evita pasar ''
+            // En cualquier otro caso, escaparlo correctamente
+            return "'" . $db->real_escape_string($param) . "'";
         }
     }, $params);
 
-    // Crear la consulta
+    // Crear la consulta con los parámetros escapados
     $query = "CALL $procedure(" . implode(',', $escapedParams) . ")";
 
     try {
         // Ejecutar la consulta
         if (!$db->multi_query($query)) {
+            // Si la consulta falla, lanzar una excepción con el error de MySQL
             throw new mysqli_sql_exception("Error en $procedure: " . $db->error);
         }
 
-        // Recorrer los resultados
+        // Recorrer los result sets si hay más de uno
         do {
             if ($result = $db->store_result()) {
+                // Procesar el primer conjunto de resultados
                 $row = $result->fetch_assoc();
                 $result->free();
 
+                // Si la respuesta tiene un campo 'msg', devolverlo
                 if (isset($row['msg'])) {
                     return $row['msg'];
                 }
             }
         } while ($db->more_results() && $db->next_result());
 
+        // Si no se recibe ningún mensaje, devolver un error genérico
         return "Error: No se recibió respuesta del procedimiento.";
 
     } catch (mysqli_sql_exception $e) {
-        // Captura de excepción y retorno del mensaje de error
-        return "Error: " . $e->getMessage();
+        // Capturar la excepción y devolver un mensaje detallado de error
+        return "Error en la base de datos: " . $e->getMessage();
     }
 }
+
 
 
 /**

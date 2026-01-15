@@ -419,7 +419,9 @@ switch ($action) {
       $_POST['provider']
     ];
     $procedure = $action === 'editar_producto' ? 'pr_editarProducto' : 'pr_agregarProducto';
-    echo handleProcedureAction($db, $procedure, $params);
+     echo handleProcedureAction($db, $procedure, $params);
+
+    // echo json_encode($params);
     break;
 
   // Caso: Eliminar producto
