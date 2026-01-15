@@ -725,6 +725,9 @@ LIMIT $start, $length
             // Establecer la ruta de la imagen para la base de datos
             $image_path = $dir_name . pathinfo($file_name, PATHINFO_FILENAME) . '.' . $imageFileType;  // Ruta relativa a la carpeta de imágenes
 
+            // Asegúrate de que no se agreguen comillas alrededor de la ruta
+            $image_path = trim($image_path, "'");  // Esto elimina las comillas si se han agregado accidentalmente
+
           } else {
             // Si la imagen ya es WebP, JFIF o AVIF, guardarla tal cual
             move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file);
