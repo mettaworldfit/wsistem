@@ -195,41 +195,6 @@ function handleDeletionAction(mysqli $db, int $id, string $procedureName): strin
  * @param array $params Lista de parámetros en orden para el procedimiento.
  * @return string Resultado de la operación: "ready", "duplicate", error SQL, o mensaje personalizado.
  */
-// function handleProcedureAction(mysqli $db, string $procedure, array $params): string
-// {
-//     $escapedParams = array_map(function ($param) use ($db) {
-//         if (is_numeric($param)) {
-//             return $param;
-//         } elseif (!empty($param)) {
-//             return "'" . $db->real_escape_string($param) . "'";
-//         } else {
-//             return "NULL"; // evita pasar ''
-//         }
-//     }, $params);
-
-
-//     $query = "CALL $procedure(" . implode(',', $escapedParams) . ")";
-
-//     if (!$db->multi_query($query)) {
-//         return "Error en $procedure: " . $db->error;
-//     }
-
-//     // Recorremos los result sets
-//     do {
-//         if ($result = $db->store_result()) {
-//             $row = $result->fetch_assoc();
-//             $result->free();
-
-//             if (isset($row['msg'])) {
-//                 return $row['msg'];
-//             }
-//         }
-//     } while ($db->more_results() && $db->next_result());
-
-//     return "Error: No se recibió respuesta del procedimiento.";
-// }
-
-
 function handleProcedureAction(mysqli $db, string $procedure, array $params): string
 {
     // Escapar los parámetros, pero asegurándonos de que 'codigo' siempre sea tratado como una cadena
@@ -279,11 +244,9 @@ function handleProcedureAction(mysqli $db, string $procedure, array $params): st
 
     } catch (mysqli_sql_exception $e) {
         // Capturar la excepción y devolver un mensaje detallado de error
-        return "Error en la base de datos: " . $e->getMessage();
+        return "Error: " . $e->getMessage();
     }
 }
-
-
 
 /**
  * Ejecuta una consulta SQL y devuelve el resultado en formato JSON.

@@ -415,14 +415,13 @@ switch ($action) {
       $_POST['position'],
       ($_POST['tax'] != "Vacío") ? $_POST['tax'] : 0,
       (!empty($_POST['offer']) && $_POST['offer'] !== "Vacío") ? $_POST['offer'] : '0',
-     (!empty($_POST['brand']) && $_POST['brand'] !== "Vacío") ? $_POST['brand'] : '0',
-    
+      (!empty($_POST['brand']) && $_POST['brand'] !== "Vacío") ? $_POST['brand'] : '0',
+
       $_POST['provider']
     ];
     $procedure = $action === 'editar_producto' ? 'pr_editarProducto' : 'pr_agregarProducto';
     echo handleProcedureAction($db, $procedure, $params);
 
-    // echo json_encode($params);
     break;
 
   // Caso: Eliminar producto

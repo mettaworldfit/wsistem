@@ -25,8 +25,6 @@ function editProduct() {
         return;
     }
 
-   console.log($("#product_code").val())
-
     // Enviar datos al servidor para actualizar el producto
     sendAjaxRequest({
         url: "services/products.php", // Archivo PHP que procesa la acción
@@ -47,19 +45,21 @@ function editProduct() {
             warehouse: $("#warehouse").val(),
             action: "editar_producto", // Acción que se ejecutará en el backend
         },
-        successCallback: () => {
+        successCallback: (res) => {
+
+            if (res.includes("ready")) {
             // Si la respuesta es exitosa, actualizar parte del HTML y mostrar mensaje
             $('.radio-head').load(window.location.href + ' .radio-head > *');
-            mysql_row_update(); // Función personalizada que indica éxito
-        },
-        errorCallback: (res) => {
-            // Manejo de errores personalizados según el contenido de la respuesta
-            if (res === "duplicate") {
-                mysql_error("El código del producto ya está siendo utilizado");
+            
+            notifyAlert("Actualización exitosa")
+
+             } else if (res.includes("Duplicate")) {
+                 notifyAlert("El código del producto ya está siendo utilizado","error");
             } else {
-                mysql_error(res); // Mostrar cualquier otro error
+                console.error(res);
+                notifyAlert("Ha ocurrido un error", "error")
             }
-        }, verbose: true
+        }
     });
 }
 
@@ -1045,6 +1045,7 @@ $(document).ready(function () {
                 action: "agregar_producto"
             },
             successCallback: (res) => {
+                console.log(res)
                 if (res > 0) {
                     if (localStorage.getItem("lista_de_precios")) assignProductPrice(res);
                     if (localStorage.getItem("variantes")) assignProductVariant(res);
@@ -1055,10 +1056,11 @@ $(document).ready(function () {
                     resetProductForm();
                     mysql_row_affected();
 
-                } else if (res === "duplicate") {
-                    mysql_error("El código del producto ya está siendo utilizado");
+                } else if (res.includes("Duplicate")) {
+                    notifyAlert("El código del producto ya está siendo utilizado","error");
                 } else if (res.includes("Error")) {
-                    mysql_error(res);
+                    console.error(res)
+                    notifyAlert('Ha ocurrido un error',"error")
                 }
             }
         })
