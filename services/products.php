@@ -719,15 +719,11 @@ LIMIT $start, $length
           // Convertir la imagen a WebP si no es ya WebP, jfif o AVIF
           if ($imageFileType !== 'webp' && $imageFileType !== 'avif' && $imageFileType !== 'jfif') {
             $target_file_webp = $target_dir . pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
-            $target_file_webp = trim($target_file_webp, "'"); // Eliminar comillas si las hay
-
             $source->toFile($target_file_webp); // Guardar la imagen comprimida en WebP
             $response['success'][] = "La imagen ha sido comprimida y convertida a WebP con éxito en: " . $target_file_webp;
-            $response['success'][] = $target_file_webp;
-            $response['success'][] = $target_dir;
-
+         
             // Establecer la ruta de la imagen para la base de datos
-            $image_path = $dir_name . pathinfo($file_name, PATHINFO_FILENAME) . '.' . $imageFileType;  // Ruta relativa a la carpeta de imágenes
+            $image_path = $dir_name . pathinfo($file_name, PATHINFO_FILENAME) . '.webp';  // Ruta relativa a la carpeta de imágenes
 
           } else {
             // Si la imagen ya es WebP, JFIF o AVIF, guardarla tal cual
