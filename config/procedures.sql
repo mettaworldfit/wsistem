@@ -2786,8 +2786,6 @@ END$$
 DELIMITER ;
 
 
-
-
 DROP PROCEDURE IF EXISTS `pos_update_detalle`;
 DELIMITER $$
 CREATE PROCEDURE pos_update_detalle (

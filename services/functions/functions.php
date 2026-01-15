@@ -195,38 +195,81 @@ function handleDeletionAction(mysqli $db, int $id, string $procedureName): strin
  * @param array $params Lista de parámetros en orden para el procedimiento.
  * @return string Resultado de la operación: "ready", "duplicate", error SQL, o mensaje personalizado.
  */
+// function handleProcedureAction(mysqli $db, string $procedure, array $params): string
+// {
+//     $escapedParams = array_map(function ($param) use ($db) {
+//         if (is_numeric($param)) {
+//             return $param;
+//         } elseif (!empty($param)) {
+//             return "'" . $db->real_escape_string($param) . "'";
+//         } else {
+//             return "NULL"; // evita pasar ''
+//         }
+//     }, $params);
+
+
+//     $query = "CALL $procedure(" . implode(',', $escapedParams) . ")";
+
+//     if (!$db->multi_query($query)) {
+//         return "Error en $procedure: " . $db->error;
+//     }
+
+//     // Recorremos los result sets
+//     do {
+//         if ($result = $db->store_result()) {
+//             $row = $result->fetch_assoc();
+//             $result->free();
+
+//             if (isset($row['msg'])) {
+//                 return $row['msg'];
+//             }
+//         }
+//     } while ($db->more_results() && $db->next_result());
+
+//     return "Error: No se recibió respuesta del procedimiento.";
+// }
+
+
 function handleProcedureAction(mysqli $db, string $procedure, array $params): string
 {
+    // Escapar los parámetros
     $escapedParams = array_map(function ($param) use ($db) {
         if (is_numeric($param)) {
             return $param;
         } elseif (!empty($param)) {
             return "'" . $db->real_escape_string($param) . "'";
         } else {
-            return "NULL"; // evita pasar ''
+            return "NULL"; // Evita pasar ''
         }
     }, $params);
 
-
+    // Crear la consulta
     $query = "CALL $procedure(" . implode(',', $escapedParams) . ")";
 
-    if (!$db->multi_query($query)) {
-        return "Error en $procedure: " . $db->error;
-    }
-
-    // Recorremos los result sets
-    do {
-        if ($result = $db->store_result()) {
-            $row = $result->fetch_assoc();
-            $result->free();
-
-            if (isset($row['msg'])) {
-                return $row['msg'];
-            }
+    try {
+        // Ejecutar la consulta
+        if (!$db->multi_query($query)) {
+            throw new mysqli_sql_exception("Error en $procedure: " . $db->error);
         }
-    } while ($db->more_results() && $db->next_result());
 
-    return "Error: No se recibió respuesta del procedimiento.";
+        // Recorrer los resultados
+        do {
+            if ($result = $db->store_result()) {
+                $row = $result->fetch_assoc();
+                $result->free();
+
+                if (isset($row['msg'])) {
+                    return $row['msg'];
+                }
+            }
+        } while ($db->more_results() && $db->next_result());
+
+        return "Error: No se recibió respuesta del procedimiento.";
+
+    } catch (mysqli_sql_exception $e) {
+        // Captura de excepción y retorno del mensaje de error
+        return "Error: " . $e->getMessage();
+    }
 }
 
 
