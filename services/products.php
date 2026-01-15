@@ -723,7 +723,7 @@ LIMIT $start, $length
             $response['success'][] = "La imagen ha sido comprimida y convertida a WebP con éxito en: " . $target_file_webp;
 
             // Establecer la ruta de la imagen para la base de datos
-            $image_path = $target_file_webp;  // Ruta relativa a la carpeta de imágenes
+            $image_path = $dir_name . pathinfo($file_name, PATHINFO_FILENAME) . '.' . $imageFileType;  // Ruta relativa a la carpeta de imágenes
 
           } else {
             // Si la imagen ya es WebP, JFIF o AVIF, guardarla tal cual
