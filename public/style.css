@@ -1551,10 +1551,8 @@ span.alert-notify-lg p {
 
 .sidebar {
     display: none;
-    /* width: 18%; */
     background: #303741;
     height: 100vh;
-    /* float: left; */
     position: fixed;
     z-index: 2;
     overflow: auto
@@ -3860,7 +3858,8 @@ button#pos-print-order {
 
 .pos-empty-content p {
     color: var(--text-color);
-    font-size: 11pt;
+    font-size: 10pt;
+    margin: 0;
 }
 
 
@@ -4454,6 +4453,13 @@ span.close-window {
     justify-content: end;
     padding: 7px 15px;
     align-items: center;
+    gap: 10px;
+}
+
+@media (min-width: 924px) {
+    .footer-btn-container {
+        gap: 0px;
+    }
 }
 
 div#row-tax,
@@ -4596,10 +4602,7 @@ input[type="radio"].order-radio {
     height: 100%;
     overflow-y: auto;
     margin-bottom: 1rem;
-    /* margin-bottom: 4rem;
-    margin-top: 3rem; */
 }
-
 
 /* scroll */
 
@@ -4695,7 +4698,7 @@ button.btn-pos_home:focus {
 .pos-customer-add {
     position: fixed;
     background: #fff;
-    width: 40%;
+    width: 60%;
     height: 100%;
     right: -100%;
     z-index: 5;
@@ -4706,21 +4709,48 @@ button.btn-pos_home:focus {
     border-top: 1px solid #ccc;
     margin-top: 15px;
     position: fixed;
-    width: 38%;
+    width: 58%;
     bottom: 0;
 }
 
+@media (min-width: 924px) {
+    .pos-customer-add {
+        width: 40%;
+    }
+
+    .footer-window_pos {
+        width: 38%;
+    }
+}
 
 /* Ventana agrega orden nueva */
 
 .pos-order-add {
     position: fixed;
     background: #fff;
-    width: 40%;
+    width: 60%;
     height: 100%;
     right: -100%;
     z-index: 5;
     transition: right 0.5s ease;
+}
+
+.footer-order_pos {
+    border-top: 1px solid #ccc;
+    margin-top: 15px;
+    position: fixed;
+    width: 59%;
+    bottom: 0;
+}
+
+@media (min-width: 924px) {
+    .pos-order-add {
+        width: 40%;
+    }
+
+    .footer-order_pos {
+        width: 38%;
+    }
 }
 
 .modal-product_info {
@@ -4816,4 +4846,3 @@ button.btn-pos_home:focus {
     width: 40%;
     bottom: 0;
 }
-

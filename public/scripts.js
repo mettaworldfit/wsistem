@@ -14,6 +14,24 @@ const SITE_URL = window.location.protocol + '//' + window.location.host + basePa
 let pageURL = $(location).attr("pathname");
 const format = new Intl.NumberFormat('en'); // Formato 0,000
 
+  // Ocultar el sidebar en el Punto de venta
+    if (pageURL.includes('invoices/pos')) {
+        // Crea un nuevo elemento de estilo
+        const style = document.createElement('style');
+        style.innerHTML = `
+        .container-logo,
+        .sidebar {
+            display: none !important;
+        }
+
+        .wrap {
+            width: 100% !important;
+        }
+        `;
+        // Agrega el estilo al head del documento
+        document.head.appendChild(style);
+    }
+
 /**
     * 
     * @param {any} response - respuesta del mensaje
@@ -628,7 +646,7 @@ $(document).ready(function () {
         columns: [
             'codigo', 'nombre', 'categoria', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
         ],
-        hiddenColumns: [0, 2, 5]
+        hiddenColumns: [0, 2, 4]
     },
     {
         id: '#invoicesrp',

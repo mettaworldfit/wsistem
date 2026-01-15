@@ -1,22 +1,46 @@
 $(document).ready(function () {
 
-    // Verifica la URL
-    if (window.location.href.includes('invoices/pos')) {
-        // Crea un nuevo elemento de estilo
-        const style = document.createElement('style');
-        style.innerHTML = `
-        .container-logo,
-        .sidebar {
-            display: none !important;
-        }
+    // Cargar metodos de pagos
+    function initMethodSelect2(selector, selectedId = null) {
+        const $select = $(selector);
 
-        .wrap {
-            width: 100%;
-          
+        $select.select2({
+            placeholder: 'Selecciona un metodo',
+            allowClear: true, // Permite limpiar la selección
+            ajax: {
+                url: SITE_URL + 'services/invoices.php',
+                method: 'POST',
+                dataType: 'json',
+                data: params => ({
+                    action: 'obtener_metodos_de_pago',
+                    q: params.term || ''
+                }),
+                processResults: data => ({
+                    results: data.results.map(m => ({
+                        id: m.id,
+                        text: m.nombre
+                    }))
+                })
+            }
+        });
+
+        // Obtener nombre automáticamente por ID
+        if (selectedId) {
+            sendAjaxRequest({
+                url: 'services/invoices.php',
+                data: {
+                    action: 'obtener_metodo_por_id',
+                    id: selectedId
+                },
+                successCallback: (method) => {
+                    const data = JSON.parse(method);
+                    if (method) {
+                        const option = new Option(data.text, data.id, true, true);
+                        $select.append(option).trigger('change');
+                    }
+                }
+            });
         }
-        `;
-        // Agrega el estilo al head del documento
-        document.head.appendChild(style);
     }
 
     function formatNumber(value) {
@@ -24,7 +48,6 @@ $(document).ready(function () {
         let num = Number(value);
         return (num % 1 === 0) ? num.toFixed(0) : num;
     }
-
 
     /**============================================================= 
      * CARGAR ARTICULOS
@@ -204,7 +227,8 @@ $(document).ready(function () {
                         // Detalle vacio
                         gridContainer.append(` <div class="pos-empty-content">
                         <h3><i class="fas fa-shopping-cart"></i></h3>
-                        <p>No hay items en el detalle</p>
+                        <p>Tu carrito está vacío</p>
+                        <p>Selecciona productos para agregar al carrito</p>
                         </div>`)
                     }
 
@@ -796,6 +820,12 @@ $(document).ready(function () {
     // Abrir ventan nueva orden
     $('.btn-add_order').on('click', function () {
 
+        // Limpiar los campos de texto
+        $('#pos_direction').val('');
+        $('#pos_fullname').val('');
+        $('#pos_tel').val('');
+        $('#pos_comment').val('');
+
         $('.pos-order-add').css('display', 'block').css('right', '0'); // Mostrar ventana deslizante desde la derecha
         $('.overlay').css('display', 'block'); // Mostrar la capa de fondo negro con transparencia
     })
@@ -1009,6 +1039,7 @@ $(document).ready(function () {
                     notifyAlert("Registro exitoso", "success", 1500)
                     $('#order_id').val('') // quitar orden
                     loadDetailPOS()
+                    initMethodSelect2('#method_id', 1)
                     printerInvoicePOS(res) // Imprimir
                 } else {
                     notifyAlert("A ocurrido un error", "error");
@@ -1209,7 +1240,6 @@ $(document).ready(function () {
     initClientSelect2('#pos_customer_id');
     initClientSelect2('#modal-customer_id', 1);
 
-
-
+    initMethodSelect2('#method_id', 1)
 
 }); // Ready

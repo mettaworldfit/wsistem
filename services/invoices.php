@@ -1283,7 +1283,7 @@ if ($_POST['action'] == "actualizar_detalle_pos") {
   echo handleProcedureAction($db, 'pos_update_detalle', $params);
 }
 
-
+// Cargar ordenes del punto de venta
 if ($_POST['action'] == "cargar_ordenes_pos") {
 
   $db = Database::connect();
@@ -1384,14 +1384,72 @@ if ($_POST['action'] == "devolver_datos_impresion") {
   ]);
 }
 
-
+// Obtener informacion de las ordenes
 if ($_POST['action'] == "obtener_orden_info_pos") {
 
   $db = Database::connect();
   $order_id = $_POST['order_id'];
 
   $sql = "SELECT * FROM comandas WHERE comanda_id = '$order_id'";
-  // $data = $db->query($sql)->fetch_assoc();
 
   echo jsonQueryResult($db, $sql);
+}
+
+// Obtener metodos de pago
+if ($_POST['action'] == "obtener_metodos_de_pago") {
+
+  $db = Database::connect();
+
+  // Obtener el término de búsqueda (si se pasa como parámetro GET o POST)
+  $q = isset($_GET['q']) ? $_GET['q'] : ''; // Asumimos que el término de búsqueda se pasa por GET
+
+  // Preparar la consulta para prevenir inyecciones SQL
+  $sql = "SELECT metodo_pago_id, nombre_metodo FROM metodos_de_pagos WHERE nombre_metodo LIKE ? LIMIT 10";
+
+  // Preparar la declaración
+  $stmt = $db->prepare($sql);
+
+  // Parametrizar la búsqueda para evitar inyecciones SQL
+  $searchTerm = "%$q%"; // Usamos el término de búsqueda en formato LIKE
+  $stmt->bind_param('s', $searchTerm); // El parámetro 's' indica que es una cadena
+
+  // Ejecutar la consulta
+  $stmt->execute();
+  $result = $stmt->get_result();
+
+  // Recoger los métodos de pago
+  $metodos = [];
+  while ($row = $result->fetch_assoc()) {
+    $metodos[] = [
+      'id' => $row['metodo_pago_id'],
+      'nombre' => ucwords($row['nombre_metodo']) // Capitalizar el nombre del método de pago
+    ];
+  }
+
+  // Devolver los resultados en formato JSON
+  echo json_encode([
+    'results' => $metodos
+  ]);
+}
+
+// Obtener metodos de pagos por ID
+if ($_POST['action'] == "obtener_metodo_por_id") {
+
+  $db = Database::connect();
+  $id = intval($_POST['id']);
+
+  $stmt = $db->prepare("SELECT metodo_pago_id, nombre_metodo FROM metodos_de_pagos WHERE metodo_pago_id = ?");
+  $stmt->bind_param("i", $id);
+  $stmt->execute();
+  $res = $stmt->get_result();
+
+  if ($row = $res->fetch_assoc()) {
+    echo json_encode([
+      'id' => $row['metodo_pago_id'],
+      'text' => $row['nombre_metodo']
+    ]);
+  } else {
+    echo json_encode(null);
+  }
+  exit;
 }

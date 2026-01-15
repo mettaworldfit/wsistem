@@ -1245,7 +1245,7 @@ $(document).ready(function () {
                         var data = JSON.parse(response)
 
                         if (data.success) {
-                            notifyAlert(data.info)
+                            notifyAlert(data.success[1])
                             console.log(data)
                         } else {
                             notifyAlert(data.error, 'error')

@@ -138,10 +138,6 @@
                             <i class="fas fa-list"></i>
                         </div>
                         <select class="form-custom-icon search " name="" id="method_id">
-                            <?php $methods = Help::showPaymentMethod();
-                            while ($method = $methods->fetch_object()): ?>
-                                <option value="<?= $method->metodo_pago_id ?>"><?= $method->nombre_metodo ?></option>
-                            <?php endwhile; ?>
                         </select>
                     </div>
                 </div>
@@ -251,7 +247,7 @@
                         </div>
                     </div>
 
-                    <div class="footer-window_pos">
+                    <div class="footer-order_pos">
                         <!-- Botones -->
                         <div class="footer-btn-container">
                             <button class="btn-custom btn-red" type="button" id="cancel-window">
