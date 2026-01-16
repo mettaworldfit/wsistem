@@ -186,7 +186,6 @@ function handleDeletionAction(mysqli $db, int $id, string $procedureName): strin
 }
 
 
-
 /**
  * Ejecuta un procedimiento almacenado con parámetros dados y devuelve el resultado según el mensaje de salida.
  *
@@ -478,4 +477,49 @@ function updateDetailQuantity($db, $id, $quantity, $item_id, $item_type, $tabla_
     }
 
     return json_encode(['error' => true, 'message' => 'Tipo de item no reconocido.']);
+}
+
+
+/**
+ * Verifica si el usuario autenticado tiene permiso para ejecutar una acción.
+ *
+ * Esta función valida:
+ * 1. Que el usuario esté autenticado.
+ * 2. Que la acción exista dentro del array de permisos.
+ * 3. Que el rol del usuario tenga autorización para dicha acción.
+ *
+ * Si alguna validación falla, se detiene la ejecución y se devuelve
+ * una respuesta JSON con el código HTTP correspondiente.
+ *
+ * @param string $action Acción solicitada 
+ * @param array  $permissions Array de permisos por acción y roles permitidos
+ *
+ * @return void
+ */
+function check_permission_action($action, $permissions)
+{
+    // No autenticado
+    if (!isset($_SESSION['identity'])) {
+        http_response_code(401);
+        echo json_encode(['error' => 'No autenticado']);
+        exit;
+    }
+
+    // Acción no definida en permisos → DENEGADA por seguridad
+    if (!isset($permissions[$action])) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Acción no permitida']);
+        exit;
+    }
+
+    $rolUsuario = $_SESSION['identity']->nombre_rol;
+
+    // Verifica si el array de permisos está vacío, permitiendo acceso para todos
+    if (empty($permissions[$action]) || in_array($rolUsuario, $permissions[$action])) {
+        return; // Acción permitida
+    } else {
+        http_response_code(403);
+        echo json_encode(['error' => 'Permiso denegado']);
+        exit;
+    }
 }

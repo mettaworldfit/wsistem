@@ -709,6 +709,12 @@ LIMIT $start, $length
         exit;
       }
 
+      // Generar un nombre aleatorio de 11 caracteres numéricos
+      function generate_random_filename($length = 11)
+      {
+        return substr(uniqid(rand(), true), 0, $length);  // Extraer solo los primeros 11 caracteres
+      }
+
       // Si estamos en producción (no localhost)
       if ($_SERVER['SERVER_NAME'] !== 'localhost') {
         // Comprimir y convertir la imagen usando Tinify solo si estamos en producción
@@ -716,14 +722,20 @@ LIMIT $start, $length
           // Comprimir la imagen utilizando Tinify
           $source = \Tinify\Source::fromFile($_FILES["product_image"]["tmp_name"]);
 
-          // Convertir la imagen a WebP si no es ya WebP, jfif o AVIF
+          // Generar el nombre aleatorio para la imagen
+          $random_name = generate_random_filename(); // Nombre aleatorio de 11 caracteres
+
+          // Convertir la imagen a WebP si no es ya WebP, JFIF o AVIF
           if ($imageFileType !== 'webp' && $imageFileType !== 'avif' && $imageFileType !== 'jfif') {
-            $target_file_webp = $target_dir . pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
-            $source->toFile($target_file_webp); // Guardar la imagen comprimida en WebP
+            // Establecer la ruta del archivo WebP con el nombre aleatorio
+            $target_file_webp = $target_dir . $random_name . '.webp';
+
+            // Comprimir y guardar la imagen en WebP
+            $source->toFile($target_file_webp);
             $response['success'][] = "La imagen ha sido comprimida y convertida a WebP con éxito en: " . $target_file_webp;
-         
+
             // Establecer la ruta de la imagen para la base de datos
-            $image_path = $dir_name . pathinfo($file_name, PATHINFO_FILENAME) . '.webp';  // Ruta relativa a la carpeta de imágenes
+            $image_path = $dir_name . $random_name . '.webp';  // Ruta relativa a la carpeta de imágenes
 
           } else {
             // Si la imagen ya es WebP, JFIF o AVIF, guardarla tal cual
@@ -738,15 +750,30 @@ LIMIT $start, $length
           echo json_encode($response);
           exit;
         }
+
+        // En localhost
       } else {
-        // Si estamos en localhost, no comprimir la imagen, solo moverla si es AVIF, JFIF o WEBP
+        // No comprimir la imagen, solo moverla si es AVIF, JFIF o WEBP
         if ($imageFileType === 'webp' || $imageFileType === 'avif' || $imageFileType === 'jfif') {
-          // Si la imagen es AVIF, JFIF o WEBP, simplemente moverla
-          move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file);
+
+          // Obtener la extensión del archivo
+          $imageFileType = strtolower(pathinfo($_FILES["product_image"]["name"], PATHINFO_EXTENSION));
+          $random_name = generate_random_filename();  // Generar un nombre aleatorio para la imagen
+
+          // Establecer la nueva ruta de la imagen con el nombre aleatorio
+          $target_file = $target_dir . $random_name . '.' . $imageFileType;
+
+          // Mover la imagen con el nuevo nombre aleatorio
+          if (!move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file)) {
+            $response['error'][] = "Error al mover el archivo a la carpeta de destino.";
+            exit();
+          }
+
+          // Si la imagen se subió correctamente, proporcionar un mensaje
           $response['success'][] = "La imagen ha sido subida exitosamente: " . $target_file;
 
           // Establecer la ruta de la imagen para la base de datos
-          $image_path = $dir_name . pathinfo($file_name, PATHINFO_FILENAME) . '.' . $imageFileType;  // Ruta relativa a la carpeta de imágenes
+          $image_path = $dir_name . $random_name . '.' . $imageFileType;  // Ruta relativa a la carpeta de imágenes
 
         } else {
           // Si la imagen no es AVIF,WEBP ni JFIF, convertirla a WebP
@@ -755,14 +782,15 @@ LIMIT $start, $length
           $image_type = $image_info[2];
 
           if ($image_type == IMAGETYPE_JPEG || $image_type == IMAGETYPE_PNG) {
+            $random_name = generate_random_filename(); // Generar un nombre aleatorio para la imagen
             $image = imagecreatefromstring(file_get_contents($image_tmp));
-            $webp_file = $target_dir . pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
+            $webp_file = $target_dir . $random_name . '.webp';
             imagewebp($image, $webp_file); // Guardar la imagen como WebP
             imagedestroy($image);
             $response['success'][] = "La imagen ha sido convertida a WebP y subida: " . $webp_file;
 
             // Establecer la ruta de la imagen para la base de datos
-            $image_path = $dir_name . pathinfo($file_name, PATHINFO_FILENAME) . '.webp';  // Ruta relativa a la carpeta de imágenes
+            $image_path = $dir_name . $random_name . '.webp';  // Ruta relativa a la carpeta de imágenes
           }
         }
       }
@@ -813,7 +841,7 @@ LIMIT $start, $length
         $imgName = pathinfo($relativePath, PATHINFO_FILENAME);
         $imgDir  = dirname($relativePath);
 
-        $extensions = ['webp', 'avif', 'jpg', 'jpeg', 'png'];
+        $extensions = ["jpg", "jpeg", "png", "webp", "avif", "jfif"];
 
         foreach ($extensions as $ext) {
           $filePath = $basePath . $imgDir . '/' . $imgName . '.' . $ext;

@@ -349,14 +349,9 @@ try {
       break;
   }
 } catch (Exception $e) {
-  // Registrar error en archivo log
-  $errorLog = "[" . date('Y-m-d H:i:s') . "] Acción: $action | Error: " . $e->getMessage() . "\n";
-  file_put_contents('./error_log.txt', $errorLog, FILE_APPEND);
-
   // Devolver respuesta de error genérica
   http_response_code(500);
   echo json_encode([
-    'status' => 'error',
-    'message' => 'Ha ocurrido un error inesperado. Por favor, inténtalo más tarde.'
+    'Error' => 'Ha ocurrido un error inesperado.'
   ]);
 }

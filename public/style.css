@@ -1499,7 +1499,7 @@ span.alert-notify-lg p {
     margin-bottom: 20px
 }
 
-[icon*="1"] {
+/* [icon*="1"] {
     background: purple
 }
 
@@ -1529,25 +1529,13 @@ span.alert-notify-lg p {
 
 [icon*="8"] {
     background: #6300bf
-}
+} */
 
 .nav a {
     color: #000
 }
 
-.chart-empty {
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center
-}
 
-.chart-empty p {
-    font-size: 16px;
-    color: #585858;
-    margin-bottom: 2px
-}
 
 .sidebar {
     display: none;
@@ -2009,8 +1997,6 @@ span.alert-notify-lg p {
 
 @media (max-width:730px) {
     .float-right {
-        float: right !important;
-        display: flex;
         flex-direction: column;
         width: 100%
     }
@@ -2018,10 +2004,10 @@ span.alert-notify-lg p {
 
 @media (min-width:724px) {
     .align-content {
-        height: 50px;
         line-height: 50px
     }
 }
+
 
 .hide-cell {
     display: none
@@ -2846,12 +2832,64 @@ a.button-404:hover {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(49%, 49%));
     gap: 7px;
+    margin-bottom: 2rem;
 }
 
 @media (min-width: 970px) {
     .grid-container {
         grid-template-columns: repeat(6, 1fr);
     }
+}
+
+
+/* Dashboard */
+
+.card-grid {
+    display: grid;
+    position: relative;
+    height: 100%;
+    background: white;
+    box-shadow: 0px 0px 2px -1px #333;
+    border-radius: 2px;
+    gap: 2px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.card-grid:first-child span {
+    color: #2cc098;
+}
+
+.card-grid:nth-child(2) span {
+    color: #db2b2b;
+}
+
+.card-grid:nth-child(7) {
+    grid-column: 1 / 3;
+    height: 250px;
+    background: white;
+}
+
+.card-grid:nth-child(8) {
+    grid-column: 1 / 3;
+    height: 250px;
+    background: white;
+}
+
+.card-grid:last-child {
+    grid-column: 1 / 3;
+    height: 250px;
+    background: white;
+}
+
+.card-grid p {
+    font-size: 8pt;
+    font-weight: 600;
+    margin: 0px;
+    color: var(--text-color);
+}
+
+@media (min-width: 970px) {
 
     .card-grid:nth-child(7) {
         grid-column: 1 / 4 !important;
@@ -2893,50 +2931,6 @@ a.button-404:hover {
     .card-grid:last-child {
         height: 420px !important;
     }
-}
-
-.card-grid {
-    display: grid;
-    height: 100%;
-    background: white;
-    box-shadow: 0px 0px 2px -1px #333;
-    border-radius: 2px;
-    gap: 2px;
-    padding: 5px;
-    cursor: pointer;
-}
-
-.card-grid:first-child span {
-    color: #2cc098;
-}
-
-.card-grid:nth-child(2) span {
-    color: #db2b2b;
-}
-
-.card-grid:nth-child(7) {
-    grid-column: 1 / 3;
-    height: 250px;
-    background: white;
-}
-
-.card-grid:nth-child(8) {
-    grid-column: 1 / 3;
-    height: 250px;
-    background: white;
-}
-
-.card-grid:last-child {
-    grid-column: 1 / 3;
-    height: 250px;
-    background: white;
-}
-
-.card-grid p {
-    font-size: 8pt;
-    font-weight: 600;
-    margin: 0px;
-    color: var(--text-color);
 }
 
 .profit-container {
@@ -2994,6 +2988,32 @@ a.button-404:hover {
     color: var(--text-color);
     font-family: system-ui, -apple-system, BlinkMacSystemFont;
 }
+
+/* Graficos vacios */
+
+.chart-empty {
+    display: flex;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.chart-empty span {
+    font-size: 15pt !important;
+}
+
+.chart-empty p {
+    font-size: 8pt;
+    color: #585858;
+    margin-bottom: 2px
+}
+
+/* Grid de configuraciones */
 
 .grid-config {
     display: grid;

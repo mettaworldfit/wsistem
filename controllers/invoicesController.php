@@ -5,18 +5,18 @@ class InvoicesController
 {
     // Definir los permisos por acción en un array
     private $permissions = [
-        'pos' => ['administrador', 'cajero'],
-        'addpurchase' => ['administrador', 'cajero'],
+        'pos' => [],                          // Todos tienen acceso
+        'addpurchase' => [],
         'index' => ['administrador'],
         'edit' => ['administrador'],
         'addrepair' => ['administrador'],
         'index_repair' => ['administrador'],
         'repair_edit' => ['administrador'],
-        'quote' => ['administrador', 'cajero'],
-        'quotes' => ['administrador', 'cajero'],
-        'edit_quote' => ['administrador', 'cajero'],
-        'orders' => ['administrador', 'cajero'],
-        'add_order' => ['administrador', 'cajero']
+        'quote' => [],
+        'quotes' => [],
+        'edit_quote' => [],
+        'orders' => [],
+        'add_order' => []
     ];
 
     // Verificación de permisos
@@ -28,9 +28,14 @@ class InvoicesController
             exit();
         }
 
-        // Verificar si el rol del usuario tiene permiso para la acción solicitada
+           // Verificar si el rol del usuario tiene permiso para la acción solicitada
         $roles = isset($this->permissions[$action]) ? $this->permissions[$action] : [];
-        
+
+        // Si el array de roles está vacío, todos los roles tienen acceso
+        if (empty($roles)) {
+            return; // Permitir acceso sin restricciones
+        }
+
         if (!in_array($_SESSION['identity']->nombre_rol, $roles)) {
             // Si no tiene permiso, redirigir a la página de acceso denegado
             require_once './views/layout/denied.php';
@@ -44,7 +49,7 @@ class InvoicesController
 
         // Cierre de caja
         $cashOpening = Help::getCashOpening(); // Obtener datos de la caja abierta
-        
+
         require_once './views/invoices/pos.php';
     }
 
@@ -136,4 +141,3 @@ class InvoicesController
         require_once './views/invoices/add_order.php';
     }
 }
-?>

@@ -1245,7 +1245,6 @@ $(document).ready(function () {
                 contentType: false,
                 processData: false,
                 success: function (response) {
-        
                     try {
                         var data = JSON.parse(response)
 

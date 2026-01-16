@@ -4,11 +4,11 @@ class ContactsController
 {
     // Definir los permisos por acción en un array
     private $permissions = [
-        'add' => ['administrador', 'cajero'],           // 'administrador' y 'cajero' tienen acceso
-        'customers' => ['administrador', 'cajero'],    // 'administrador' y 'cajero' tienen acceso
+        'add' => [],
+        'customers' => [],                              // Todos tienen acceso
         'edit_customer' => ['administrador'],           // Solo 'administrador' tiene acceso
-        'customer_history' => ['administrador', 'cajero'], // 'administrador' y 'cajero' tienen acceso
-        'providers' => ['administrador', 'cajero'],     // 'administrador' y 'cajero' tienen acceso
+        'customer_history' => [], 
+        'providers' => [],     
         'edit_provider' => ['administrador'],           // Solo 'administrador' tiene acceso
     ];
 
@@ -21,9 +21,14 @@ class ContactsController
             exit();
         }
 
-        // Verificar si el rol del usuario tiene permiso para la acción solicitada
+           // Verificar si el rol del usuario tiene permiso para la acción solicitada
         $roles = isset($this->permissions[$action]) ? $this->permissions[$action] : [];
-        
+
+        // Si el array de roles está vacío, todos los roles tienen acceso
+        if (empty($roles)) {
+            return; // Permitir acceso sin restricciones
+        }
+
         if (!in_array($_SESSION['identity']->nombre_rol, $roles)) {
             // Si no tiene permiso, redirigir a la página de acceso denegado
             require_once './views/layout/denied.php';

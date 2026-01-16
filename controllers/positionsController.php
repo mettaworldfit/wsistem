@@ -1,12 +1,13 @@
 <?php
 
-class PositionsController {
+class PositionsController
+{
 
     // Definir los permisos por acción en un array
     private $permissions = [
-        'index' => ['administrador'],  
-        'add' => ['administrador'],      
-        'edit' => ['administrador'],  
+        'index' => ['administrador'],
+        'add' => ['administrador'],
+        'edit' => ['administrador'],
     ];
 
     // Verificación de permisos
@@ -18,9 +19,14 @@ class PositionsController {
             exit();
         }
 
-        // Verificar si el rol del usuario tiene permiso para la acción solicitada
+           // Verificar si el rol del usuario tiene permiso para la acción solicitada
         $roles = isset($this->permissions[$action]) ? $this->permissions[$action] : [];
-        
+
+        // Si el array de roles está vacío, todos los roles tienen acceso
+        if (empty($roles)) {
+            return; // Permitir acceso sin restricciones
+        }
+
         if (!in_array($_SESSION['identity']->nombre_rol, $roles)) {
             // Si no tiene permiso, redirigir a la página de acceso denegado
             require_once './views/layout/denied.php';

@@ -4,9 +4,9 @@ class ReportsController
 {
     // Array de permisos por acción
     private $permissions = [
-        'day' => ['administrador', 'cajero'], // Roles con acceso a la acción 'day'
+        'day' => [],                   // Todos tienen permiso
         'querys' => ['administrador'], // Roles con acceso a la acción 'querys'
-        'cash_closing' => ['administrador', 'cajero'], // Solo 'administrador' tiene acceso a 'cash_closing'
+        'cash_closing' => [], 
     ];
 
     // Verificación de permisos
@@ -18,9 +18,14 @@ class ReportsController
             exit();
         }
 
-        // Verificar si el rol del usuario tiene permiso para la acción solicitada
+           // Verificar si el rol del usuario tiene permiso para la acción solicitada
         $roles = isset($this->permissions[$action]) ? $this->permissions[$action] : [];
-        
+
+        // Si el array de roles está vacío, todos los roles tienen acceso
+        if (empty($roles)) {
+            return; // Permitir acceso sin restricciones
+        }
+
         if (!in_array($_SESSION['identity']->nombre_rol, $roles)) {
             // Si no tiene permiso, redirigir a la página de acceso denegado
             require_once './views/layout/denied.php';

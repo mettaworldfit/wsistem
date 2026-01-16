@@ -2,15 +2,13 @@
 
 class HomeController
 {
-
     // Definir los permisos por acción en un array
     private $permissions = [
         'index' => ['administrador', 'cajero'],
         'error' => ['administrador', 'cajero'],
-        'permise_denied' => ['administrador', 'cajero']
+        'permise_denied' => []
     ];
 
-    // Verificación de permisos
     private function check_permission($action)
     {
         // Si no está autenticado, redirigir a login
@@ -19,9 +17,15 @@ class HomeController
             exit();
         }
 
-        // Verificar si el rol del usuario tiene permiso para la acción solicitada
+        // Obtener los roles permitidos para la acción
         $roles = isset($this->permissions[$action]) ? $this->permissions[$action] : [];
 
+        // Si el array de roles está vacío, todos los roles tienen acceso
+        if (empty($roles)) {
+            return;
+        }
+
+        // Verificar si el rol del usuario tiene permiso para la acción solicitada
         if (!in_array($_SESSION['identity']->nombre_rol, $roles)) {
             // Si no tiene permiso, redirigir a la página de acceso denegado
             require_once './views/layout/denied.php';
@@ -31,8 +35,6 @@ class HomeController
 
     public function index()
     {
-
-        // echo var_dump($_SESSION['identity']);
 
         // Abreviar cifras
         function number_format_short($n, $precision = 1)
