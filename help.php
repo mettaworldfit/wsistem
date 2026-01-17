@@ -472,6 +472,14 @@ class Help
    {
       $db = Database::connect();
       $config = Database::getConfig();
+      $user_id = $_SESSION['identity']->usuario_id;
+
+      $user_condition = "";  // Inicialización de la variable
+
+      // Verificar el valor de modo_cierre y modificar la variable según corresponda
+      if (isset($config['modo_cierre']) && $config['modo_cierre'] === "separado" && $_SESSION['identity']->nombre_rol != 'administrador') {
+         $user_condition = "AND x.usuario_id = '$user_id'";
+      }
 
       // Determinar el rango de fechas
       $fecha_condicion = isset($config['auto_cierre']) && $config['auto_cierre'] === 'false'
@@ -487,7 +495,7 @@ class Help
         LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = x.factura_venta_id
         LEFT JOIN pagos p ON pf.pago_id = p.pago_id
         INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = x.factura_venta_id
-        WHERE $fecha_condicion 
+        WHERE $fecha_condicion $user_condition
         GROUP BY x.factura_venta_id
 
         UNION ALL
@@ -498,7 +506,7 @@ class Help
         LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = x.facturaRP_id
         LEFT JOIN pagos p ON pf.pago_id = p.pago_id
         INNER JOIN detalle_ordenRP d ON d.orden_rp_id = x.orden_rp_id
-        WHERE $fecha_condicion
+        WHERE $fecha_condicion $user_condition
         GROUP BY x.facturaRP_id
 
         UNION ALL
@@ -507,7 +515,7 @@ class Help
         SELECT SUM(x.recibido) AS total
         FROM pagos_a_facturasRP pf
         INNER JOIN pagos x ON pf.pago_id = x.pago_id
-        WHERE $fecha_condicion
+        WHERE $fecha_condicion $user_condition
         GROUP BY x.pago_id
 
         UNION ALL
@@ -516,9 +524,9 @@ class Help
         SELECT SUM(x.recibido) AS total
         FROM pagos_a_facturas_ventas pf
         INNER JOIN pagos x ON pf.pago_id = x.pago_id
-        WHERE $fecha_condicion 
+        WHERE $fecha_condicion $user_condition
         GROUP BY x.pago_id
-      ) ventas_reale;";
+      ) ventas_reales;";
 
       return $db->query($query)->fetch_object()->total;
    }
@@ -529,75 +537,47 @@ class Help
    {
       $db = Database::connect();
       $config = Database::getConfig();
+      $user_id = $_SESSION['identity']->usuario_id;
 
-      // Verificamos si 'auto_cierre' existe en la configuración y si es 'false'
-      $query = '';
+      $user_condition = "";  // Inicialización de la variable
 
-      if (isset($config['auto_cierre']) && $config['auto_cierre'] === 'false') {
-         // Si 'auto_cierre' es 'false', ejecutamos la primera consulta
-
-         $query = "SELECT SUM(total) AS total
-         FROM (
-            -- Subconsulta 1: Gastos
-            SELECT SUM(g.pagado) AS total, g.fecha
-            FROM gastos g
-            WHERE CONCAT(g.fecha, ' ', g.hora) >= (
-            SELECT fecha_apertura
-            FROM cierres_caja WHERE estado = 'abierto'
-            ORDER BY fecha_apertura DESC
-            LIMIT 1) GROUP BY g.fecha
-
-            UNION ALL
-
-            -- Subconsulta 2: Facturas de Proveedores
-            SELECT SUM(f.pagado) AS total, f.fecha
-            FROM ordenes_compras o
-            INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
-            WHERE o.estado_id = 12
-            AND CONCAT(f.fecha, ' ', f.hora) >= (
-            SELECT fecha_apertura
-            FROM cierres_caja WHERE estado = 'abierto'
-            ORDER BY fecha_apertura DESC
-            LIMIT 1) GROUP BY f.fecha
-
-            UNION ALL
-
-            -- Subconsulta 3: Pagos Proveedores
-            SELECT SUM(p.recibido) AS total, p.fecha
-            FROM pagos_proveedores p
-            WHERE CONCAT(p.fecha, ' ',p.hora) >= (
-            SELECT fecha_apertura
-            FROM cierres_caja WHERE estado = 'abierto'
-            ORDER BY fecha_apertura DESC
-            LIMIT 1) GROUP BY p.fecha
-            
-         ) AS gastos_en_rango_cierre;";
-      } else {
-
-         $query = "SELECT SUM(total) AS total
-         FROM (
-            -- Subconsulta 1: Gastos
-            SELECT SUM(g.pagado) AS total
-            FROM gastos g
-            WHERE DATE(g.fecha) = CURDATE()
-
-            UNION ALL
-
-            -- Subconsulta 2: Facturas de Proveedores
-            SELECT SUM(f.pagado) AS total
-            FROM ordenes_compras o
-            INNER JOIN facturas_proveedores f ON o.orden_id = f.orden_id
-            WHERE o.estado_id = 12
-            AND DATE(f.fecha) = CURDATE()
-
-            UNION ALL
-
-            -- Subconsulta 3: Pagos Proveedores
-            SELECT SUM(p.recibido) AS total
-            FROM pagos_proveedores p
-            WHERE DATE(p.fecha) = CURDATE()
-         ) AS gastos_de_hoy;";
+      // Verificar el valor de modo_cierre y modificar la variable según corresponda
+      if (isset($config['modo_cierre']) && $config['modo_cierre'] === "separado" && $_SESSION['identity']->nombre_rol != 'administrador') {
+         $user_condition = "AND x.usuario_id = '$user_id'";
       }
+
+      // Determinar el rango de fechas
+      $fecha_condicion = isset($config['auto_cierre']) && $config['auto_cierre'] === 'false'
+         ? "CONCAT(x.fecha, ' ', x.hora) >= (SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)"
+         : "x.fecha = CURDATE()";
+
+      $query = "SELECT SUM(total) AS total
+         FROM (
+            -- Subconsulta 1: Gastos
+            SELECT SUM(x.pagado) AS total, x.fecha
+            FROM gastos x
+            WHERE $fecha_condicion $user_condition 
+            GROUP BY x.fecha
+
+            UNION ALL
+
+            -- Subconsulta 2: Facturas de Proveedores
+            SELECT SUM(x.pagado) AS total, x.fecha
+            FROM ordenes_compras o
+            INNER JOIN facturas_proveedores x ON o.orden_id = x.orden_id
+            WHERE o.estado_id = 12
+            AND $fecha_condicion $user_condition
+            GROUP BY x.fecha
+
+            UNION ALL
+
+            -- Subconsulta 3: Pagos Proveedores
+            SELECT SUM(x.recibido) AS total, x.fecha
+            FROM pagos_proveedores x
+            WHERE $fecha_condicion $user_condition
+            GROUP BY x.fecha
+            
+         ) AS gastos_hoy;";
 
       return $db->query($query)->fetch_object()->total;
    }

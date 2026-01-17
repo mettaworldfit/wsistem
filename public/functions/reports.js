@@ -95,8 +95,8 @@ $(document).ready(function () {
                 $('#card_income').val(format.format(data['ventas']['pagos']['tarjeta_total']));
                 $('#transfer_income').val(format.format(data['ventas']['pagos']['transferencias']));
                 $('#check_income').val(format.format(data['ventas']['pagos']['cheques']))
-                $('#external_expenses').val(format.format(data['gastos']['desde_caja']));
-                $('#cash_expenses').val(format.format(data['gastos']['fuera_caja']));
+                $('#external_expenses').val(format.format(data['gastos']['fuera_caja']));
+                $('#cash_expenses').val(format.format(data['gastos']['desde_caja']));
 
                 // Calcular
                 calculateExpectedTotal()
