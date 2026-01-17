@@ -247,6 +247,8 @@ function handleProcedureAction(mysqli $db, string $procedure, array $params): st
     }
 }
 
+
+
 /**
  * Ejecuta una consulta SQL y devuelve el resultado en formato JSON.
  *
