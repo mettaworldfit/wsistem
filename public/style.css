@@ -207,7 +207,6 @@ input:disabled {
         font-size: 14px;
         /* Aumentar el tamaÃƒÆ’Ã‚Â±o del texto para pantallas grandes */
     }
-
     .control_indicator {
         top: 2px;
         left: 11px;
@@ -217,7 +216,6 @@ input:disabled {
         width: 18px;
         /* Aumentar el tamaÃƒÆ’Ã‚Â±o */
     }
-
     .control-checkbox .control_indicator:after {
         left: 5px;
         /* Ajustar posiciÃƒÆ’Ã‚Â³n del checkmark */
@@ -325,7 +323,6 @@ input[type="date"].form-custom-icon {
         padding: 6px 0 6px 5px;
         font-size: 11pt
     }
-
     .input-div {
         padding: 2px 4px;
     }
@@ -451,7 +448,6 @@ p.list_db {
         padding: 12px;
         margin-left: 10px
     }
-
     .btn-custom:first-child {
         margin-left: 0
     }
@@ -461,7 +457,6 @@ p.list_db {
     .btn-custom {
         margin-left: 10px
     }
-
     .btn-custom:first-child {
         margin-left: 0
     }
@@ -948,7 +943,6 @@ span:hover #toggle {
         display: block;
         width: 24.8%;
     }
-
     .admin-bar {
         height: 75px;
         line-height: 75px;
@@ -975,6 +969,7 @@ section.content-bar {
     }
 }
 
+
 /* Buscador */
 
 .explorer {
@@ -998,7 +993,6 @@ section.content-bar {
     }
 }
 
-
 .explorer svg {
     position: absolute;
     width: 20px;
@@ -1012,7 +1006,9 @@ section.content-bar {
 
 /* Scanner */
 
+
 /* Overlay del scanner */
+
 #scanner-overlay {
     position: fixed;
     top: 0;
@@ -1026,7 +1022,9 @@ section.content-bar {
     z-index: 1000;
 }
 
+
 /* Estilo del área del escáner */
+
 #reader {
     width: 80%;
     height: 60%;
@@ -1124,11 +1122,9 @@ ul#search_result li:hover {
     section.content-bar {
         width: 83%
     }
-
     ul#search_result {
         width: 640px;
     }
-
     ul#search_result {
         width: 100%;
         left: 0;
@@ -1199,7 +1195,6 @@ img.nav-icon {
     .nav-container {
         width: 38%;
     }
-
     img.nav-icon {
         width: 70px;
     }
@@ -1391,7 +1386,6 @@ span.alert-notify-lg p {
         line-height: 16px;
         margin: 15px 0 0 11px;
     }
-
     span.alert-notify-md p {
         width: 17px;
         height: 17px;
@@ -1399,7 +1393,6 @@ span.alert-notify-lg p {
         margin: 14px 0 0 12px;
         font-size: 9px;
     }
-
     span.alert-notify-lg p {
         width: 21px;
         height: 21px;
@@ -1499,6 +1492,7 @@ span.alert-notify-lg p {
     margin-bottom: 20px
 }
 
+
 /* [icon*="1"] {
     background: purple
 }
@@ -1534,8 +1528,6 @@ span.alert-notify-lg p {
 .nav a {
     color: #000
 }
-
-
 
 .sidebar {
     display: none;
@@ -1632,7 +1624,6 @@ span.alert-notify-lg p {
         padding: 26px 15px 26px 42px;
         font-size: 10pt;
     }
-
     .accordion .link a {
         font-size: 13px;
     }
@@ -1829,7 +1820,6 @@ span.alert-notify-lg p {
     .menu-movil {
         display: none
     }
-
     #menuToggle {
         display: none
     }
@@ -1977,7 +1967,6 @@ span.alert-notify-lg p {
     .section-wrapper {
         margin: 31px 0px 10px 0px;
     }
-
     .section-wrapper h1 {
         font-size: 18pt
     }
@@ -2007,7 +1996,6 @@ span.alert-notify-lg p {
         line-height: 50px
     }
 }
-
 
 .hide-cell {
     display: none
@@ -2156,23 +2144,18 @@ span.alert-notify-lg p {
     .action-paid {
         font-size: 18px;
     }
-
     .action-toggle {
         font-size: 18px;
     }
-
     .action-view {
         font-size: 18px;
     }
-
     .action-edit {
         font-size: 18px;
     }
-
     .action-delete {
         font-size: 18px;
     }
-
     .action-active {
         font-size: 18px;
     }
@@ -2300,7 +2283,6 @@ table#variantList {
     .table-custom thead th {
         font-size: 10pt
     }
-
     .table-custom tbody td {
         font-size: 10pt
     }
@@ -2422,11 +2404,9 @@ textarea:focus {
     0% {
         transform: rotate(0deg)
     }
-
     50% {
         transform: rotate(22.5deg)
     }
-
     100% {
         transform: rotate(45deg)
     }
@@ -2565,7 +2545,6 @@ textarea:focus {
 }
 
 @media (min-width:1350px) {
-
     .head-content,
     .head-content h6 {
         font-size: 12pt
@@ -2741,7 +2720,6 @@ div#product-content-img svg {
     .radio-item label {
         font-size: 12px
     }
-
     .select2-container--default .select2-selection--single .select2-selection__rendered {
         font-size: 11px !important
     }
@@ -2890,16 +2868,13 @@ a.button-404:hover {
 }
 
 @media (min-width: 970px) {
-
     .card-grid:nth-child(7) {
         grid-column: 1 / 4 !important;
     }
-
     .card-grid:nth-child(8) {
         grid-column: 4 / 7 !important;
         grid-row: 1 / 3;
     }
-
     .card-grid:last-child {
         grid-column: 4 / 7 !important;
     }
@@ -2909,11 +2884,9 @@ a.button-404:hover {
     .card-grid:nth-child(7) {
         height: 350px !important;
     }
-
     .card-grid:nth-child(8) {
         height: 350px !important;
     }
-
     .card-grid:last-child {
         height: 350px !important;
     }
@@ -2923,11 +2896,9 @@ a.button-404:hover {
     .card-grid:nth-child(7) {
         height: 420px !important;
     }
-
     .card-grid:nth-child(8) {
         height: 420px !important;
     }
-
     .card-grid:last-child {
         height: 420px !important;
     }
@@ -2989,6 +2960,7 @@ a.button-404:hover {
     font-family: system-ui, -apple-system, BlinkMacSystemFont;
 }
 
+
 /* Graficos vacios */
 
 .chart-empty {
@@ -3012,6 +2984,7 @@ a.button-404:hover {
     color: #585858;
     margin-bottom: 2px
 }
+
 
 /* Grid de configuraciones */
 
@@ -3037,7 +3010,6 @@ a.button-404:hover {
     .card-grid p {
         font-size: 10pt;
     }
-
     .card-grid span {
         font-size: 21pt;
     }
@@ -3082,7 +3054,6 @@ a.button-404:hover {
     0% {
         transform: rotate(0deg);
     }
-
     100% {
         transform: rotate(360deg);
     }
@@ -3154,7 +3125,6 @@ li.paginate_button.page-item {
 }
 
 @media (max-width:1340px) {
-
     .add_variant a,
     .add_variant_to_product a,
     .add_price_list a,
@@ -3162,7 +3132,6 @@ li.paginate_button.page-item {
     .add_list_to_product a {
         font-size: 11px
     }
-
     .add_price_list,
     .add_variant,
     .add_list_to_product,
@@ -3258,7 +3227,6 @@ li.paginate_button.page-item {
 }
 
 @media (min-width: 1340px) {
-
     .grid-form-user,
     .grid-form-date {
         grid-template-columns: 1fr;
@@ -3292,7 +3260,6 @@ li.paginate_button.page-item {
 }
 
 @media (min-width: 1340px) {
-
     .grid-cash-closing,
     .grid-summary {
         grid-template-columns: 1fr;
@@ -3343,11 +3310,9 @@ legend.cash-closing-legend {
         border-radius: 3px;
         padding: 6px 8px 6px 7px;
     }
-
     .form-field label {
         font-size: 10pt;
     }
-
     .form-field input {
         color: black;
         font-size: 11pt;
@@ -3492,7 +3457,6 @@ span.select2-container--default {
     .modal-dialog {
         max-width: 1100px !important;
     }
-
     .modal-cashClosing {
         min-width: 830px !important;
         margin: 1.75rem auto;
@@ -3624,6 +3588,13 @@ button.product-card:hover {
     }
 }
 
+@media (min-width: 1350px) {
+    .product-card img {
+        height: 180px;
+        width: 55%;
+    }
+}
+
 .item-cod {
     font-size: 8pt !important;
     color: var(--color-primary);
@@ -3689,6 +3660,7 @@ p.pos-stock {
     }
 }
 
+
 /* Buscador pos */
 
 .pos-search {
@@ -3704,7 +3676,6 @@ p.pos-stock {
     padding: 15px 0;
     top: 0;
 }
-
 
 .pos-search-bar svg {
     position: absolute;
@@ -3745,7 +3716,6 @@ p.pos-stock {
         font-size: 10pt;
         margin-left: 4.5em;
     }
-
     .pos-scanner-svg svg {
         width: 19px;
         height: 19px;
@@ -3771,7 +3741,6 @@ p.pos-stock {
         padding-left: 37px;
         margin-left: 6.5em;
     }
-
     .pos-scanner-svg svg {
         width: 24px;
         height: 24px;
@@ -3784,6 +3753,7 @@ p.pos-stock {
     outline: none;
     border: 1px solid var(--color-primary);
 }
+
 
 /* Detalles del producto */
 
@@ -3971,7 +3941,6 @@ button.pos-button-cash {
         padding: 14px 17px;
         border-radius: 10px;
     }
-
     button.pos-button-credit {
         font-size: 1.1rem;
         border-radius: 10px;
@@ -4070,7 +4039,6 @@ input#cash_received {
     .pos-section-summary {
         padding: 0.2em 15px 3em 15px;
     }
-
     input#cash_received {
         display: none;
         width: 41%;
@@ -4142,7 +4110,6 @@ span.item-price {
         width: 52%;
         font-size: 8pt;
     }
-
     span.item-price {
         font-size: 9pt;
     }
@@ -4153,7 +4120,6 @@ span.item-price {
         width: 52%;
         font-size: 9pt;
     }
-
     span.item-price {
         font-size: 10pt;
     }
@@ -4237,15 +4203,14 @@ span.item-price {
 }
 
 @media (min-width: 724px) {
-
     .qty-btn {
         width: 24px;
     }
-
     .input-quantity {
         width: 40px;
     }
 }
+
 
 /* Editar item */
 
@@ -4369,11 +4334,9 @@ span.close-window {
     .item-info span:first-child {
         font-size: 15pt;
     }
-
     .item-info span:nth-child(2) {
         font-size: 10pt;
     }
-
     .item-info span:nth-child(3) {
         font-size: 10pt;
     }
@@ -4513,7 +4476,6 @@ div#pos-subtotal {
     .pos-sidebar-order {
         width: 8%;
     }
-
     .pos-sidebar-order:hover {
         width: 25%;
     }
@@ -4523,7 +4485,6 @@ div#pos-subtotal {
     .pos-sidebar-order {
         width: 5%;
     }
-
     .pos-sidebar-order:hover {
         width: 15%;
     }
@@ -4623,6 +4584,7 @@ input[type="radio"].order-radio {
     overflow-y: auto;
     margin-bottom: 1rem;
 }
+
 
 /* scroll */
 
@@ -4737,11 +4699,11 @@ button.btn-pos_home:focus {
     .pos-customer-add {
         width: 40%;
     }
-
     .footer-window_pos {
         width: 38%;
     }
 }
+
 
 /* Ventana agrega orden nueva */
 
@@ -4767,7 +4729,6 @@ button.btn-pos_home:focus {
     .pos-order-add {
         width: 40%;
     }
-
     .footer-order_pos {
         width: 38%;
     }
@@ -4846,6 +4807,7 @@ button.btn-pos_home:focus {
     width: 34%;
     bottom: 0;
 }
+
 
 /* Datos de la orden de compra */
 
