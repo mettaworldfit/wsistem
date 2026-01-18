@@ -1302,7 +1302,7 @@ if ($_POST['action'] == "agregar_detalle_pos") {
   ]);
 
   // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/api/detail/update');
+  $ch = curl_init('http://127.0.0.1:3001/ws/api/detail/update');
 
   curl_setopt_array($ch, [
     CURLOPT_POST => true,
