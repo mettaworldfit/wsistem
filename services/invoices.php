@@ -113,7 +113,7 @@ if ($_POST['action'] === "registrar_orden") {
   ]);
 
    // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/api/order/update');
+  $ch = curl_init('ws://127.0.0.1:3001/api/order/update');
 
   curl_setopt_array($ch, [
     CURLOPT_POST => true,
@@ -147,7 +147,7 @@ if ($_POST['action'] === "editar_orden") {
   ]);
 
    // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/api/order/update');
+  $ch = curl_init('ws://127.0.0.1:3001/api/order/update');
 
   curl_setopt_array($ch, [
     CURLOPT_POST => true,
@@ -680,7 +680,7 @@ if ($_POST['action'] == 'eliminar_detalle_venta') {
   $result = handleDeletionAction($db, (int)$_POST['id'], 'vt_eliminarDetalleVenta');
 
   // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/api/update');
+  $ch = curl_init('ws://127.0.0.1:3001/api/update');
 
   curl_setopt_array($ch, [
     CURLOPT_POST => true,
@@ -1225,7 +1225,7 @@ if ($_POST['action'] === "actualizar_cantidad_detalle_temporal" || $_POST['actio
   $result = updateDetailQuantity($db, $id, $quantity, $item_id, $item_type, $tabla_detalle, $tabla_id);
 
   // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/api/update');
+  $ch = curl_init('ws://127.0.0.1:3001/api/update');
 
   curl_setopt_array($ch, [
     CURLOPT_POST => true,
@@ -1302,7 +1302,7 @@ if ($_POST['action'] == "agregar_detalle_pos") {
   ]);
 
   // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/api/update');
+  $ch = curl_init('ws://127.0.0.1:3001/api/update');
 
   curl_setopt_array($ch, [
     CURLOPT_POST => true,
@@ -1363,7 +1363,7 @@ if ($_POST['action'] == "borrar_detalle_pos") {
   ]);
 
   // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/api/update');
+  $ch = curl_init('ws://127.0.0.1:3001/api/update');
 
   curl_setopt_array($ch, [
     CURLOPT_POST => true,
@@ -1401,7 +1401,7 @@ if ($_POST['action'] == "actualizar_detalle_pos") {
   $result = handleProcedureAction($db, 'pos_update_detalle', $params);
 
   // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/api/update');
+  $ch = curl_init('ws://127.0.0.1:3001/api/update');
 
   curl_setopt_array($ch, [
     CURLOPT_POST => true,
