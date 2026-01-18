@@ -1,5 +1,47 @@
 $(document).ready(function () {
 
+    let wsPOS = null;
+    let wsConnected = false;
+
+    function initPOSWebSocket() {
+
+        let wsURL;
+
+        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+            wsURL = 'ws://127.0.0.1:3001';
+        } else {
+            const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
+            wsURL = `${protocol}${location.host}/ws`;
+        }
+
+        wsPOS = new WebSocket(wsURL);
+
+        wsPOS.onopen = () => {
+            console.log('✅ WS POS conectado');
+            wsConnected = true;
+        };
+
+        wsPOS.onclose = () => {
+            console.warn('⚠️ WS POS desconectado');
+            wsConnected = false;
+        };
+
+        wsPOS.onerror = () => {
+            wsConnected = false;
+        };
+
+        wsPOS.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+
+            if (data.type === 'detalle_actualizado') {
+                loadDetailPOS();
+            }
+        };
+    }
+
+
+    //-------------------------------------
+
     // Cargar metodos de pagos
     function initMethodSelect2(selector, selectedId = null) {
         const $select = $(selector);
@@ -273,7 +315,7 @@ $(document).ready(function () {
             },
             successCallback: (res) => {
 
-                loadDetailPOS(); // Cargar detalle
+                //loadDetailPOS(); // Cargar detalle
                 updateToListPrice(price_list, productId); // usar precio de lista
 
             },
@@ -281,7 +323,7 @@ $(document).ready(function () {
                 console.error(res);
                 notifyAlert(res, 'error');
 
-            },verbose: true
+            }, verbose: false
         });
     });
 
@@ -310,7 +352,11 @@ $(document).ready(function () {
                 id: detailId
             },
             successCallback: () => {
-                loadDetailPOS(); // Recargar los detalles
+
+                if (!wsConnected) {
+                    // Fallback: WS no activo
+                    loadDetailPOS();
+                }
             },
             errorCallback: (res) => {
                 console.error('Error al eliminar detalle:', res);
@@ -549,7 +595,10 @@ $(document).ready(function () {
                         order_id: $('#order_id').val() || 0
                     },
                     successCallback: (res) => {
-                        loadDetailPOS();
+                        if (!wsConnected) {
+                            // Fallback: WS no activo
+                            loadDetailPOS();
+                        }
                     },
                     errorCallback: (res) => {
                         console.error(res)
@@ -592,10 +641,9 @@ $(document).ready(function () {
             url: "services/invoices.php",
             data: data,
             successCallback: (res) => {
-                console.log(res)
                 notifyAlert(res, 'success');
                 windowSummary(); // Calcular ventana editar
-                loadDetailPOS(); // Cargar detalle
+                //  loadDetailPOS(); // Cargar detalle
             },
             errorCallback: (res) => {
                 console.error(res)
@@ -1231,6 +1279,8 @@ $(document).ready(function () {
     /**============================================================= 
     * INICIAR FUNCIONES
     ===============================================================*/
+
+    initPOSWebSocket(); // Websocket
 
     loadItemsPOS();  // Cargar productos por primera vez
     loadDetailPOS() // Cargar detalle

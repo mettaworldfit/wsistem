@@ -492,7 +492,6 @@ $(document).ready(function () {
 
                     reloadInvoiceDetail(); // Actualizar datos
 
-
                 },
                 errorCallback: (res) => mysql_error(res)
             })

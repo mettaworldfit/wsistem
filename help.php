@@ -1361,62 +1361,43 @@ class Help
    }
 
 
-
    public static function calculateSalesToDay()
    {
       $db = Database::connect();
       $config = Database::getConfig();
+      $user_id = $_SESSION['identity']->usuario_id;
 
-      // Verificamos si 'auto_cierre' existe en la configuración y si es 'false'
-      $query = '';
+      $user_condition = "";  // Inicialización de la variable
 
-      if (isset($config['auto_cierre']) && $config['auto_cierre'] === 'false') {
-         // Si 'auto_cierre' es 'false', ejecutamos la primera consulta
+      // Verificar el valor de modo_cierre y modificar la variable según corresponda
+      if (isset($config['modo_cierre']) && $config['modo_cierre'] === "separado" && $_SESSION['identity']->nombre_rol != 'administrador') {
+         $user_condition = "AND x.usuario_id = '$user_id'";
+      }
 
+      // Determinar el rango de fechas
+      $date_condition = isset($config['auto_cierre']) && $config['auto_cierre'] === 'false'
+         ? "CONCAT(x.fecha, ' ', x.hora) >= (SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)"
+         : "x.fecha = CURDATE()";
 
-         $query = "SELECT SUM(total) AS total, SUM(recibido) AS recibido, SUM(pendiente) AS pendiente,fecha_factura
+      $query = "SELECT SUM(total) AS total, SUM(recibido) AS recibido, SUM(pendiente) AS pendiente,fecha_factura
          FROM (
          -- Subconsulta 1: Facturas de ventas con detalles no vacíos
-         SELECT f.total AS total,f.recibido AS recibido,f.pendiente AS pendiente,f.fecha AS fecha_factura
-         FROM facturas_ventas f
-         INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
-         WHERE CONCAT(f.fecha, ' ', f.hora) >= (
-         SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1) 
-         GROUP BY f.factura_venta_id
+         SELECT x.total AS total,x.recibido AS recibido,x.pendiente AS pendiente,x.fecha AS fecha_factura
+         FROM facturas_ventas x
+         INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = x.factura_venta_id
+         WHERE $date_condition $user_condition
+         GROUP BY x.factura_venta_id
 
          UNION ALL
 
          -- Subconsulta 2: Facturas RP con detalles no vacíos
-         SELECT fr.total AS total, fr.recibido AS recibido,  fr.pendiente AS pendiente,fr.fecha AS fecha_factura
-         FROM facturasRP fr
-         INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
-           WHERE CONCAT(fr.fecha, ' ', fr.hora) >= (
-         SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1) 
-         GROUP BY fr.facturaRP_id
+         SELECT x.total AS total, x.recibido AS recibido,  x.pendiente AS pendiente,x.fecha AS fecha_factura
+         FROM facturasRP x
+         INNER JOIN detalle_ordenRP d ON d.orden_rp_id = x.orden_rp_id
+         WHERE $date_condition $user_condition
+         GROUP BY x.facturaRP_id
 
-         ) ventas_del_dia_rango_cierre GROUP BY fecha_factura;";
-      } else {
-
-         $query = "SELECT SUM(total) AS total,SUM(recibido) AS recibido,SUM(pendiente) AS pendiente,fecha_factura
-         FROM (
-            -- Subconsulta 1: Facturas de ventas del día
-			SELECT f.total AS total,f.recibido AS recibido,f.pendiente AS pendiente,f.fecha AS fecha_factura
-            FROM facturas_ventas f
-            INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = f.factura_venta_id
-            WHERE DATE(f.fecha) = CURDATE()
-            GROUP BY f.factura_venta_id
-
-            UNION ALL
-
-            -- Subconsulta 2: Facturas RP del día
-            SELECT fr.total AS total, fr.recibido AS recibido,  fr.pendiente AS pendiente,fr.fecha AS fecha_factura
-            FROM facturasRP fr
-            INNER JOIN detalle_ordenRP d ON d.orden_rp_id = fr.orden_rp_id
-            WHERE DATE(fr.fecha) = CURDATE()
-            GROUP BY fr.facturaRP_id
-
-         ) AS ventas_del_dia GROUP BY fecha_factura;";
-      }
+         ) ventas_del_dia GROUP BY fecha_factura;";
 
       return $db->query($query);
    }

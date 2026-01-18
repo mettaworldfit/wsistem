@@ -641,7 +641,25 @@ if ($_POST['action'] == 'eliminar_detalle_venta') {
 
   $db = Database::connect();
 
-  echo handleDeletionAction($db, (int)$_POST['id'], 'vt_eliminarDetalleVenta');
+  $result = handleDeletionAction($db, (int)$_POST['id'], 'vt_eliminarDetalleVenta');
+
+  // WEBSOCKET
+  $ch = curl_init('http://127.0.0.1:3001/api/update');
+
+  curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+      'Content-Type: application/json',
+      'x-api-token: Mett@1106'
+    ],
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT => 1
+  ]);
+
+  curl_exec($ch);
+  curl_close($ch);
+
+  echo $result;
 }
 
 // Factura al contado
@@ -1168,7 +1186,25 @@ if ($_POST['action'] === "actualizar_cantidad_detalle_temporal" || $_POST['actio
   }
 
   // Llamar a la función de actualización
-  echo updateDetailQuantity($db, $id, $quantity, $item_id, $item_type, $tabla_detalle, $tabla_id);
+  $result = updateDetailQuantity($db, $id, $quantity, $item_id, $item_type, $tabla_detalle, $tabla_id);
+
+  // WEBSOCKET
+  $ch = curl_init('http://127.0.0.1:3001/api/update');
+
+  curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+      'Content-Type: application/json',
+      'x-api-token: Mett@1106'
+    ],
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT => 1
+  ]);
+
+  curl_exec($ch);
+  curl_close($ch);
+
+  echo $result;
 }
 
 
@@ -1210,7 +1246,17 @@ if ($_POST['action'] == "agregar_detalle_pos") {
     exit;
   }
 
-  echo handleProcedureAction($db, $procedure, $params = [
+  // echo handleProcedureAction($db, $procedure, $params = [
+  //   $order_id,
+  //   $usuario_id,
+  //   $cantidad,
+  //   $costo,
+  //   $precio,
+  //   $item_id
+  // ]);
+
+  // Ejecuta el procedimiento
+  $result = handleProcedureAction($db, $procedure, [
     $order_id,
     $usuario_id,
     $cantidad,
@@ -1218,6 +1264,24 @@ if ($_POST['action'] == "agregar_detalle_pos") {
     $precio,
     $item_id
   ]);
+
+  // WEBSOCKET
+  $ch = curl_init('http://127.0.0.1:3001/api/update');
+
+  curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+      'Content-Type: application/json',
+      'x-api-token: Mett@1106'
+    ],
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT => 1
+  ]);
+
+  curl_exec($ch);
+  curl_close($ch);
+
+  echo $result;
 }
 
 // Obtener datos de la venta editar del pos 
@@ -1257,10 +1321,28 @@ if ($_POST['action'] == "borrar_detalle_pos") {
 
   $db = Database::connect();
 
-  echo handleProcedureAction($db, 'pos_eliminar_todo', [
+  $result = handleProcedureAction($db, 'pos_eliminar_todo', [
     (int)$_POST['order_id'],
     (int)$_SESSION['identity']->usuario_id
   ]);
+
+  // WEBSOCKET
+  $ch = curl_init('http://127.0.0.1:3001/api/update');
+
+  curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+      'Content-Type: application/json',
+      'x-api-token: Mett@1106'
+    ],
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT => 1
+  ]);
+
+  curl_exec($ch);
+  curl_close($ch);
+
+  echo $result;
 }
 
 // Actualizar el detalle en el POS
@@ -1280,7 +1362,25 @@ if ($_POST['action'] == "actualizar_detalle_pos") {
     $_POST['quantity']
   ];
 
-  echo handleProcedureAction($db, 'pos_update_detalle', $params);
+  $result = handleProcedureAction($db, 'pos_update_detalle', $params);
+
+  // WEBSOCKET
+  $ch = curl_init('http://127.0.0.1:3001/api/update');
+
+  curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+      'Content-Type: application/json',
+      'x-api-token: Mett@1106'
+    ],
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT => 1
+  ]);
+
+  curl_exec($ch);
+  curl_close($ch);
+
+  echo $result;
 }
 
 // Cargar ordenes del punto de venta

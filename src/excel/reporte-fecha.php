@@ -14,8 +14,9 @@ $fecha = $_GET['date'];
 $sheet->setTitle("Ingresos y Gastos");
 
 $db = Database::connect();
+$config = Database::getConfig();
+$user_id = $_SESSION['identity']->usuario_id;
 $row = 1;
-
 
 // ===== Título Ingresos =====
 $sheet->setCellValue("A$row", "INGRESOS DEL DÍA");
