@@ -5,7 +5,7 @@ $(document).ready(function () {
 
     function initPOSWebSocket() {
 
-        const wsURL = `wss://127.0.0.1/ws`;
+        const wsURL = `"ws://localhost/ws/"`;
 
         wsPOS = new WebSocket(wsURL);
 
