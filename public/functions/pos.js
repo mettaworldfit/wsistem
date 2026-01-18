@@ -8,11 +8,12 @@ $(document).ready(function () {
         let wsURL;
 
         if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-            wsURL = 'ws://127.0.0.1:3001';
+            wsURL = 'ws://localhost:3001';
         } else {
             const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
             wsURL = `${protocol}${location.host}/ws`;
         }
+
 
         wsPOS = new WebSocket(wsURL);
 
@@ -32,9 +33,14 @@ $(document).ready(function () {
 
         wsPOS.onmessage = (e) => {
             const data = JSON.parse(e.data);
+            console.log(data)
 
             if (data.type === 'detalle_actualizado') {
                 loadDetailPOS();
+            }
+
+            if (data.type === 'orden_actualizada') {
+                loadOrdersPOS();
             }
         };
     }
@@ -900,7 +906,9 @@ $(document).ready(function () {
                 if (res > 0) {
                     $('input[type="text"]').val('');
                     notifyAlert('Orden creada correctamente', 'success', 1500)
-                    loadOrdersPOS();
+                    if (!wsConnected) {
+                        loadOrdersPOS();
+                    }
 
                     hiddenOverlay() // Ocultar ventana
                 }
@@ -1011,10 +1019,13 @@ $(document).ready(function () {
             url: "services/invoices.php",
             data: data,
             successCallback: (res) => {
-
                 if (res === "ready") {
-                    loadOrdersPOS();
 
+                    if (!wsConnected) {
+                        loadOrdersPOS();
+                    }
+
+                    hiddenOverlay() // Ocultar ventana
                     notifyAlert("Datos actualizados correctamente", "success", 1500)
                 } else {
                     notifyAlert("Ha ocurrido un problema", "error")

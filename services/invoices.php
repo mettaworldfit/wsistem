@@ -101,7 +101,7 @@ if ($_POST['action'] == "cargar_detalle_orden") {
 if ($_POST['action'] === "registrar_orden") {
   $db = Database::connect();
 
-  echo handleProcedureAction($db, 'ov_agregarOrden', [
+  $result = handleProcedureAction($db, 'ov_agregarOrden', [
     (int)$_POST['customer_id'],
     (int)$_SESSION['identity']->usuario_id,
     6, // Pendiente
@@ -111,13 +111,31 @@ if ($_POST['action'] === "registrar_orden") {
     $_POST['name'],
     $_POST['tel']
   ]);
+
+   // WEBSOCKET
+  $ch = curl_init('http://127.0.0.1:3001/api/order/update');
+
+  curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+      'Content-Type: application/json',
+      'x-api-token: Mett@1106'
+    ],
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT => 1
+  ]);
+
+  curl_exec($ch);
+  curl_close($ch);
+
+  echo $result;
 }
 
 // Editar orden de venta
 if ($_POST['action'] === "editar_orden") {
   $db = Database::connect();
 
-  echo handleProcedureAction($db, 'ov_editarOrden', [
+  $result = handleProcedureAction($db, 'ov_editarOrden', [
     (int)$_POST['order_id'],
     (int)$_POST['customer_id'],
     (int)$_SESSION['identity']->usuario_id,
@@ -127,6 +145,24 @@ if ($_POST['action'] === "editar_orden") {
     $_POST['name'],
     $_POST['tel']
   ]);
+
+   // WEBSOCKET
+  $ch = curl_init('http://127.0.0.1:3001/api/order/update');
+
+  curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+      'Content-Type: application/json',
+      'x-api-token: Mett@1106'
+    ],
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT => 1
+  ]);
+
+  curl_exec($ch);
+  curl_close($ch);
+
+  echo $result;
 }
 
 if ($_POST['action'] === "actualizar_estado_orden") {
