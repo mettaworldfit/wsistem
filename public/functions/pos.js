@@ -5,12 +5,13 @@ $(document).ready(function () {
 
     function initPOSWebSocket() {
 
-         const wsURL = 'ws://127.0.0.1:3001';
- 
+        const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
+        const wsURL = `${protocol}${location.host}/ws`;
+
         wsPOS = new WebSocket(wsURL);
 
         wsPOS.onopen = () => {
-            console.log('✅ WS POS conectado');
+            console.log('✅ WS POS conectado:', wsURL);
             wsConnected = true;
         };
 
@@ -19,23 +20,30 @@ $(document).ready(function () {
             wsConnected = false;
         };
 
-        wsPOS.onerror = () => {
+        wsPOS.onerror = (err) => {
+            console.error('❌ WS error', err);
             wsConnected = false;
         };
 
         wsPOS.onmessage = (e) => {
-            const data = JSON.parse(e.data);
-            console.log(data)
+            try {
+                const data = JSON.parse(e.data);
+                console.log('📨 WS mensaje:', data);
 
-            if (data.type === 'detalle_actualizado') {
-                loadDetailPOS();
-            }
+                if (data.type === 'detalle_actualizado') {
+                    loadDetailPOS();
+                }
 
-            if (data.type === 'orden_actualizada') {
-                loadOrdersPOS();
+                if (data.type === 'orden_actualizada') {
+                    loadOrdersPOS();
+                }
+
+            } catch (err) {
+                console.error('❌ JSON inválido:', e.data);
             }
         };
     }
+
 
 
     //-------------------------------------
