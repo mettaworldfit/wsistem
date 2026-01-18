@@ -5,16 +5,8 @@ $(document).ready(function () {
 
     function initPOSWebSocket() {
 
-        let wsURL;
-
-        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-            wsURL = 'ws://localhost:3001';
-        } else {
-            const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
-            wsURL = `${protocol}${location.host}/ws`;
-        }
-
-
+         const wsURL = 'ws://127.0.0.1:3001';
+ 
         wsPOS = new WebSocket(wsURL);
 
         wsPOS.onopen = () => {
