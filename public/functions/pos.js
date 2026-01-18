@@ -5,12 +5,22 @@ $(document).ready(function () {
 
     function initPOSWebSocket() {
 
-        const wsURL = `"ws://127.0.0.1/ws/"`;
+        let wsURL;
+
+        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+            wsURL = 'ws://127.0.0.1:3001';
+        } else {
+            const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
+            wsURL = `${protocol}${location.host}/ws`;
+            console.log('produccion: ', wsURL)
+        }
+
+        console.log(wsURL)
 
         wsPOS = new WebSocket(wsURL);
 
         wsPOS.onopen = () => {
-            console.log('✅ WS POS conectado:', wsURL);
+            console.log('✅ WS POS conectado');
             wsConnected = true;
         };
 
@@ -19,30 +29,23 @@ $(document).ready(function () {
             wsConnected = false;
         };
 
-        wsPOS.onerror = (err) => {
-            console.error('❌ WS error', err);
+        wsPOS.onerror = () => {
             wsConnected = false;
         };
 
         wsPOS.onmessage = (e) => {
-            try {
-                const data = JSON.parse(e.data);
-                console.log('📨 WS mensaje:', data);
+            const data = JSON.parse(e.data);
+            console.log(data)
 
-                if (data.type === 'detalle_actualizado') {
-                    loadDetailPOS();
-                }
+            if (data.type === 'detalle_actualizado') {
+                loadDetailPOS();
+            }
 
-                if (data.type === 'orden_actualizada') {
-                    loadOrdersPOS();
-                }
-
-            } catch (err) {
-                console.error('❌ JSON inválido:', e.data);
+            if (data.type === 'orden_actualizada') {
+                loadOrdersPOS();
             }
         };
     }
-
 
 
     //-------------------------------------
@@ -1021,9 +1024,9 @@ $(document).ready(function () {
                 if (res === "ready") {
 
                     if (!wsConnected) {
-                        loadOrdersPOS();
+                      loadOrdersPOS();
                     }
-
+                    
                     hiddenOverlay() // Ocultar ventana
                     notifyAlert("Datos actualizados correctamente", "success", 1500)
                 } else {
