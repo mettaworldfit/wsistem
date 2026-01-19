@@ -11,7 +11,7 @@ $(document).ready(function () {
             wsURL = 'ws://127.0.0.1:3001';
         } else {
             const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
-            wsURL = `ws://143.198.114.204:3001/ws/`;
+            wsURL = `wss://143.198.114.204:3001/ws/`;
             console.log('produccion: ', wsURL)
         }
 
