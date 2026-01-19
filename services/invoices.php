@@ -1282,15 +1282,6 @@ if ($_POST['action'] == "agregar_detalle_pos") {
     exit;
   }
 
-  // echo handleProcedureAction($db, $procedure, $params = [
-  //   $order_id,
-  //   $usuario_id,
-  //   $cantidad,
-  //   $costo,
-  //   $precio,
-  //   $item_id
-  // ]);
-
   // Ejecuta el procedimiento
   $result = handleProcedureAction($db, $procedure, [
     $order_id,
@@ -1302,7 +1293,7 @@ if ($_POST['action'] == "agregar_detalle_pos") {
   ]);
 
   // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/ws/api/detail/update');
+  $ch = curl_init('http://127.0.0.1:3001/api/detail/update');
 
   curl_setopt_array($ch, [
     CURLOPT_POST => true,
