@@ -8,11 +8,12 @@ $(document).ready(function () {
         let wsURL;
 
         if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+            // DESARROLLO LOCAL
             wsURL = 'ws://127.0.0.1:3001';
         } else {
+            // PRODUCCIÓN
             const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
-            wsURL = `wss://143.198.114.204:3001/ws/`;
-            console.log('produccion: ', wsURL)
+            wsURL = protocol + location.host + '/ws/';
         }
 
         wsPOS = new WebSocket(wsURL);
@@ -1022,9 +1023,9 @@ $(document).ready(function () {
                 if (res === "ready") {
 
                     if (!wsConnected) {
-                      loadOrdersPOS();
+                        loadOrdersPOS();
                     }
-                    
+
                     hiddenOverlay() // Ocultar ventana
                     notifyAlert("Datos actualizados correctamente", "success", 1500)
                 } else {
