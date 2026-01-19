@@ -13,7 +13,7 @@ $(document).ready(function () {
         } else {
             // PRODUCCIÓN
             const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
-            wsURL = protocol + location.host + '/ws/';
+            wsURL = protocol + 'ws.wsistems.com' + '/ws/';
         }
 
         wsPOS = new WebSocket(wsURL);
