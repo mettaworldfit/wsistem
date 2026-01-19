@@ -1,5 +1,5 @@
 <?php
-define('APP_VERSION', '1.3.25');
+define('APP_VERSION', '1.3.26');
 
 // Configuracion del sistema
 $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https://' : 'http://';
