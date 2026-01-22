@@ -32,7 +32,7 @@ $config = Database::getConfig();
 // =========================
 
 $codigo      = $_GET['code'];
-$precio      = '$';
+$precio = isset($_GET['price']) && is_numeric($_GET['price']) ? '$' . strval($_GET['price']) : '$0';
 $descripcion = $_GET['name'];
 
 // =========================

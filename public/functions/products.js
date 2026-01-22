@@ -1284,8 +1284,8 @@ $(document).ready(function () {
 
         const product_name = encodeURIComponent($('#product_name').val());
         const product_code = encodeURIComponent($('#product_code').val());
-        const product_price = encodeURIComponent($('#price_out').val());
-
+        const product_price = encodeURIComponent($('#inputPrice_out').val());
+console.log(product_price)
         var width = 800;
         var height = 600;
 
