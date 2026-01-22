@@ -900,7 +900,7 @@ $(document).ready(function () {
         action: 'cargar_detalle_temporal',
         columns: ['descripcion', 'cantidad', 'precio', 'impuesto', 'descuento', 'importe', 'acciones'],
         hiddenColumns: [3],
-        paging: false,
+        paging: true,
         searching: false,
         ordering: false,
         info: false
@@ -911,7 +911,7 @@ $(document).ready(function () {
         action: 'cargar_detalle_facturas',
         columns: ['descripcion', 'cantidad', 'precio', 'impuesto', 'descuento', 'total', 'acciones'],
         hiddenColumns: [3],
-        paging: false,
+        paging: true,
         searching: false,
         ordering: false,
         info: false
@@ -921,7 +921,7 @@ $(document).ready(function () {
         url: 'services/repair.php',
         action: 'cargar_ordenrp',
         columns: ['descripcion', 'cantidad', 'precio', 'descuento', 'total', 'acciones'],
-        paging: false,
+        paging: true,
         searching: false,
         ordering: false,
         info: false
@@ -931,7 +931,7 @@ $(document).ready(function () {
         url: 'services/repair.php',
         action: 'cargar_facturarp',
         columns: ['descripcion', 'cantidad', 'precio', 'descuento', 'total', 'acciones'],
-        paging: false,
+        paging: true,
         searching: false,
         ordering: false,
         info: false
