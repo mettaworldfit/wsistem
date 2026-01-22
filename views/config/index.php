@@ -12,8 +12,17 @@
         <span>Bonos</span>
 
         <ul>
-            <li><a href="<?= base_url ?>config/bond_config">Configuración</a></li>
-            <li> <a href="<?= base_url ?>config/bonds">Bonos</a></li>
+            <li><a href="<?= base_url ?>config/config_bonus">Configuración</a></li>
+            <li> <a href="<?= base_url ?>config/bonus">Bonos</a></li>
+        </ul>
+    </div>
+
+    <div class="card-config">
+        <span>Etiquetas</span>
+
+        <ul>
+            <li><a href="<?= base_url ?>config/add_label">Crear etiqueta</a></li>
+            <li> <a href="<?= base_url ?>config/labels">Etiquetas</a></li>
         </ul>
     </div>
 
@@ -21,8 +30,8 @@
         <span>Facturas</span>
 
         <ul>
-            <li><a href="<?= base_url ?>config/electronic_invoice">Facturación electrónica</a></li>
-            <li><a href="<?= base_url ?>config/config_pdf">Facturación PDF</a></li>
+            <li><a href="<?= base_url ?>config/config_mail">Servidor de correo</a></li>
+            <li><a href="<?= base_url ?>config/config_pdf">Configuración PDF</a></li>
         </ul>
     </div>
 

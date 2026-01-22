@@ -703,7 +703,7 @@ class Help
       return $configurations;
    }
 
-   public static function ConfigElectronicInvoice()
+   public static function configMail()
    {
 
       $db = Database::connect();
@@ -1487,14 +1487,35 @@ class Help
 
    // Función para mostrar la configuración de los bonos
 
-   public static function showBond_config()
+   public static function configBonus()
    {
-      $query = "SELECT *FROM bono_config b
+      $query = "SELECT * FROM bono_config b
         INNER JOIN estados_generales e ON b.estado_id = e.estado_id
         WHERE b.bono_config_id = 1";
 
       $db = Database::connect();
-      return $db->query($query);
+
+      // Ejecutar la consulta
+      $result = $db->query($query);
+
+      // Inicializar un array para almacenar los resultados
+      $configurations = [];
+
+      if ($result && $result->num_rows > 0) {
+         $row = $result->fetch_object();
+
+         $configurations = [
+            'bono_config_id' => $row->bono_config_id,
+            'usuario_id'     => $row->usuario_id,
+            'estado_id'      => $row->estado_id,
+            'nombre_estado'  => $row->nombre_estado ?? null,
+            'min_factura'    => $row->min_factura,
+            'valor'          => $row->valor,
+            'fecha'          => $row->fecha
+         ];
+      }
+
+      return $configurations;
    }
 
 
@@ -2100,7 +2121,7 @@ class Expenses_Utils
 
    /**
     * TODO: Mostrar detalle de compra de factura proveedor
-    */
+   */
 
    public static function DETAIL_INV_PROVI($id)
    {

@@ -195,7 +195,7 @@ $(document).ready(function () {
     $('#cash_expenses,#withdrawals, #refund').on('input', updateDifference);
 
     /**============================================================= 
-    * FACTURACION E IMPRESION DEL CIERRE DE CAJA
+    * FACTURACION, CRUD E IMPRESION DEL CIERRE DE CAJA
     ===============================================================*/
 
     // Abrir caja
@@ -230,9 +230,9 @@ $(document).ready(function () {
             successCallback: () => {
                 $('.float-right').load(window.location.href + ' .float-right > *');
                 $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
-                
+
                 $('#modalCashOpening').modal('hide');
-               
+
                 notifyAlert("Datos registrados correctamente")
             },
             errorCallback: (res) => {
@@ -295,7 +295,7 @@ $(document).ready(function () {
             successCallback: (res) => {
                 $('.float-right').load(window.location.href + ' .float-right > *');
                 $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
-            
+
                 notifyAlert("Datos registrados correctamente")
 
                 $('#modalCashClosing').modal('hide'); // Cerrar ventana
@@ -325,12 +325,12 @@ $(document).ready(function () {
                     console.log("✅ Impresión completada:", res.message);
                 } else {
                     console.warn("⚠️ Error en impresión:", res.message);
-                   // notifyAlert(res.message || "Error al imprimir", "error");
+                    // notifyAlert(res.message || "Error al imprimir", "error");
                 }
             },
             error: function (xhr, status, error) {
                 console.error("❌ Error AJAX:", error);
-              //  notifyAlert("No se pudo conectar con el servidor de impresión.", "error");
+                //  notifyAlert("No se pudo conectar con el servidor de impresión.", "error");
             }
         });
     }
@@ -354,43 +354,50 @@ $(document).ready(function () {
             });
     }
 
+    // Eliminar cierre de caja
+    $(document).on('click', '.erase_closing', function () {
+
+        const cierre_id = $(this).data('id');
+
+        alertify.confirm("Eliminar cierre", "¿Estas seguro que deseas eliminar el cierre '" + cierre_id + "'? ",
+            function () {
+                sendAjaxRequest({
+                    url: "services/reports.php",
+                    data: {
+                        action: "eliminar_cierre",
+                        id: cierre_id
+                    },
+                    successCallback: (res) => {
+                        dataTablesInstances['cashClosing'].ajax.reload()
+                    },
+                    errorCallback: (err) => {
+                        console.error(err);
+                        notifyAlert("Ha ocurrido un erro inesperado", "error")
+                    },
+                })
+            },
+            function () { }
+        );
+    })
+
+    // Generar cierre pdf
+    $(document).on('click', '.generate_pdf', function () {
+        const cierre_id = $(this).data('id');
+        var width = 1000;
+        var height = 800;
+
+        // Centrar la ventana
+        var x = parseInt((window.screen.width / 2) - (width / 2));
+        var y = parseInt((window.screen.height / 2) - (height / 2));
+
+        var url = SITE_URL + 'src/pdf/cierre_caja.php?id=' + cierre_id;
+        window.open(url, 'ciere_caja', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
+    })
+
+
 }); // Ready
 
-// Generar cierre pdf
-function generateCashClosingPDF(id) {
 
-    var width = 1000;
-    var height = 800;
-
-    // Centrar la ventana
-    var x = parseInt((window.screen.width / 2) - (width / 2));
-    var y = parseInt((window.screen.height / 2) - (height / 2));
-
-    var url = SITE_URL + 'src/pdf/cierre_caja.php?id=' + id;
-    window.open(url, 'ciere_caja', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
-
-}
-
-// Eliminar cierre de caja
-function deleteCashClosing(id) {
-    alertify.confirm("Eliminar cierre de caja", "¿Estas seguro que deseas eliminar el cierre? ",
-        function () {
-            sendAjaxRequest({
-                url: "services/reports.php",
-                data: {
-                    action: "eliminar_cierre",
-                    id: id
-                },
-                successCallback: (res) => {
-                    dataTablesInstances['cashClosing'].ajax.reload()
-
-                },
-                errorCallback: (res) => mysql_error(res),
-            })
-        },
-        function () { }
-    );
-}
 
 /**============================================================= 
 * FUNCIONES DE CONSULTAS
@@ -506,7 +513,6 @@ function getSoldPieces() {
 
 
 function getSoldServices() {
-
     sendAjaxRequest({
         url: "services/reports.php",
         data: {

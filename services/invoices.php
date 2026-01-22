@@ -112,21 +112,8 @@ if ($_POST['action'] === "registrar_orden") {
     $_POST['tel']
   ]);
 
-   // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/api/order/update');
-
-  curl_setopt_array($ch, [
-    CURLOPT_POST => true,
-    CURLOPT_HTTPHEADER => [
-      'Content-Type: application/json',
-      'x-api-token: Mett@1106'
-    ],
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 1
-  ]);
-
-  curl_exec($ch);
-  curl_close($ch);
+  // WEBSOCKET
+  webSocketServer('/api/order/update');
 
   echo $result;
 }
@@ -146,21 +133,8 @@ if ($_POST['action'] === "editar_orden") {
     $_POST['tel']
   ]);
 
-   // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/api/order/update');
-
-  curl_setopt_array($ch, [
-    CURLOPT_POST => true,
-    CURLOPT_HTTPHEADER => [
-      'Content-Type: application/json',
-      'x-api-token: Mett@1106'
-    ],
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 1
-  ]);
-
-  curl_exec($ch);
-  curl_close($ch);
+  // WEBSOCKET
+  webSocketServer('/api/order/update');
 
   echo $result;
 }
@@ -516,7 +490,8 @@ if ($_POST['action'] == "agregar_detalle_temporal") {
     (int)$_POST['discount'] ?? 0
   ];
 
-  echo handleProcedureAction($db, 'vt_crearDetalleTemporal', $params);
+echo handleProcedureAction($db, 'vt_crearDetalleTemporal', $params);
+
 }
 
 if ($_POST['action'] == "asignar_variantes_temporales") {
@@ -680,20 +655,7 @@ if ($_POST['action'] == 'eliminar_detalle_venta') {
   $result = handleDeletionAction($db, (int)$_POST['id'], 'vt_eliminarDetalleVenta');
 
   // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/api/detail/update');
-
-  curl_setopt_array($ch, [
-    CURLOPT_POST => true,
-    CURLOPT_HTTPHEADER => [
-      'Content-Type: application/json',
-      'x-api-token: Mett@1106'
-    ],
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 1
-  ]);
-
-  curl_exec($ch);
-  curl_close($ch);
+  webSocketServer('/api/detail/update');
 
   echo $result;
 }
@@ -1225,20 +1187,7 @@ if ($_POST['action'] === "actualizar_cantidad_detalle_temporal" || $_POST['actio
   $result = updateDetailQuantity($db, $id, $quantity, $item_id, $item_type, $tabla_detalle, $tabla_id);
 
   // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/api/detail/update');
-
-  curl_setopt_array($ch, [
-    CURLOPT_POST => true,
-    CURLOPT_HTTPHEADER => [
-      'Content-Type: application/json',
-      'x-api-token: Mett@1106'
-    ],
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 1
-  ]);
-
-  curl_exec($ch);
-  curl_close($ch);
+  webSocketServer('/api/order/update');
 
   echo $result;
 }
@@ -1293,20 +1242,7 @@ if ($_POST['action'] == "agregar_detalle_pos") {
   ]);
 
   // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/api/detail/update');
-
-  curl_setopt_array($ch, [
-    CURLOPT_POST => true,
-    CURLOPT_HTTPHEADER => [
-      'Content-Type: application/json',
-      'x-api-token: Mett@1106'
-    ],
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 1
-  ]);
-
-  curl_exec($ch);
-  curl_close($ch);
+  webSocketServer('/api/detail/update');
 
   echo $result;
 }
@@ -1354,20 +1290,7 @@ if ($_POST['action'] == "borrar_detalle_pos") {
   ]);
 
   // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/api/detail/update');
-
-  curl_setopt_array($ch, [
-    CURLOPT_POST => true,
-    CURLOPT_HTTPHEADER => [
-      'Content-Type: application/json',
-      'x-api-token: Mett@1106'
-    ],
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 1
-  ]);
-
-  curl_exec($ch);
-  curl_close($ch);
+  webSocketServer('/api/detail/update');
 
   echo $result;
 }
@@ -1392,20 +1315,7 @@ if ($_POST['action'] == "actualizar_detalle_pos") {
   $result = handleProcedureAction($db, 'pos_update_detalle', $params);
 
   // WEBSOCKET
-  $ch = curl_init('http://127.0.0.1:3001/api/detail/update');
-
-  curl_setopt_array($ch, [
-    CURLOPT_POST => true,
-    CURLOPT_HTTPHEADER => [
-      'Content-Type: application/json',
-      'x-api-token: Mett@1106'
-    ],
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 1
-  ]);
-
-  curl_exec($ch);
-  curl_close($ch);
+  webSocketServer('/api/detail/update');
 
   echo $result;
 }

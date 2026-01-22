@@ -14,11 +14,11 @@ const SITE_URL = window.location.protocol + '//' + window.location.host + basePa
 let pageURL = $(location).attr("pathname");
 const format = new Intl.NumberFormat('en'); // Formato 0,000
 
-  // Ocultar el sidebar en el Punto de venta
-    if (pageURL.includes('invoices/pos')) {
-        // Crea un nuevo elemento de estilo
-        const style = document.createElement('style');
-        style.innerHTML = `
+// Ocultar el sidebar en el Punto de venta
+if (pageURL.includes('invoices/pos')) {
+    // Crea un nuevo elemento de estilo
+    const style = document.createElement('style');
+    style.innerHTML = `
         .container-logo,
         .sidebar {
             display: none !important;
@@ -28,9 +28,9 @@ const format = new Intl.NumberFormat('en'); // Formato 0,000
             width: 100% !important;
         }
         `;
-        // Agrega el estilo al head del documento
-        document.head.appendChild(style);
-    }
+    // Agrega el estilo al head del documento
+    document.head.appendChild(style);
+}
 
 /**
     * 
@@ -241,9 +241,28 @@ function initCustomDataTable({
 }
 
 /**
- * Maneja una respuesta JSON de forma segura
- * @param {string} response - La respuesta del servidor (texto plano)
- * @returns {object} Objeto con estructura estandarizada: { success, data, error }
+ * Intenta interpretar la respuesta del servidor como JSON.
+ * Si no es JSON válido, analiza el texto plano para determinar
+ * si representa un error según palabras clave.
+ *
+ * @param {string} response - Respuesta cruda devuelta por el servidor (AJAX).
+ *
+ * @returns {Object} Resultado normalizado de la respuesta.
+ * @returns {boolean} returns.success - Indica si la respuesta se considera exitosa.
+ * @returns {*} returns.data - Datos devueltos por el servidor (JSON, texto o número).
+ * @returns {boolean|null} returns.error - Indica si la respuesta representa un error.
+ *
+ * @example
+ * // JSON válido
+ * handleJSONResponse('{"error":false,"message":"OK"}');
+ *
+ * @example
+ * // Texto plano exitoso
+ * handleJSONResponse('1');
+ *
+ * @example
+ * // Texto plano con error
+ * handleJSONResponse('Error al eliminar registro');
  */
 function handleJSONResponse(response) {
     try {
@@ -257,15 +276,29 @@ function handleJSONResponse(response) {
             return { success: true, data: parsed, error: null };
         }
 
-        return { success: false, data: null, error: "La respuesta no es un objeto válido." };
+        return { success: false, data: "La respuesta no es un objeto válido.", error: null };
+
 
     } catch (e) {
         // Si no es JSON válido, devolver como error de texto plano
+
+        const text = String(response).trim().toLowerCase();
+
+        // Palabras clave que indican errores
+        const errorKeywords = [
+            'error', 'err', 'exception', 'duplicate', 'sql', 'warning'
+        ];
+
+        const isError = errorKeywords.some(keyword =>
+            text.includes(keyword)
+        );
+
         return {
-            success: false,
-            data: null,
-            data: response
+            success: !isError,
+            data: response,
+            error: isError
         };
+
     }
 }
 
@@ -279,32 +312,67 @@ function handleJSONResponse(response) {
  * @param {Function} [options.errorCallback] - Función a ejecutar si hay un error en la respuesta.
  * @param {boolean} [options.verbose=false] - Si es true, se activan los logs en consola.
  */
-function sendAjaxRequest({ url, data, successCallback, errorCallback, verbose = false }) {
+function sendAjaxRequest({ url, data = {}, successCallback, errorCallback, verbose = false }) {
     $.ajax({
-        type: "post",
+        type: "POST",
         url: SITE_URL + url,
         data,
         success: function (res) {
-
+            // Asegurarse de que la respuesta sea válida JSON (no texto plano)
             let data = handleJSONResponse(res);
 
-            if (Array.isArray(data) || data.success || res === "ready" || res > 0 || (!data.success && res != "duplicate" && !res.includes("Error"))) {
-                // Ejecuta la función successCallback si fue pasada y está definida
-                successCallback?.(res); // Devuelve la response
-
-                if (verbose) {
-                    console.log("Datos devueltos por el servidor:", data);
-                }
-            } else if (res === "duplicate") {
-                mysql_error('Existen datos que ya están siendo utilizado');
-            } else if (res.includes("Error")) {
-                errorCallback ? errorCallback(res) : mysql_error(res);
+            // Si la respuesta no tiene errores
+            if (data && (data.error === false || data.error === null)) {
+                successCallback?.(res);
             } else {
-                errorCallback ? errorCallback(res) : mysql_error(res);
+                // Si error es true, mandamos la respuesta al errorCallback
+                errorCallback?.(data.message || res);
             }
+
+            if (verbose) {
+                console.log("Respuesta del servidor:", data);
+            }
+        },
+        error: function (xhr, status, error) {
+            const msg = `Error HTTP: ${status} - ${error}`;
+
+            if (verbose) {
+                console.error(msg);
+            }
+
+            errorCallback?.(msg);
         }
     });
 }
+
+// function sendAjaxRequest({ url, data, successCallback, errorCallback, verbose = false }) {
+//     $.ajax({
+//         type: "post",
+//         url: SITE_URL + url,
+//         data,
+//         success: function (res) {
+
+//             let data = handleJSONResponse(res);
+
+//             if (Array.isArray(data) || data.success || res.includes("ready") || res > 0 || (!data.success && !res.includes("duplicate") && !res.includes("Error"))) {
+//                 // Ejecuta la función successCallback si fue pasada y está definida
+//                 successCallback?.(res); // Devuelve la response
+
+//                 if (verbose) {
+//                     console.log("Datos devueltos por el servidor:", data);
+//                 }
+//             } else if (res.includes("duplicate")) {
+//                 notifyAlert('Existen datos que ya están siendo utilizado',"error");
+//             } else if (res.includes("Error")) {
+//                 errorCallback ? errorCallback(res) : notifyAlert("Ha ocurrido un error en la peticion","error");
+
+//                  console.log("hay un error")
+//             } else {
+//                 errorCallback ? errorCallback(res) : mysql_error(res);
+//             }
+//         }
+//     });
+// }
 
 function mysql_row_affected() {
     alertify.alert(`<div class='row-affected'>
@@ -921,7 +989,17 @@ $(document).ready(function () {
         searching: false,
         ordering: true,
         info: false
-    }
+    },
+    {
+        id: '#labels',
+        url: 'services/config.php',
+        action: 'cargar_etiquetas',
+        columns: ['id', 'nombre', 'ancho', 'alto', 'impresora', 'acciones'],
+        paging: true,
+        searching: true,
+        ordering: true,
+        info: false
+    },
 
     ];
 

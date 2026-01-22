@@ -131,7 +131,7 @@ switch ($action) {
                 // Generar PDF
                 $acciones = '<span ';
                 if ($_SESSION['identity']->nombre_rol == 'administrador') {
-                    $acciones .= ' onclick="generateCashClosingPDF(\'' . $row['cierre_id'] . '\')" class="action-danger btn-action"';
+                    $acciones .= ' class="action-danger btn-action generate_pdf" data-id="'.$row['cierre_id'].'" ';
                 } else {
                     $acciones .= ' class="action-danger btn-action action-disable"';
                 }
@@ -140,7 +140,7 @@ switch ($action) {
                 // Eliminar
                 $acciones .= '<span ';
                 if ($_SESSION['identity']->nombre_rol == 'administrador') {
-                    $acciones .= ' onclick="deleteCashClosing(\'' . $row['cierre_id'] . '\')" class="action-danger btn-action"';
+                    $acciones .= ' class="action-danger btn-action erase_closing" data-id="'. $row['cierre_id'].'"';
                 } else {
                     $acciones .= ' class="action-danger btn-action action-disable"';
                 }

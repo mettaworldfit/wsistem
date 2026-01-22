@@ -4,6 +4,52 @@ IF NOT EXISTS proyecto CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 USE proyecto;
 
+CREATE TABLE etiquetas (
+    etiqueta_id INT AUTO_INCREMENT PRIMARY KEY, -- ID único de la configuración
+
+    nombre_config VARCHAR(50) NOT NULL,               -- Nombre corto de la configuración
+    descripcion VARCHAR(150) NULL,                   -- Descripción más detallada del formato de etiqueta
+
+    -- Tamaño físico de la etiqueta
+    ancho_mm DECIMAL(6,2) NOT NULL DEFAULT 35.00,   -- Ancho de la etiqueta en mm
+    alto_mm DECIMAL(6,2) NOT NULL DEFAULT 25.00,    -- Alto de la etiqueta en mm
+    orientacion ENUM('P','L') NOT NULL DEFAULT 'L', -- Orientación: P=Vertical, L=Horizontal
+
+    -- Configuración del código de barras
+    tipo_barcode ENUM('C128','EAN13','EAN8','UPC') NOT NULL DEFAULT 'C128', -- Tipo de código de barras
+    mostrar_texto_barcode TINYINT(1) DEFAULT 1,      -- Mostrar el texto del código debajo de las barras (1=Sí, 0=No)
+    barcode_font_size INT DEFAULT 5,                  -- Tamaño de fuente del texto del código
+    barcode_x DECIMAL(6,2) DEFAULT 2,                -- Posición horizontal (X) del código en mm
+    barcode_y DECIMAL(6,2) DEFAULT 2,                -- Posición vertical (Y) del código en mm
+    barcode_width DECIMAL(6,2) DEFAULT 31,           -- Ancho total del código de barras
+    barcode_height DECIMAL(6,2) DEFAULT 9,           -- Alto total del código de barras
+
+    -- Configuración de la descripción
+    mostrar_descripcion TINYINT(1) DEFAULT 1,       -- Indica si se imprime la descripción (1=Sí, 0=No)
+    descripcion_font_size INT DEFAULT 5,            -- Tamaño de la fuente de la descripción
+    descripcion_x DECIMAL(6,2) DEFAULT 2,          -- Posición horizontal (X) de la descripción
+    descripcion_y DECIMAL(6,2) DEFAULT 11,         -- Posición vertical (Y) de la descripción
+    descripcion_width DECIMAL(6,2) DEFAULT 31,     -- Ancho máximo de la descripción
+    descripcion_height DECIMAL(6,2) DEFAULT 4,     -- Alto máximo de la descripción
+
+    -- Configuración del precio
+    mostrar_precio TINYINT(1) DEFAULT 1,           -- Indica si se imprime el precio (1=Sí, 0=No)
+    precio_font_size INT DEFAULT 6,                 -- Tamaño de la fuente del precio
+    precio_x DECIMAL(6,2) DEFAULT 2,               -- Posición horizontal (X) del precio
+    precio_y DECIMAL(6,2) DEFAULT 17,              -- Posición vertical (Y) del precio
+    precio_width DECIMAL(6,2) DEFAULT 31,          -- Ancho máximo del bloque del precio
+    precio_height DECIMAL(6,2) DEFAULT 4,          -- Alto máximo del bloque del precio
+
+    -- Información de la impresora
+    impresora VARCHAR(50) DEFAULT '2C-LP427B',     -- Modelo o nombre de la impresora
+    activo TINYINT(1) DEFAULT 1,                   -- Indica si esta configuración está activa
+
+    -- Fechas de creación y actualización
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- Fecha de última actualización
+)ENGINE = InnoDB;
+
+
 CREATE TABLE configuraciones (
     config_id INT AUTO_INCREMENT NOT NULL,
     config_key VARCHAR(100) NOT NULL,   -- Clave de configuración

@@ -13,6 +13,11 @@
                 <i class="fas fa-poll-h"></i>
                 <p>Historial</p>
             </button>
+
+            <a href="" class="btn-custom btn-success" id="generate_code">
+                <i class="fas fa-barcode"></i>
+                <p>Imprimir codigo</p>
+            </a>
         </div>
     </div>
 

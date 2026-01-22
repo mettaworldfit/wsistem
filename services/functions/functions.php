@@ -160,30 +160,72 @@ function formatTel(string $numero = ''): string
  */
 function handleDeletionAction(mysqli $db, int $id, string $procedureName): string
 {
-    if (empty($procedureName)) {
-        return "Nombre del procedimiento requerido.";
-    }
+    try {
 
-    $query = "CALL $procedureName($id)";
-    $result = $db->query($query);
+        if (empty($procedureName)) {
+            throw new Exception("Nombre del procedimiento requerido");
+        }
 
-    if (!$result) {
-        return "Error al ejecutar el procedimiento: " . $db->error;
-    }
+        // Convertir warnings/notices en exceptions
+        set_error_handler(function ($severity, $message, $file, $line) {
+            throw new ErrorException($message, 0, $severity, $file, $line);
+        });
 
-    $data = $result->fetch_object();
+        $query = "CALL $procedureName($id)";
 
-    // Validar que $data es un objeto y que contiene 'msg'
-    if (!$data || !isset($data->msg)) {
-        return "Error: Respuesta inesperada del procedimiento $procedureName.";
-    }
+        if (!$result = $db->query($query)) {
+            throw new Exception("MySQL: " . $db->error);
+        }
 
-    if ($data->msg === "ready") {
-        return "ready";
-    } else {
-        return "Error en $procedureName: " . $data->msg;
+        // Si el SP devuelve SELECT
+        if ($result instanceof mysqli_result) {
+            $row = $result->fetch_assoc();
+            return json_encode($row);
+        }
+
+
+        return 'OK';
+    } catch (Throwable $e) {
+
+        return "Error: " . $e->getMessage();
+    } finally {
+
+        // Restaurar handler
+        restore_error_handler();
+
+        // Limpiar resultados pendientes
+        while ($db->more_results() && $db->next_result()) {
+            $db->use_result();
+        }
     }
 }
+
+// function handleDeletionAction(mysqli $db, int $id, string $procedureName): string
+// {
+//     if (empty($procedureName)) {
+//         return "Nombre del procedimiento requerido.";
+//     }
+
+//     $query = "CALL $procedureName($id)";
+//     $result = $db->query($query);
+
+//     if (!$result) {
+//         return "Error al ejecutar el procedimiento: " . $db->error;
+//     }
+
+//     $data = $result->fetch_object();
+
+//     // Validar que $data es un objeto y que contiene 'msg'
+//     if (!$data || !isset($data->msg)) {
+//         return "Error: Respuesta inesperada del procedimiento $procedureName.";
+//     }
+
+//     if ($data->msg === "ready") {
+//         return "ready";
+//     } else {
+//         return "Error en $procedureName: " . $data->msg;
+//     }
+// }
 
 
 /**
@@ -240,7 +282,6 @@ function handleProcedureAction(mysqli $db, string $procedure, array $params): st
 
         // Si no se recibe ningún mensaje, devolver un error genérico
         return "Error: No se recibió respuesta del procedimiento.";
-
     } catch (mysqli_sql_exception $e) {
         // Capturar la excepción y devolver un mensaje detallado de error
         return "Error: " . $e->getMessage();
@@ -438,7 +479,7 @@ function updateDetailQuantity($db, $id, $quantity, $item_id, $item_type, $tabla_
         $stmt_check->bind_param('i', $item_id);
         $stmt_check->execute();
         $result = $stmt_check->get_result();
-        
+
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
             $current_stock = $row['cantidad'];
@@ -524,4 +565,65 @@ function check_permission_action($action, $permissions)
         echo json_encode(['error' => 'Permiso denegado']);
         exit;
     }
+}
+
+
+/**
+ * Envía una notificación al servidor WebSocket mediante su API interna.
+ *
+ * Esta función se utiliza para disparar eventos en el servidor WebSocket
+ * (por ejemplo: actualizar vistas del POS, refrescar detalles de venta, etc.)
+ * sin esperar una respuesta (fire & forget).
+ *
+ * Internamente utiliza una petición HTTP POST hacia el servidor WS,
+ * el cual se encarga de emitir los eventos a los clientes conectados.
+ *
+ * @param string $endpoint Ruta de la API del servidor WebSocket.
+ *                         Ejemplo: '/api/detail/update'
+ *
+ * @param array  $payload  Datos que serán enviados al servidor WS.
+ *                         Deben ser serializables a JSON.
+ *                         Ejemplo: ['venta_id' => 123]
+ *
+ * @param int    $timeout  Tiempo máximo de espera en segundos para la conexión.
+ *                         Por defecto: 1 segundo.
+ *
+ * @return bool Devuelve TRUE si la notificación se envió correctamente
+ *              (sin errores de cURL), o FALSE si ocurrió un error.
+ */
+function webSocketServer(
+    string $endpoint,
+    array $payload = [],
+    int $timeout = 1
+): bool {
+
+    // URL base del servidor WebSocket (API interna)
+    $wsApiBase = 'http://127.0.0.1:3001';
+
+    // Inicializa cURL hacia el endpoint del servidor WS
+    $ch = curl_init($wsApiBase . $endpoint);
+
+    // Configuración de la petición HTTP
+    curl_setopt_array($ch, [
+        CURLOPT_POST           => true,                         // Método POST
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',                  // Envío JSON
+            'x-api-token: Mett@1106'                            // Token de seguridad
+        ],
+        CURLOPT_RETURNTRANSFER => true,                         // No mostrar salida
+        CURLOPT_TIMEOUT        => $timeout,                     // Timeout configurable
+        CURLOPT_POSTFIELDS     => json_encode($payload),        // Payload JSON
+    ]);
+
+    // Ejecuta la petición
+    curl_exec($ch);
+
+    // Captura posible error de cURL
+    $error = curl_errno($ch);
+
+    // Cierra la conexión
+    curl_close($ch);
+
+    // Retorna TRUE si no hubo errores
+    return $error === 0;
 }

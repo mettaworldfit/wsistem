@@ -152,6 +152,7 @@ VALUES
     ('titulo', '-', 'Título del sitio web'),
     ('correo_adm','','correo del administracion del sistema'),
     ('carpeta', 'wsistem/', 'carpeta de imagenes'),
+    ('etiqueta_id', 1, 'Selecciona la etiqueta que por defecto'),
     ('tinify_API_KEY', '', 'Clave para comprimir las imagenes'),
 	('auto_cierre', 'true', 'Cierre continuo que cierra automaticamente a la 12:00 am'),
     ('modo_cierre', 'separado', 'estilo de cierre de caja normal/separado');
@@ -850,6 +851,7 @@ END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `pr_eliminarProducto`;
 DELIMITER $$
 CREATE PROCEDURE `pr_eliminarProducto` (in id int)
 BEGIN
@@ -2194,8 +2196,9 @@ DELIMITER ;
 
 # -------------- Configuración -----------------
 
+DROP PROCEDURE IF EXISTS `cf_configuracion_bonos`;
 DELIMITER $$
-CREATE PROCEDURE `cf_bono_config` (in usuario_id int, in min_factura int, in valor int, in estado_id int)
+CREATE PROCEDURE `cf_configuracion_bonos` (in usuario_id int, in min_factura int, in valor int, in estado_id int)
 BEGIN
 
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
@@ -2209,9 +2212,9 @@ END $$
 DELIMITER ; 
 
 
-DROP PROCEDURE IF EXISTS `cf_factElectronica`;
+DROP PROCEDURE IF EXISTS `cf_configuracion_correo`;
 DELIMITER $$
-CREATE PROCEDURE `cf_factElectronica` (
+CREATE PROCEDURE `cf_configuracion_correo` (
     IN p_logo VARCHAR(100),
     IN p_empresa VARCHAR(50),
     IN p_email VARCHAR(50),
@@ -2246,9 +2249,9 @@ END $$
 DELIMITER ;
 
 
-DROP PROCEDURE IF EXISTS `cf_factPDF`;
+DROP PROCEDURE IF EXISTS `cf_configuracionPDF`;
 DELIMITER $$
-CREATE PROCEDURE `cf_factPDF` (
+CREATE PROCEDURE `cf_configuracionPDF` (
     IN p_logo VARCHAR(50),
     IN p_slogan VARCHAR(100),
     IN p_direccion VARCHAR(100),
@@ -2272,6 +2275,125 @@ BEGIN
     SELECT 'ready' AS msg;
 END $$
 DELIMITER ; 
+
+
+DROP PROCEDURE IF EXISTS cf_insertar_etiquetas;
+DELIMITER $$
+CREATE PROCEDURE cf_insertar_etiquetas(
+    -- =========================
+    -- Datos generales
+    -- =========================
+    IN p_nombre_config VARCHAR(50),
+    IN p_descripcion VARCHAR(150),
+
+    -- =========================
+    -- Tamaño físico
+    -- =========================
+    IN p_ancho_mm DECIMAL(6,2),
+    IN p_alto_mm DECIMAL(6,2),
+    IN p_orientacion ENUM('P','L'),
+
+    -- =========================
+    -- Código de barras
+    -- =========================
+    IN p_tipo_barcode ENUM('C128','EAN13','EAN8','UPC'),
+    IN p_mostrar_texto_barcode TINYINT,
+    IN p_barcode_font_size INT,
+    IN p_barcode_x DECIMAL(6,2),
+    IN p_barcode_y DECIMAL(6,2),
+    IN p_barcode_width DECIMAL(6,2),
+    IN p_barcode_height DECIMAL(6,2),
+
+    -- =========================
+    -- Descripción
+    -- =========================
+    IN p_mostrar_descripcion TINYINT,
+    IN p_descripcion_font_size INT,
+    IN p_descripcion_x DECIMAL(6,2),
+    IN p_descripcion_y DECIMAL(6,2),
+    IN p_descripcion_width DECIMAL(6,2),
+    IN p_descripcion_height DECIMAL(6,2),
+
+    -- =========================
+    -- Precio
+    -- =========================
+    IN p_mostrar_precio TINYINT,
+    IN p_precio_font_size INT,
+    IN p_precio_x DECIMAL(6,2),
+    IN p_precio_y DECIMAL(6,2),
+    IN p_precio_width DECIMAL(6,2),
+    IN p_precio_height DECIMAL(6,2),
+
+    -- =========================
+    -- Impresora
+    -- =========================
+    IN p_impresora VARCHAR(50),
+    IN p_activo TINYINT
+)
+BEGIN
+ 
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
+	DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+    
+    INSERT INTO etiquetas (
+        nombre_config,
+        descripcion,
+        ancho_mm,
+        alto_mm,
+        orientacion,
+        tipo_barcode,
+        mostrar_texto_barcode,
+        barcode_font_size,
+        barcode_x,
+        barcode_y,
+        barcode_width,
+        barcode_height,
+        mostrar_descripcion,
+        descripcion_font_size,
+        descripcion_x,
+        descripcion_y,
+        descripcion_width,
+        descripcion_height,
+        mostrar_precio,
+        precio_font_size,
+        precio_x,
+        precio_y,
+        precio_width,
+        precio_height,
+        impresora,
+        activo
+    ) VALUES (
+        p_nombre_config,
+        p_descripcion,
+        IFNULL(p_ancho_mm, ancho_mm),
+        IFNULL(p_alto_mm, alto_mm),
+        IFNULL(p_orientacion, orientacion),
+        IFNULL(p_tipo_barcode, tipo_barcode),
+        IFNULL(p_mostrar_texto_barcode, mostrar_texto_barcode),
+        IFNULL(p_barcode_font_size, barcode_font_size),
+        IFNULL(p_barcode_x, barcode_x),
+        IFNULL(p_barcode_y, barcode_y),
+        IFNULL(p_barcode_width, barcode_width),
+        IFNULL(p_barcode_height, barcode_height),
+        IFNULL(p_mostrar_descripcion, mostrar_descripcion),
+        IFNULL(p_descripcion_font_size, descripcion_font_size),
+        IFNULL(p_descripcion_x, descripcion_x),
+        IFNULL(p_descripcion_y, descripcion_y),
+        IFNULL(p_descripcion_width, descripcion_width),
+        IFNULL(p_descripcion_height, descripcion_height),
+        IFNULL(p_mostrar_precio, mostrar_precio),
+        IFNULL(p_precio_font_size, precio_font_size),
+        IFNULL(p_precio_x, precio_x),
+        IFNULL(p_precio_y, precio_y),
+        IFNULL(p_precio_width, precio_width),
+        IFNULL(p_precio_height, precio_height),
+        IFNULL(p_impresora, impresora),
+        IFNULL(p_activo, activo)
+    );
+
+    SELECT LAST_INSERT_ID() AS msg;
+END$$
+DELIMITER ;
 
 # -------------- Cierre de caja -----------------
 

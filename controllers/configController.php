@@ -4,11 +4,13 @@ class ConfigController
 {
     // Definir los permisos por acción en un array
     private $permissions = [
-        'index' => ['administrador'],           // Solo 'administrador' tiene acceso
-        'bond_config' => ['administrador'],     // Solo 'administrador' tiene acceso
-        'electronic_invoice' => ['administrador'], // Solo 'administrador' tiene acceso
-        'config_pdf' => ['administrador'],      // Solo 'administrador' tiene acceso
-        'bonds' => ['administrador'],           // Solo 'administrador' tiene acceso
+        'index' => ['administrador'],           
+        'config_bonus' => ['administrador'],     
+        'bonus' => ['administrador'],           
+        'config_mail' => ['administrador'], 
+        'config_pdf' => ['administrador'],      
+        'add_label' => ['administrador'],     
+        'labels' => ['administrador'],          
     ];
 
     // Verificación de permisos
@@ -43,17 +45,24 @@ class ConfigController
     }
 
     // Acción para la configuración de bonos
-    public function bond_config()
+    public function config_bonus()
     {
-        $this->check_permission('bond_config');
-        require_once './views/config/bond_config.php';
+        $this->check_permission('config_bonus');
+        require_once './views/config/config_bonus.php';
+    }
+
+    // Acción para la configuración de bonos
+    public function bonus()
+    {
+        $this->check_permission('bonus');
+        require_once './views/config/bonus.php';
     }
 
     // Acción para la configuración de facturación electrónica
-    public function electronic_invoice()
+    public function config_mail()
     {
-        $this->check_permission('electronic_invoice');
-        require_once './views/config/electronic_inv.php';
+        $this->check_permission('config_mail');
+        require_once './views/config/config_mail.php';
     }
 
     // Acción para la configuración de PDF
@@ -63,10 +72,19 @@ class ConfigController
         require_once './views/config/config_pdf.php';
     }
 
-    // Acción para la configuración de bonos
-    public function bonds()
+
+     // Acción para crear una etiqueta
+    public function add_label()
     {
-        $this->check_permission('bonds');
-        require_once './views/config/bonds.php';
+        $this->check_permission('add_label');
+        require_once './views/config/add_label.php';
     }
+
+    // Acción para la mostrar todas la configuraciones de etiquetas
+    public function labels()
+    {
+        $this->check_permission('labels');
+        require_once './views/config/labels.php';
+    }
+    
 }

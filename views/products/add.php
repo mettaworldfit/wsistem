@@ -9,6 +9,11 @@
                 <i class="far fa-edit"></i>
                 <p>Editar producto</p>
             </a>
+
+            <a href="" class="btn-custom btn-success" id="generate_code">
+                <i class="fas fa-barcode"></i>
+                <p>Imprimir codigo</p>
+            </a>
         </div>
     </div>
 

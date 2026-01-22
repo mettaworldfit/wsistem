@@ -46,18 +46,17 @@ function editProduct() {
             action: "editar_producto", // Acción que se ejecutará en el backend
         },
         successCallback: (res) => {
-
-            if (res.includes("ready")) {
             // Si la respuesta es exitosa, actualizar parte del HTML y mostrar mensaje
             $('.radio-head').load(window.location.href + ' .radio-head > *');
-            
-            notifyAlert("Actualización exitosa")
 
-             } else if (res.includes("Duplicate")) {
-                 notifyAlert("El código del producto ya está siendo utilizado","error");
+            notifyAlert("Actualización exitosa")
+        },
+        errorCallback: (err) => {
+            if (err.includes("Duplicate")) {
+                notifyAlert("El código del producto ya está siendo utilizado", "error");
             } else {
-                console.error(res);
-                notifyAlert("Ha ocurrido un error", "error")
+                console.error(err)
+                notifyAlert('Ha ocurrido un error', "error")
             }
         }
     });
@@ -813,7 +812,7 @@ $(document).ready(function () {
                 $('#select2-product-container').append(data[0].nombre_producto)
 
                 validateProductQuantity(); // Calcular precios   
-            },verbose: true
+            }, verbose: true
         })
     }
 
@@ -1046,22 +1045,24 @@ $(document).ready(function () {
                 action: "agregar_producto"
             },
             successCallback: (res) => {
-                console.log(res)
-                if (res > 0) {
-                    if (localStorage.getItem("lista_de_precios")) assignProductPrice(res);
-                    if (localStorage.getItem("variantes")) assignProductVariant(res);
 
-                    uploadImage(res) // Subir imagen
-                    
-                    $('#last_product_edit').show().attr('href', `${SITE_URL}/products/edit&id=${res}`);
-                    resetProductForm();
-                    mysql_row_affected();
+                if (localStorage.getItem("lista_de_precios")) assignProductPrice(res);
+                if (localStorage.getItem("variantes")) assignProductVariant(res);
 
-                } else if (res.includes("Duplicate")) {
-                    notifyAlert("El código del producto ya está siendo utilizado","error");
-                } else if (res.includes("Error")) {
-                    console.error(res)
-                    notifyAlert('Ha ocurrido un error',"error")
+                uploadImage(res) // Subir imagen
+
+                $('#last_product_edit').css('display', 'flex').attr('href', `${SITE_URL}/products/edit&id=${res}`);
+                resetProductForm();
+                mysql_row_affected();
+
+            },
+            errorCallback: (err) => {
+
+                if (err.includes("Duplicate")) {
+                    notifyAlert("El código del producto ya está siendo utilizado", "error");
+                } else {
+                    console.error(err)
+                    notifyAlert('Ha ocurrido un error', "error")
                 }
             }
         })
@@ -1174,14 +1175,11 @@ $(document).ready(function () {
                         action: "eliminarProducto",
                         product_id: productId
                     },
-                    successCallback: () => {
+                    successCallback: (res) => {
                         dataTablesInstances['products'].ajax.reload(null, false); // Actualizar datatable
                     },
-                    errorCallback: (res) => {
-                        alertify.alert(
-                            "<div class='error-info'><i class='text-danger fas fa-exclamation-circle'></i> " + res + "</div>"
-                        )
-                            .set('basic', true);
+                    errorCallback: (err) => {
+                        notifyAlert("Ha ocurrido un error inesperado", "error")
                     }
                 });
             },
@@ -1276,6 +1274,34 @@ $(document).ready(function () {
         };
         reader.readAsDataURL(this.files[0]);
     });
+
+    /**============================================================= 
+    * GENERAR CODIGO DE BARRA
+    ===============================================================*/
+
+    $('#generate_code').on('click', function (e) {
+        e.preventDefault();
+
+        const product_name = encodeURIComponent($('#product_name').val());
+        const product_code = encodeURIComponent($('#product_code').val());
+        const product_price = encodeURIComponent($('#price_out').val());
+
+        var width = 800;
+        var height = 600;
+
+        // Centrar la ventana
+        var x = parseInt((window.screen.width / 2) - (width / 2));
+        var y = parseInt((window.screen.height / 2) - (height / 2));
+
+        const url = SITE_URL + "src/tcpdf/label.php" +
+            "?etiqueta_id=1" +
+            "&name=" + product_name +
+            "&code=" + product_code +
+            "&price=" + product_price;
+
+        window.open(url, 'EtiquetaPDF', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
+    });
+
 
 
 

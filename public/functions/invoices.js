@@ -99,9 +99,9 @@ function deleteOrder(id) {
  * 
  * @param {number|string} data - Monto a devolver.
  */
- function cashBack(data,timeout = 10000) {
-        const alert = alertify.alert(
-            `
+function cashBack(data, timeout = 10000) {
+    const alert = alertify.alert(
+        `
     <div class="cashback-modal">
       <div class="cashback-header">
         <i class="fa fa-hand-holding-usd cashback-icon"></i>
@@ -113,16 +113,16 @@ function deleteOrder(id) {
       </div>
     </div>
     `
-        ).set({
-            basic: true,
-            movable: false,
-            closable: false,
-            transition: 'fade'
-        });
+    ).set({
+        basic: true,
+        movable: false,
+        closable: true,
+        transition: 'fade'
+    });
 
-        // ⏱ Cerrar automáticamente
-        setTimeout(() => { alert.close(); }, timeout);
-    }
+    // ⏱ Cerrar automáticamente
+    setTimeout(() => { alert.close(); }, timeout);
+}
 
 // Total de la factura
 function calculateTotalInvoice(bonus = 0) {
@@ -218,8 +218,6 @@ function calculateTotalInvoice(bonus = 0) {
             },
             verbose: false
         })
-
-
     }
 
     // Establecer valores en el modal de factura al contado (edit)
@@ -346,7 +344,7 @@ $(document).ready(function () {
 
                     },
                     errorCallback: (res) => {
-                        console.log(res);
+                        console.error(res);
                         notifyAlert(res, 'error');
                     },
                     verbose: false
@@ -358,7 +356,7 @@ $(document).ready(function () {
         }, 300);  // 300 ms de espera entre cambios rápidos
     });
 
-   
+
 
     const validPages = [
         "invoices/addpurchase",
@@ -479,21 +477,28 @@ $(document).ready(function () {
                     }
 
                     // Calcular devolución
-                    var topay = $('#cash-topay').val().replace(/,/g, "");
+                    var topay = $('#cash-topay').val().replace(/,/g, ""); // Eliminar comas en caso de que haya
                     var received = $('#calc_return').val();
                     let calc_return;
 
-                    if (received != '') {
-                        calc_return = received - topay;
-                        cashback(format.format(calc_return));
+                    // Verificar si la cantidad recibida no está vacía y es un número válido
+                    if (received !== '' && !isNaN(received) && !isNaN(topay)) {
+                        calc_return = parseFloat(received) - parseFloat(topay); // Realizamos el cálculo de la devolución
+
+                        // Verificar si el valor calculado de devolución es positivo
+                        if (calc_return >= 0) {
+                            cashBack(calc_return); // Llamamos a la función para la devolución
+                        } 
                     } else {
+                        // Si no se recibe un valor válido, llamamos a la función de efecto de fila en la base de datos
                         mysql_row_affected();
                     }
 
                     reloadInvoiceDetail(); // Actualizar datos
-
                 },
-                errorCallback: (res) => mysql_error(res)
+                errorCallback: (err) => {
+                    console.error(err)
+                }
             })
         }
     }
@@ -1304,7 +1309,10 @@ function addDetailItem() {
                     assignVariants(res, variant_id); // Asignar variantes al detalle temporal
                 }
             },
-            errorCallback: (res) => mysql_error(res)
+            errorCallback: (err) => {
+                console.error(err);
+                notifyAlert("Ha ocurrido un error inesperado", "error")
+            }
         });
     }
 }

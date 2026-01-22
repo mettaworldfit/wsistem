@@ -10,8 +10,7 @@
 
 <div class="generalContainer-medium">
 
-    <form action="" onsubmit="event.preventDefault(); ConfigPDF();">
-
+    <form action="" method="POST" id="configPdf">
         <?php $config = Help::ConfigPDF(); ?>
 
             <div class="container row">
