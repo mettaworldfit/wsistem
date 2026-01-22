@@ -1128,25 +1128,65 @@ class Help
 
    public static function getVariantId($id)
    {
-      $query = "SELECT p.nombre_producto,c.color,v.sabor,v.serial,v.variante_id as var_id FROM detalle_facturas_ventas d
-      LEFT JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
-      LEFT JOIN productos p ON p.producto_id = dp.producto_id
-      LEFT JOIN variantes_facturadas vf ON vf.detalle_venta_id = d.detalle_venta_id
-      LEFT JOIN variantes v ON vf.variante_id = v.variante_id
-      LEFT JOIN variantes_con_colores vc ON vc.variante_id = v.variante_id
-      LEFT JOIN colores c ON c.color_id = vc.color_id
-                     WHERE d.detalle_venta_id = '$id'";
-
       $db = Database::connect();
-      $datos = $db->query($query);
+
+      $sql = "
+    SELECT 
+        p.nombre_producto,
+        c.color,
+        v.sabor,
+        v.serial,
+        v.variante_id AS var_id
+    FROM detalle_facturas_ventas d
+    LEFT JOIN detalle_ventas_con_productos dp 
+        ON dp.detalle_venta_id = d.detalle_venta_id
+    LEFT JOIN productos p 
+        ON p.producto_id = dp.producto_id
+    LEFT JOIN variantes_facturadas vf 
+        ON vf.detalle_venta_id = d.detalle_venta_id
+    LEFT JOIN variantes v 
+        ON vf.variante_id = v.variante_id
+    LEFT JOIN variantes_con_colores vc 
+        ON vc.variante_id = v.variante_id
+    LEFT JOIN colores c 
+        ON c.color_id = vc.color_id
+    WHERE d.detalle_venta_id = ?
+";
+
+      $stmt = $db->prepare($sql);
+
+      if (!$stmt) {
+         return '<p class="error">Error al preparar la consulta</p>';
+      }
+
+      $stmt->bind_param('i', $id);
+      $stmt->execute();
+
+      $result = $stmt->get_result();
+
       $html = '';
 
-      // Cuerpo 
-      while ($element = $datos->fetch_object()) {
-
-         $html .= '<p class="list_db">' . ucwords($element->nombre_producto ?? '') . ' ' . ucwords($element->color ?? "") .
-            ' <br> ' . $element->sabor . ' ' . ucwords($element->serial ?? '') . '</p>';
+      if ($result->num_rows === 0) {
+         return '<p class="list_db">Sin productos asociados</p>';
       }
+
+      // Cuerpo
+      while ($element = $result->fetch_object()) {
+
+         $producto = htmlspecialchars(ucwords($element->nombre_producto ?? ''), ENT_QUOTES, 'UTF-8');
+         $color    = htmlspecialchars(ucwords($element->color ?? ''), ENT_QUOTES, 'UTF-8');
+         $sabor    = htmlspecialchars($element->sabor ?? '', ENT_QUOTES, 'UTF-8');
+         $serial   = htmlspecialchars(ucwords($element->serial ?? ''), ENT_QUOTES, 'UTF-8');
+
+         $html .= "
+        <p class='list_db'>
+            {$producto} {$color}<br>
+            {$sabor} {$serial}
+        </p>
+    ";
+      }
+
+      $stmt->close();
 
       return $html;
    }
@@ -2121,7 +2161,7 @@ class Expenses_Utils
 
    /**
     * TODO: Mostrar detalle de compra de factura proveedor
-   */
+    */
 
    public static function DETAIL_INV_PROVI($id)
    {

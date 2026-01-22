@@ -260,7 +260,6 @@ function reloadInvoiceDetail() {
         dataTablesInstances[tableKey].ajax.reload();
     }
 
-
     // Ocultar elementos relacionados con pagos
     $('#cash-in-finish, #cash-in-finish-receipt, #credit-in-finish, #credit-in-finish-receipt').hide();
 }
@@ -713,7 +712,6 @@ $(document).ready(function () {
             },
             success: function (res) {
                 if (res > 0) {
-
 
                     REGISTER_DETAIL_ON_CREDIT(res, data, receipt); // Cargar de nuevo el detalle
                     $('#buttons').hide() // Ocultar botones luego de facturar la orden
