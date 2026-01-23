@@ -62,7 +62,7 @@ $pdf->write1DBarcode(
     (float)$_GET['barcode_y'],
     (float)$_GET['barcode_width'],
     (float)$_GET['barcode_height'],
-    0.4,
+    1.2,
     $barcodeStyle,
     'N'
 );

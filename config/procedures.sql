@@ -851,18 +851,41 @@ END $$
 DELIMITER ;
 
 
-DROP PROCEDURE IF EXISTS `pr_eliminarProducto`;
+
+DROP PROCEDURE IF EXISTS pr_eliminarProducto;
 DELIMITER $$
-CREATE PROCEDURE `pr_eliminarProducto` (in id int)
+
+CREATE PROCEDURE pr_eliminarProducto(IN p_id INT)
 BEGIN
+    DECLARE v_existe INT DEFAULT 0;
+    DECLARE v_sqlstate CHAR(5);
 
- DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
- DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+    -- Handler REAL
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        GET DIAGNOSTICS CONDITION 1 v_sqlstate = RETURNED_SQLSTATE;
 
- delete from productos where producto_id = id;
- select 'ready' AS msg;
- 
-END $$
+        IF v_sqlstate = '23000' THEN
+            SELECT FALSE AS success, 'Producto relacionado con otros registros' AS msg;
+        ELSE
+            SELECT FALSE AS success, CONCAT('Error SQL: ', v_sqlstate) AS msg;
+        END IF;
+    END;
+
+    -- Verificar existencia
+    SELECT COUNT(*) INTO v_existe
+    FROM productos
+    WHERE producto_id = p_id;
+
+    IF v_existe = 0 THEN
+        SELECT FALSE AS success, 'El producto no existe' AS msg;
+    ELSE
+        DELETE FROM productos WHERE producto_id = p_id;
+
+        SELECT TRUE AS success, 'Producto eliminado correctamente' AS msg;
+    END IF;
+
+END$$
 DELIMITER ;
 
 # -------------- Lista de precios -----------------

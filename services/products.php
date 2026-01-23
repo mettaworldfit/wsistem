@@ -402,6 +402,9 @@ switch ($action) {
   // Caso: Agregar o editar un producto
   case 'agregar_producto':
   case 'editar_producto':
+
+    $db->query("SET @usuario_id = " . (int)$user_id);
+
     $params = [
       $action === 'editar_producto' ? $_POST['product_id'] : $_SESSION['identity']->usuario_id,
       $_POST['warehouse'],
@@ -425,7 +428,8 @@ switch ($action) {
     break;
 
   // Caso: Eliminar producto
-  case 'eliminarProducto':
+  case 'eliminar_producto':
+     $db->query("SET @usuario_id = " . (int)$user_id);
     echo handleProcedureAction($db, 'pr_eliminarProducto', [$_POST['product_id']]);
     break;
 

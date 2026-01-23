@@ -561,6 +561,8 @@ if ($_POST['action'] === "agregar_detalle_venta") {
 
   $db = Database::connect();
 
+   $db->query("SET @usuario_id = " . (int)$_SESSION['identity']->usuario_id);
+   
   echo handleProcedureAction($db, 'vt_agregarDetalleVenta', [
     $invoice,
     $order,
@@ -652,6 +654,7 @@ if ($_POST['action'] == 'eliminar_detalle_venta') {
 
   $db = Database::connect();
 
+  $db->query("SET @usuario_id = " . (int)$_SESSION['identity']->usuario_id);
   $result = handleDeletionAction($db, (int)$_POST['id'], 'vt_eliminarDetalleVenta');
 
   // WEBSOCKET

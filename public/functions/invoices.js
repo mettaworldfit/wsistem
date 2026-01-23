@@ -377,6 +377,142 @@ $(document).ready(function () {
     * FACTURACION E IMPRESION
     ===============================================================*/
 
+    // Quitar formato numérico (comas)
+    const unformat = val => val?.replace(/,/g, '') || 0;
+
+    // Ocultar botones de facturación
+    const hideFinishButtons = () => {
+        $('#credit-in-finish, #credit-in-finish-receipt, #cash-in-finish, #cash-in-finish-receipt').hide();
+    };
+
+    // Mostrar botones de facturación
+    const showFinishButtons = () => {
+        $('#credit-in-finish, #credit-in-finish-receipt, #cash-in-finish, #cash-in-finish-receipt').show();
+    };
+
+    // Obtener datos para imprimir recibo
+    const getReceiptData = () => ({
+        customer: $('#select2-credit-in-customer-container').attr('title'),
+        seller: $('#credit-in-seller').val(),
+        payment_method: $('#select2-credit-in-method-container').attr('title'),
+        description: $('#observation').val(),
+        total_invoice: unformat($('#credit-topay').val()),
+        subtotal: unformat($('#in-subtotal').val()),
+        discount: unformat($('#in-discount').val()),
+        taxes: unformat($('#in-taxes').val()),
+        total: unformat($('#in-total').val()),
+        pay: $('#credit-pay').val(),
+        date: $('#credit-in-date').val()
+    });
+
+    // Wrapper AJAX → Promise
+    function ajaxPromise(options) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                ...options,
+                success: resolve,
+                error: reject
+            });
+        });
+    }
+
+    /* ===============================
+       EVENTOS
+    ================================ */
+
+    $('#credit-in-finish').on('click', () => {
+        CREDIT_INV_FINISH();
+    });
+
+    $('#credit-in-finish-receipt').on('click', () => {
+        CREDIT_INV_FINISH(true, getReceiptData());
+    });
+
+    // FACTURA A CREDITO    
+    async function CREDIT_INV_FINISH(receipt = false, receiptData = {}) {
+
+        try {
+            hideFinishButtons();
+
+            const pending = unformat($('#credit-pending').val());
+
+          
+            //   1️⃣ CREAR FACTURA A CRÉDITO
+            const invoiceId = await ajaxPromise({
+                type: "POST",
+                url: SITE_URL + "services/invoices.php",
+                data: {
+                    action: "factura_credito",
+                    customer_id: $('#credit-in-customer').val(),
+                    payment_method: $('#credit-in-method').val(),
+                    description: $('#observation').val(),
+                    total_invoice: unformat($('#credit-topay').val()),
+                    pay: $('#credit-pay').val(),
+                    date: $('#credit-in-date').val()
+                }
+            });
+
+            if (!invoiceId || invoiceId <= 0) {
+                throw invoiceId;
+            }
+
+            
+             // 2️⃣ REGISTRAR DETALLE
+            const action = pageURL.includes('invoices/add_order')
+                ? 'registrar_detalle_orden_venta'
+                : 'registrar_detalle_de_venta';
+
+            const detailRes = await ajaxPromise({
+                type: "POST",
+                url: SITE_URL + "services/invoices.php",
+                data: {
+                    action,
+                    invoice_id: invoiceId,
+                    order_id: $('#order_id').val(),
+                    date: $('#credit-in-date').val()
+                }
+            });
+
+            if (!detailRes) {
+                throw detailRes;
+            }
+
+            
+            // 3️⃣ UI + IMPRESIÓN
+            mysql_row_affected();
+            reloadInvoiceDetail();
+            resetCreditFields(pending, invoiceId);
+
+            if (receipt === true) {
+                printer(invoiceId, detailRes, receiptData, "credit");
+            }
+
+        } catch (err) {
+            console.error(err);
+            mysql_error(err || 'Error inesperado');
+            showFinishButtons();
+        }
+    }
+
+   
+    // LIMPIEZA DE UI
+    function resetCreditFields(pending, invoiceId) {
+
+        $('#in-subtotal').val('0');
+        $('#in-taxes').val('0');
+        $('#in-discount').val('0');
+        $('#in-total').val('0');
+
+        $('#credit-pending').val(format.format(pending));
+
+        $('#buttons').hide();
+
+        $('#last_invoice_edit')
+            .show()
+            .attr('href', SITE_URL + '/invoices/edit&id=' + invoiceId);
+    }
+
+
     // Botón: Crear factura al contado sin ticket
     $('#cash-in-finish').on('click', function (e) {
         e.preventDefault();
@@ -487,7 +623,7 @@ $(document).ready(function () {
                         // Verificar si el valor calculado de devolución es positivo
                         if (calc_return >= 0) {
                             cashBack(calc_return); // Llamamos a la función para la devolución
-                        } 
+                        }
                     } else {
                         // Si no se recibe un valor válido, llamamos a la función de efecto de fila en la base de datos
                         mysql_row_affected();
@@ -659,120 +795,117 @@ $(document).ready(function () {
     })
 
     // Crear factura a crédito
+    // $('#credit-in-finish').on('click', (e) => {
 
-    $('#credit-in-finish').on('click', (e) => {
+    //     CREDIT_INV_FINISH()
 
-        CREDIT_INV_FINISH()
+    // });
 
-    });
+    // $('#credit-in-finish-receipt').on('click', (e) => {
 
-    $('#credit-in-finish-receipt').on('click', (e) => {
+    //     data = {
+    //         customer: $('#select2-credit-in-customer-container').attr('title'),
+    //         seller: $('#credit-in-seller').val(),
+    //         payment_method: $('#select2-credit-in-method-container').attr('title'),
+    //         description: $('#observation').val(),
+    //         total_invoice: $('#credit-topay').val().replace(/,/g, ""),
+    //         subtotal: $('#in-subtotal').val().replace(/,/g, ""),
+    //         discount: $('#in-discount').val().replace(/,/g, ""),
+    //         taxes: $('#in-taxes').val().replace(/,/g, ""),
+    //         total: $('#in-total').val().replace(/,/g, ""),
+    //         pay: $('#credit-pay').val(),
+    //         date: $('#credit-in-date').val()
+    //     }
 
-        data = {
-            customer: $('#select2-credit-in-customer-container').attr('title'),
-            seller: $('#credit-in-seller').val(),
-            payment_method: $('#select2-credit-in-method-container').attr('title'),
-            description: $('#observation').val(),
-            total_invoice: $('#credit-topay').val().replace(/,/g, ""),
-            subtotal: $('#in-subtotal').val().replace(/,/g, ""),
-            discount: $('#in-discount').val().replace(/,/g, ""),
-            taxes: $('#in-taxes').val().replace(/,/g, ""),
-            total: $('#in-total').val().replace(/,/g, ""),
-            pay: $('#credit-pay').val(),
-            date: $('#credit-in-date').val()
-        }
+    //     CREDIT_INV_FINISH(true, data)
 
-        CREDIT_INV_FINISH(true, data)
-
-    });
-
-
-    function CREDIT_INV_FINISH(receipt = false, data = {}) {
-
-        // Ocultar los botones de facturar en ambos modal para evitar insertar datos vacios
-
-        $('#credit-in-finish').hide()
-        $('#credit-in-finish-receipt').hide()
-        $('#cash-in-finish').hide()
-        $('#cash-in-finish-receipt').hide()
-
-        var pending = $('#credit-pending').val().replace(/,/g, "");
-
-        $.ajax({
-            type: "post",
-            url: SITE_URL + "services/invoices.php",
-            data: {
-                action: "factura_credito",
-                customer_id: $('#credit-in-customer').val(),
-                payment_method: $('#credit-in-method').val(),
-                description: $('#observation').val(),
-                total_invoice: $('#credit-topay').val().replace(/,/g, ""),
-                pay: $('#credit-pay').val(),
-                date: $('#credit-in-date').val()
-            },
-            success: function (res) {
-                if (res > 0) {
-
-                    REGISTER_DETAIL_ON_CREDIT(res, data, receipt); // Cargar de nuevo el detalle
-                    $('#buttons').hide() // Ocultar botones luego de facturar la orden
-
-                    // Vaciar campos
-                    $('#in-subtotal').val('0')
-                    $('#in-taxes').val('0')
-                    $('#in-discount').val('0')
-                    $('#in-total').val('0')
-                    $('#credit-pending').val(format.format(pending)) // Imprimir valor pendiente en el modal
-
-                    $('#last_invoice_edit').show()
-                    $('#last_invoice_edit').attr('href', SITE_URL + '/invoices/edit&id=' + res) // botón para editar la  última factura agregada
+    // });
 
 
-                } else {
-                    mysql_error(res)
-                    // Ocultar los botones de facturar en ambos modal para evitar insertar datos vacios
-                    $('#credit-in-finish').hide()
-                    $('#credit-in-finish-receipt').hide()
-                    $('#cash-in-finish').hide()
-                    $('#cash-in-finish-receipt').hide()
-                }
-            }
-        });
+    // function CREDIT_INV_FINISH(receipt = false, data = {}) {
+
+    //     // Ocultar los botones de facturar en ambos modal para evitar insertar datos vacios
+
+    //     $('#credit-in-finish').hide()
+    //     $('#credit-in-finish-receipt').hide()
+    //     $('#cash-in-finish').hide()
+    //     $('#cash-in-finish-receipt').hide()
+    //     var pending = $('#credit-pending').val().replace(/,/g, "");
+
+    //     $.ajax({
+    //         type: "post",
+    //         url: SITE_URL + "services/invoices.php",
+    //         data: {
+    //             action: "factura_credito",
+    //             customer_id: $('#credit-in-customer').val(),
+    //             payment_method: $('#credit-in-method').val(),
+    //             description: $('#observation').val(),
+    //             total_invoice: $('#credit-topay').val().replace(/,/g, ""),
+    //             pay: $('#credit-pay').val(),
+    //             date: $('#credit-in-date').val()
+    //         },
+    //         success: function (res) {
+    //             if (res > 0) {
+
+    //                 REGISTER_DETAIL_ON_CREDIT(res, data, receipt); // Cargar de nuevo el detalle
+    //                 $('#buttons').hide() // Ocultar botones luego de facturar la orden
+
+    //                 // Vaciar campos
+    //                 $('#in-subtotal').val('0')
+    //                 $('#in-taxes').val('0')
+    //                 $('#in-discount').val('0')
+    //                 $('#in-total').val('0')
+    //                 $('#credit-pending').val(format.format(pending)) // Imprimir valor pendiente en el modal
+
+    //                 $('#last_invoice_edit').show()
+    //                 $('#last_invoice_edit').attr('href', SITE_URL + '/invoices/edit&id=' + res) // botón para editar la  última factura agregada
 
 
-        function REGISTER_DETAIL_ON_CREDIT(invoice_id, data, receipt) {
+    //             } else {
+    //                 mysql_error(res)
+    //                 // Ocultar los botones de facturar en ambos modal para evitar insertar datos vacios
+    //                 $('#credit-in-finish').hide()
+    //                 $('#credit-in-finish-receipt').hide()
+    //                 $('#cash-in-finish').hide()
+    //                 $('#cash-in-finish-receipt').hide()
+    //             }
+    //         }
+    //     });
 
-            const action = pageURL.includes('invoices/add_order') ? 'registrar_detalle_orden_venta' :
-                'registrar_detalle_de_venta';
+    //     function REGISTER_DETAIL_ON_CREDIT(invoice_id, data, receipt) {
 
-            $.ajax({
-                type: "post",
-                url: SITE_URL + "services/invoices.php",
-                data: {
-                    action: action,
-                    invoice_id: invoice_id,
-                    order_id: $('#order_id').val(),
-                    date: $('#credit-in-date').val()
-                },
-                success: function (res) {
+    //         const action = pageURL.includes('invoices/add_order') ? 'registrar_detalle_orden_venta' :
+    //             'registrar_detalle_de_venta';
 
-                    if (res != "") {
+    //         $.ajax({
+    //             type: "post",
+    //             url: SITE_URL + "services/invoices.php",
+    //             data: {
+    //                 action: action,
+    //                 invoice_id: invoice_id,
+    //                 order_id: $('#order_id').val(),
+    //                 date: $('#credit-in-date').val()
+    //             },
+    //             success: function (res) {
 
-                        mysql_row_affected()
-                        reloadInvoiceDetail()
+    //                 if (res != "") {
 
-                        // Imprimir ticket 
-                        if (receipt == true) {
-                            printer(invoice_id, res, data, "credit");
-                        }
+    //                     mysql_row_affected()
+    //                     reloadInvoiceDetail()
 
-                    } else {
-                        mysql_error(res)
-                    }
-                }
-            });
+    //                     // Imprimir ticket 
+    //                     if (receipt == true) {
+    //                         printer(invoice_id, res, data, "credit");
+    //                     }
 
-        }
-    }
+    //                 } else {
+    //                     mysql_error(res)
+    //                 }
+    //             }
+    //         });
+
+    //     }
+    // }
 
     /**
      * Imprime una factura según el tipo especificado.

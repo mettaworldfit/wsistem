@@ -1172,7 +1172,7 @@ $(document).ready(function () {
                 sendAjaxRequest({
                     url: "services/products.php",
                     data: {
-                        action: "eliminarProducto",
+                        action: "eliminar_producto",
                         product_id: productId
                     },
                     successCallback: (res) => {
@@ -1180,7 +1180,7 @@ $(document).ready(function () {
                     },
                     errorCallback: (err) => {
                         notifyAlert("Ha ocurrido un error inesperado", "error")
-                    }
+                    },verbose: true
                 });
             },
             function () { }

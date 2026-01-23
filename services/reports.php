@@ -182,6 +182,7 @@ switch ($action) {
         break;
     // Eliminar cierre de caja
     case 'eliminar_cierre':
+        $db->query("SET @usuario_id = " . (int)$user_id);
         echo handleDeletionAction($db, (int)$_POST['id'], 'c_eliminarCierre');
         break;
     // Ventas del dia

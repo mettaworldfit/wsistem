@@ -102,7 +102,7 @@ $pdf->write1DBarcode(
     $element['barcode_y'],
     $element['barcode_width'],
     $element['barcode_height'],
-    0.4,
+    1.2,
     $barcodeStyle,
     'N'
 );
