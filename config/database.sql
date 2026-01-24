@@ -50,6 +50,22 @@ CREATE TABLE etiquetas (
 )ENGINE = InnoDB;
 
 
+CREATE TABLE audit_log (
+    auditoria_id INT AUTO_INCREMENT PRIMARY KEY,
+    tabla_afectada VARCHAR(50) NOT NULL,
+    accion ENUM(
+        'INSERT',
+        'UPDATE',
+        'DELETE'
+    ) NOT NULL,
+    registro_id INT NOT NULL, -- ID del registro afectado
+    datos_anteriores JSON NULL, -- OLD.*
+    datos_nuevos JSON NULL,      -- NEW.*
+    usuario_id INT NULL,         -- quién hizo el cambio
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE = InnoDB;
+
+
 CREATE TABLE configuraciones (
     config_id INT AUTO_INCREMENT NOT NULL,
     config_key VARCHAR(100) NOT NULL,   -- Clave de configuración

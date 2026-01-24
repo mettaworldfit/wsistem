@@ -7,6 +7,7 @@ class ReportsController
         'day' => [],                   // Todos tienen permiso
         'querys' => ['administrador'], // Roles con acceso a la acción 'querys'
         'cash_closing' => [], 
+        'sales' => ['administrador']
     ];
 
     // Verificación de permisos
@@ -67,5 +68,15 @@ class ReportsController
 
         // Mostrar la vista de cierre de caja
         require_once './views/reports/cash_closing.php';
+    }
+
+    // Acción para mostrar datos de ventas
+    public function sales()
+    {
+        // Verificar permisos para la acción
+        $this->check_permission('sales');
+
+        // Mostrar la vista
+        require_once './views/reports/sales.php';
     }
 }

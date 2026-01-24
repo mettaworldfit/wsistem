@@ -736,6 +736,201 @@ END //
 DELIMITER ;
 
 
+-- =================================================
+-- TRIGGERS DE AUDITORIA 
+-- =================================================
+
+DELIMITER //
+DROP TRIGGER IF EXISTS audit_productos_update //
+
+CREATE TRIGGER audit_productos_update
+AFTER UPDATE ON productos FOR EACH ROW
+BEGIN
+
+INSERT INTO audit_log (
+    tabla_afectada, accion, registro_id,
+    datos_anteriores, datos_nuevos, usuario_id
+)
+VALUES ('productos','UPDATE',NEW.producto_id,
+    JSON_OBJECT(
+        'nombre', OLD.nombre_producto,
+        'precio', OLD.precio_unitario,
+        'costo', OLD.precio_costo,
+        'cantidad', OLD.cantidad
+    ),
+    JSON_OBJECT(
+        'nombre', NEW.nombre_producto,
+        'precio', NEW.precio_unitario,
+		 'costo', NEW.precio_costo,
+         'cantidad', NEW.cantidad
+    ),@usuario_id
+);
+END //
+DELIMITER ;
+
+
+DELIMITER //
+DROP TRIGGER IF EXISTS audit_productos_delete //
+
+CREATE TRIGGER audit_productos_delete
+BEFORE DELETE ON productos
+FOR EACH ROW
+BEGIN
+
+INSERT INTO audit_log(
+    tabla_afectada, accion, registro_id,
+    datos_anteriores, usuario_id
+)
+VALUES ('productos','DELETE',OLD.producto_id,
+    JSON_OBJECT(
+        'nombre', OLD.nombre_producto,
+        'cantidad', OLD.cantidad,
+        'precio', OLD.precio_unitario,
+        'costo', OLD.precio_costo
+    ),@usuario_id
+);
+END //
+DELIMITER ;
+
+
+DELIMITER //
+DROP TRIGGER IF EXISTS audit_detalle_factura_delete //
+
+CREATE TRIGGER audit_detalle_factura_delete
+BEFORE DELETE ON detalle_facturas_ventas FOR EACH ROW
+BEGIN
+    -- SOLO auditar si ya está facturado
+    IF OLD.factura_venta_id IS NOT NULL THEN
+
+        INSERT INTO audit_log (
+            tabla_afectada,
+            accion,
+            registro_id,
+            datos_anteriores,
+            usuario_id
+        )
+        VALUES (
+            'detalle_facturas_ventas',
+            'DELETE',
+            OLD.detalle_venta_id,
+            JSON_OBJECT(
+                'factura_venta_id', OLD.factura_venta_id,
+                'producto_id', (SELECT producto_id FROM detalle_ventas_con_productos WHERE detalle_venta_id = OLD.detalle_venta_id),
+				'servicio_id', (SELECT servicio_id FROM detalle_ventas_con_servicios WHERE detalle_venta_id = OLD.detalle_venta_id),
+                'pieza_id', (SELECT pieza_id FROM detalle_ventas_con_piezas_ WHERE detalle_venta_id = OLD.detalle_venta_id),
+                'usuario_id', OLD.usuario_id,
+                'cantidad', OLD.cantidad,
+                'costo', OLD.costo,
+                'precio', OLD.precio,
+                'impuesto', OLD.impuesto,
+                'descuento', OLD.descuento,
+                'fecha', OLD.fecha,
+                'hora', OLD.hora
+            ),
+            @usuario_id
+        );
+
+    END IF;
+END //
+DELIMITER ;
+
+
+DELIMITER //
+DROP TRIGGER IF EXISTS audit_factura_venta_update //
+
+CREATE TRIGGER audit_factura_venta_update
+AFTER UPDATE ON facturas_ventas
+FOR EACH ROW
+BEGIN
+    -- Solo auditar si la factura ya está creada
+    IF OLD.factura_venta_id IS NOT NULL THEN
+
+        INSERT INTO audit_log (
+            tabla_afectada,
+            accion,
+            registro_id,
+            datos_anteriores,
+            datos_nuevos,
+            usuario_id
+        )
+        VALUES (
+            'facturas_ventas',
+            'UPDATE',
+            OLD.factura_venta_id,
+            JSON_OBJECT(
+                'total', OLD.total,
+                'recibido', OLD.recibido,
+                'pendiente', OLD.pendiente,
+                'bono', OLD.bono,
+                'descripcion', OLD.descripcion,
+                'fecha', OLD.fecha,
+                'hora', OLD.hora
+            ),
+            JSON_OBJECT(
+                'total', NEW.total,
+                'recibido', NEW.recibido,
+                'pendiente', NEW.pendiente,
+                'bono', NEW.bono,
+                'descripcion', NEW.descripcion,
+                'fecha', NEW.fecha,
+                'hora', NEW.hora
+            ),
+            @usuario_id
+        );
+    END IF;
+END //
+DELIMITER ;
+
+
+DELIMITER //
+DROP TRIGGER IF EXISTS audit_cierre_caja_delete //
+
+CREATE TRIGGER audit_cierre_caja_delete
+BEFORE DELETE ON cierres_caja
+FOR EACH ROW
+BEGIN
+    -- Verificar que el estado sea 'cerrado' antes de auditar
+    IF OLD.estado = 'cerrado' THEN
+
+        INSERT INTO audit_log (
+            tabla_afectada,
+            accion,
+            registro_id,
+            datos_anteriores,
+            usuario_id
+        )
+        VALUES (
+            'cierres_caja',
+            'DELETE',
+            OLD.cierre_id,
+            JSON_OBJECT(
+                'usuario_id', OLD.usuario_id,
+                'fecha_apertura', OLD.fecha_apertura,
+                'fecha_cierre', OLD.fecha_cierre,
+                'saldo_inicial', OLD.saldo_inicial,
+                'ingresos_efectivo', OLD.ingresos_efectivo,
+                'ingresos_tarjeta', OLD.ingresos_tarjeta,
+                'ingresos_transferencia', OLD.ingresos_transferencia,
+                'ingresos_cheque', OLD.ingresos_cheque,
+                'egresos_caja', OLD.egresos_caja,
+                'egresos_fuera', OLD.egresos_fuera,
+                'retiros', OLD.retiros,
+                'reembolsos', OLD.reembolsos,
+                'efectivo_caja', OLD.efectivo_caja,
+                'total_esperado', OLD.total_esperado,
+                'total_real', OLD.total_real,
+                'diferencia', OLD.diferencia,
+                'observaciones', OLD.observaciones,
+                'estado', OLD.estado
+            ),
+            @usuario_id
+        );
+    END IF;
+END //
+DELIMITER ;
+
+
+
 SHOW TRIGGERS;
 
 

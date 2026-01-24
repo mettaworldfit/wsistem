@@ -4,17 +4,31 @@ require_once '../config/db.php';
 require_once '../config/parameters.php';
 require_once 'functions/functions.php';
 session_start();
-
 $db = Database::connect();
-$action = $_POST['action'] ?? '';
+$config = Database::getConfig();
+$user_id = $_SESSION['identity']->usuario_id;
+$action = $_POST['action'] ?? null;
+
+$permissions = [
+  "index_servicios" => [], // Todos tienen permiso
+  "buscar_servicios" => [],
+  "actualizar_servicio" => [],
+  "eliminar_servicio" => []
+];
+
+// Chequear permisos
+if (isset($_POST['action'])) {
+  check_permission_action($_POST['action'], $permissions);
+}
+
 
 switch ($action) {
 
   // Cargar tabla de servicios
   case 'index_servicios':
     handleDataTableRequest($db, [
-      'columns' => ['nombre_servicio', 'precio','costo', 'servicio_id'],
-      'searchable' => ['nombre_servicio', 'precio','costo'],
+      'columns' => ['nombre_servicio', 'precio', 'costo', 'servicio_id'],
+      'searchable' => ['nombre_servicio', 'precio', 'costo'],
       'base_table' => 'servicios',
       'table_with_joins' => 'servicios',
       'select' => 'SELECT servicio_id, nombre_servicio,costo ,precio',
@@ -24,25 +38,25 @@ switch ($action) {
         // Editar
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
           $acciones .= '<a href="' . base_url . 'services/edit&id=' . $row['servicio_id'] . '">
-                  <span class="action-info btn-action">'.BUTTON_EDIT.'</span>
+                  <span class="action-info btn-action">' . BUTTON_EDIT . '</span>
                 </a>';
         } else {
           $acciones .= '<a href="#">
-                  <span class="action-info btn-action action-disable">'.BUTTON_EDIT.'</span>
+                  <span class="action-info btn-action action-disable">' . BUTTON_EDIT . '</span>
                 </a>';
         }
 
         // Eliminar
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
           $acciones .= '<span class="action-danger btn-action" onclick="deleteService(\'' . $row['servicio_id'] . '\')" title="Eliminar">
-                  '.BUTTON_DELETE.'
+                  ' . BUTTON_DELETE . '
                 </span>';
         } else {
           $acciones .= '<span class="action-danger btn-action action-disable" title="Eliminar">
-                  '.BUTTON_DELETE.'
+                  ' . BUTTON_DELETE . '
                 </span>';
         }
- 
+
         $acciones .= '</td>';
 
         return [

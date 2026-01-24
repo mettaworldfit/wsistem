@@ -4881,7 +4881,6 @@ button.btn-pos_home:focus {
     bottom: 0;
 }
 
-
 /* Datos de la orden de compra */
 
 .pos-order-window {
@@ -4901,3 +4900,82 @@ button.btn-pos_home:focus {
     width: 40%;
     bottom: 0;
 }
+
+/* ==============================================
+ SECCION REPORTE DE VENTAS 
+ ================================================*/
+
+
+section.summary-sales {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    place-items: center;
+    gap: 5px;
+    background: var(--background);
+    padding: 20px 13px;
+    border-radius: 5px;
+    box-shadow: 0px 6px 4px -5px #ccc;
+    margin-bottom: 1rem;
+}
+
+.summary-sales-item {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.summary-sales-item span {
+    font-size: 11pt;
+    color: var(--text-color);
+    font-family: var(--font-title);
+}
+
+.summary-sales-item div {
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+}
+
+
+p.summary-sales_total {
+    font-size: 9pt;
+    font-weight: 600;
+    margin: 0;
+}
+
+.sales-total_users,
+.sales-total_inventory,
+.sales-total_invoices,
+.sales-total_earning {
+    padding: 5px;
+    height: 29px;
+    width: 29px;
+    font-size: 10pt;
+    border-radius: 8px;
+    color: white;
+    align-items: center
+}
+
+div.sales-total_users {
+  background: #1ab51a;
+}
+
+div.sales-total_inventory {
+  background: #2196F3;
+}
+
+div.sales-total_invoices {
+    background: rgb(127, 20, 148);
+}
+
+div.sales-total_earning {
+    background: rgb(255, 188, 4);
+}
+
+.date-filter {
+    background: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    box-shadow: 0px 6px 4px -5px #ccc;
+}
+
