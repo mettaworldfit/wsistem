@@ -43,7 +43,8 @@ $etiqueta_id = $config['etiqueta_id'];
 
 $stmt = $db->prepare("
     SELECT * FROM etiquetas
-    WHERE activo = ?
+    WHERE etiqueta_id = ?
+    AND activo = 1
     LIMIT 1
 ");
 $stmt->bind_param("i", $etiqueta_id);
@@ -102,7 +103,7 @@ $pdf->write1DBarcode(
     $element['barcode_y'],
     $element['barcode_width'],
     $element['barcode_height'],
-    1.2,
+    1,
     $barcodeStyle,
     'N'
 );
