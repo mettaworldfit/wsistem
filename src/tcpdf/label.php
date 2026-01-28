@@ -1,10 +1,8 @@
 <?php
-
-
 /**
- * IMPRESIÓN DINÁMICA DE ETIQUETAS
+ * IMPRESIÓN DINÁMICA DE ETIQUETAS (CON GAP)
  * Usa configuración desde la tabla `etiquetas`
- * TCPDF standalone (sin Composer)
+ * TCPDF standalone
  */
 
 session_start();
@@ -30,21 +28,20 @@ $config = Database::getConfig();
 // =========================
 // DATOS
 // =========================
-
-$codigo      = $_GET['code'];
-$precio = isset($_GET['price']) && is_numeric($_GET['price']) ? '$' . strval($_GET['price']) : '$0';
-$descripcion = $_GET['name'];
+$codigo      = $_GET['code'] ?? '123456789012';
+$precio      = isset($_GET['price']) && is_numeric($_GET['price']) ? '$' . $_GET['price'] : '$0';
+$descripcion = $_GET['name'] ?? 'PRODUCTO DE PRUEBA';
 
 // =========================
 // CONFIG DE ETIQUETA
 // =========================
-
 $etiqueta_id = $config['etiqueta_id'];
 
 $stmt = $db->prepare("
-    SELECT * FROM etiquetas
+    SELECT *
+    FROM etiquetas
     WHERE etiqueta_id = ?
-    AND activo = 1
+      AND activo = 1
     LIMIT 1
 ");
 $stmt->bind_param("i", $etiqueta_id);
@@ -53,30 +50,46 @@ $stmt->execute();
 $element = $stmt->get_result()->fetch_assoc();
 
 if (!$element) {
-   echo die('Configuración de etiqueta no encontrada'); 
+    die('Configuración de etiqueta no encontrada');
 }
+
+// =========================
+// MEDIDAS (ETIQUETA + GAP)
+// =========================
+$anchoEtiqueta = (float)$element['ancho_mm'];
+$altoEtiqueta  = (float)$element['alto_mm'];
+
+// GAP desde BD (recomendado)
+// Si no tienes la columna aún, usa: $gap = 3;
+$gap = isset($element['gap_mm']) ? (float)$element['gap_mm'] : 3;
+
+// 👉 ALTURA TOTAL DE LA PÁGINA
+$altoPagina = $altoEtiqueta + $gap;
 
 // =========================
 // CREAR PDF
 // =========================
-$ancho = (float)$element['ancho_mm'];
-$alto  = (float)$element['alto_mm'];
-
 $pdf = new TCPDF(
     $element['orientacion'],   // P | L
     'mm',
-    [$ancho, $alto],
+    [$anchoEtiqueta, $altoPagina],
     true,
     'UTF-8',
     false
 );
 
-// Configuración base
+// =========================
+// CONFIG BASE
+// =========================
 $pdf->SetMargins(0, 0, 0);
 $pdf->SetAutoPageBreak(false, 0);
 $pdf->setPrintHeader(false);
 $pdf->setPrintFooter(false);
 $pdf->AddPage();
+
+// ⚠️ IMPORTANTE:
+// TODO se dibuja SOLO dentro del alto real de la etiqueta
+// (0 → $altoEtiqueta)
 
 // =========================
 // CÓDIGO DE BARRAS
@@ -99,10 +112,10 @@ $barcodeStyle = [
 $pdf->write1DBarcode(
     $codigo,
     $element['tipo_barcode'],
-    $element['barcode_x'],
-    $element['barcode_y'],
-    $element['barcode_width'],
-    $element['barcode_height'],
+    (float)$element['barcode_x'],
+    (float)$element['barcode_y'],
+    (float)$element['barcode_width'],
+    (float)$element['barcode_height'],
     0.4,
     $barcodeStyle,
     'N'
@@ -120,13 +133,13 @@ if ($element['mostrar_descripcion']) {
     );
 
     $pdf->SetXY(
-        $element['descripcion_x'],
-        $element['descripcion_y']
+        (float)$element['descripcion_x'],
+        (float)$element['descripcion_y']
     );
 
     $pdf->MultiCell(
-        $element['descripcion_width'],
-        $element['descripcion_height'],
+        (float)$element['descripcion_width'],
+        (float)$element['descripcion_height'],
         $descripcion,
         0,
         'C'
@@ -145,13 +158,13 @@ if ($element['mostrar_precio']) {
     );
 
     $pdf->SetXY(
-        $element['precio_x'],
-        $element['precio_y']
+        (float)$element['precio_x'],
+        (float)$element['precio_y']
     );
 
     $pdf->Cell(
-        $element['precio_width'],
-        $element['precio_height'],
+        (float)$element['precio_width'],
+        (float)$element['precio_height'],
         $precio,
         0,
         1,
@@ -162,9 +175,7 @@ if ($element['mostrar_precio']) {
 // =========================
 // SALIDA
 // =========================
-
-
 $pdf->Output(
-    "etiqueta_{$ancho}x{$alto}mm.pdf",
+    "etiqueta_{$anchoEtiqueta}x{$altoEtiqueta}mm.pdf",
     'I'
 );

@@ -125,8 +125,8 @@ $(document).ready(function () {
             activo: $('select[name="activo"]').val(),
 
             // DATOS DEL PRODUCTO
-            codigo: '555555',
-            descripcion_producto: 'Nombre producto',
+            codigo: '777788866',
+            descripcion_producto: 'Nombre del producto',
             precio: 1000
         });
 
