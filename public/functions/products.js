@@ -808,11 +808,13 @@ $(document).ready(function () {
                 var data = JSON.parse(res);
 
                 applyProductOptions(data); // Aplicar opciones
+
+                 $('#select2-product-container').attr('title', data[0].nombre_producto);
                 $('#select2-product-container').empty()
                 $('#select2-product-container').append(data[0].nombre_producto)
 
                 validateProductQuantity(); // Calcular precios   
-            }, verbose: true
+            }, verbose: false
         })
     }
 

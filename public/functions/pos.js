@@ -305,7 +305,7 @@ $(document).ready(function () {
         var serviceId = $(this).data('servicio') || 0;
         var productName = $(this).data('desc');
         var priceOut = $(this).find('#price_out').val();
-        var cost = $(this).find('#cost').val();
+        var cost = $(this).find('#cost').val() || 0;
 
         sendAjaxRequest({
             url: "services/invoices.php",

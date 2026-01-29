@@ -1,7 +1,6 @@
 <?php
 /**
- * IMPRESIÓN DINÁMICA DE ETIQUETAS (CON GAP)
- * Usa configuración desde la tabla `etiquetas`
+ * IMPRESIÓN DINÁMICA DE ETIQUETAS (CON GAP + OFFSET LATERAL)
  * TCPDF standalone
  */
 
@@ -59,12 +58,14 @@ if (!$element) {
 $anchoEtiqueta = (float)$element['ancho_mm'];
 $altoEtiqueta  = (float)$element['alto_mm'];
 
-// GAP desde BD (recomendado)
-// Si no tienes la columna aún, usa: $gap = 3;
+// GAP vertical real (impresora)
 $gap = isset($element['gap_mm']) ? (float)$element['gap_mm'] : 3;
 
-// 👉 ALTURA TOTAL DE LA PÁGINA
+// Altura total de página
 $altoPagina = $altoEtiqueta + $gap;
+
+// Offset lateral físico de impresora (NO eliminable)
+$offsetX = 2; // mm
 
 // =========================
 // CREAR PDF
@@ -79,17 +80,15 @@ $pdf = new TCPDF(
 );
 
 // =========================
-// CONFIG BASE
+// CONFIG BASE (FORZADO)
 // =========================
 $pdf->SetMargins(0, 0, 0);
+$pdf->SetCellPadding(0);
+$pdf->setImageScale(1);
 $pdf->SetAutoPageBreak(false, 0);
 $pdf->setPrintHeader(false);
 $pdf->setPrintFooter(false);
 $pdf->AddPage();
-
-// ⚠️ IMPORTANTE:
-// TODO se dibuja SOLO dentro del alto real de la etiqueta
-// (0 → $altoEtiqueta)
 
 // =========================
 // CÓDIGO DE BARRAS
@@ -112,9 +111,9 @@ $barcodeStyle = [
 $pdf->write1DBarcode(
     $codigo,
     $element['tipo_barcode'],
-    (float)$element['barcode_x'],
+    $offsetX + (float)$element['barcode_x'],
     (float)$element['barcode_y'],
-    (float)$element['barcode_width'],
+    (float)$element['barcode_width'] - ($offsetX * 2),
     (float)$element['barcode_height'],
     0.4,
     $barcodeStyle,
@@ -133,12 +132,12 @@ if ($element['mostrar_descripcion']) {
     );
 
     $pdf->SetXY(
-        (float)$element['descripcion_x'],
+        $offsetX + (float)$element['descripcion_x'],
         (float)$element['descripcion_y']
     );
 
     $pdf->MultiCell(
-        (float)$element['descripcion_width'],
+        (float)$element['descripcion_width'] - ($offsetX * 2),
         (float)$element['descripcion_height'],
         $descripcion,
         0,
@@ -158,12 +157,12 @@ if ($element['mostrar_precio']) {
     );
 
     $pdf->SetXY(
-        (float)$element['precio_x'],
+        $offsetX + (float)$element['precio_x'],
         (float)$element['precio_y']
     );
 
     $pdf->Cell(
-        (float)$element['precio_width'],
+        (float)$element['precio_width'] - ($offsetX * 2),
         (float)$element['precio_height'],
         $precio,
         0,

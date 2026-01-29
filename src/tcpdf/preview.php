@@ -1,7 +1,7 @@
 <?php
 /**
  * PREVIEW DE ETIQUETA TCPDF
- * Configuración 100% desde GET (CON GAP)
+ * Configuración 100% desde GET (CON GAP + OFFSET)
  */
 
 session_start();
@@ -25,10 +25,13 @@ $precio      = $_GET['precio'] ?? '$150.00';
 // =========================
 $anchoEtiqueta = (float)($_GET['ancho_mm'] ?? 35);
 $altoEtiqueta  = (float)($_GET['alto_mm'] ?? 25);
-$gap           = (float)($_GET['gap_mm'] ?? 3); // 👈 GAP REAL DE LA IMPRESORA
+$gap           = (float)($_GET['gap_mm'] ?? 3); // GAP real impresora
 
-// 👉 ALTURA TOTAL = ETIQUETA + GAP
+// 👉 ALTURA TOTAL
 $altoPagina = $altoEtiqueta + $gap;
+
+// Offset lateral físico de impresora
+$offsetX = 2; // mm
 
 $pdf = new TCPDF(
     $_GET['orientacion'] ?? 'L',
@@ -40,9 +43,11 @@ $pdf = new TCPDF(
 );
 
 // =========================
-// AJUSTES BASE
+// AJUSTES BASE (FORZADO)
 // =========================
 $pdf->SetMargins(0, 0, 0);
+$pdf->SetCellPadding(0);
+$pdf->setImageScale(1);
 $pdf->SetAutoPageBreak(false, 0);
 $pdf->setPrintHeader(false);
 $pdf->setPrintFooter(false);
@@ -57,18 +62,25 @@ $barcodeStyle = [
     'stretch'  => false,
     'fitwidth' => true,
     'border'   => false,
+    'hpadding' => 0,
+    'vpadding' => 0,
     'text'     => (bool)($_GET['mostrar_texto_barcode'] ?? 1),
     'font'     => 'helvetica',
     'fontsize' => (int)($_GET['barcode_font_size'] ?? 6)
 ];
 
+$barcodeX      = (float)($_GET['barcode_x'] ?? 2);
+$barcodeY      = (float)($_GET['barcode_y'] ?? 2);
+$barcodeWidth  = (float)($_GET['barcode_width'] ?? 31);
+$barcodeHeight = (float)($_GET['barcode_height'] ?? 9);
+
 $pdf->write1DBarcode(
     $codigo,
     $_GET['tipo_barcode'] ?? 'C128',
-    (float)($_GET['barcode_x'] ?? 2),
-    (float)($_GET['barcode_y'] ?? 2),
-    (float)($_GET['barcode_width'] ?? 31),
-    (float)($_GET['barcode_height'] ?? 9),
+    $offsetX + $barcodeX,
+    $barcodeY,
+    $barcodeWidth - ($offsetX * 2),
+    $barcodeHeight,
     0.4,
     $barcodeStyle,
     'N'
@@ -80,14 +92,20 @@ $pdf->write1DBarcode(
 if ((int)($_GET['mostrar_descripcion'] ?? 1) === 1) {
 
     $pdf->SetFont('helvetica', '', (int)($_GET['descripcion_font_size'] ?? 6));
+
+    $descX      = (float)($_GET['descripcion_x'] ?? 1);
+    $descY      = (float)($_GET['descripcion_y'] ?? 15);
+    $descWidth  = (float)($_GET['descripcion_width'] ?? 33);
+    $descHeight = (float)($_GET['descripcion_height'] ?? 5);
+
     $pdf->SetXY(
-        (float)($_GET['descripcion_x'] ?? 1),
-        (float)($_GET['descripcion_y'] ?? 15)
+        $offsetX + $descX,
+        $descY
     );
 
     $pdf->MultiCell(
-        (float)($_GET['descripcion_width'] ?? 33),
-        (float)($_GET['descripcion_height'] ?? 5),
+        $descWidth - ($offsetX * 2),
+        $descHeight,
         $descripcion,
         0,
         'C'
@@ -100,14 +118,20 @@ if ((int)($_GET['mostrar_descripcion'] ?? 1) === 1) {
 if ((int)($_GET['mostrar_precio'] ?? 1) === 1) {
 
     $pdf->SetFont('helvetica', 'B', (int)($_GET['precio_font_size'] ?? 7));
+
+    $priceX      = (float)($_GET['precio_x'] ?? 1);
+    $priceY      = (float)($_GET['precio_y'] ?? 21);
+    $priceWidth  = (float)($_GET['precio_width'] ?? 33);
+    $priceHeight = (float)($_GET['precio_height'] ?? 4);
+
     $pdf->SetXY(
-        (float)($_GET['precio_x'] ?? 1),
-        (float)($_GET['precio_y'] ?? 21)
+        $offsetX + $priceX,
+        $priceY
     );
 
     $pdf->Cell(
-        (float)($_GET['precio_width'] ?? 33),
-        (float)($_GET['precio_height'] ?? 4),
+        $priceWidth - ($offsetX * 2),
+        $priceHeight,
         $precio,
         0,
         1,
