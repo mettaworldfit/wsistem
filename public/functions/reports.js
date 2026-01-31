@@ -309,31 +309,115 @@ $(document).ready(function () {
     })
 
     // Imprimir cierre
-    function printerClosing(data, cierre_id) {
-        $.ajax({
-            type: "POST",
-            url: PRINTER_SERVER + "cierre_caja.php",
-            data: JSON.stringify({
-                data: data,
-                id: cierre_id
-            }),
-            contentType: "application/json", // Enviamos JSON
-            dataType: "json", // Esperamos JSON de respuesta
-            success: function (res) {
+    // function printerClosing(data, cierre_id) {
+    //     $.ajax({
+    //         type: "POST",
+    //         url: PRINTER_SERVER + "cierre_caja.php",
+    //         data: JSON.stringify({
+    //             data: data,
+    //             id: cierre_id
+    //         }),
+    //         contentType: "application/json", // Enviamos JSON
+    //         dataType: "json", // Esperamos JSON de respuesta
+    //         success: function (res) {
 
-                if (res.success) {
-                    console.log("✅ Impresión completada:", res.message);
-                } else {
-                    console.warn("⚠️ Error en impresión:", res.message);
-                    // notifyAlert(res.message || "Error al imprimir", "error");
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error("❌ Error AJAX:", error);
-                //  notifyAlert("No se pudo conectar con el servidor de impresión.", "error");
-            }
+    //             if (res.success) {
+    //                 console.log("✅ Impresión completada:", res.message);
+    //             } else {
+    //                 console.warn("⚠️ Error en impresión:", res.message);
+    //                 // notifyAlert(res.message || "Error al imprimir", "error");
+    //             }
+    //         },
+    //         error: function (xhr, status, error) {
+    //             console.error("❌ Error AJAX:", error);
+    //             //  notifyAlert("No se pudo conectar con el servidor de impresión.", "error");
+    //         }
+    //     });
+    // }
+
+   
+    /* ==============================
+   HELPER NUMÉRICO
+================================ */
+function num(v) {
+    return parseFloat(String(v).replace(/,/g, '')) || 0;
+}
+
+/* ==============================
+   IMPRESIÓN CIERRE DE CAJA
+================================ */
+function printerClosing(data, cierre_id) {
+
+    const totalExpected = num(data.total_expected);
+    const difference    = num(data.difference);
+    const total         = num(data.total);
+
+    /* ===== CONEXIÓN SEGURA ===== */
+    const connectQZ = qz.websocket.isActive()
+        ? Promise.resolve()
+        : qz.websocket.connect();
+
+    connectQZ
+        .then(() => qz.printers.find("POS-80")) // ⚠️ nombre EXACTO
+        .then(printer => {
+
+            const config = qz.configs.create(printer, {
+                copies: 1,
+                units: "mm",
+                size: { width: 80 },     // 80mm
+                margins: { top: 0, right: 0, bottom: 0, left: 0 }
+            });
+
+            const printData = [
+                '\x1B\x40',        // INIT
+                '\x1B\x61\x01',    // CENTRAR
+                'CIERRE DE CAJA\n',
+                '================================\n',
+
+                '\x1B\x61\x00',    // IZQUIERDA
+                `Caja #: ${cierre_id}\n`,
+                `Usuario: ${data.user_name}\n`,
+                `Apertura: ${data.opening_date}\n`,
+                `Cierre: ${data.closing_date}\n`,
+                '--------------------------------\n',
+
+                `Efectivo:        RD$ ${num(data.cash_income).toFixed(2)}\n`,
+                `Tarjeta:         RD$ ${num(data.card_income).toFixed(2)}\n`,
+                `Transferencias:  RD$ ${num(data.transfer_income).toFixed(2)}\n`,
+                `Cheques:         RD$ ${num(data.check_income).toFixed(2)}\n`,
+                '--------------------------------\n',
+
+                `Gastos caja:     RD$ ${num(data.cash_expenses).toFixed(2)}\n`,
+                `Gastos externos: RD$ ${num(data.external_expenses).toFixed(2)}\n`,
+                `Retiros:         RD$ ${num(data.withdrawals).toFixed(2)}\n`,
+                `Reembolsos:      RD$ ${num(data.refunds).toFixed(2)}\n`,
+                '--------------------------------\n',
+
+                '\x1B\x45\x01', // NEGRITA ON
+                `TOTAL ESPERADO:  RD$ ${totalExpected.toFixed(2)}\n`,
+                `TOTAL CONTADO:   RD$ ${total.toFixed(2)}\n`,
+                `DIFERENCIA:      RD$ ${difference.toFixed(2)}\n`,
+                '\x1B\x45\x00', // NEGRITA OFF
+
+                '================================\n',
+                '\x1B\x61\x01',
+                '*** FIN DEL CIERRE ***\n',
+
+                '\n\n\n\n\n',     // 👈 EMPUJA PAPEL (CLAVE)
+                '\x1D\x56\x00'    // 👈 CORTE
+            ];
+
+            return qz.print(config, printData);
+        })
+        .then(() => {
+            console.log('✅ Cierre de caja impreso correctamente');
+        })
+        .catch(err => {
+            console.error('❌ Error QZ Tray:', err);
         });
-    }
+}
+
+
 
     // Enviar cierre de caja por correo
     function sendCashClosing(id) {

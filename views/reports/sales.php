@@ -64,5 +64,3 @@
         </div>
     </div>
 </div>
-
-<a href="<?= base_url ?>src/escpos-php/test.php" class="btn btn-primary">Proba impresion</a>
