@@ -824,8 +824,7 @@ BEGIN
                 'precio', OLD.precio,
                 'impuesto', OLD.impuesto,
                 'descuento', OLD.descuento,
-                'fecha', OLD.fecha,
-                'hora', OLD.hora
+                'fecha', OLD.fecha
             ),
             @usuario_id
         );
@@ -863,8 +862,7 @@ BEGIN
                 'pendiente', OLD.pendiente,
                 'bono', OLD.bono,
                 'descripcion', OLD.descripcion,
-                'fecha', OLD.fecha,
-                'hora', OLD.hora
+                'fecha', OLD.fecha
             ),
             JSON_OBJECT(
                 'total', NEW.total,
@@ -872,8 +870,7 @@ BEGIN
                 'pendiente', NEW.pendiente,
                 'bono', NEW.bono,
                 'descripcion', NEW.descripcion,
-                'fecha', NEW.fecha,
-                'hora', NEW.hora
+                'fecha', NEW.fecha
             ),
             @usuario_id
         );

@@ -2837,6 +2837,11 @@ BEGIN
     DECLARE v_cantidad_existente DECIMAL(10,2) DEFAULT 0;
     DECLARE v_stock_disponible DECIMAL(10,2) DEFAULT 0;
     DECLARE v_comanda_exists INT DEFAULT 1;
+    
+    -- Blindaje ANTES de usar valores
+    SET p_costo     = IFNULL(p_costo, 0);
+    SET p_precio    = IFNULL(p_precio, 0);
+    SET p_cantidad  = IFNULL(p_cantidad, 0);
 
     /* =========================
        Validar comanda (si aplica)

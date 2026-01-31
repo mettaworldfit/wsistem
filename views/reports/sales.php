@@ -52,7 +52,6 @@
         </div>
     </section>
 
-
     <div class="date-filter">
         <div class="d-flex">
             <label for="start-date">Start Date:</label>
@@ -65,3 +64,5 @@
         </div>
     </div>
 </div>
+
+<a href="<?= base_url ?>src/escpos-php/test.php" class="btn btn-primary">Proba impresion</a>
