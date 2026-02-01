@@ -247,17 +247,20 @@ switch ($action) {
                          p.precio_unitario, e.nombre_estado, p.producto_id as idproducto',
       'table_rows' => function ($row) {
 
-        $acciones = '<a ';
-        if ($_SESSION['identity']->nombre_rol == 'administrador') {
-          if ($row['nombre_estado'] == 'Activo') {
-            $acciones .= 'class="btn-action action-info" href="' . base_url . 'products/edit&id=' . $row['idproducto'] . '"';
-          } else {
-            $acciones .= 'class="btn-action action-info action-disable" href="#"';
-          }
-        } else {
-          $acciones .= 'class="btn-action action-info action-disable" href="#"';
-        }
-        $acciones .= ' title="Editar">' . BUTTON_EDIT . '</a>';
+        // $acciones = '<a ';
+        // if ($_SESSION['identity']->nombre_rol == 'administrador') {
+        //   if ($row['nombre_estado'] == 'Activo') {
+        //     $acciones .= 'class="btn-action action-info" href="' . base_url . 'products/edit&id=' . $row['idproducto'] . '"';
+        //   } else {
+        //     $acciones .= 'class="btn-action action-info action-disable" href="#"';
+        //   }
+        // } else {
+        //   $acciones .= 'class="btn-action action-info action-disable" href="#"';
+        // }
+        // $acciones .= ' title="Editar">' . BUTTON_EDIT . '</a>';
+
+        $acciones = '<a class="btn-action action-info" href="' . base_url . 'products/edit&id=' . $row['idproducto'] . '" title="Editar">' . BUTTON_EDIT . '</a>';
+
 
         // Activar o desactivar producto
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
