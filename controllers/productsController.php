@@ -6,7 +6,7 @@ class ProductsController
 {
     // Definir los permisos por acción en un array
     private $permissions = [
-        'index' => ['administrador'], // Ejemplo: ambos roles tienen acceso
+        'index' => [], // Ejemplo: ambos roles tienen acceso
         'add' => ['administrador'],             // Solo 'administrador' tiene acceso
         'edit' => [],            // Solo 'administrador' tiene acceso
         'stock' => ['administrador'], // Ambos roles tienen acceso
