@@ -1230,4 +1230,113 @@ $(document).ready(function () {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* ===== SEGURIDAD QZ (OBLIGATORIO) ===== */
+
+    /// Authentication setup ///
+    qz.security.setCertificatePromise(function (resolve, reject) {
+        return fetch(SITE_URL + "public/qz-certificate.txt", { cache: 'no-store', headers: { 'Content-Type': 'text/plain' } })
+            .then(function (data) { data.ok ? resolve(data.text()) : reject(data.text()); });
+
+    });
+
+    qz.security.setSignatureAlgorithm("SHA512"); // Since 2.1
+    qz.security.setSignaturePromise(function (toSign) {
+        console.log("Firma a generar:", toSign); // Verifica los datos que se están firmando
+        return function (resolve, reject) {
+            fetch(SITE_URL + "services/cert/sign-qz.php", {
+                method: 'POST',  // Usamos el método POST
+                body: toSign,  // Enviamos los datos tal cual como texto plano
+                cache: 'no-store',  // No almacenar en caché
+                headers: {
+                    'Content-Type': 'text/plain'  // Indicamos que el contenido enviado es texto plano
+                }
+            })
+                .then(function (response) {
+                    // Verificamos si la respuesta fue exitosa
+                    if (response.ok) {
+                        return response.text();  // Si es exitoso, obtenemos la respuesta como texto (la firma generada)
+                    } else {
+                        return Promise.reject('Error: ' + response.statusText);  // Si no es exitoso, rechazamos la promesa con el error
+                    }
+                })
+                .then(function (signedData) {
+                    console.log("Firma generada:", signedData);  // Aquí se maneja la firma generada
+                    resolve(signedData);  // Resolvemos la promesa con la firma
+                })
+                .catch(function (error) {
+                    console.error('❌ Error al generar la firma:', error);  // Capturamos y mostramos cualquier error
+                    reject(error);  // Rechazamos la promesa en caso de error
+                });
+
+        };
+    });
+
+
+    $('#launch').on('click', function () {
+
+        /* ===== CONEXIÓN SEGURA ===== */
+        const connectQZ = qz.websocket.isActive()
+            ? Promise.resolve()
+            : qz.websocket.connect();
+
+        connectQZ
+            .then(() => {
+                console.log("Conexión establecida con QZ Tray.");
+                return qz.printers.find("POS-80");
+            })
+            .then(printer => {
+                console.log("Impresora encontrada:", printer);
+                const config = qz.configs.create(printer, {
+                    copies: 1,
+                    units: "mm",
+                    size: { width: 80 },
+                    margins: { top: 0, right: 0, bottom: 0, left: 0 }
+                });
+
+                const printData = [
+                    '\x1B\x40',       // INIT (inicia la impresora)
+                    '\x1B\x61\x01',   // CENTRAR
+                    'Prueba de Impresión\n',  // Texto de prueba
+                    '\x1B\x61\x00',   // IZQUIERDA
+                    'Texto de prueba\n',  // Más texto
+                    '\x1D\x56\x00'    // CORTE (corta el papel)
+                ];
+
+                return qz.print(config, printData);
+            })
+            .then(() => {
+                console.log('✅ Impresion de prueba realizada correctamente');
+            })
+            .catch(err => {
+                console.error('❌ Error QZ Tray:', err);
+            });
+    })
+
+
 }); // Ready
