@@ -5,7 +5,7 @@ function addService() {
         url: "services/services.php",
         data: {
             name: $('#service_name').val(),
-            cost: $('#service_cost').val(),
+            cost: $('#service_cost').val() || 0,
             price: $('#service_price').val(),
             action: 'agregar_servicio'
         },

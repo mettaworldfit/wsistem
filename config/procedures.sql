@@ -2065,6 +2065,7 @@ DELIMITER ;
 
 # -------------- Servicios -----------------
 
+DROP PROCEDURE IF EXISTS `sv_agregarServicio`;
 DELIMITER $$
 CREATE PROCEDURE `sv_agregarServicio` (in usuario_id int, in nombre varchar(70), in costo decimal(10,2), in precio int)
 BEGIN

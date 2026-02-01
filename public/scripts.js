@@ -1092,6 +1092,14 @@ $(document).ready(function () {
             });
         });
 
+        // APERTURA DE CAJA
+        $(document).on('shown.bs.modal', '#modalCashOpening', function () {
+            getFechaServidor(function (data) {
+                console.log("Fecha y hora del servidor (Abrir caja):", data.fecha_completa);  // Fecha completa
+                var fechaFormateada = data.fecha_completa.replace(' ', 'T').slice(0, 16);  // Reemplazar espacio por T y recortar a YYYY-MM-DDTHH:MM
+                $('#opening').val(fechaFormateada);  // Asignar el valor formateado al input
+            });
+        });
 
     });
 
