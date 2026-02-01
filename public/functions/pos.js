@@ -1044,7 +1044,76 @@ $(document).ready(function () {
     * FACTURACION E IMPRESION
     ===============================================================*/
 
-    // Factura al contando
+    // // Factura al contando
+    // $('.pos-button-cash').on('click', function () {
+    //     const data = {
+    //         // Datos para la factura
+    //         action: "factura_contado_pos",
+    //         order_id: $('#order_id').val() || 0,
+    //         customer_id: $('#customer_id').val(),
+    //         method_id: $('#method_id').val(),
+    //         total_invoice: parseFloat($('#total_pos').val()),
+    //         cash_received: $('#cash_received').val() || 0
+    //     };
+
+    //     // Validación rápida
+    //     if (!data.customer_id || !data.method_id) {
+    //         notifyAlert("Completa todos los datos obligatorios.", 'warning');
+    //         // Limpiar los bordes de los campos antes
+    //         $('.v_customer, .v_method').css('border', ''); // Limpiar cualquier borde previo
+
+    //         // Cambiar el borde a rojo para los campos vacíos
+    //         if (!data.customer_id) {
+    //             $('.v_customer').css('border', '1px solid red');
+    //         }
+    //         if (!data.method_id) {
+    //             $('.v_method').css('border', '1px solid red');
+    //         }
+    //         return;
+    //     }
+
+    //     // Si los datos son válidos, limpiar el borde (si es necesario)
+    //     $('.v_customer, .v_method').css('border', '');
+
+    //     sendAjaxRequest({
+    //         url: "services/invoices.php",
+    //         data: data,
+    //         successCallback: (res) => {
+
+    //             if (res > 0) {
+
+    //                 // Dinero a devolver
+    //                 if (!isNaN(data.cash_received) && Number(data.cash_received) > 0) {
+
+    //                     const total = Number(data.total_invoice) || 0;
+    //                     const recibido = Number(data.cash_received) || 0;
+
+    //                     const cashback = recibido - total;
+
+    //                     if (cashback > 0) {
+    //                         cashBack(cashback, 15000);
+    //                     }
+    //                 }
+
+    //                 $('.pos-button-cash').attr('disabled', true); // Desactivar boton
+    //                 notifyAlert("Registro exitoso", "success", 1500)
+    //                 $('#order_id').val('') // quitar orden
+    //                 loadDetailPOS()
+    //                 initMethodSelect2('#method_id', 1)
+    //                 printerInvoicePOS(res) // Imprimir
+    //             } else {
+    //                 notifyAlert("A ocurrido un error", "error");
+    //             }
+
+    //         },
+    //         errorCallback: (res) => {
+    //             console.error(res)
+    //             notifyAlert(res, 'error')
+    //         }, verbose: false
+    //     });
+    // })
+
+    // Factura al contado
     $('.pos-button-cash').on('click', function () {
         const data = {
             // Datos para la factura
@@ -1096,22 +1165,42 @@ $(document).ready(function () {
                     }
 
                     $('.pos-button-cash').attr('disabled', true); // Desactivar boton
-                    notifyAlert("Registro exitoso", "success", 1500)
-                    $('#order_id').val('') // quitar orden
-                    loadDetailPOS()
-                    initMethodSelect2('#method_id', 1)
-                    printerInvoicePOS(res) // Imprimir
+                    notifyAlert("Registro exitoso", "success", 1500);
+                    $('#order_id').val(''); // quitar orden
+                    loadDetailPOS();
+                    initMethodSelect2('#method_id', 1);
+
+                    // Verificar si han pasado 25 minutos desde la última factura
+                    const lastInvoiceTime = localStorage.getItem('lastInvoiceTime');
+                    const currentTime = new Date().getTime();
+
+                    // Si no hay registro previo o han pasado más de 25 minutos, mostrar alerta
+                    if (!lastInvoiceTime || (currentTime - lastInvoiceTime) >= 25 * 60 * 1000) {
+                        alertify.confirm('¿Deseas imprimir la factura?', function () {
+                            // Si acepta, imprimir la factura
+                            printerInvoicePOS(res);
+                            localStorage.setItem('lastInvoiceTime', new Date().getTime()); // Actualizar el tiempo de la última factura
+                        }, function () {
+                            // Si cancela, solo actualiza el tiempo sin imprimir
+                            localStorage.setItem('lastInvoiceTime', new Date().getTime());
+                        }).set('labels', { ok: 'Sí', cancel: 'No' });
+                    } else {
+                        // Si no han pasado 25 minutos, solo se actualiza el tiempo
+                        localStorage.setItem('lastInvoiceTime', new Date().getTime());
+                    }
                 } else {
-                    notifyAlert("A ocurrido un error", "error");
+                    notifyAlert("Ha ocurrido un error", "error");
                 }
 
             },
             errorCallback: (res) => {
-                console.error(res)
-                notifyAlert(res, 'error')
-            }, verbose: false
+                console.error(res);
+                notifyAlert(res, 'error');
+            },
+            verbose: false
         });
-    })
+    });
+
 
     // Factura a credito
     $('#invoiceCredit').on('submit', function (e) {

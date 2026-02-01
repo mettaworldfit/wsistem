@@ -1261,7 +1261,14 @@ $(document).ready(function () {
     /// Authentication setup ///
     qz.security.setCertificatePromise(function (resolve, reject) {
         return fetch(SITE_URL + "public/qz-certificate.txt", { cache: 'no-store', headers: { 'Content-Type': 'text/plain' } })
-            .then(function (data) { data.ok ? resolve(data.text()) : reject(data.text()); });
+            .then(function (data) {
+                if (data.ok) {
+                    resolve(data.text()); // Resuelve con el contenido del archivo
+                   // console.log(data); // Muestra la respuesta completa en la consola
+                } else {
+                    reject(data.text()); // Rechaza con el mensaje de error del archivo
+                }
+            });
 
     });
 
@@ -1269,74 +1276,194 @@ $(document).ready(function () {
     qz.security.setSignaturePromise(function (toSign) {
         console.log("Firma a generar:", toSign); // Verifica los datos que se están firmando
         return function (resolve, reject) {
-            fetch(SITE_URL + "services/cert/sign-qz.php", {
-                method: 'POST',  // Usamos el método POST
-                body: toSign,  // Enviamos los datos tal cual como texto plano
-                cache: 'no-store',  // No almacenar en caché
-                headers: {
-                    'Content-Type': 'text/plain'  // Indicamos que el contenido enviado es texto plano
-                }
-            })
-                .then(function (response) {
-                    // Verificamos si la respuesta fue exitosa
-                    if (response.ok) {
-                        return response.text();  // Si es exitoso, obtenemos la respuesta como texto (la firma generada)
-                    } else {
-                        return Promise.reject('Error: ' + response.statusText);  // Si no es exitoso, rechazamos la promesa con el error
-                    }
-                })
-                .then(function (signedData) {
-                    console.log("Firma generada:", signedData);  // Aquí se maneja la firma generada
-                    resolve(signedData);  // Resolvemos la promesa con la firma
-                })
-                .catch(function (error) {
-                    console.error('❌ Error al generar la firma:', error);  // Capturamos y mostramos cualquier error
-                    reject(error);  // Rechazamos la promesa en caso de error
-                });
+
+            fetch(SITE_URL + "services/cert/sign-qz.php?request=" + toSign, {cache: 'no-store', headers: {'Content-Type': 'text/plain'}})
+             .then(function(data) { data.ok ? resolve(data.text()) : reject(data.text()); });
+
 
         };
     });
 
 
-    $('#launch').on('click', function () {
+    // $('#launch').on('click', function () {
 
-        /* ===== CONEXIÓN SEGURA ===== */
-        const connectQZ = qz.websocket.isActive()
-            ? Promise.resolve()
-            : qz.websocket.connect();
+    /* ===== CONEXIÓN SEGURA ===== */
+    // const connectQZ = qz.websocket.isActive()
+    //     ? Promise.resolve()
+    //     : qz.websocket.connect();
 
-        connectQZ
-            .then(() => {
-                console.log("Conexión establecida con QZ Tray.");
-                return qz.printers.find("POS-80");
-            })
-            .then(printer => {
-                console.log("Impresora encontrada:", printer);
-                const config = qz.configs.create(printer, {
-                    copies: 1,
-                    units: "mm",
-                    size: { width: 80 },
-                    margins: { top: 0, right: 0, bottom: 0, left: 0 }
-                });
+    // connectQZ
+    //     .then(() => {
+    //         console.log("Conexión establecida con QZ Tray.");
+    //         return qz.printers.find("POS-80");
+    //     })
+    //     .then(printer => {
+    //         console.log("Impresora encontrada:", printer);
+    //         const config = qz.configs.create(printer, {
+    //             copies: 1,
+    //             units: "mm",
+    //             size: { width: 80 },
+    //             margins: { top: 0, right: 0, bottom: 0, left: 0 }
+    //         });
 
-                const printData = [
-                    '\x1B\x40',       // INIT (inicia la impresora)
-                    '\x1B\x61\x01',   // CENTRAR
-                    'Prueba de Impresión\n',  // Texto de prueba
-                    '\x1B\x61\x00',   // IZQUIERDA
-                    'Texto de prueba\n',  // Más texto
-                    '\x1D\x56\x00'    // CORTE (corta el papel)
-                ];
+    //         const printData = [
+    //             '\x1B\x40',       // INIT (inicia la impresora)
+    //             '\x1B\x61\x01',   // CENTRAR
+    //             'Prueba de Impresión\n',  // Texto de prueba
+    //             '\x1B\x61\x00',   // IZQUIERDA
+    //             'Texto de prueba\n',  // Más texto
+    //             '\x1D\x56\x00'    // CORTE (corta el papel)
+    //         ];
 
-                return qz.print(config, printData);
-            })
-            .then(() => {
-                console.log('✅ Impresion de prueba realizada correctamente');
-            })
-            .catch(err => {
-                console.error('❌ Error QZ Tray:', err);
+    //         return qz.print(config, printData);
+    //     })
+    //     .then(() => {
+    //         console.log('✅ Impresion de prueba realizada correctamente');
+    //     })
+    //     .catch(err => {
+    //         console.error('❌ Error QZ Tray:', err);
+    //     });
+    // })
+
+
+
+    /// Authentication setup ///
+    //     qz.security.setCertificatePromise(function(resolve, reject) {
+    //         //Preferred method - from server
+    // //        fetch("assets/signing/digital-certificate.txt", {cache: 'no-store', headers: {'Content-Type': 'text/plain'}})
+    // //          .then(function(data) { data.ok ? resolve(data.text()) : reject(data.text()); });
+
+    //         //Alternate method 1 - anonymous
+    // //        resolve();  // remove this line in live environment
+
+    //         //Alternate method 2 - direct
+    //         resolve("-----BEGIN CERTIFICATE-----\n" +
+    // "MIIECzCCAvOgAwIBAgIGAZwWVy9KMA0GCSqGSIb3DQEBCwUAMIGiMQswCQYDVQQG\n" +
+    // "EwJVUzELMAkGA1UECAwCTlkxEjAQBgNVBAcMCUNhbmFzdG90YTEbMBkGA1UECgwS\n" +
+    // "UVogSW5kdXN0cmllcywgTExDMRswGQYDVQQLDBJRWiBJbmR1c3RyaWVzLCBMTEMx\n" +
+    // "HDAaBgkqhkiG9w0BCQEWDXN1cHBvcnRAcXouaW8xGjAYBgNVBAMMEVFaIFRyYXkg\n" +
+    // "RGVtbyBDZXJ0MB4XDTI2MDEzMDIzMTUzOFoXDTQ2MDEzMDIzMTUzOFowgaIxCzAJ\n" +
+    // "BgNVBAYTAlVTMQswCQYDVQQIDAJOWTESMBAGA1UEBwwJQ2FuYXN0b3RhMRswGQYD\n" +
+    // "VQQKDBJRWiBJbmR1c3RyaWVzLCBMTEMxGzAZBgNVBAsMElFaIEluZHVzdHJpZXMs\n" +
+    // "IExMQzEcMBoGCSqGSIb3DQEJARYNc3VwcG9ydEBxei5pbzEaMBgGA1UEAwwRUVog\n" +
+    // "VHJheSBEZW1vIENlcnQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCk\n" +
+    // "RNhHxevJvu4F1Q7C5bh9qhChZjhYtup06sGu9bCU8krn2Zrw79QjZs2LmABvaP5p\n" +
+    // "ravs9S5+L6ceSGpjpHMkMzPOnCwx5J6l5cdzbZGArYW/jbiez/cMj3Dn1ZPe3kPa\n" +
+    // "PPYdN83IBow9JVtwTJqjaQnN/+rnKNAitm5BZxiXHzcazd71IQkjd6bEgVvasDDJ\n" +
+    // "ito4LSV2OPCtVaoqMt/eEVHKyg5oui8BMV/N5yyZOE+LSrczprm9ENwKCo2HoFZO\n" +
+    // "dgf8x5fWte+55+PbDtHay7SQHZHStc94Ppc0OiUs541YjQHcjRFTshVcrBSjMabx\n" +
+    // "mosz3+Uk76leR+0Dnq19AgMBAAGjRTBDMBIGA1UdEwEB/wQIMAYBAf8CAQEwDgYD\n" +
+    // "VR0PAQH/BAQDAgEGMB0GA1UdDgQWBBQOKLAMoSbcw9M5EJUL6BIjvVNOAzANBgkq\n" +
+    // "hkiG9w0BAQsFAAOCAQEAYNJviR/1TXj8SPkRyn39v2u+zDW1YiKpMqJveaLP7Dus\n" +
+    // "H27vikoOcCHmGftXXUyL+HhSSQnaR9p87fQEcc+rvpVUVNVqgyQml4h+IgYrRNTa\n" +
+    // "0fwEvQwYkYRTxnOiqA4LQlkqn1XIs3mP9AmVl7SiVoSzszWbIFn8Pq0Pf4uIJ7Zz\n" +
+    // "kkISzSPqa1ejczYJXuBDlK4e9XHtPTIy2NBJyhfAMjYiefx4Y5eW/IMCzFf+g/pU\n" +
+    // "yL8t4XcWJRHzOchCQIoRCp4KU7I6Hwc00psW5A4HFYdRgG6EEo9jwvbVinRK1oLy\n" +
+    // "IPGyNb4TP+ilXGL7RccVLPxcEfT3BqVztQRFK0f/hA==\n" +
+    // "-----END CERTIFICATE-----\n");
+    //     });
+
+    // //     qz.security.setSignatureAlgorithm("SHA512"); // Since 2.1
+    // //     qz.security.setSignaturePromise(function(toSign) {
+    // //         return function(resolve, reject) {
+    // //             //Preferred method - from server
+    // // //            fetch("/secure/url/for/sign-message?request=" + toSign, {cache: 'no-store', headers: {'Content-Type': 'text/plain'}})
+    // // //              .then(function(data) { data.ok ? resolve(data.text()) : reject(data.text()); });
+
+    // //             //Alternate method - unsigned
+    // //             resolve(); // remove this line in live environment
+    // //         };
+    // //     });
+
+
+    //     var privateKey = "-----BEGIN PRIVATE KEY-----\n" +
+    // "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCkRNhHxevJvu4F\n" +
+    // "1Q7C5bh9qhChZjhYtup06sGu9bCU8krn2Zrw79QjZs2LmABvaP5pravs9S5+L6ce\n" +
+    // "SGpjpHMkMzPOnCwx5J6l5cdzbZGArYW/jbiez/cMj3Dn1ZPe3kPaPPYdN83IBow9\n" +
+    // "JVtwTJqjaQnN/+rnKNAitm5BZxiXHzcazd71IQkjd6bEgVvasDDJito4LSV2OPCt\n" +
+    // "VaoqMt/eEVHKyg5oui8BMV/N5yyZOE+LSrczprm9ENwKCo2HoFZOdgf8x5fWte+5\n" +
+    // "5+PbDtHay7SQHZHStc94Ppc0OiUs541YjQHcjRFTshVcrBSjMabxmosz3+Uk76le\n" +
+    // "R+0Dnq19AgMBAAECggEAAni8YK9q7zpq9kCrgUW3wKugJpmKjqp+knCc0O8xRLsf\n" +
+    // "jZJXM+Rb5rDLi3E898WBPHb96lRnFRl49CpGmttfgHjaa55VxjtoeAUM0Eu3/9MR\n" +
+    // "5d0HR9vHsxNDxuKOYBur3YWuIKhACvrZkyrzz60AulA13aO0iwgGF7DzLZM+9Lkf\n" +
+    // "6INhnNXcReZOUysacB/m7sxMCBAh5ODpFYYh6FDvzOwsPwFjhxbO08jL5yHwtGLq\n" +
+    // "nrjmMbNLsiW8TnUN5wxHdlY9K1NxdCtEs0nbDevP9r0ggMs2raGoOx4fLxmXgpSB\n" +
+    // "abhvYm4vXvKRsJykoD3N9iofmEAXb86s83L098XieQKBgQDdlBCM4to5F+kKBsRc\n" +
+    // "mW0iFU2dA+bv6ac/TjrqfodMnF4M9it/egm406TeoGh7X94VGnLOxAezsKE3WyrN\n" +
+    // "u4Xv8lWQR5pG80xKX+I7dlatWVJti3csN00oKYc2DsYrtgQ4kwYrRcbnxhqRCu30\n" +
+    // "WMkv0dTmNxb/EIXSElszJW4vCQKBgQC9yaT+EtiZt/DygbMlv4/YPdbds/YWIhIE\n" +
+    // "KWqkCP+NJiUbzwY4yjaNQm/rkpF92BMHHA2ayTC3DfJZR8dnVEmwpNpOPUWEZHKS\n" +
+    // "UfsvKzpeTLSZ4Hxj346Bl56Hnp7j5L5WjUX+ihQIawOWnkkLOiKpzMgx50v0aAXd\n" +
+    // "wSnzjOzz1QKBgQDGz5qF/unUvnpvb6DygQtlwH2SO7UTYK+a4qOEUaEugUL2GE7x\n" +
+    // "I1vjxaqxwnXc9Si8AK4wjb1nYj1VAO0ICZDkuahCO6zWqmiydxPzTHv7MCEAf1mf\n" +
+    // "h8MoHRLf0yPGhpuE845ed05AGgUuTQMy8hMaYAjJw3ZTx8x6r9O6sYQKmQKBgH3/\n" +
+    // "QedfsacT5AXLr5iu/ZttKpnTYNu+0MEskdzHEImvulEk9xd6wA61/cGic67dZXyB\n" +
+    // "1lJdoVbWDn/RVIO4BJgeScRJjz5exWV4wc7F3yE9wWSrEUno4B4O/7M/znKzqN2j\n" +
+    // "OsXK+5O/IAm9mfa3KM4b4wimatmeuc5H8Eb9103lAoGAFrUxhYneU4aEpXIOEbqo\n" +
+    // "HZiFNavTPYMDdt7HqgnC8UKVJS4vUf1+AueYEwtYsCY3Eoy/j4Y9Q1vIvLbUlOhP\n" +
+    // "FNnOOvtyeO/4XRT1asEotCiObSvQehT2bIMJ/EZ7DBCCdNhZIpZ9JZ5FTZNMkxiu\n" +
+    // "sSC7Q5FZ9hiWgEqcu3d869A=\n" +
+    // "-----END PRIVATE KEY-----";
+
+    // qz.security.setSignatureAlgorithm("SHA512"); // Since 2.1
+    // qz.security.setSignaturePromise(function(toSign) {
+    //     return function(resolve, reject) {
+    //         try {
+    //             var pk = KEYUTIL.getKey(privateKey);
+    //             var sig = new KJUR.crypto.Signature({"alg": "SHA512withRSA"});  // Use "SHA1withRSA" for QZ Tray 2.0 and older
+    //             sig.init(pk); 
+    //             sig.updateString(toSign);
+    //             var hex = sig.sign();
+    //             console.log("DEBUG: \n\n" + stob64(hextorstr(hex)));
+    //             resolve(stob64(hextorstr(hex)));
+    //         } catch (err) {
+    //             console.error(err);
+    //             reject(err);
+    //         }
+    //     };
+    // });
+
+    /* ===== CONEXIÓN SEGURA ===== */
+    const connectQZ = qz.websocket.isActive()
+        ? Promise.resolve()
+        : qz.websocket.connect();
+
+    connectQZ
+        .then(() => {
+            console.log("Conexión establecida con QZ Tray.");
+            return qz.printers.find("POS-80");
+        })
+        .then(printer => {
+            console.log("Impresora encontrada:", printer);
+            const config = qz.configs.create(printer, {
+                copies: 1,
+                units: "mm",
+                size: { width: 80 },
+                margins: { top: 0, right: 0, bottom: 0, left: 0 }
             });
-    })
+
+            const printData = [
+                '\x1B\x40',       // INIT (inicia la impresora)
+                '\x1B\x61\x01',   // CENTRAR
+                'Prueba de Impresión\n',  // Texto de prueba
+                '\x1B\x61\x00',   // IZQUIERDA
+                'Texto de prueba\n',  // Más texto
+                '\x1D\x56\x00'    // CORTE (corta el papel)
+            ];
+
+            return qz.print(config, printData);
+        })
+        .then(() => {
+            console.log('✅ Impresion de prueba realizada correctamente');
+        })
+        .catch(err => {
+            console.error('❌ Error QZ Tray:', err);
+        });
+
+
+
+
+
 
 
 }); // Ready
