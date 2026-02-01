@@ -650,7 +650,7 @@ $(document).ready(function () {
             successCallback: (res) => {
                 notifyAlert(res, 'success');
                 windowSummary(); // Calcular ventana editar
-                
+
                 if (!wsConnected) {
                     // Fallback: WS no activo
                     loadDetailPOS();
@@ -1174,24 +1174,14 @@ $(document).ready(function () {
                     loadDetailPOS();
                     initMethodSelect2('#method_id', 1);
 
-                    // Verificar si han pasado 25 minutos desde la última factura
-                    const lastInvoiceTime = localStorage.getItem('lastInvoiceTime');
-                    const currentTime = new Date().getTime();
+                    // Preguntar siempre si se desea imprimir la factura
+                    alertify.confirm('¿Deseas imprimir la factura?', function () {
+                        // Si acepta, imprimir la factura
+                        printerInvoicePOS(res);
+                    }, function () {
+                        // Si cancela, no hacer nada
+                    }).set('labels', { ok: 'Sí', cancel: 'No' });
 
-                    // Si no hay registro previo o han pasado más de 25 minutos, mostrar alerta
-                    if (!lastInvoiceTime || (currentTime - lastInvoiceTime) >= 25 * 60 * 1000) {
-                        alertify.confirm('¿Deseas imprimir la factura?', function () {
-                            // Si acepta, imprimir la factura
-                            printerInvoicePOS(res);
-                            localStorage.setItem('lastInvoiceTime', new Date().getTime()); // Actualizar el tiempo de la última factura
-                        }, function () {
-                            // Si cancela, solo actualiza el tiempo sin imprimir
-                            localStorage.setItem('lastInvoiceTime', new Date().getTime());
-                        }).set('labels', { ok: 'Sí', cancel: 'No' });
-                    } else {
-                        // Si no han pasado 25 minutos, solo se actualiza el tiempo
-                        localStorage.setItem('lastInvoiceTime', new Date().getTime());
-                    }
                 } else {
                     notifyAlert("Ha ocurrido un error", "error");
                 }
@@ -1204,6 +1194,7 @@ $(document).ready(function () {
             verbose: false
         });
     });
+
 
 
     // Factura a credito
