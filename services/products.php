@@ -170,7 +170,9 @@ switch ($action) {
             $acciones .= 'class="btn-action action-info action-disable" href="#"';
           }
         } else {
-          $acciones .= 'class="btn-action action-info action-disable" href="#"';
+          // $acciones .= 'class="btn-action action-info action-disable" href="#"';
+          // Si no es administrador, permite editar siempre (en todos los productos)
+          $acciones .= 'class="btn-action action-info" href="' . base_url . 'products/edit&id=' . $row['idproducto'] . '"';
         }
         $acciones .= ' title="Editar">' . BUTTON_EDIT . '</a>';
 
@@ -429,7 +431,7 @@ switch ($action) {
 
   // Caso: Eliminar producto
   case 'eliminar_producto':
-     $db->query("SET @usuario_id = " . (int)$user_id);
+    $db->query("SET @usuario_id = " . (int)$user_id);
     echo handleProcedureAction($db, 'pr_eliminarProducto', [$_POST['product_id']]);
     break;
 
