@@ -427,7 +427,7 @@ $(document).ready(function () {
         let val = parseInt(input.val()) || 0;
 
         input.val(val + 1).trigger('change');
-        setTimeout(() => { loadDetailPOS(); }, 700);
+        setTimeout(() => { loadDetailPOS(); }, 500);
     });
 
     $(document).on('click', '.qty-minus', function () {
@@ -439,9 +439,14 @@ $(document).ready(function () {
         if (val < min) val = min;
 
         input.val(val).trigger('change');
-        setTimeout(() => { loadDetailPOS(); }, 700);
+        setTimeout(() => { loadDetailPOS(); }, 500);
 
     });
+
+       $(document).on('change', '.input-quantity', function () { 
+          setTimeout(() => { loadDetailPOS();     console.log('click') }, 500);
+      
+       })
 
     /**============================================================= 
     * VENTANA DE EDITAR
