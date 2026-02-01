@@ -103,14 +103,14 @@ $menu_sections = [
         'label' => 'Inventario',
         'drop_num' => 4,
         'icon' => 'fas fa-box',
-        'roles' => ['administrador'],
+        'roles' => ['administrador','cajero'],
         'submenu' => [
             [
                 'label' => 'Productos',
                 'link' => base_url . 'products/index',
                 'icon' => 'fas fa-plus-circle',
                 'icon_link' => base_url . 'products/add',
-                'roles' => ['administrador']
+                'roles' => ['administrador','cajero']
             ],
             [
                 'label' => 'Piezas',
