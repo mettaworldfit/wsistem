@@ -8,7 +8,7 @@ class ProductsController
     private $permissions = [
         'index' => ['administrador'], // Ejemplo: ambos roles tienen acceso
         'add' => ['administrador'],             // Solo 'administrador' tiene acceso
-        'edit' => ['administrador'],            // Solo 'administrador' tiene acceso
+        'edit' => [],            // Solo 'administrador' tiene acceso
         'stock' => ['administrador'], // Ambos roles tienen acceso
     ];
 

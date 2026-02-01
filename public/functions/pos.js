@@ -650,7 +650,11 @@ $(document).ready(function () {
             successCallback: (res) => {
                 notifyAlert(res, 'success');
                 windowSummary(); // Calcular ventana editar
-                //  loadDetailPOS(); // Cargar detalle
+                
+                if (!wsConnected) {
+                    // Fallback: WS no activo
+                    loadDetailPOS();
+                }
             },
             errorCallback: (res) => {
                 console.error(res)
