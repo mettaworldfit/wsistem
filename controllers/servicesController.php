@@ -4,9 +4,9 @@ class ServicesController
 {
     // Array de permisos por acción
     private $permissions = [
-        'index' => ['administrador'],
+        'index' => [],
         'add' => ['administrador'],
-        'edit' => ['administrador']
+        'edit' => []
     ];
 
     // Verificación de permisos

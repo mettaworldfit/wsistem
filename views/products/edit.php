@@ -95,16 +95,10 @@
 
                     <div class="form-group col-sm-5 mb-3">
                         <label class="form-check-label label-cant" for="">Cantidad<span class="text-danger">*</span></label>
-                        <?php if ($_SESSION['identity']->nombre_rol == 'administrador') { ?>
-                            <input class="form-custom col-sm-12" type="number" value="<?= $element->cantidad ?>" name="quantity"
-                                placeholder="Vacío" id="input_quantity" required>
-                        <?php } else { ?>
-                            <input class="form-custom col-sm-12" type="number" value="<?= $element->cantidad ?>" name="quantity"
-                                placeholder="Vacío" disabled>
-                            <input type="hidden" name="quantity" step="0.01" min="0" max="999.99" value="<?= $element->cantidad ?>" id="input_quantity">
-
-                        <?php } ?>
+                        <input class="form-custom col-sm-12" type="number" value="<?= $element->cantidad ?>" name="quantity"
+                           step="0.01" min="0" max="999.99" placeholder="Vacío" id="input_quantity" required>
                     </div>
+
 
                     <div class="form-group col-sm-4 mb-3">
                         <label class="form-check-label" for="">Miníma cantidad <a href="#" class="example-popover"

@@ -124,7 +124,7 @@ $menu_sections = [
                 'link' => base_url . 'services/index',
                 'icon' => 'fas fa-plus-circle',
                 'icon_link' => base_url . 'services/add',
-                'roles' => ['administrador']
+                'roles' => ['administrador','cajero']
             ],
             [
                 'label' => 'Valor de inventario',

@@ -12,8 +12,9 @@ $action = $_POST['action'] ?? null;
 $permissions = [
   "index_servicios" => [], // Todos tienen permiso
   "buscar_servicios" => [],
+  "agregar_servicio" => [],
   "actualizar_servicio" => [],
-  "eliminar_servicio" => []
+  "eliminar_servicio" => ['administrador']
 ];
 
 // Chequear permisos
