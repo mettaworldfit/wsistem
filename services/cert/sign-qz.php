@@ -1,7 +1,9 @@
 <?php
 
 // Sample key.  Replace with one used for CSR generation
-$KEY = 'C:/wamp64/www/proyecto/services/cert/private-key.pem';
+// $KEY = 'C:/wamp64/www/proyecto/services/cert/private-key.pem';
+$KEY = '/var/www/wsistem/services/cert/private-key.pem';
+
 //$PASS = 'S3cur3P@ssw0rd';
 
 $req = $_GET['request'];
