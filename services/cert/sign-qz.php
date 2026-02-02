@@ -5,7 +5,7 @@
 
 
 // Ruta relativa
-$KEY = $_SERVER['DOCUMENT_ROOT'] . "/wsistem/services/cert/private-key.pem";
+$KEY = '/var/www/wsistem/services/cert/private-key.pem';
 
 // Verifica si el archivo existe
 if (file_exists($KEY)) {
