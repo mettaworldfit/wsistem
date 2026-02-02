@@ -1292,14 +1292,12 @@ $(document).ready(function () {
         };
     });
 
+     $('#launch').on('click', function () {
     /* ===== CONEXIÓN SEGURA ===== */
     const connectQZ = qz.websocket.isActive()
         ? Promise.resolve()
         : qz.websocket.connect();
 
-
-
-    $('#launch').on('click', function () {
         connectQZ.then(() => {
             console.log("Conexión establecida con QZ Tray.");
             return qz.printers.find("POS-80");
