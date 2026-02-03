@@ -49,7 +49,7 @@
   <!-- QZ Tray -->
     <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/11.1.0/jsrsasign-all-min.js"></script>
-    <script src="<?= base_url ?>public/qz-tray.js" type="text/javascript"></script>
+    <script src="<?= base_url ?>public/qz-tray.js?v=<?= APP_VERSION ?>" type="text/javascript"></script>
 
   <!-- Lazy loading -->
   <?php require_once "includes/lazy_load.php"; ?>
