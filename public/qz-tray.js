@@ -3,7 +3,7 @@ $(document).ready(function () {
     /* ===== SEGURIDAD QZ (OBLIGATORIO) ===== */
 
     qz.security.setCertificatePromise(function (resolve, reject) {
-        fetch(SITE_URL + "services/cert/get-cert.php", {
+        fetch(SITE_URL + "src/qz-tray/get-cert.php", {
             cache: 'no-store'
         })
             .then(res => {
@@ -36,11 +36,11 @@ $(document).ready(function () {
             });
     });
 
-    
+
     qz.security.setSignatureAlgorithm("SHA512");
     qz.security.setSignaturePromise(function (toSign) {
         return function (resolve, reject) {
-            fetch(SITE_URL + 'services/cert/sign.php', {
+            fetch(SITE_URL + 'src/qz-tray/sign.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ request: toSign })
@@ -59,30 +59,6 @@ $(document).ready(function () {
                 });
         };
     });
-
-
-
-    // qz.security.setSignatureAlgorithm("SHA512"); // Since 2.1
-    // qz.security.setSignaturePromise(function (toSign) {
-    //     console.log("Firma a generar:", toSign); // Verifica los datos que se están firmando
-    //     return function (resolve, reject) {
-
-    //         fetch(SITE_URL + 'services/cert/sign.php', {
-    //             method: 'POST',
-    //             headers: { 'Content-Type': 'application/json' },
-    //             body: JSON.stringify({ request: toSign })
-    //         }).then(res => res.text());
-    //     };
-    // });
-
-
-
-
-
-
-
-
-
 
     $('#launch').on('click', function () {
         /* ===== CONEXIÓN SEGURA ===== */
