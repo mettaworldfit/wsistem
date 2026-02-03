@@ -3,7 +3,7 @@ $(document).ready(function () {
     /* ===== SEGURIDAD QZ (OBLIGATORIO) ===== */
 
     qz.security.setCertificatePromise(function (resolve, reject) {
-        fetch("https://app.wsistems.com/services/cert/get-cert.php", {
+        fetch(SITE_URL + "services/cert/get-cert.php", {
             cache: 'no-store'
         })
             .then(res => {
