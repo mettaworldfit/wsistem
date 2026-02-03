@@ -1,40 +1,49 @@
 <?php
-// $KEY = '';
 
-// if ($_SERVER['SERVER_NAME'] === 'localhost') {
-//     // Si estamos en localhost, usar la ruta relativa
-//     $KEY = 'C:/wamp64/www/proyecto/services/cert/private-key.pem';
-//     echo "Localhost";
-// } else {
-//     // Si no estamos en localhost, usar la ruta pública estándar para producción
-//    $KEY = '/var/www/wsistem/services/cert/private-key.pem';
-// }
+//$KEY = 'C:/wamp64/www/proyecto/services/cert/private-key.pem';
+// $KEY = '/var/www/wsistem/services/cert/private-key.pem';
 
-// Sample key.  Replace with one used for CSR generation
- //$KEY = 'C:/wamp64/www/proyecto/services/cert/private-key.pem';
 
-// Ruta relativa
-$KEY = '/var/www/wsistem/services/cert/private-key.pem';
 
-// Verifica si el archivo existe
-// if (file_exists($KEY)) {
-//     echo "La ruta existe: " . $KEY;
-// } else {
-//     echo "La ruta no existe.";
-// }
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-$req = $_GET['request'];
-$privateKey = openssl_get_privatekey(file_get_contents($KEY) /*, $PASS */);
+header("Content-Type: text/plain");
 
-$signature = null;
-openssl_sign($req, $signature, $privateKey, "sha512"); // Use "sha1" for QZ Tray 2.0 and older
+$keyPath = 'C:/wamp64/www/proyecto/services/cert/private-key.pem';
 
-if ($signature) {
-    header("Content-type: text/plain");
-    echo base64_encode($signature);
-    exit(0);
+if (!file_exists($keyPath)) {
+    http_response_code(500);
+    echo "KEY_NOT_FOUND";
+    exit;
 }
 
-echo '<h1>Error signing message</h1>';
-http_response_code(500);
-exit(1);
+$keyData = file_get_contents($keyPath);
+if ($keyData === false) {
+    http_response_code(500);
+    echo "KEY_NOT_READABLE";
+    exit;
+}
+
+$privateKey = openssl_pkey_get_private($keyData);
+if ($privateKey === false) {
+    http_response_code(500);
+    echo "INVALID_PRIVATE_KEY";
+    exit;
+}
+
+$data = file_get_contents("php://input");
+if (!$data) {
+    http_response_code(500);
+    echo "EMPTY_INPUT";
+    exit;
+}
+
+$signature = null;
+if (!openssl_sign($data, $signature, $privateKey, OPENSSL_ALGO_SHA256)) {
+    http_response_code(500);
+    echo "SIGN_FAILED";
+    exit;
+}
+
+echo base64_encode($signature);
