@@ -36,19 +36,44 @@ $(document).ready(function () {
             });
     });
 
-
-    qz.security.setSignatureAlgorithm("SHA512"); // Since 2.1
+    
+    qz.security.setSignatureAlgorithm("SHA512");
     qz.security.setSignaturePromise(function (toSign) {
-        console.log("Firma a generar:", toSign); // Verifica los datos que se están firmando
         return function (resolve, reject) {
-
             fetch(SITE_URL + 'services/cert/sign.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ request: toSign })
-            }).then(res => res.text());
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error("Firma no generada");
+                    return res.text();
+                })
+                .then(signature => {
+                    console.log("Firma recibida:", signature);
+                    resolve(signature.trim());
+                })
+                .catch(err => {
+                    console.error("Error firma:", err);
+                    reject(err);
+                });
         };
     });
+
+
+
+    // qz.security.setSignatureAlgorithm("SHA512"); // Since 2.1
+    // qz.security.setSignaturePromise(function (toSign) {
+    //     console.log("Firma a generar:", toSign); // Verifica los datos que se están firmando
+    //     return function (resolve, reject) {
+
+    //         fetch(SITE_URL + 'services/cert/sign.php', {
+    //             method: 'POST',
+    //             headers: { 'Content-Type': 'application/json' },
+    //             body: JSON.stringify({ request: toSign })
+    //         }).then(res => res.text());
+    //     };
+    // });
 
 
 
