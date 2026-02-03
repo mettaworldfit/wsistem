@@ -3,7 +3,7 @@ $(document).ready(function () {
     /* ===== SEGURIDAD QZ (OBLIGATORIO) ===== */
 
     qz.security.setCertificatePromise(function (resolve, reject) {
-        fetch("https://app.wsistems.com/services/cert/qz-certificate.txt", {
+        fetch("https://app.wsistems.com/services/cert/get-cert.php", {
             cache: 'no-store'
         })
             .then(res => {
@@ -42,7 +42,7 @@ $(document).ready(function () {
         console.log("Firma a generar:", toSign); // Verifica los datos que se están firmando
         return function (resolve, reject) {
 
-            fetch('https://app.wsistems.com/services/cert/sign.php', {
+            fetch(SITE_URL + 'services/cert/sign.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ request: toSign })
