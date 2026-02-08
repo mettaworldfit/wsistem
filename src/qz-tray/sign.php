@@ -19,7 +19,8 @@ if (!isset($input['request'])) {
 $data = $input['request'];
 
 // RUTA ABSOLUTA a la clave (mejor fuera del webroot)
-$KEY = '/var/www/qz/private-key.pem';
+// $KEY = '/var/www/qz/private-key.pem';
+$KEY = __DIR__ . '/private-key.pem';
 
 if (!file_exists($KEY)) {
     http_response_code(500);

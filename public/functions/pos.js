@@ -19,12 +19,16 @@ $(document).ready(function () {
         wsPOS = new WebSocket(wsURL);
 
         wsPOS.onopen = () => {
-            console.log('✅ WS POS conectado');
+            console.group('%c[WEBSOCKET]', 'color:#007bff;font-weight:bold;');
+            console.log('Conexión establecida con', wsURL);
+            console.groupEnd()
             wsConnected = true;
         };
 
         wsPOS.onclose = () => {
-            console.warn('⚠️ WS POS desconectado');
+            console.group('%c[WEBSOCKET]', 'color:#df040e;font-weight:bold;');
+            console.log(('No se puedo establecer la conexión con', wsURL));
+            console.groupEnd()
             wsConnected = false;
         };
 
@@ -443,10 +447,10 @@ $(document).ready(function () {
 
     });
 
-       $(document).on('change', '.input-quantity', function () { 
-          setTimeout(() => { loadDetailPOS();     console.log('click') }, 500);
-      
-       })
+    $(document).on('change', '.input-quantity', function () {
+        setTimeout(() => { loadDetailPOS(); console.log('click') }, 500);
+
+    })
 
     /**============================================================= 
     * VENTANA DE EDITAR
@@ -1053,6 +1057,95 @@ $(document).ready(function () {
     * FACTURACION E IMPRESION
     ===============================================================*/
 
+    // Opciones de impresion
+    /**
+   * Muestra un diálogo para elegir cómo imprimir una factura
+   * @param {number|string} invoiceId - ID o respuesta de la factura
+   */
+
+    function showPrinterOptions(invoiceId) {
+        alertify.printOptions(invoiceId).show();
+    }
+
+    if (!alertify.printOptions) {
+        alertify.dialog('printOptions', function () {
+            return {
+                // Aquí declaramos la variable invoiceId directamente
+                invoiceId: null,
+
+                main: function (invoiceId) {
+                    this.invoiceId = invoiceId;  // Guardamos el invoiceId directamente en la variable
+                },
+
+                setup: function () {
+                    return {
+                        options: {
+                            title: '',               // Sin título
+                            maximizable: false,      // No agrandar
+                            resizable: false,        // No redimensionar
+                            movable: true,           // Se puede mover
+                            closable: true,          // Botón de cerrar
+                            pinnable: false          // No se puede fijar
+                        },
+                        buttons: []                // Sin botones OK / Cancel
+                    };
+                },
+
+                build: function () {
+                    this.setContent(`
+                    <div style="text-align:center;">
+                        <i class="fas fa-print" style="font-size:28px;color:#17a2b8;"></i>
+                        <br><br>
+                        <strong>¿Cómo deseas imprimir la factura?</strong>
+                        <br><br>
+
+                        <div style="display:flex;gap:10px;justify-content:center;">
+                            <button class="btn-custom btn-default" id="btnTicket">
+                                <i class="fas fa-receipt"></i>
+                                <p>Ticket</p>
+                            </button>
+
+                            <button class="btn-custom btn-default" id="btnPDF">
+                                <i class="fas fa-file-pdf"></i>
+                                <p>PDF</p>
+                            </button>
+
+                            <button class="btn-custom btn-default" id="btnEmail">
+                                <i class="fas fa-envelope"></i>
+                                <p>Mail</p>
+                            </button>
+                        </div>
+                    </div>
+                `);
+                },
+
+                hooks: {
+                    onshow: function () {
+                        // Ahora accedemos directamente a la variable invoiceId
+                        const invoiceId = this.invoiceId;
+
+                        document.getElementById('btnTicket').onclick = () => {
+                            printerInvoicePOS(invoiceId);  // Pasamos el invoiceId a la función
+                            alertify.printOptions().close();
+                        };
+
+                        document.getElementById('btnPDF').onclick = () => {
+                            generatePDF(invoiceId);  // Pasamos el invoiceId a la función
+                            alertify.printOptions().close();
+                        };
+
+                        document.getElementById('btnEmail').onclick = () => {
+                            generateMail(invoiceId);  // Pasamos el invoiceId a la función
+                            alertify.printOptions().close();
+                        };
+                    }
+                }
+            };
+        });
+    }
+
+
+
     // Factura al contado
     $('.pos-button-cash').on('click', function () {
         const data = {
@@ -1110,13 +1203,11 @@ $(document).ready(function () {
                     loadDetailPOS();
                     initMethodSelect2('#method_id', 1);
 
-                    // Preguntar siempre si se desea imprimir la factura
-                    alertify.confirm('¿Deseas imprimir la factura?', function () {
-                        // Si acepta, imprimir la factura
-                        printerInvoicePOS(res);
-                    }, function () {
-                        // Si cancela, no hacer nada
-                    }).set('labels', { ok: 'Sí', cancel: 'No' });
+                    // Preguntar cómo desea imprimir
+                    showPrinterOptions(res);
+
+                    // printerInvoicePOS(res);
+
 
                 } else {
                     notifyAlert("Ha ocurrido un error", "error");
@@ -1307,6 +1398,107 @@ $(document).ready(function () {
     });
 
 
+    // Generar factura pdf
+    function generatePDF(invoice_id) {
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: {
+                id: invoice_id,
+                action: "devolver_datos_impresion"
+            },
+            successCallback: (response) => {
+
+                var data = typeof response === 'string' ? JSON.parse(response) : response;
+
+                const dataInv = {
+                    subtotal: data.datos.subtotal || 0,
+                    discount: data.datos.total_descuento || 0,
+                    taxes: data.datos.total_impuesto || 0,
+                    total: data.datos.total || 0,
+                };
+
+                var width = 1000;
+                var height = 800;
+
+                // Centrar la ventana
+                var x = parseInt((window.screen.width / 2) - (width / 2));
+                var y = parseInt((window.screen.height / 2) - (height / 2));
+
+                var url = SITE_URL + 'src/pdf/generar_factura_venta.php?f=' + invoice_id + '&sub=' + dataInv.subtotal + '&dis=' + dataInv.discount + '&tax=' + dataInv.taxes + '&total=' + dataInv.total;
+                window.open(url, 'Factura', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
+            }
+        });
+    }
+
+    // Generar Email de factura al contado
+    function generateMail(invoice_id) {
+
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: {
+                id: invoice_id,
+                action: "devolver_datos_impresion"
+            },
+            successCallback: (response) => {
+
+                var data = typeof response === 'string' ? JSON.parse(response) : response;
+
+                const dataInv = {
+                    payment_method: data.datos.nombre_metodo,
+                    subtotal: data.datos.subtotal || 0,
+                    discount: data.datos.total_descuento || 0,
+                    taxes: data.datos.total_impuesto || 0,
+                    total: data.datos.total || 0,
+                    date: data.datos.fecha,
+                    invoice_id: data.datos.factura_venta_id,
+                };
+
+                send(dataInv)
+            }
+        });
+
+        function send(data) {
+            const url = SITE_URL + 'src/phpmailer/ventas.php' +
+                '?f=' + data.invoice_id + // Número o ID de la factura
+                '&sub=' + data.subtotal + // Subtotal de la venta
+                '&dis=' + data.discount + // Descuento aplicado
+                '&tax=' + data.taxes + // Impuestos
+                '&total=' + data.total + // Total final
+                '&method=' + data.payment_method + // Método de pago (efectivo, tarjeta, etc.)
+                '&date=' + data.date; // Fecha de la venta
+
+            fetch(url)
+                .then(response => response.text())
+                .then(result => {
+                    // Mostramos la respuesta en la consola del navegador
+                    console.log("Respuesta:", result);
+
+
+                    if (result.includes("enviado correctamente") || result.includes("ok")) {
+                        console.log("Correo ha sido enviado correctamente.");
+
+                        // Mostrar notificación de éxito en azul
+                        mdtoast("correo enviado correctamente", {
+                            interactionTimeout: 1500,
+                            type: 'success',
+                            position: "bottom right",
+                        });
+                    } else {
+                        console.warn("Ocurrió un problema al enviar el correo:", result);
+
+                        mdtoast("Ocurrió un problema al enviar el correo", {
+                            interactionTimeout: 1500,
+                            type: 'error',
+                            position: "bottom right",
+                        });
+                    }
+                })
+                .catch(error => {
+                    // Si ocurre un error de conexión o ejecución, lo mostramos en consola
+                    console.error("Error al enviar la factura:", error);
+                });
+        }
+    }
 
     /**============================================================= 
     * INICIAR FUNCIONES

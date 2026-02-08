@@ -269,7 +269,7 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
                         </td>
                         <td class="textright"><?= number_format($element->precio, 2) ?></td>
                         <td class="textright"><?= number_format($element->cantidad_total * $element->impuesto, 2) ?> (<?= $element->valor ?>%)</td>
-                        <td class="textright"><?= number_format($element->descuento, 2) ?></td>
+                        <td class="textright"><?= number_format($element->descuento ?? 0, 2) ?></td>
                         <td class="textright"><?= number_format(($element->cantidad_total * $element->precio) + ($element->cantidad_total * $element->impuesto) - $element->descuento, 2) ?></td>
                     </tr>
 

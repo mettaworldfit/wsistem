@@ -32,19 +32,37 @@ if (pageURL.includes('invoices/pos')) {
     document.head.appendChild(style);
 }
 
+let toastTimeout = null;
 /**
     * 
     * @param {any} response - respuesta del mensaje
     * @param {string} type - tipo de notificacion
     * @param {int} duration  - duracion de la notificacion
-    */
-function notifyAlert(response, type = "success", duration = 2000) {
-    mdtoast(response, {
-        duration: duration,
-        position: "bottom right",
-        type: type,
-    });
+*/
+function notifyAlert(message, type = 'success', duration = 3000) {
+
+    // Evitar llamadas simultáneas
+    if (toastTimeout) {
+        clearTimeout(toastTimeout);
+        toastTimeout = null;
+    }
+
+    try {
+        mdtoast(message, {
+            type,
+            duration,
+            position: 'bottom right'
+        });
+    } catch (e) {
+        console.warn('Toast error:', e);
+    }
+
+    // Bloqueo temporal (anti-spam)
+    toastTimeout = setTimeout(() => {
+        toastTimeout = null;
+    }, duration);
 }
+
 
 // Variable global para acceder a las instancias DataTable desde cualquier parte
 const dataTablesInstances = {};
@@ -330,14 +348,18 @@ function sendAjaxRequest({ url, data = {}, successCallback, errorCallback, verbo
             }
 
             if (verbose) {
+                console.group('%c[SERVIDOR]', 'color:#30b24c;font-weight:bold;');
                 console.log("Respuesta del servidor:", data);
+                console.groupEnd();
             }
         },
         error: function (xhr, status, error) {
             const msg = `Error HTTP: ${status} - ${error}`;
 
             if (verbose) {
+                console.group('%c[SERVIDOR]', 'color:#df040e;font-weight:bold;');
                 console.error(msg);
+                console.groupEnd();
             }
 
             errorCallback?.(msg);
@@ -345,34 +367,6 @@ function sendAjaxRequest({ url, data = {}, successCallback, errorCallback, verbo
     });
 }
 
-// function sendAjaxRequest({ url, data, successCallback, errorCallback, verbose = false }) {
-//     $.ajax({
-//         type: "post",
-//         url: SITE_URL + url,
-//         data,
-//         success: function (res) {
-
-//             let data = handleJSONResponse(res);
-
-//             if (Array.isArray(data) || data.success || res.includes("ready") || res > 0 || (!data.success && !res.includes("duplicate") && !res.includes("Error"))) {
-//                 // Ejecuta la función successCallback si fue pasada y está definida
-//                 successCallback?.(res); // Devuelve la response
-
-//                 if (verbose) {
-//                     console.log("Datos devueltos por el servidor:", data);
-//                 }
-//             } else if (res.includes("duplicate")) {
-//                 notifyAlert('Existen datos que ya están siendo utilizado',"error");
-//             } else if (res.includes("Error")) {
-//                 errorCallback ? errorCallback(res) : notifyAlert("Ha ocurrido un error en la peticion","error");
-
-//                  console.log("hay un error")
-//             } else {
-//                 errorCallback ? errorCallback(res) : mysql_error(res);
-//             }
-//         }
-//     });
-// }
 
 function mysql_row_affected() {
     alertify.alert(`<div class='row-affected'>

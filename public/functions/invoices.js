@@ -639,7 +639,6 @@ $(document).ready(function () {
     }
 
     // Generar factura pdf
-
     function GeneratePDF(invoice) {
 
         data = {
@@ -672,7 +671,6 @@ $(document).ready(function () {
 
 
     // Generar Email de factura al contado
-
     function SendmailCashft(invoice) {
 
         data = {
@@ -723,7 +721,6 @@ $(document).ready(function () {
                 // Si ocurre un error de conexión o ejecución, lo mostramos en consola
                 console.error("Error al enviar la factura:", error);
             });
-
     }
 
 

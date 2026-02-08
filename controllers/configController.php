@@ -10,7 +10,8 @@ class ConfigController
         'config_mail' => ['administrador'], 
         'config_pdf' => ['administrador'],      
         'add_label' => ['administrador'],     
-        'labels' => ['administrador'],          
+        'labels' => ['administrador'],         
+        'printer' => ['administrador'],     
     ];
 
     // Verificación de permisos
@@ -85,6 +86,12 @@ class ConfigController
     {
         $this->check_permission('labels');
         require_once './views/config/labels.php';
+    }
+
+     public function printer()
+    {
+        $this->check_permission('printer');
+        require_once './views/config/printer.php';
     }
     
 }

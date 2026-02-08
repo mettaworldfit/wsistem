@@ -30,8 +30,9 @@
         <span>Facturas</span>
 
         <ul>
-            <li><a href="<?= base_url ?>config/config_mail">Servidor de correo</a></li>
+            <li><a href="<?= base_url ?>config/config_mail">Configuración Email</a></li>
             <li><a href="<?= base_url ?>config/config_pdf">Configuración PDF</a></li>
+             <li><a href="<?= base_url ?>config/printer">Configuración Ticket</a></li>
         </ul>
     </div>
 

@@ -68,4 +68,8 @@
 
   <button class="btn btn-success" data-toggle="tooltip" title="Launch QZ" id="launch" href="#">
      Conectar
-                    </button>
+</button>
+
+
+<select id="printers" style="width:100%"></select>
+
