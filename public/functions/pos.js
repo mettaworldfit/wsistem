@@ -1104,7 +1104,7 @@ $(document).ready(function () {
                         <div style="display:flex;gap:10px;justify-content:center;">
                             <button class="btn-custom btn-default" id="btnTest">
                                 <i class="fas fa-receipt"></i>
-                                <p>Ticket</p>
+                                <p>TEST</p>
                             </button>
 
                              <button class="btn-custom btn-default" id="btnTicket">
