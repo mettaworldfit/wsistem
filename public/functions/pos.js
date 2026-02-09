@@ -1,4 +1,4 @@
- import * as qz from "../test";
+ import * as qz from "/public/test.js";
 
 $(document).ready(function () {
 
