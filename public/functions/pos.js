@@ -1,3 +1,5 @@
+ import * as qz from "../test";
+
 $(document).ready(function () {
 
     let wsPOS = null;
@@ -1100,7 +1102,12 @@ $(document).ready(function () {
                         <br><br>
 
                         <div style="display:flex;gap:10px;justify-content:center;">
-                            <button class="btn-custom btn-default" id="btnTicket">
+                            <button class="btn-custom btn-default" id="btnTest">
+                                <i class="fas fa-receipt"></i>
+                                <p>Ticket</p>
+                            </button>
+
+                             <button class="btn-custom btn-default" id="btnTicket">
                                 <i class="fas fa-receipt"></i>
                                 <p>Ticket</p>
                             </button>
@@ -1123,6 +1130,11 @@ $(document).ready(function () {
                     onshow: function () {
                         // Ahora accedemos directamente a la variable invoiceId
                         const invoiceId = this.invoiceId;
+
+                        document.getElementById('btnTest').onclick = () => {
+                            printerInvTest(invoiceId);  // Pasamos el invoiceId a la función
+                            alertify.printOptions().close();
+                        };
 
                         document.getElementById('btnTicket').onclick = () => {
                             printerInvoicePOS(invoiceId);  // Pasamos el invoiceId a la función
@@ -1206,7 +1218,6 @@ $(document).ready(function () {
                     // Preguntar cómo desea imprimir
                     showPrinterOptions(res);
 
-                    // printerInvoicePOS(res);
 
 
                 } else {
@@ -1327,7 +1338,6 @@ $(document).ready(function () {
             });
         }
     }
-
 
     /**
      * Evento para imprimir la orden de venta.
@@ -1498,6 +1508,39 @@ $(document).ready(function () {
                     console.error("Error al enviar la factura:", error);
                 });
         }
+    }
+
+    // Test 
+    function printerInvTest(invoice_id) {
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: {
+                id: invoice_id,
+                action: "devolver_datos_impresion"
+            },
+            successCallback: (response) => {
+
+                var data = typeof response === 'string' ? JSON.parse(response) : response;
+
+                const dataInv = {
+                    customer: data.datos.nombre,
+                    seller: data.datos.usuario,
+                    payment_method: data.datos.nombre_metodo,
+                    invoice_id: data.datos.factura_venta_id,
+                    subtotal: data.datos.subtotal || 0,
+                    discount: data.datos.total_descuento || 0,
+                    taxes: data.datos.total_impuesto || 0,
+                    total: data.datos.total || 0,
+                    received: data.datos.recibido,
+                    pending: data.datos.pendiente,
+                    date: data.datos.fecha,
+                    observation: data.datos.descripcion
+                };
+
+                qz.factura_venta(dataInv,JSON.stringify(data.detalle))
+            },
+            verbose: true
+        });
     }
 
     /**============================================================= 

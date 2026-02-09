@@ -1,3 +1,5 @@
+import * as qz from "../test";
+
 $(document).ready(function () {
 
     // Configuracion de los bonos 
@@ -149,7 +151,7 @@ $(document).ready(function () {
             name: $(this).data('name')
         };
 
-        alertify.confirm("Eliminar etiqueta", "¿Estas seguro que deseas eliminar la etiqueta N°"+ data.name + " ?",
+        alertify.confirm("Eliminar etiqueta", "¿Estas seguro que deseas eliminar la etiqueta N°" + data.name + " ?",
             function () {
                 sendAjaxRequest({
                     url: "services/config.php",
@@ -241,5 +243,20 @@ $(document).ready(function () {
 
         })
     })
+
+    /**============================================================= 
+    * CONFIGURACION DE LOS TICKETS
+    ===============================================================*/
+
+    // Boton de diagnostico
+    $('#btnQzDiagnostico').on('click', function () {
+        qz.runQzDiagnostic();
+    });
+
+
+    // Boton de test
+    $("#printTest").on('click', function () {
+        qz.printExample();
+    });
 
 })
