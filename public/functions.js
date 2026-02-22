@@ -354,7 +354,6 @@ export function isWebSocketConnected() {
  * @returns {void} 
  */
 export function getUpdatedTotal() {
-    console.log("ejecutando")
     sendAjaxRequest({
         url: "services/home.php",
         data: {

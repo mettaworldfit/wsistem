@@ -677,7 +677,7 @@ export function formatMoney(number) {
 ===============================================================*/
 
 /* ===== QZ-TRAY VERBOSE MODE ===== */
-const QZ_VERBOSE = true;
+const QZ_VERBOSE = false;
 
 function qzLog(...args) {
     if (!QZ_VERBOSE) return;

@@ -351,7 +351,6 @@ $(document).ready(function () {
                     // Imprimir ticket
                     if (receipt === true) {
                         // Imprime en impresora
-                        // printer(invoice_id, res, data, "cash");
                         printerInvoice(invoice_id)
 
                         // Enviar email (si está marcado)

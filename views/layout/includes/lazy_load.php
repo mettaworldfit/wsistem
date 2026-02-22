@@ -74,6 +74,14 @@ $scriptsMap = [
             'src'  => base_url . 'public/functions/reports.js',
             'type' => 'module'
         ],
+        [
+            'src'  => base_url . 'public/functions.js',
+            'type' => 'module'
+        ],
+        [
+            'src'  => base_url . 'public/test.js',
+            'type' => 'module'
+        ],
     ],
 
     'invoices/addpurchase' => [
