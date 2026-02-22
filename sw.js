@@ -25,7 +25,6 @@ self.addEventListener("install", (e) => {
     const cacheProm = caches.open(CACHE_STATIC_NAME)
         .then((cache) => {
             return cache.addAll([
-
                 "public/style.css",
                 "public/imagen/sistem/icon.ico",
                 "public/imagen/img/img1.jpg",
