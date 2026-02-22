@@ -1,5 +1,5 @@
-import * as qz from "/public/test.js";
-import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "/public/functions.js";
+import * as qz from "/public/test.js?v=1.4.5";
+import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "/public/functions.js?v=1.4.5";
 
 // import * as qz from "../test.js";
 // import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "../functions.js";
