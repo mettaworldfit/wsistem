@@ -54,14 +54,7 @@ $globalScripts = [
         'src'  => base_url . 'public/functions/workshop.js',
         'type' => 'text/javascript'
     ],
-    [
-        'src'  => base_url . 'public/functions.js',
-        'type' => 'module'
-    ],
-    [
-        'src'  => base_url . 'public/test.js',
-        'type' => 'module'
-    ],
+ 
 ];
 
 // ==================================
