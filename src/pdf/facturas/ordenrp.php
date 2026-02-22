@@ -66,10 +66,6 @@
             margin-bottom: 10px;
         }
 
-        .logo_factura {
-            width: 35%;
-        }
-
         .info_empresa {
             width: 35%;
             text-align: center;
@@ -168,8 +164,37 @@
 </head>
 
 <?php
-$nombreImagen = base_url. $Logo_pdf;
-$imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nombreImagen));
+
+$claseLogo = '';
+
+// Detectar si es localhost
+$directorio = ($_SERVER['HTTP_HOST'] === 'localhost')
+    ? 'proyecto'
+    : 'wsistem';
+
+$rutaFisica  = $_SERVER['DOCUMENT_ROOT'] . "/{$directorio}/public/uploads/" . $Logo_pdf;
+$rutaDefault = $_SERVER['DOCUMENT_ROOT'] . "/{$directorio}/public/imagen/sistem/pdf.png";
+
+$rutaFinal = file_exists($rutaFisica) ? $rutaFisica : $rutaDefault;
+
+$info = @getimagesize($rutaFinal);
+
+if ($info !== false) {
+
+    $ancho = $info[0];
+    $alto  = $info[1];
+
+    if ($ancho >= 500 || $alto >= 500) {
+        $claseLogo = 'logo-xl';
+    } elseif ($ancho >= 350) {
+        $claseLogo = 'logo-md';
+    } else {
+        $claseLogo = 'logo-sm';
+    }
+}
+
+$imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($rutaFinal));
+
 ?>
 
 <body>
@@ -179,7 +204,7 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
             <tr>
                 <td class="logo_factura">
                     <div>
-                        <img src="<?= $imagenBase64 ?>"> <br>
+                        <img class="<?= $claseLogo ?>" src="<?= $imagenBase64 ?>"> <br>
                         <span class="eslogan"><?= $Slogan ?></span>
                         <p><?= $Dir ?></p>
                         <p><?= $Tel ?></p>
@@ -266,7 +291,7 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
 
                             <h3> <b> Condición del equipo: </b></h3> <br>
                             <?php while ($element = $result_condition->fetch_object()) : ?>
-                            <span>- <?= $element->sintoma ?></span> <br>
+                                <span>- <?= $element->sintoma ?></span> <br>
                             <?php endwhile; ?>
                         </table>
                     </div>
@@ -278,7 +303,7 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
 
         <!-- Footer -->
         <div>
-            
+
             <br>
             <br>
             <br><br><br>
@@ -289,7 +314,7 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
             <p class="nota">- Debe presentar este documento o referir el N° de Orden para recoger el equipo.</p>
             <br>
             <p class="nota textcenter"><?= $Policy ?></p>
-       
+
             <br><br>
             <h4 class="label_gracias">¡Gracias por su compra!</h4>
         </div>

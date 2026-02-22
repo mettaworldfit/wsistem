@@ -18,6 +18,8 @@ $permissions = [
     'obtener_datos_caja'  => [],
     'index_cierre_caja'  => [],
     'eliminar_cierre' => ['administrador'],
+    'imprimir_cierre' => [],
+
 
     // Ventas
     'index_ventas_hoy'  => [],
@@ -43,7 +45,12 @@ switch ($action) {
             $_POST['initial_balance'],
         ];
 
-        echo handleProcedureAction($db, 'c_aperturaCaja', $params);
+        $result = handleProcedureAction($db, 'c_aperturaCaja', $params);
+
+        // WEBSOCKET
+        webSocketServer('/api/box/open');
+
+        echo $result;
         break;
     // Cerrar caja
     case 'cierre_caja':
@@ -64,7 +71,12 @@ switch ($action) {
             $_POST['notes'] ?? ""
         ];
 
-        echo handleProcedureAction($db, 'c_cierreCaja', $params);
+        $result = handleProcedureAction($db, 'c_cierreCaja', $params);
+
+        // WEBSOCKET
+        webSocketServer('/api/box/close');
+
+        echo $result;
         break;
     // Obtener los datos del cierre
     case 'obtener_datos_caja':
@@ -130,17 +142,17 @@ switch ($action) {
             'table_rows' => function ($row) {
                 // Generar PDF
                 $acciones = '<span ';
-                if ($_SESSION['identity']->nombre_rol == 'administrador') {
-                    $acciones .= ' class="action-danger btn-action generate_pdf" data-id="'.$row['cierre_id'].'" ';
-                } else {
-                    $acciones .= ' class="action-danger btn-action action-disable"';
-                }
+                $acciones .= ' class="action-danger btn-action generate_pdf" data-id="' . $row['cierre_id'] . '" ';
                 $acciones .= ' title="PDF">' . BUTTON_PDF . '</span>';
+
+                $acciones .= '<span ';
+                $acciones .= ' class="action-info btn-action print_closing" data-id="' . $row['cierre_id'] . '" ';
+                $acciones .= ' title="Imprimir">' . BUTTON_PRINT . '</span>';
 
                 // Eliminar
                 $acciones .= '<span ';
                 if ($_SESSION['identity']->nombre_rol == 'administrador') {
-                    $acciones .= ' class="action-danger btn-action erase_closing" data-id="'. $row['cierre_id'].'"';
+                    $acciones .= ' class="action-danger btn-action erase_closing" data-id="' . $row['cierre_id'] . '"';
                 } else {
                     $acciones .= ' class="action-danger btn-action action-disable"';
                 }
@@ -184,6 +196,16 @@ switch ($action) {
     case 'eliminar_cierre':
         $db->query("SET @usuario_id = " . (int)$user_id);
         echo handleDeletionAction($db, (int)$_POST['id'], 'c_eliminarCierre');
+        break;
+    case 'imprimir_cierre':
+        $id = $_POST["id"];
+
+        $sql = "SELECT *,concat(u.nombre,' ',IFNULL(u.apellidos,'')) as nombre_completo FROM cierres_caja c 
+        INNER JOIN usuarios u ON u.usuario_id = c.usuario_id 
+        WHERE c.cierre_id = '$id'";
+
+        echo jsonQueryResult($db,$sql);
+
         break;
     // Ventas del dia
     case 'index_ventas_hoy':

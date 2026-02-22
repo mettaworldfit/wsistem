@@ -1,7 +1,7 @@
 <div class="section-wrapper">
     <div class="align-content clearfix">
         <div class="float-left">
-            <h1><i class="fas fa-tag"></i> Impresión</h1>
+            <h1><i class="fas fa-receipt"></i> Configuración tickets</h1>
         </div>
     </div>
 
@@ -17,17 +17,49 @@
                 <!-- ================= IMPRESORA ================= -->
                 <h5 class="mb-2">Impresora</h5>
 
-                <select class="form-custom col-sm-12 ml-3 mb-3"
-                    id="impresoraSelect"
-                    name="impresora"
-                    required>
-                    <option value="">Cargando impresoras...</option>
-                </select>
+                <div class="form-group d-flex">
+                    <label class="col-sm-5 text-right">
+                        Nombre Impresora <span class="text-danger">*</span>
+                    </label>
+
+                    <select class="form-custom col-sm-12 ml-3 mb-3"
+                        id="impresoraSelect"
+                        name="printer_name"
+                        required>
+                        <option value="" selected></option>
+                    </select>
+                </div>
+
+                <div class="form-group d-flex">
+                    <label class="col-sm-5 text-right">
+                        Usuario <span class="text-danger">*</span>
+                    </label>
+
+                    <select class="form-custom search col-sm-6 ml-3" name="user_id" required>
+                        <?php $users = Help::loadUsers();
+                        while ($element = $users->fetch_assoc()): ?>
+                            <option value="<?= $element['usuario_id'] ?>"><?= ucwords($element['nombre']) ?></option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+
+                <div class="form-group d-flex">
+                    <label class="col-sm-5 text-right">
+                        Tipo de Impresora <span class="text-danger">*</span>
+                    </label>
+
+                    <select class="form-custom search col-sm-4 ml-3" name="printer_type" required>
+                        <option value="">Seleccione</option>
+                        <option value="main">Principal</option>
+                        <option value="kitchen">Cocina</option>
+                        <option value="warehouse">Almacén</option>
+                    </select>
+                </div>
 
                 <!-- Lenguaje -->
                 <div class="form-group d-flex">
                     <label class="col-sm-3 text-right">Lenguaje<span class="text-danger">*</span></label>
-                    <select class="form-custom col-sm-4 ml-3" name="printer_language" required>
+                    <select class="form-custom search col-sm-4 ml-3" name="printer_language" required>
                         <option value="">Seleccione</option>
                         <option value="ESCPOS">ESC / POS</option>
                         <option value="ZPL">ZPL</option>
@@ -39,10 +71,18 @@
                 <!-- Método -->
                 <div class="form-group d-flex">
                     <label class="col-sm-3 text-right">Método</label>
-                    <select class="form-custom col-sm-4 ml-3" name="print_method">
+                    <select class="form-custom search col-sm-4 ml-3" name="print_method">
                         <option value="RAW">RAW</option>
                         <option value="HTML">HTML</option>
                         <option value="IMAGE">IMAGE</option>
+                    </select>
+                </div>
+
+                <div class="form-group d-flex">
+                    <label class="col-sm-3 text-right">Escala logo</label>
+                    <select class="form-custom search col-sm-4 ml-3" name="logo_density">
+                        <option value="single">Normal</option>
+                        <option value="double">Alta calidad</option>
                     </select>
                 </div>
 
@@ -55,9 +95,9 @@
                     <label class="col-sm-3 text-right">Papel (mm)<span class="text-danger">*</span></label>
                     <input class="form-custom col-sm-4 ml-3"
                         type="number"
+                        value="80"
                         step="0.01"
                         name="paper_width"
-                        value="80"
                         required>
                 </div>
                 <hr>
@@ -78,42 +118,37 @@
 
                 <div class="form-group d-flex">
                     <label class="col-sm-3 text-right">Auto corte</label>
-                    <select class="form-custom col-sm-4 ml-3" name="auto_cut">
+                    <select class="form-custom search col-sm-4 ml-3" name="auto_cut">
                         <option value="1">Sí</option>
                         <option value="0">No</option>
                     </select>
+
                 </div>
 
                 <div class="form-group d-flex">
                     <label class="col-sm-3 text-right">Abrir gaveta</label>
-                    <select class="form-custom col-sm-4 ml-3" name="open_cash_drawer">
+                    <select class="form-custom search col-sm-4 ml-3" name="open_cash_drawer">
                         <option value="0">No</option>
                         <option value="1">Sí</option>
                     </select>
                 </div>
 
-                 <div class="form-group d-flex">
+                <div class="form-group d-flex">
                     <label class="col-sm-3 text-right">Utilizar firma</label>
-                    <select class="form-custom col-sm-4 ml-3" name="signature">
+                    <select class="form-custom search col-sm-4 ml-3" name="signature">
                         <option value="0">No</option>
                         <option value="1">Sí</option>
                     </select>
                 </div>
-                
+
                 <div class="form-group d-flex">
                     <label class="col-sm-3 text-right">Footer Políticas</label>
-                    <textarea class="form-custom col-sm-8 ml-3"
-                        name="policy_footer"
-                        rows="3"
-                        placeholder="Solicite su factura"></textarea>
+                    <textarea class="form-custom col-sm-8 ml-3" name="policy_footer" rows="3">No hay devoluciones</textarea>
                 </div>
 
                 <div class="form-group d-flex">
                     <label class="col-sm-3 text-right">Footer ticket</label>
-                    <textarea class="form-custom col-sm-8 ml-3"
-                        name="ticket_footer"
-                        rows="3"
-                        placeholder="Gracias por su compra"></textarea>
+                    <textarea class="form-custom col-sm-8 ml-3" name="ticket_footer" rows="3">Gracias por su visita</textarea>
                 </div>
 
                 <hr>
@@ -123,7 +158,7 @@
 
                 <div class="form-group d-flex">
                     <label class="col-sm-3 text-right">Usar barcode</label>
-                    <select class="form-custom col-sm-4 ml-3" name="use_barcode">
+                    <select class="form-custom search col-sm-4 ml-3" name="use_barcode">
                         <option value="0">No</option>
                         <option value="1">Sí</option>
                     </select>
@@ -131,7 +166,7 @@
 
                 <div class="form-group d-flex">
                     <label class="col-sm-3 text-right">Tipo</label>
-                    <select class="form-custom col-sm-4 ml-3" name="barcode_type">
+                    <select class="form-custom search col-sm-4 ml-3" name="barcode_type">
                         <option value="CODE39">Code 39</option>
                         <option value="CODE128">Code 128</option>
                         <option value="EAN13">EAN-13</option>
@@ -140,22 +175,13 @@
 
                 <div class="form-group d-flex">
                     <label class="col-sm-3 text-right">Altura</label>
-                    <input class="form-custom col-sm-4 ml-3"
-                        type="number"
-                        name="barcode_height"
-                        value="80"
-                        min="40"
-                        max="200">
+                    <input class="form-custom col-sm-4 ml-3" type="number" name="barcode_height"
+                        value="80" min="1" max="200">
                 </div>
 
                 <div class="form-group d-flex">
                     <label class="col-sm-3 text-right">Ancho</label>
-                    <input class="form-custom col-sm-4 ml-3"
-                        type="number"
-                        name="barcode_width"
-                        value="2"
-                        min="1"
-                        max="4">
+                    <input class="form-custom col-sm-4 ml-3" type="number" value="2" name="barcode_width">
                 </div>
 
                 <hr>
@@ -165,7 +191,7 @@
 
                 <div class="form-group d-flex">
                     <label class="col-sm-3 text-right">Usar QR</label>
-                    <select class="form-custom col-sm-4 ml-3" name="use_qr">
+                    <select class="form-custom search col-sm-4 ml-3" name="use_qr">
                         <option value="0">No</option>
                         <option value="1">Sí</option>
                     </select>
@@ -173,35 +199,9 @@
 
                 <div class="form-group d-flex">
                     <label class="col-sm-3 text-right">Tamaño</label>
-                    <input class="form-custom col-sm-4 ml-3"
-                        type="number"
-                        name="qr_size"
-                        value="6"
-                        min="3"
-                        max="12">
+                    <input class="form-custom col-sm-4 ml-3" type="number" name="qr_size"
+                        value="4" min="3" max="12">
                 </div>
-
-                <hr>
-
-                <!-- ================= LOGO ================= -->
-                <h5 class="mb-2">Logo</h5>
-
-                <div class="form-group d-flex">
-                    <label class="col-sm-3 text-right">Archivo</label>
-                    <input class="form-custom col-sm-6 ml-3"
-                        type="file"
-                        name="logo"
-                        accept="image/png,image/jpeg">
-                </div>
-
-                <div class="form-group d-flex">
-                    <label class="col-sm-3 text-right">Escala logo</label>
-                    <select class="form-custom col-sm-4 ml-3" name="logo_density">
-                        <option value="single">Normal</option>
-                        <option value="double">Alta (más grande)</option>
-                    </select>
-                </div>
-
                 <hr>
 
                 <!-- ================= ESPACIADO ================= -->
@@ -209,24 +209,14 @@
 
                 <div class="form-group d-flex">
                     <label class="col-sm-3 text-right">Feed inicial</label>
-                    <input class="form-custom col-sm-4 ml-3"
-                        type="number"
-                        name="feed_start"
-                        value="1"
-                        min="0"
-                        max="10">
+                    <input class="form-custom col-sm-4 ml-3" type="number" value="1" name="feed_start"
+                        min="0" max="10">
                 </div>
 
                 <div class="form-group d-flex">
                     <label class="col-sm-3 text-right">Feed final</label>
-                    <input class="form-custom col-sm-4 ml-3"
-                        type="number"
-                        name="feed_end"
-                        value="2"
-                        min="0"
-                        max="10">
+                    <input class="form-custom col-sm-4 ml-3" type="number" value="4" name="feed_end">
                 </div>
-
 
             </div>
         </div>

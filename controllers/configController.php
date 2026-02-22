@@ -4,14 +4,17 @@ class ConfigController
 {
     // Definir los permisos por acción en un array
     private $permissions = [
-        'index' => ['administrador'],           
-        'config_bonus' => ['administrador'],     
-        'bonus' => ['administrador'],           
-        'config_mail' => ['administrador'], 
-        'config_pdf' => ['administrador'],      
-        'add_label' => ['administrador'],     
-        'labels' => ['administrador'],         
-        'printer' => ['administrador'],     
+        'site' => ['administrador'],
+        'index' => ['administrador'],
+        'config_bonus' => ['administrador'],
+        'bonus' => ['administrador'],
+        'config_mail' => ['administrador'],
+        'config_pdf' => ['administrador'],
+        'add_label' => ['administrador'],
+        'labels' => ['administrador'],
+        'printer' => ['administrador'],
+        'printers' => ['administrador'],
+        'edit_printer' => ['administrador']
     ];
 
     // Verificación de permisos
@@ -23,7 +26,7 @@ class ConfigController
             exit();
         }
 
-           // Verificar si el rol del usuario tiene permiso para la acción solicitada
+        // Verificar si el rol del usuario tiene permiso para la acción solicitada
         $roles = isset($this->permissions[$action]) ? $this->permissions[$action] : [];
 
         // Si el array de roles está vacío, todos los roles tienen acceso
@@ -36,6 +39,12 @@ class ConfigController
             require_once './views/layout/denied.php';
             exit();
         }
+    }
+
+    public function site()
+    {
+        $this->check_permission('site');
+        require_once './views/config/site.php';
     }
 
     // Acción para mostrar la configuración principal
@@ -74,7 +83,7 @@ class ConfigController
     }
 
 
-     // Acción para crear una etiqueta
+    // Acción para crear una etiqueta
     public function add_label()
     {
         $this->check_permission('add_label');
@@ -88,10 +97,21 @@ class ConfigController
         require_once './views/config/labels.php';
     }
 
-     public function printer()
+    public function printer()
     {
         $this->check_permission('printer');
         require_once './views/config/printer.php';
     }
-    
+
+     public function printers()
+    {
+        $this->check_permission('printers');
+        require_once './views/config/printers.php';
+    }
+
+    public function edit_printer()
+    {
+        $this->check_permission('printer');
+        require_once './views/config/edit_printer.php';
+    }
 }

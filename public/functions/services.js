@@ -1,5 +1,4 @@
 // Agregar servicio
-
 function addService() {
     sendAjaxRequest({
         url: "services/services.php",

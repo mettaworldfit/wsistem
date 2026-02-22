@@ -33,7 +33,7 @@ self.addEventListener("install", (e) => {
                 "public/imagen/img/img3.jpg",
                 "public/imagen/sistem/no-imagen.png",
                 "public/login.css",
-                "public/jquery/jquery.js",
+                "public/vendor/jquery/jquery.js",
                 "public/fonts/Cabin-Regular.ttf",
                 "public/fonts/Nunito-Regular.ttf",
                 "public/fonts/Barlow-Regular.ttf",
@@ -44,20 +44,24 @@ self.addEventListener("install", (e) => {
 
     const cacheInmutable = caches.open(CACHE_INMUTABLE_NAME).then((cache) => {
         return cache.addAll([
-            "public/mdtoast/mdtoast.min.js",
-            "public/mdtoast/mdtoast.min.css",
-            "//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js",
-            "//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css",
-            "//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css",
-            "public/bootstrap4/popper.min.js",
-            "public/bootstrap4/bootstrap.min.js",
-            "public/bootstrap4/bootstrap.min.css",
-            "public/datatable/dataTables.bootstrap4.min.css",
-            "public/datatable/jquery.dataTables.min.js",
-            "public/datatable/dataTables.bootstrap4.min.js",
-            "public/select2/select2.min.css",
-            "public/select2/select2.full.min.js",
-            "https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"
+
+            "public/vendor/chartjs/chart.umd.js",
+            "public/vendor/alertify/alertify.min.js",
+            "public/vendor/alertify/css/alertify.min.css",
+            "public/vendor/alertify/css/themes/default.min.css",
+
+            "public/vendor/mdtoast/mdtoast.min.js",
+            "public/vendor/mdtoast/mdtoast.min.css",
+            "public/vendor/bootstrap4/popper.min.js",
+            "public/vendor/bootstrap4/bootstrap.min.js",
+            "public/vendor/bootstrap4/bootstrap.min.css",
+            "public/vendor/datatable/dataTables.bootstrap4.min.css",
+            "public/vendor/datatable/jquery.dataTables.min.js",
+            "public/vendor/datatable/dataTables.bootstrap4.min.js",
+            "public/vendor/select2/select2.min.css",
+            "public/vendor/select2/select2.full.min.js",
+            "public/vendor/qz/qz-tray.js",
+            'https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js'
 
         ]);
     });

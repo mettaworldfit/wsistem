@@ -22,11 +22,15 @@
 
   <link rel="shortcut icon" href="<?= base_url ?>public/imagen/sistem/icon.ico" type="image/x-icon">
 
-  <script src="<?= base_url ?>public/jquery/jquery.js"></script>
+  <!-- CORE -->
+  <script src="<?= base_url ?>public/vendor/jquery/jquery.js"></script>
   <script src="<?= base_url ?>public/scripts.js?v=<?= APP_VERSION ?>"></script>
-
   <link rel="manifest" href="<?= base_url ?>manifest.json">
   <script src="<?= base_url ?>sw.js" type="text/javascript"></script>
+
+  <!-- Vegas -->
+  <script src="<?= base_url ?>public/vendor/vegas/vegas.min.js"></script>
+  <link rel="stylesheet" href="<?= base_url ?>public/vendor/vegas/vegas.min.css">
 
   <title><?php echo isset($_SESSION['infoClient']) ? $_SESSION['infoClient']['company'] : "app.wsistems.com";  ?></title>
 
@@ -39,16 +43,7 @@
 
     <link rel="stylesheet" href="<?= base_url ?>public/login.css?v=<?= APP_VERSION ?>" type="text/css">
 
-    <!-- Jquery Vegas -->
-    <link rel="stylesheet" href="<?= base_url ?>public/jquery-vegas/vegas.min.css" type="text/css">
-    <script src="<?= base_url ?>public/jquery-vegas/vegas.min.js" type="text/javascript"></script>
-    <script src="<?= base_url ?>public/jquery-vegas/main.js" type="text/javascript"></script>
-
   <?php } ?>
-
-  <!-- QZ Tray -->
-    <script src="<?= base_url ?>src/qz-tray/qz-tray.js" type="text/javascript"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/11.1.0/jsrsasign-all-min.js"></script>
 
   <!-- Lazy loading -->
   <?php require_once "includes/lazy_load.php"; ?>
@@ -57,39 +52,34 @@
   <script src="https://unpkg.com/html5-qrcode"></script>
 
   <!-- Font-Awesome -->
-
-  <link rel="preload" href="<?= base_url ?>public/font-awesome/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <script src="<?= base_url ?>public/font-awesome/all.min.js" type="text/javascript"></script>
+  <link rel="preload" href="<?= base_url ?>public/vendor/font-awesome/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <script src="<?= base_url ?>public/vendor/font-awesome/all.min.js" type="text/javascript"></script>
 
   <!-- Material toast -->
-  <link rel="stylesheet" href="<?= base_url ?>public/mdtoast/mdtoast.min.css" type="text/css">
-  <script src="<?= base_url ?>public/mdtoast/mdtoast.min.js" type="text/javascript"></script>
+  <link rel="stylesheet" href="<?= base_url ?>public/vendor/mdtoast/mdtoast.min.css" type="text/css">
+  <script src="<?= base_url ?>public/vendor/mdtoast/mdtoast.min.js" type="text/javascript"></script>
 
   <!-- Bootstrap4 -->
-
-  <script src="<?= base_url ?>public/bootstrap4/popper.min.js" type="text/javascript"></script>
-  <script src="<?= base_url ?>public/bootstrap4/bootstrap.min.js" type="text/javascript"></script>
-  <link rel="stylesheet" href="<?= base_url ?>public/bootstrap4/bootstrap.min.css" type="text/css">
+  <script src="<?= base_url ?>public/vendor/bootstrap4/popper.min.js" type="text/javascript"></script>
+  <script src="<?= base_url ?>public/vendor/bootstrap4/bootstrap.min.js" type="text/javascript"></script>
+  <link rel="stylesheet" href="<?= base_url ?>public/vendor/bootstrap4/bootstrap.min.css" type="text/css">
 
   <!-- Data Table -->
-
-  <link rel="stylesheet" href="<?= base_url ?>public/datatable/dataTables.bootstrap4.min.css" type="text/css">
-
-  <script src="<?= base_url ?>public/datatable/jquery.dataTables.min.js" type="text/javascript"></script>
-  <script src="<?= base_url ?>public/datatable/dataTables.bootstrap4.min.js"></script>
+  <link rel="stylesheet" href="<?= base_url ?>public/vendor/datatable/dataTables.bootstrap4.min.css" type="text/css">
+  <script src="<?= base_url ?>public/vendor/datatable/jquery.dataTables.min.js" type="text/javascript"></script>
+  <script src="<?= base_url ?>public/vendor/datatable/dataTables.bootstrap4.min.js"></script>
 
   <!-- Select2 -->
+  <link rel="stylesheet" href="<?= base_url ?>public/vendor//select2/select2.min.css" type="text/css">
+  <script src="<?= base_url ?>public/vendor/select2/select2.full.min.js" type="text/javascript"></script>
 
-  <link rel="stylesheet" href="<?= base_url ?>public/select2/select2.min.css" type="text/css">
-  <script src="<?= base_url ?>public/select2/select2.full.min.js" type="text/javascript"></script>
+  <!-- Alertify -->
+  <link rel="stylesheet" href="<?= base_url ?>public/vendor/alertify/css/alertify.min.css">
+  <link rel="stylesheet" href="<?= base_url ?>public/vendor/alertify/css/themes/default.min.css">
+  <script src="<?= base_url ?>public/vendor/alertify/alertify.min.js"></script>
 
-  <!-- AlertifyJS CDN-->
-
-  <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css" />
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
-
-
+  <!-- QZ Tray -->
+  <script src="<?= base_url ?>public/vendor/qz/qz-tray.js"></script>
 
 </head>
 

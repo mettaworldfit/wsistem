@@ -15,47 +15,7 @@
         <?php $config = Help::configMail(); ?>
         <div class="container row">
             <div class="form-group col-md-8">
-                <div class="form-group d-flex">
-                    <label for="compañía" class="col-sm-3 text-right ">Compañía</label>
-                    <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $config['empresa_name'] ?>" name="compañía" id="company">
-                    <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Compañía"
-                        data-content="Escribe el nombre de tu negocio."><i
-                            class="far fa-question-circle"></i></a>
-                </div>
-
-                <div class="form-group d-flex">
-                    <label for="logo" class="col-sm-3 text-right ">Logo_url</label>
-                    <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $config['logo_url'] ?>" name="logo" id="logo">
-                    <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Logo URL"
-                        data-content="Carga un logo con dimensiones 200x100 desde imgur.com"><i
-                            class="far fa-question-circle"></i></a>
-                </div>
-
-                <div class="form-group d-flex">
-                    <label for="facebook" class="col-sm-3 text-right ">Facebook</label>
-                    <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $config['link_facebook'] ?>" name="facebook" id="facebook">
-                    <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Facebook"
-                        data-content="Ingresa el link de tu perfil de facebook"><i
-                            class="far fa-question-circle"></i></a>
-                </div>
-
-                <div class="form-group d-flex">
-                    <label for="instagram" class="col-sm-3 text-right ">Instagram</label>
-                    <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $config['link_instagram'] ?>" name="instagram" id="instagram">
-                    <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Instagram"
-                        data-content="Ingresa el link de tu perfil de instagram"><i
-                            class="far fa-question-circle"></i></a>
-                </div>
-
-                <div class="form-group d-flex">
-                    <label for="whatsapp" class="col-sm-3 text-right ">Whatsapp</label>
-                    <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $config['link_whatsapp'] ?>" name="whatsapp" id="whatsapp">
-                    <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Whatsapp"
-                        data-content="Ingresa el link de tu perfil de whatsapp"><i
-                            class="far fa-question-circle"></i></a>
-                </div>
-
-
+                
                 <div class="form-group d-flex">
                     <label for="email" class="col-sm-3 text-right ">Correo</label>
                     <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $config['correo_servidor'] ?>" name="email" id="email">

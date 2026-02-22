@@ -619,7 +619,7 @@ LIMIT $start, $length
 
         <input
           type="number"
-          class="input-update input-quantity"
+          class="input-update" id="input-async"
           value="' . (intval($cantidad) == $cantidad ? number_format($cantidad, 0) : number_format($cantidad, 2)) . '"
           data-id="' . $row['detalle_venta_id'] . '"
           data-item-id="' . ($producto_id ? $producto_id : ($row['pieza_id'] ? $row['pieza_id'] : $row['servicio_id'])) . '"

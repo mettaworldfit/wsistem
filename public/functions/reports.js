@@ -1,4 +1,37 @@
+import * as qz from "public/test.js";
+import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "public/functions.js";
+
+// import * as qz from "../test.js";
+// import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "../functions.js";
+
 $(document).ready(function () {
+
+    let wsConnection = initWebSocket();
+    let wsConnected = isWebSocketConnected();
+
+    // Manejar el mensaje recibido
+    wsConnection.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+
+        console.log('%c[WS LOG]', 'color:#007bff;font-weight:bold;', data)
+
+        if (data.type === "nueva_venta") {
+            getUpdatedTotal()
+        }
+
+        if (data.type === "caja_abierta") {
+            // Actualizar el contenido de los elementos específicos usando .html()
+            $('.float-right').load(window.location.href + ' .float-right > *');
+            $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
+        }
+
+        if (data.type === "caja_cerrada") {
+            // Actualizar el contenido de los elementos específicos usando .html()
+            $('.float-right').load(window.location.href + ' .float-right > *');
+            $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
+        }
+    };
+
 
     $("#col-dateq1, #col-dateq2,#col-year,#col-month").fadeOut(200);
 
@@ -228,8 +261,11 @@ $(document).ready(function () {
             url: "services/reports.php",
             data,
             successCallback: () => {
-                $('.float-right').load(window.location.href + ' .float-right > *');
-                $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
+
+                if (!wsConnected) {
+                    $('.float-right').load(window.location.href + ' .float-right > *');
+                    $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
+                }
 
                 $('#modalCashOpening').modal('hide');
 
@@ -293,144 +329,29 @@ $(document).ready(function () {
             url: "services/reports.php",
             data: data,
             successCallback: (res) => {
-                $('.float-right').load(window.location.href + ' .float-right > *');
-                $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
+
+                if (!wsConnected) {
+                    $('.float-right').load(window.location.href + ' .float-right > *');
+                    $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
+
+                }
 
                 notifyAlert("Datos registrados correctamente")
 
                 $('#modalCashClosing').modal('hide'); // Cerrar ventana
 
-                printerClosing(data, res)
+                const response = {
+                    cierre_id: res
+                }
+
+                Object.assign(data, response)
+                qz.cierre_caja(data) // Imprimir
                 // sendCashClosing(res) // Enviar el cierr de caja por correo
             },
             errorCallback: (res) => mysql_error(res),
             verbose: false
         })
     })
-
-    // Imprimir cierre
-    function printerClosing(data, cierre_id) {
-        $.ajax({
-            type: "POST",
-            url: PRINTER_SERVER + "cierre_caja.php",
-            data: JSON.stringify({
-                data: data,
-                id: cierre_id
-            }),
-            contentType: "application/json", // Enviamos JSON
-            dataType: "json", // Esperamos JSON de respuesta
-            success: function (res) {
-
-                if (res.success) {
-                    console.log("✅ Impresión completada:", res.message);
-                } else {
-                    console.warn("⚠️ Error en impresión:", res.message);
-                    // notifyAlert(res.message || "Error al imprimir", "error");
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error("❌ Error AJAX:", error);
-                //  notifyAlert("No se pudo conectar con el servidor de impresión.", "error");
-            }
-        });
-    }
-
-
-
-
-   
-
-
-
-    // function num(v) {
-    //     return parseFloat(v.toString().replace(/[^0-9.-]+/g, "")) || 0;
-    // }
-
-    // /* ==============================
-    //    IMPRESIÓN CIERRE DE CAJA
-    // ================================ */
-    // function printerClosing(data, cierre_id) {
-
-    //     const totalExpected = num(data.total_expected);
-    //     const difference = num(data.difference);
-    //     const total = num(data.total);
-
-    //     /* ===== SEGURIDAD QZ (OBLIGATORIO) ===== */
-    //     // qz.security.setCertificatePromise(() => {
-    //     //     return fetch(SITE_URL + "public/qz-cert.pem").then(res => res.text());
-    //     // });
-
-    //     // qz.security.setSignaturePromise(toSign => {
-    //     //     return fetch(SITE_URL + "services/sign-qz.php", {
-    //     //         method: "POST",
-    //     //         body: toSign
-    //     //     }).then(res => res.text());
-    //     // });
-
-    //     /* ===== CONEXIÓN SEGURA ===== */
-    //     const connectQZ = qz.websocket.isActive()
-    //         ? Promise.resolve()
-    //         : qz.websocket.connect();
-
-    //     connectQZ
-    //         .then(() => {
-    //             console.log("Conexión establecida con QZ Tray.");
-    //             return qz.printers.find("POS-80");
-    //         })
-    //         .then(printer => {
-    //             console.log("Impresora encontrada:", printer);
-    //             const config = qz.configs.create(printer, {
-    //                 copies: 1,
-    //                 units: "mm",
-    //                 size: { width: 80 },
-    //                 margins: { top: 0, right: 0, bottom: 0, left: 0 }
-    //             });
-
-    //             const printData = [
-    //                 '\x1B\x40',
-    //                 '\x1B\x61\x01',
-    //                 'CIERRE DE CAJA\n',
-    //                 '================================\n',
-    //                 '\x1B\x61\x00',
-    //                 `Caja #: ${cierre_id}\n`,
-    //                 `Usuario: ${data.user_name}\n`,
-    //                 `Apertura: ${data.opening_date}\n`,
-    //                 `Cierre: ${data.closing_date}\n`,
-    //                 '--------------------------------\n',
-    //                 `Efectivo:        RD$ ${num(data.cash_income).toFixed(2)}\n`,
-    //                 `Tarjeta:         RD$ ${num(data.card_income).toFixed(2)}\n`,
-    //                 `Transferencias:  RD$ ${num(data.transfer_income).toFixed(2)}\n`,
-    //                 `Cheques:         RD$ ${num(data.check_income).toFixed(2)}\n`,
-    //                 '--------------------------------\n',
-    //                 `Gastos caja:     RD$ ${num(data.cash_expenses).toFixed(2)}\n`,
-    //                 `Gastos externos: RD$ ${num(data.external_expenses).toFixed(2)}\n`,
-    //                 `Retiros:         RD$ ${num(data.withdrawals).toFixed(2)}\n`,
-    //                 `Reembolsos:      RD$ ${num(data.refunds).toFixed(2)}\n`,
-    //                 '--------------------------------\n',
-    //                 '\x1B\x45\x01',
-    //                 `TOTAL ESPERADO:  RD$ ${totalExpected.toFixed(2)}\n`,
-    //                 `TOTAL CONTADO:   RD$ ${total.toFixed(2)}\n`,
-    //                 `DIFERENCIA:      RD$ ${difference.toFixed(2)}\n`,
-    //                 '\x1B\x45\x00',
-    //                 '================================\n',
-    //                 '\x1B\x61\x01',
-    //                 '*** FIN DEL CIERRE ***\n',
-    //                 '\n\n\n\n\n',
-    //                 '\x1D\x56\x00'
-    //             ];
-
-    //             return qz.print(config, printData);
-    //         })
-    //         .then(() => {
-    //             console.log('✅ Cierre de caja impreso correctamente');
-    //         })
-    //         .catch(err => {
-    //             console.error('❌ Error QZ Tray:', err);
-    //         });
-
-    // }
-
-
 
     // Enviar cierre de caja por correo
     function sendCashClosing(id) {
@@ -489,6 +410,57 @@ $(document).ready(function () {
 
         var url = SITE_URL + 'src/pdf/cierre_caja.php?id=' + cierre_id;
         window.open(url, 'ciere_caja', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
+    })
+
+    // Imprimir cierre
+    $(document).on('click', '.print_closing', function () {
+        const cierre_id = $(this).data('id');
+
+        sendAjaxRequest({
+            url: "services/reports.php",
+            data: {
+                action: "imprimir_cierre",
+                id: cierre_id
+            },
+            successCallback: (res) => {
+                const data = JSON.parse(res)[0]
+
+                const info = {
+                    // Datos de impresion
+                    tickets_invoices: 0,
+                    tickets_payments: 0,
+                    difference: data.diferencia,
+                    total_expected: data.total_esperado,
+                    user_name: data.nombre_completo,
+                    opening_date: data.fecha_apertura,
+
+                    user_id: data.usuario_id,
+                    cierre_id: data.cierre_id,
+                    closing_date: data.fecha_cierre,
+                    initial_balance: data.saldo_inicial,
+                    cash_income: data.ingresos_efectivo || 0,
+                    card_income: data.ingresos_tarjeta || 0,
+                    transfer_income: data.ingresos_transferencias || 0,
+                    check_income: data.ingresos_cheque || 0,
+                    cash_expenses: data.egresos_caja || 0,
+                    external_expenses: data.egresos_fuera || 0,
+                    withdrawals: data.retiros || 0,
+                    refunds: data.reembolsos || 0,
+                    total: data.total_real || 0,
+                    current_total: data.total_esperado,
+                    notes: data.observaciones || ""
+                }
+
+                qz.cierre_caja(info);
+
+            },
+            errorCallback: (err) => {
+                console.error(err);
+                notifyAlert("Ha ocurrido un erro inesperado", "error")
+            }
+        })
+
+
     })
 
 

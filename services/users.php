@@ -33,38 +33,39 @@ if ($_POST['action'] == "index_usuarios") {
     'table_rows' => function ($row) {
 
       $acciones = '<a ';
-if ($_SESSION['identity']->nombre_rol == 'administrador') {
-  if ($row['nombre_estado'] == 'Activo') {
-    $acciones .= 'class="btn-action action-info" href="' . base_url . 'users/edit&id=' . $row['usuario_id'] . '"';
-  } else {
-    $acciones .= 'class="btn-action action-info action-disable" href="#"';
-  }
-} else {
-  $acciones .= 'class="btn-action action-info action-disable" href="#"';
-}
-$acciones .= ' title="Editar">' . BUTTON_EDIT . '</a>';
+      if ($_SESSION['identity']->nombre_rol == 'administrador') {
+        if ($row['nombre_estado'] == 'Activo') {
+          $acciones .= 'class="btn-action action-info" href="' . base_url . 'users/edit&id=' . $row['usuario_id'] . '"';
+        } else {
+          $acciones .= 'class="btn-action action-info action-disable" href="#"';
+        }
+      } else {
+        $acciones .= 'class="btn-action action-info action-disable" href="#"';
+      }
+      $acciones .= ' title="Editar">' . BUTTON_EDIT . '</a>';
 
-// Activar o desactivar usuario
-if ($_SESSION['identity']->nombre_rol == 'administrador') {
-  if ($row['nombre_estado'] == 'Activo') {
-    $acciones .= '<span onclick="disableUser(\'' . $row['usuario_id'] . '\')" class="btn-action action-success" title="Desactivar">' . BUTTON_ACTIVE . '</span>';
-  } else {
-    $acciones .= '<span onclick="enableUser(\'' . $row['usuario_id'] . '\')" class="btn-action action-danger" title="Activar">' . BUTTON_DISABLE . '</span>';
-  }
-} else {
-  if ($row['nombre_estado'] == 'Activo') {
-    $acciones .= '<span class="btn-action action-success action-disable" title="Desactivar">' . BUTTON_ACTIVE . '</span>';
-  } else {
-    $acciones .= '<span class="btn-action action-danger action-disable" title="Activar">' . BUTTON_DISABLE . '</span>';
-  }
-}
+      // Activar o desactivar usuario
+      if ($_SESSION['identity']->nombre_rol == 'administrador') {
+        if ($row['nombre_estado'] == 'Activo') {
+          $acciones .= '<span class="btn-action action-success disabled_user" data-id="' . $row['usuario_id'] . '" title="Desactivar">' . BUTTON_ACTIVE . '</span>';
+        } else {
+          $acciones .= '<span class="btn-action action-danger enable_user" data-id="' . $row['usuario_id'] . '" title="Activar">' . BUTTON_DISABLE . '</span>';
+        }
+      } else {
+        if ($row['nombre_estado'] == 'Activo') {
+          $acciones .= '<span class="btn-action action-success action-disable" title="Desactivar">' . BUTTON_ACTIVE . '</span>';
+        } else {
+          $acciones .= '<span class="btn-action action-danger action-disable" title="Activar">' . BUTTON_DISABLE . '</span>';
+        }
+      }
 
-// Eliminar
-if ($_SESSION['identity']->nombre_rol == 'administrador') {
-  $acciones .= '<span onclick="deleteUser(\'' . $row['usuario_id'] . '\')" class="btn-action action-danger" title="Eliminar">' . BUTTON_DELETE . '</span>';
-} else {
-  $acciones .= '<span class="btn-action action-danger action-disable" title="Eliminar">' . BUTTON_DELETE . '</span>';
-}
+      // Eliminar
+      if ($_SESSION['identity']->nombre_rol == 'administrador') {
+        $acciones .= '<span class="btn-action action-danger erase_user" data-id="' . $row['usuario_id'] . '" 
+         data-name="' . ucwords($row['nombre']) . ' ' . ucwords($row['apellidos']) . '" title="Eliminar">' . BUTTON_DELETE . '</span>';
+      } else {
+        $acciones .= '<span class="btn-action action-danger action-disable" title="Eliminar">' . BUTTON_DELETE . '</span>';
+      }
 
 
       return [
@@ -116,121 +117,80 @@ if ($_POST['action'] == "login") {
 }
 
 
-/**
- * Cerrar sesión
-   -------------------------------------------------------------*/
-
+// Cerrar sesión
 if ($_POST['action'] == "logout") {
 
-  session_destroy();
+    // Limpiar las variables de sesión
+    session_unset();
 
-  echo "ready";
+    // Destruir la sesión
+    session_destroy();
+    exit();
 }
 
 
 // Crear usuario
-
 if ($_POST['action'] == "crear_usuario") {
-
-  $name = $_POST['name'];
-  $lastname = $_POST['lastname'];
-  $username = $_POST['username'];
-  $password = $_POST['password'];
-  $rol = $_POST['rol'];
 
   $db = Database::connect();
 
+  $params = [
+    (int)$_POST['role'],
+    $_POST['name'],
+    $_POST['lastname'],
+    $_POST['username'],
+    $_POST['password'],
+  ];
 
-
-  $query = "CALL us_agregarUsuario('$rol','$name','$lastname','$username','$password')";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo "ready";
-  } else if (str_contains($data->msg, 'Duplicate')) {
-
-    echo "duplicate";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error 50: " . $db->error;
-  }
+    echo handleProcedureAction($db, "us_agregarUsuario", $params);
 }
 
 // Actualizar usuario
 
 if ($_POST['action'] == "actualizar_usuario") {
 
-  $name = $_POST['name'];
-  $lastname = $_POST['lastname'];
-  $username = $_POST['username'];
-  $password = $_POST['password'];
-  $rol = $_POST['rol'];
-  $id = $_POST['id'];
+  $params = [
+    $_POST['role'],
+    $_POST['name'],
+    $_POST['lastname'],
+    $_POST['password'],
+    $_POST['user_id'],
+  ];
 
   $db = Database::connect();
 
-  $query = "CALL us_actualizarUsuario($rol,'$name','$lastname','$username','$password',$id)";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo "ready";
-  } else if (str_contains($data->msg, 'Duplicate')) {
-
-    echo "duplicate";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error 54:" . $data->msg;
-  }
+  echo handleProcedureAction($db, "us_actualizar_usuario", $params);
 }
 
 // Eliminar usuario
-
 if ($_POST['action'] == "eliminar_usuario") {
 
   $db = Database::connect();
 
-  echo handleDeletionAction($db,(int)$_POST['user_id'],'us_eliminarUsuario');
+  echo handleDeletionAction($db, (int)$_POST['user_id'], 'us_eliminarUsuario');
 }
 
 // Desactivar usuario
-
-
 if ($_POST['action'] == "desactivar_usuario") {
   $db = Database::connect();
 
-  $id = $_POST['user_id'];
+  $params = [
+    (int)$_POST['user_id'],
+    'desactivar'
+  ];
 
-  $query = "CALL us_cambiarEstado($id,'desactivar')";
+  echo handleProcedureAction($db, 'us_cambiarEstado', $params);
+}
 
-  if ($db->query($query) === TRUE) {
-
-    echo "ready";
-  } else {
-
-    echo "Error 52: " . $db->error;
-  }
-
-
-  /**
-   * Activar usuario
- ----------------------------------------------*/
-} else if ($_POST['action'] == "activar_usuario") {
+// Activar usuario
+if ($_POST['action'] == "activar_usuario") {
 
   $db = Database::connect();
 
-  $id = $_POST['user_id'];
+  $params = [
+    (int)$_POST['user_id'],
+    'activar'
+  ];
 
-  $query = "CALL us_cambiarEstado($id,'activar')";
-
-  if ($db->query($query) === TRUE) {
-
-    echo "ready";
-  } else {
-
-    echo "Error 53: " . $db->error;
-  }
+  echo handleProcedureAction($db, 'us_cambiarEstado', $params);
 }

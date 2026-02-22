@@ -1,3 +1,4 @@
 /public/uploads/
 /src/qz-tray/private-key.pem
 /src/qz-tray/*.txt
+node_modules

@@ -407,7 +407,7 @@
                                 <div class="i b-right">
                                     <i class="fas fa-list"></i>
                                 </div>
-                                <select class="form-custom-icon" name="cliente" id="pos_edit_customer" required>
+                                <select class="form-custom-icon" name="customer" id="pos_edit_customer" required>
 
                                 </select>
                             </div>
@@ -417,7 +417,7 @@
                     <div class="row">
                         <div class="form-group col-sm-12">
                             <label class="form-check-label" for="">Dirección de entrega</label>
-                            <textarea class="form-custom" name="" value="" id="pos_edit_direction" cols="30" rows="3"
+                            <textarea class="form-custom" name="address" value="" id="pos_edit_direction" cols="30" rows="3"
                                 maxlength="254" placeholder="Dirección completa"></textarea>
                         </div>
                     </div>
@@ -430,7 +430,7 @@
                                 <div class="i">
                                     <i class="fas fa-user-tag"></i>
                                 </div>
-                                <input class="form-custom-icon b-left" type="text" name="receptor" id="pos_edit_fullname">
+                                <input class="form-custom-icon b-left" type="text" name="receiver" id="pos_edit_fullname">
                             </div>
                         </div>
 
@@ -440,7 +440,7 @@
                                 <div class="i b-right">
                                     <i class="fas fa-phone-alt"></i>
                                 </div>
-                                <input class="form-custom-icon b-left" type="text" name="telefono" id="pos_edit_tel">
+                                <input class="form-custom-icon b-left" type="text" name="telephone" id="pos_edit_tel">
                             </div>
                         </div>
 
@@ -450,7 +450,7 @@
                                 <div class="i b-right">
                                     <i class="fas fa-list"></i>
                                 </div>
-                                <select class="form-custom-icon search" name="entrega" id="pos_edit_delivery">
+                                <select class="form-custom-icon search" name="delivery" id="pos_edit_delivery">
                                     <option value="-" selected>Nínguno</option>
                                     <option value="envio">Envío</option>
                                     <option value="retiro">Retiro</option>
@@ -462,7 +462,7 @@
                     <div class="row">
                         <div class="form-group col-sm-12">
                             <label class="form-check-label" for="">Comentarios o instrucciones especiales</label>
-                            <textarea class="form-custom" name="" value="" id="pos_edit_comment" cols="30" rows="3"
+                            <textarea class="form-custom" name="observation" value="" id="pos_edit_comment" cols="30" rows="3"
                                 maxlength="254" placeholder="Observaciones"></textarea>
                         </div>
                     </div>

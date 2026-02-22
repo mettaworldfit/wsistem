@@ -10,53 +10,50 @@ while ($element = $user->fetch_object()): ?>
     </div>
 
     <div class="generalContainer-medium">
-        <form class="user-content" action="" onsubmit="event.preventDefault(); updateUser('<?= $element->usuario_id ?>');">
+        <form class="user-content" action="POST" id="editUser">
+
+            <input type="hidden" name="user_id" value="<?= $element->usuario_id ?>">
+
             <div class="container">
-
                 <div class="row mb-3">
-
                     <div class="col-sm-6">
                         <label for="nombre">Nombre<span class="text-danger">*</span></label>
-                        <input type="text" class="form-custom" value="<?= $element->nombre ?>" placeholder="" id="name"
-                            required>
+                        <input type="text" class="form-custom" name="name" value="<?= $element->nombre ?>" required>
                     </div>
 
                     <div class="col-sm-6 mb-3">
                         <label for="apellidos">Apellidos</label>
-                        <input type="text" class="form-custom" value="<?= $element->apellidos ?>" placeholder=""
-                            id="lastname">
+                        <input type="text" class="form-custom" name="lastname" value="<?= $element->apellidos ?>">
                     </div>
                 </div>
-
 
                 <div class="row mb-3">
                     <div class="col-sm-6">
                         <label for="">Username<span class="text-danger">*</span></label>
-                        <input type="text" class="form-custom" value="<?= $element->username ?>" id="username" disabled required>
+                        <input type="text" class="form-custom" name="username" value="<?= $element->username ?>" disabled required>
                     </div>
 
                     <div class="col-sm-6 mb-3">
                         <label for="">Password<span class="text-danger">*</span></label>
-                        <input type="password" class="form-custom" value="<?= $element->password ?>" id="password" required>
+                        <input type="password" class="form-custom" name="password" value="<?= $element->password ?>" required>
                     </div>
 
                     <div class="col-sm-6">
                         <label for="">Rol</label>
-                        <select class="form-custom search" name="" id="rol" required <?php if ($_SESSION['identity']->nombre_rol != 'administrador') {
-                            echo 'disabled';
-                        } ?>>
+                        <select class="form-custom search" name="role" required 
+                        <?php if ($_SESSION['identity']->nombre_rol != 'administrador') {
+                            echo 'disabled';  } ?>>
                             <option value="<?= $element->rol_id ?>" selected><?= ucwords($element->nombre_rol) ?></option>
 
                             <?php $roles = Help::roles();
                             if ($_SESSION['identity']->nombre_rol == 'administrador') {
                                 while ($rol = $roles->fetch_object()): ?>
                                     <option value="<?= $rol->rol_id ?>"><?= ucwords($rol->nombre_rol) ?></option>
-                                <?php endwhile;
+                            <?php endwhile;
                             } ?>
                         </select>
                     </div>
                 </div>
-
             </div>
 
             <div class="buttons clearfix">

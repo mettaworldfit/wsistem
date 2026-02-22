@@ -1205,7 +1205,6 @@ $(document).ready(function () {
             successCallback: (res) => {
                 try {
                     var data = JSON.parse(res);
-                    console.log(data)
 
                 } catch (error) {
                     console.error("Error en respuesta del servidor ", error)

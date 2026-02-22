@@ -75,7 +75,7 @@ df.detalle_venta_id as 'id', df.descuento, df.impuesto, i.valor FROM detalle_fac
     }
 
     // Asignar las configuraciones a las variables
-    $Logo_pdf = isset($config['logo']) ? $config['logo'] : '';
+    $Logo_pdf = isset($config['logo_path']) ? $config['logo_path'] : '';
     $Tel = isset($config['telefono']) ? $config['telefono'] : '';
     $Dir = isset($config['direccion']) ? $config['direccion'] : '';
 	$Slogan = isset($config['slogan']) ? $config['slogan'] : '';

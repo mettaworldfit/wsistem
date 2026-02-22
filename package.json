@@ -1,0 +1,23 @@
+{
+  "name": "codev/wsistem",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sw.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mettaworldfit/wsistem.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "homepage": "https://github.com/mettaworldfit/wsistem#readme",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.2.0",
+    "alertifyjs": "^1.14.0",
+    "chart.js": "^4.5.1",
+    "qz-tray": "^2.2.5",
+    "select2": "^4.1.0-rc.0",
+    "vegas": "^2.6.0"
+  }
+}

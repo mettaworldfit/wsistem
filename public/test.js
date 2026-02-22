@@ -549,7 +549,6 @@ export function generateQRCommand(data, size = 6) {
     );
 }
 
-
 export function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -559,13 +558,126 @@ export function fileToBase64(file) {
     });
 }
 
+/**
+ * Obtiene la configuración de impresión desde el servidor.
+ *
+ * Realiza una petición POST a services/config.php enviando
+ * la acción "configuracion_de_impresion".
+ *
+ * @async
+ * @function getData
+ * @returns {Promise<Object|null>} Retorna un objeto con la configuración
+ * o null si ocurre un error.
+ */
+async function getData() {
+    try {
+
+        const response = await fetch(SITE_URL + "services/config.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({
+                action: "configuracion_de_impresion"
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error("Error en la petición");
+        }
+
+        const data = await response.json();
+
+        return data;
+
+    } catch (error) {
+        console.log('%c[CONFIG]', 'color:#b51717;font-weight:bold;', error);
+        return null;
+    }
+}
+
+
+/**
+ * Genera la fecha y hora actual formateada
+ * en formato: DD-MM-YYYY hh:mm:ss AM/PM
+ *
+ * @async
+ * @function getPrintDate
+ * @returns {Promise<string>} Fecha formateada lista para impresión.
+ */
+async function getPrintDate() {
+    const now = new Date();
+
+    const pad = (n) => n.toString().padStart(2, '0');
+
+    let day = pad(now.getDate());
+    let month = pad(now.getMonth() + 1);
+    let year = now.getFullYear();
+
+    let hours = now.getHours();
+    let minutes = pad(now.getMinutes());
+    let seconds = pad(now.getSeconds());
+
+    let ampm = hours >= 12 ? 'AM' : 'PM';
+    ampm = hours >= 12 ? 'PM' : 'AM';
+
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    hours = pad(hours);
+
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds} ${ampm}`;
+}
+
+/**
+ * Rellena texto con espacios a la derecha
+ * hasta alcanzar la longitud indicada.
+ *
+ * @function padRight
+ * @param {string|number} text - Texto a formatear.
+ * @param {number} length - Longitud final deseada.
+ * @returns {string} Texto con padding a la derecha.
+ */
+function padRight(text, length) {
+    return text.toString().padEnd(length, ' ');
+}
+
+/**
+ * Rellena texto con espacios a la derecha
+ * hasta alcanzar la longitud indicada.
+ *
+ * @function padLeft
+ * @param {string|number} text - Texto a formatear.
+ * @param {number} length - Longitud final deseada.
+ * @returns {string} Texto con padding a la derecha.
+ */
+function padLeft(text, length) {
+    return text.toString().padStart(length, ' ');
+}
+
+
+/**
+ * Formatea un número como moneda con 2 decimales.
+ *
+ * Usa formato en-US (1,000.00).
+ *
+ * @function formatMoney
+ * @param {number|string} number - Número a formatear.
+ * @returns {string} Número formateado con 2 decimales.
+ */
+export function formatMoney(number) {
+    return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(Number(number) || 0);
+}
+
 
 /**============================================================= 
 * CERTIFICADOS Y SEGURIDAD
 ===============================================================*/
 
 /* ===== QZ-TRAY VERBOSE MODE ===== */
-const QZ_VERBOSE = true;
+const QZ_VERBOSE = false;
 
 function qzLog(...args) {
     if (!QZ_VERBOSE) return;
@@ -806,11 +918,7 @@ export function comparePrinterLanguages() {
 
     // Coinciden
     if (manualLang === autoDetectedLanguage) {
-        notifyAlert(
-            `Lenguaje confirmado: ${manualLang}`,
-            'success',
-            2000
-        );
+        notifyAlert(`Lenguaje confirmado: ${manualLang}`, 1000);
         return;
     }
 
@@ -974,7 +1082,6 @@ export function printImageExample() {
 
 // Prueba de ticket
 export async function printExample() {
-
     // ================== DATOS MOCK ==================
     const negocio = {
         nombre: "SUPERMERCADO EL AHORRO",
@@ -1015,7 +1122,7 @@ export async function printExample() {
     const form = document.getElementById('formPrinter');
     const f = new FormData(form);
 
-    const printer = f.get('impresora');
+    const printer = f.get('printer_name');
     const language = f.get('printer_language') || 'ESCPOS';
     //const paperWidth = parseInt(f.get('paper_width')) || 80;
     const copies = parseInt(f.get('copies')) || 1;
@@ -1198,13 +1305,55 @@ export async function printExample() {
 ===============================================================*/
 
 
-export async function factura_venta(dataInv, Detail) {
+// (async () => {
 
-    const language = "ESCPOS";
-    const paperSize = '80mm'; // Aquí puedes cambiarlo a '58mm' si necesitas otro tamaño
+//     const printer_config = await getData();
+//     const printers = printer_config[0]; // Impresoras
+//     const site = printer_config[1]; // Datos del sitio
+
+//     const printer = printers.find(p =>
+//         p.printer_type === "main"
+//     );
+
+//     if (printer) {
+//         console.log("Impresora encontrada:", printer);
+//     } else {
+//         console.log("No existe esa impresora");
+//     }
+
+
+// })();
+
+
+/**
+ * Funcion para imprimir las facturas de venta 
+ * @param {Object} dataInv
+ * @param {Array<Object>} detail
+ */
+export async function factura_venta(dataInv, detail) {
+
+    // Datos predeterminados
+    const printer_config = await getData();
+    const printers = printer_config[0]; // Impresoras
+    const site = printer_config[1]; // Datos del sitio
+
+    const printer = printers.find(p =>
+        p.printer_type === "main"
+    );
+
+    if (!printer) {
+        console.error("No main printer configured");
+        return;
+    }
+    console.log(printer)
+    // Configuracion de impresion
+
+    const paperSize = parseInt(printer.paper_width) + 'mm'; // Aquí puedes cambiarlo a '58mm' si necesitas otro tamaño
     const W = getPrinterWidth(paperSize);  // Calculamos el ancho en función del tamaño del papel
 
-    const config = qz.configs.create("POS-80", { copies: 1 });
+    const language = printer.printer_language;
+
+    const config = qz.configs.create(printer.printer_name, { copies: printer.copies });
     const buffer = createPrintBuffer();  // Creamos el buffer de impresión
     const data = [];
 
@@ -1212,21 +1361,14 @@ export async function factura_venta(dataInv, Detail) {
     let logoBase64 = null;
 
     try {
-        logoBase64 = await convertImageUrlToBase64(SITE_URL + 'public/imagen/sistem/chino_com.png');
+        logoBase64 = await convertImageUrlToBase64(SITE_URL + 'public/uploads/' + site[7].config_value);
     } catch (e) {
         console.warn('Logo no disponible, usando texto');
     }
 
-    // let logoBase64 = null;
-    // const logoFile = f.get('logo');
-
-    // if (logoFile && logoFile.size > 0) {
-    //     logoBase64 = await fileToBase64(logoFile);
-    // }
-
     data.push(initPrinter(language));
 
-    buffer.push(feed(1, language));
+    if (printer.feed_start > 0) buffer.push(feed(printer.feed_start, language));
     data.push(align('center', language));
 
     // 👉 LOGO FUERA DEL BUFFER
@@ -1237,32 +1379,650 @@ export async function factura_venta(dataInv, Detail) {
             flavor: 'base64',
             data: logoBase64,
             options: {
-                language: 'ESCPOS'
+                language: printer.language,
+                dotDensity: printer.logo_density
             }
         });
 
     } else {
         data.push(bold(true, language));
         data.push(size(2, 2, language));
-        data.push(normalizeText("WSISTEMS") + '\n'),
+        data.push(normalizeText(site[0].config_value) + '\n'),
             data.push(size(1, 1, language));
         data.push(bold(false, language));
-        data.push(feed(1, language));
     }
 
+    buffer.push(bold(true, language))
+    buffer.push(normalizeText(site[9].config_value + "\n"))
+    buffer.push(normalizeText("Tel.: " + site[13].config_value + "\n"))
+    buffer.push(bold(false, language))
+    buffer.push(feed(1))
+
+    // ================== INFORMACIÓN FACTURA ================== //
+
+    buffer.push(align("left", language))
+    buffer.push(normalizeText("Factura #: FT-00" + dataInv.invoice_id + "\n"))
+    buffer.push("Fecha: " + dataInv.date + "\n")
+    buffer.push(normalizeText("Fecha impresión: " + await getPrintDate() + "\n"))
+    buffer.push(normalizeText("Condición: " + dataInv.payment_method.toUpperCase() + "\n"))
+    buffer.push(normalizeText("Cliente: " + dataInv.customer.toUpperCase() + "\n"))
+    buffer.push(normalizeText("Usuario: " + dataInv.seller.toUpperCase() + "\n"))
+    buffer.push(feed(1, language))
+
+
+    // ================== TIPO FACTURA ================== //
     buffer.push(align('center'))
-    buffer.push(normalizeText("Prueba"))
+    buffer.push(bold(true))
+    if (!dataInv.pending || dataInv.pending == 0) {
+        buffer.push("*** FACTURA CONTADO ***\n")
+    } else {
+        buffer.push("*** FACTURA A CRÉDITO ***\n")
+    }
 
-    buffer.push(feed(5, language));
-    buffer.push(cutPaper(language));
+    // ================== DETALLE ================== //
+    buffer.push(align('left'))
+    buffer.push(line(W, "-", language))
+    buffer.push("DESCRIPCION                  ITBIS     VALOR\n")
+    buffer.push(line(W, "-", language))
+    buffer.push(bold(false))
 
-    // 👉 TEXTO DEL BUFFER AL ARRAY
+    detail.forEach(item => {
+        let cant = parseFloat(item[4]);
+        let precio = parseFloat(item[1]);
+        let impuesto = parseFloat(item[7] ?? 0) || 0;
+
+        let valor = cant * precio;
+
+        // 🔹 Formatear cantidad
+        if (cant % 1 === 0) {
+            cant = parseInt(cant);
+        } else {
+            cant = cant.toFixed(2);
+        }
+
+        // Línea principal
+        let linea =
+            (cant + " x " + formatMoney(precio)).padEnd(28, ' ') +
+            ((formatMoney(cant * impuesto))).padStart(10, ' ') +
+            (formatMoney(valor)).padStart(10, ' ');
+
+        buffer.push(linea + "\n");
+
+        // Descripción
+        let descripcion = '';
+
+        if (item[0]) descripcion = item[0];
+        else if (item[2]) descripcion = item[2];
+        else if (item[3]) descripcion = item[3];
+
+        if (descripcion) {
+
+            if (descripcion.length > 46) {
+                descripcion = descripcion.substring(0, 43) + '...';
+            }
+
+            buffer.push(bold(true, language)); // bold ON
+            const descripcionSinSaltos = descripcion.replace(/(\r\n|\n|\r)/gm, " "); // Reemplaza saltos de línea por espacio
+            buffer.push(normalizeText(descripcionSinSaltos) + "\n");
+            buffer.push(bold(false, language)); // bold OFF
+        }
+    });
+
+    // ================== TABLA DE PRECIO ================== //
+
+    buffer.push(bold(true, language));
+    buffer.push(line(W, "-", language));
+    buffer.push(bold(false, language));
+
+    // (solo si hay pendiente)
+    if (dataInv.pending && parseFloat(dataInv.pending) > 0) {
+        buffer.push(align('left', language));
+        buffer.push(
+            padRight("Recibido", 20) +
+            "$ " +
+            padLeft(formatMoney(parseFloat(dataInv.received)), 10) + "\n"
+        );
+
+        buffer.push(
+            padRight("Balance Pendiente", 20) +
+            "$ " +
+            padLeft(formatMoney(parseFloat(dataInv.pending)), 10) + "\n"
+        );
+
+        buffer.push(feed(1));
+    }
+
+    // Subtotal
+    buffer.push(
+        padRight("Subtotal", 20) +
+        "$ " +
+        padLeft(formatMoney(parseFloat(dataInv.subtotal)), 10) + "\n"
+    );
+
+    // Impuesto
+    buffer.push(
+        padRight("+ Impuesto", 20) +
+        "$ " +
+        padLeft(formatMoney(parseFloat(dataInv.taxes)), 10) + "\n"
+    );
+
+    // Descuento
+    buffer.push(
+        padRight("- Descuento", 20) +
+        "$ " +
+        padLeft(formatMoney(parseFloat(dataInv.discount)), 10) + "\n"
+    );
+
+    buffer.push(bold(true, language));
+    buffer.push(line(W, "-", language));
+
+    buffer.push(align("left", language));
+    buffer.push(size(2, 2, language));
+    buffer.push(
+        padRight("TOTAL", 6) +
+        " " +
+        padLeft("$" + formatMoney(parseFloat(dataInv.total)), 8) + "\n"
+    );
+    buffer.push(size(1, 1, language));
+    buffer.push(bold(false, language));
+    buffer.push(feed(1, language));
+
+    // ================== NOTAS ================== //
+    if (dataInv.observation && dataInv.observation.trim() !== "") {
+        buffer.push(bold(true, language));
+        buffer.push("Nota:\n");
+        buffer.push(bold(false, language));
+        buffer.push(dataInv.observation + "\n");
+        buffer.push(feed(1));
+    }
+
+    // ===== GARANTÍA Y DESPACHADOR ====== //
+
+    buffer.push(bold(true, language));
+    buffer.push(normalizeText(printer.policy_footer + "\n"))
+    buffer.push(bold(true, language));
+
+    if (printer.signature > 0) {
+        buffer.push(feed(1, language));
+        buffer.push(align("center", language));
+        buffer.push(bold(true, language));
+        buffer.push(line(W, "-", language))
+        buffer.push("Despachado por" + "\n")
+        buffer.push(bold(false, language));
+    }
+
+    buffer.push(feed(1, language));
+    buffer.push(align("center", language))
+    buffer.push(normalizeText(printer.ticket_footer))
+
+    // ============= QR y BARCODE ============ //
+
+    if (printer.use_barcode > 0) {
+        buffer.push(feed(1, language));
+        buffer.push(align('center', language));
+        buffer.push(
+            generateBarcodeCommand(
+                dataInv.invoice_id,
+                language,
+                printer.barcode_width,
+                printer.barcode_height
+            )
+        );
+    }
+
+    // ======== CIERRE ======= //
+
+    if (printer.feed_end > 0) buffer.push(feed(printer.feed_end, language));
+    if (printer.auto_cut > 0) buffer.push(cutPaper(language));
+
     data.push({
         type: 'raw',
         format: 'command',
         data: buffer.get() // Obtener el contenido del buffer
     });
 
-    // ================== PRINT ==================
+    // ======= PRINT ======
     qz.print(config, data).catch(console.error);
 }
+
+
+/**
+ * Genera e imprime una orden de venta en las impresoras configuradas
+ * usando QZ Tray.
+ *
+ * @param {Array<Array<any>>} detail 
+ * Array con el detalle de productos/servicios.
+ *
+ * @param {Object} info 
+ *
+ * @returns {Promise<void>} Promesa que se resuelve cuando termina la impresión.
+ */
+export async function orden_venta(detail, info) {
+
+    async function buildTicket(printer, site, detail, info) {
+
+        const language = printer.language;
+        const paperSize = parseInt(printer.paper_width) + 'mm';
+        const W = getPrinterWidth(paperSize);
+
+        const buffer = createPrintBuffer();  // Creamos el buffer de impresión
+        const data = []
+
+        // ================== CONFIG LOGO ==================
+        let logoBase64 = null;
+
+        try {
+            logoBase64 = await convertImageUrlToBase64(SITE_URL + 'public/uploads/' + site[7].config_value);
+        } catch (e) {
+            console.warn('Logo no disponible, usando texto');
+        }
+
+        data.push(initPrinter(language));
+
+        if (printer.feed_start > 0) buffer.push(feed(printer.feed_start, language));
+        data.push(align('center', language));
+
+        // 👉 LOGO FUERA DEL BUFFER
+        if (logoBase64) {
+            data.push({
+                type: 'raw',
+                format: 'image',
+                flavor: 'base64',
+                data: logoBase64,
+                options: {
+                    language: printer.language,
+                    dotDensity: printer.logo_density
+                }
+            });
+
+        } else {
+            data.push(bold(true, language));
+            data.push(size(2, 2, language));
+            data.push(normalizeText(site[0].config_value) + '\n'),
+                data.push(size(1, 1, language));
+            data.push(bold(false, language));
+        }
+
+        data.push(initPrinter(language))
+
+        buffer.push(align('center', language));
+        buffer.push(bold(true, language))
+        buffer.push(normalizeText(site[9].config_value + "\n"))
+        buffer.push(normalizeText("Tel.: " + site[13].config_value + "\n"))
+        buffer.push(bold(false, language))
+        buffer.push(feed(1))
+
+        // ================== INFORMACIÓN FACTURA ================== //
+
+        buffer.push(align("left", language))
+        buffer.push(normalizeText("Orden: OV-00" + info.order_id + "\n"))
+        buffer.push("Fecha: " + info.fecha + "\n")
+        buffer.push(normalizeText("Fecha impresión: " + await getPrintDate() + "\n"))
+        buffer.push(normalizeText("Cliente: " + info.nombre.toUpperCase() + "\n"))
+        buffer.push(normalizeText("Cajero(a): " + info.cajero.toUpperCase() + "\n"))
+        buffer.push(
+            normalizeText(
+                "Teléfono: " + ((info.telefono1 ?? "").toString().toUpperCase()) + "\n"
+            )
+        );
+        buffer.push(feed(1, language))
+
+        buffer.push(line(W, "-", language));
+
+        if (info.nombre_receptor && info.nombre_receptor.trim() !== "") {
+            buffer.push(normalizeText("Recibe.: " + info.nombre_receptor.toUpperCase() + "\n"))
+        }
+        if (info.telefono_receptor && info.telefono_receptor !== "") {
+            buffer.push("Tel.: " + info.telefono_receptor + "\n")
+        }
+        if (info.tipo_entrega && info.tipo_entrega !== "") {
+            buffer.push("Entrega.: " + info.tipo_entrega.toUpperCase() + "\n")
+        }
+        if (info.direccion_entrega && info.direccion_entrega !== "") {
+            buffer.push(normalizeText("Dirección.: " + info.direccion_entrega.toUpperCase() + "\n"))
+        }
+        if (info.observacion && info.observacion !== "") {
+            buffer.push(normalizeText("Observación.: " + info.observacion + "\n"))
+        }
+
+        buffer.push(feed(1, language))
+        buffer.push(align("center", language))
+        buffer.push(bold(true, language))
+        buffer.push("*** ORDEN DE VENTA ***" + "\n")
+        buffer.push(bold(false, language))
+
+        // ================== DETALLE ================== //
+        buffer.push(align("left", language))
+        buffer.push(bold(true, language))
+        buffer.push(line(W, "-", language))
+        buffer.push("DESCRIPCION                  ITBIS     VALOR" + "\n")
+        buffer.push(line(W, "-", language))
+        buffer.push(bold(false, language))
+
+        detail.forEach(item => {
+
+            let cant = parseFloat(item[4]);               // cantidad
+            let precio = parseFloat(item[0]);               // precio
+            let desc = item[2] || '';                     // descripcion
+            let impuesto = parseFloat(item[5]);               // impuesto
+
+            // 🔹 Validar impuesto (si viene null, undefined o NaN)
+            if (!impuesto || isNaN(impuesto)) {
+                impuesto = 0;
+            }
+
+            let valor = cant * precio;
+            let totalImpuesto = cant * impuesto;
+
+            // 🔹 Formatear cantidad
+            if (cant % 1 === 0) {
+                cant = parseInt(cant);
+            } else {
+                cant = cant.toFixed(2);
+            }
+
+            // 🔹 Línea principal
+            let linea =
+                (cant + " x " + formatMoney(precio)).padEnd(28, ' ') +
+                (formatMoney(totalImpuesto)).padStart(10, '  ') +
+                (formatMoney(valor)).padStart(10, ' ');
+
+            buffer.push(linea + "\n");
+
+            // 🔹 Descripción
+            if (desc) {
+
+                if (desc.length > 46) {
+                    desc = desc.substring(0, 43) + '...';
+                }
+
+                buffer.push(bold(true, language));  // ON
+                const descripcionSinSaltos = desc.replace(/(\r\n|\n|\r)/gm, " "); // Reemplaza saltos de línea por espacio
+                buffer.push(normalizeText(descripcionSinSaltos) + "\n");
+                buffer.push(bold(false, language)); // OFF
+            }
+
+        });
+
+        // ================== TABLA DE PRECIO ================== //
+        buffer.push(bold(true, language));  // ON
+        buffer.push(line(W, "-", language) + "\n");
+        buffer.push(bold(false, language)); // OFF
+
+        buffer.push(padRight("Subtotal", 20) + "$ " +
+            padLeft(formatMoney(parseFloat(info.subtotal)), 10) + "\n"
+        );
+
+        buffer.push(padRight("+ Impuesto", 20) + "$ " +
+            padLeft(formatMoney(parseFloat(info.taxes)), 10) + "\n"
+        );
+
+        buffer.push(padRight("- Descuento", 20) + "$ " +
+            padLeft(formatMoney(parseFloat(info.discount)), 10) + "\n"
+        );
+
+        buffer.push(bold(true, language));
+        buffer.push(line(W, "-", language));
+
+        buffer.push(align("left", language));
+        buffer.push(size(2, 2, language));
+        buffer.push(
+            padRight("TOTAL", 6) +
+            " " +
+            padLeft("$" + formatMoney(parseFloat(info.total)), 8) + "\n"
+        );
+        buffer.push(size(1, 1, language));
+        buffer.push(bold(false, language));
+        buffer.push(feed(1, language));
+
+        // ================== PIE DE PÁGINA ================== //
+
+        buffer.push(align("center", language));
+        buffer.push(bold(true, language));
+        buffer.push("ESTADO DE FACTURA: PENDIENTE\n")
+        buffer.push(bold(false, language));
+        buffer.push("Este documento es solo una orden\n")
+
+        if (printer.signature > 0) {
+            buffer.push(feed(1, language));
+            buffer.push(align("center", language));
+            buffer.push(bold(true, language));
+            buffer.push(line(W, "-", language))
+            buffer.push("Firma de conformidad" + "\n")
+            buffer.push(bold(false, language));
+        }
+
+        // ============= QR y BARCODE ============ //
+
+        if (printer.use_barcode > 0) {
+            buffer.push(feed(1, language));
+            buffer.push(align('center', language));
+            buffer.push(
+                generateBarcodeCommand(
+                    info.order_id,
+                    language,
+                    printer.barcode_width,
+                    printer.barcode_height
+                )
+            );
+        }
+
+        // ======== CIERRE ======= //
+
+        if (printer.feed_end > 0) buffer.push(feed(printer.feed_end, language));
+        if (printer.auto_cut > 0) buffer.push(cutPaper(language));
+
+        data.push({
+            type: 'raw',
+            format: 'command',
+            data: buffer.get() // Obtener el contenido del buffer
+        })
+
+        return data;
+    }
+
+
+    // Datos predeterminados
+    const printer_config = await getData();
+    const printers = printer_config[0];
+    const site = printer_config[1]; // Datos del sitio
+
+    const printJobs = printers.map(async (printer) => {
+
+        const config = qz.configs.create(
+            printer.printer_name,
+            { copies: printer.copies }
+        );
+
+        const buffer = await buildTicket(printer, site, detail, info); // Constructor
+
+        return qz.print(config, buffer)
+            .then(() => {
+                console.log("%c[QZ]", "color:#1976d2;font-weight:bold;", "Impresión exitosa en:", printer.printer_name);
+            })
+            .catch(err => {
+                console.error("%c[QZ]", "color:#df1212;font-weight:bold;", "Error en:", printer.printer_name, err);
+            });
+    });
+
+    await Promise.all(printJobs).catch(console.error);
+}
+
+
+/**
+ * Imprime el cierre de caja con la información proporcionada.
+ * 
+ * Esta función toma un objeto `info` que contiene los detalles del cierre de caja,
+ * como el total de ingresos, egresos, diferencias, etc. Luego, genera e imprime el
+ * reporte de cierre de caja de forma asincrónica.
+ * 
+ * @async
+ * @function
+ * @param {Object} info - Información del cierre de caja.
+ */
+export async function cierre_caja(info) {
+
+    // Datos predeterminados
+    const printer_config = await getData();
+    const printers = printer_config[0]; // Impresoras
+    const site = printer_config[1]; // Datos del sitio
+
+    const printer = printers.find(p =>
+        p.printer_type === "main"
+    );
+
+    if (!printer) {
+        console.error("No main printer configured");
+        return;
+    }
+
+    // Configuracion de impresion
+
+    const paperSize = parseInt(printer.paper_width) + 'mm'; // Aquí puedes cambiarlo a '58mm' si necesitas otro tamaño
+    const W = getPrinterWidth(paperSize);  // Calculamos el ancho en función del tamaño del papel
+
+    const language = printer.printer_language;
+
+    const config = qz.configs.create(printer.printer_name, { copies: printer.copies });
+    const buffer = createPrintBuffer();  // Creamos el buffer de impresión
+    const data = [];
+
+    // ================== CONFIG LOGO ==================
+    let logoBase64 = null;
+
+    try {
+        logoBase64 = await convertImageUrlToBase64(SITE_URL + 'public/uploads/' + site[7].config_value);
+    } catch (e) {
+        console.warn('Logo no disponible, usando texto');
+    }
+
+    data.push(initPrinter(language));
+
+    if (printer.feed_start > 0) buffer.push(feed(printer.feed_start, language));
+    data.push(align('center', language));
+
+    // 👉 LOGO FUERA DEL BUFFER
+    if (logoBase64) {
+        data.push({
+            type: 'raw',
+            format: 'image',
+            flavor: 'base64',
+            data: logoBase64,
+            options: {
+                language: printer.language,
+                dotDensity: printer.logo_density
+            }
+        });
+
+    } else {
+        data.push(bold(true, language));
+        data.push(size(2, 2, language));
+        data.push(normalizeText(site[0].config_value) + '\n'),
+            data.push(size(1, 1, language));
+        data.push(bold(false, language));
+    }
+
+    buffer.push(align("center", language))
+    buffer.push(bold(true, language))
+    buffer.push("CIERRE DE LA CAJA", "\n")
+    buffer.push(bold(false, language))
+
+    buffer.push("Fecha: " + info.opening_date + "\n")
+    buffer.push("Cajero: " + info.user_name + "\n")
+    buffer.push(feed(1, language))
+
+
+    // ================== DETALLES DE CIERRE ================== //
+
+    buffer.push(align("left", language))
+    buffer.push(line(W, "-", language))
+    buffer.push("Cierre N°: " + info.cierre_id + "\n")
+    buffer.push("Fecha de Apertura: " + info.opening_date + "\n")
+    buffer.push("Fecha de Cierre: " + info.closing_date + "\n")
+    buffer.push("Monto Inicial: \$" + info.initial_balance + "\n")
+    buffer.push(feed(1, language))
+
+    // ================== RESUMEN DE INGRESOS ================== //
+
+    buffer.push(line(W, "-", language))
+    buffer.push(bold(true, language))
+    buffer.push("RESUMEN DE INGRESOS", "\n")
+    buffer.push(bold(false, language))
+    buffer.push(feed(1, language))
+
+    buffer.push(padRight("Efectivo:", 25) + padLeft(formatMoney(info.cash_income), 15) + "\n");
+    buffer.push(padRight("Transferencias:", 25) + padLeft(formatMoney(info.transfer_income), 15) + "\n");
+    buffer.push(padRight("Tarjeta:", 25) + padLeft(formatMoney(info.card_income), 15) + "\n");
+    buffer.push(padRight("Cheques:", 25) + padLeft(formatMoney(info.check_income), 15) + "\n");
+    buffer.push(feed(1, language))
+
+    // ================== RESUMEN DE GASTOS ================== //
+
+    buffer.push(line(W, "-", language))
+    buffer.push(bold(true, language))
+    buffer.push("RESUMEN DE GASTOS", "\n")
+    buffer.push(bold(false, language))
+    buffer.push(feed(1, language))
+
+    // Alineación de los datos a la derecha con formato de tabla
+    buffer.push(padRight("Gastos de caja:", 25) + padLeft(formatMoney(info.cash_expenses), 15) + "\n");
+    buffer.push(padRight("Gastos fuera de caja:", 25) + padLeft(formatMoney(info.external_expenses), 15) + "\n");
+    buffer.push(padRight("Reembolsos:", 25) + padLeft(formatMoney(info.refunds), 15) + "\n");
+    buffer.push(padRight("Retiros:", 25) + padLeft(formatMoney(info.withdrawals), 15) + "\n");
+    buffer.push(feed(1, language))
+
+    // ================== RESUMEN DE VENTAS ================== //
+
+    buffer.push(line(W, "-", language))
+    buffer.push(bold(true, language))
+    buffer.push("ESTADO DE CAJA", "\n")
+    buffer.push(bold(false, language))
+    buffer.push(feed(1, language))
+
+    // Alineación de los datos a la derecha con formato de tabla
+    buffer.push(padRight("Total Real Vendido:", 25) + padLeft(formatMoney(info.total), 15) + "\n");
+    buffer.push(padRight("Total Esperado:", 25) + padLeft(formatMoney(info.total_expected), 15) + "\n");
+    buffer.push(padRight("Total Efectivo en Caja:", 25) + padLeft(formatMoney(info.current_total), 15) + "\n");
+    buffer.push(padRight("Diferencia:", 25) + padLeft(formatMoney(info.difference), 15) + "\n");
+    buffer.push(feed(1, language))
+
+    // ================== TOTAL DE TICKETS EMITIDOS ================== //
+
+    buffer.push(padRight("N° Tickets:", 25) + padLeft(formatMoney(info.tickets_invoices), 15) + "\n");
+    buffer.push(feed(1, language))
+
+    // ================== NOTAS ================== //
+
+    buffer.push(line(W, "-", language))
+    buffer.push(bold(true, language))
+    buffer.push("Notas:", "\n")
+    buffer.push(bold(false, language))
+    buffer.push(info.notes, "\n")
+    buffer.push(feed(1, language))
+
+    // ================== MENSAJE FINAL ================== //
+    buffer.push(align("center", language))
+    buffer.push("Generado por wsistems.com" + "\n")
+
+    // ======== CIERRE ======= //
+    if (printer.feed_end > 0) buffer.push(feed(printer.feed_end, language));
+    if (printer.auto_cut > 0) buffer.push(cutPaper(language));
+
+    data.push({
+        type: 'raw',
+        format: 'command',
+        data: buffer.get() // Obtener el contenido del buffer
+    });
+
+    // ======= PRINT ======
+    qz.print(config, data)
+        .then(() => {
+            console.log("%c[QZ]", "color:#1976d2;font-weight:bold;", "Impresión exitosa en:", printer.printer_name);
+        })
+        .catch(err => {
+            console.error("%c[QZ]", "color:#df1212;font-weight:bold;", "Error en:", printer.printer_name, err);
+        })
+        .catch(console.error);
+
+}
+

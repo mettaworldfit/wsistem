@@ -14,9 +14,7 @@
     </div>
 </div>
 
-
 <div class="generalContainer padding-10 box-shadow-low">
-
     <table id="Detalle" class="table-custom table">
         <thead>
             <th>Descripción</th>
@@ -78,7 +76,7 @@
             <p>Agregar detalle</p>
         </button>
 
-        <button class="btn-custom btn-red" type="button" onclick="CancelQuote();">
+        <button class="btn-custom btn-red" type="button" id="eraseQuote">
             <i class="fas fa-window-close"></i>
             <p>Salir</p>
         </button>
@@ -99,7 +97,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); AddDQuote();">
+                <form action="POST" id="addQuoteDetail">
 
                     <div class="grid-tab-detail">
 
@@ -484,7 +482,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); saveQuote();">
+                <form action="POST" id="formQuote">
 
                     <!-- Content -->
                     <div class="row col-sm-12">
@@ -549,7 +547,7 @@
                             <i class="fas fa-window-close"></i>
                             <p>Salir</p>
                         </button>
-                        <button type="submit" class="btn-custom btn-green" id="SaveQuote">
+                        <button type="submit" class="btn-custom btn-green">
                             <i class="fas fa-plus"></i>
                             <p>Registrar</p>
                         </button>

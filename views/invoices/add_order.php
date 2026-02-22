@@ -391,7 +391,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); addDetailItem();">
+                <form action="POST" id="addDetailItem">
 
                     <div class="grid-tab-detail">
 
@@ -788,7 +788,9 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); editSalesOrder(<?= $_GET['id'];?>)">
+                <form action="POST" id="editOrderSales">
+                    <input type="hidden" name="order_id" value="<?= $_GET['id'];?>">
+
                     <div class="row">
                         <div class="form-group col-sm-8">
                             <label class="form-check-label" for="">Cliente<span class="text-danger">*</span></label>
@@ -796,7 +798,7 @@
                                 <div class="i b-right">
                                     <i class="fas fa-list"></i>
                                 </div>
-                                <select class="form-custom-icon search" name="cliente" id="edit_customer_id" required>
+                                <select class="form-custom-icon search" name="customer" required>
                                     <?php $customers = Help::showCustomers();
                                     while ($customer = $customers->fetch_object()): ?>
                                         <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre ?? '') ?>
@@ -811,7 +813,7 @@
                     <div class="row">
                         <div class="form-group col-sm-12">
                             <label class="form-check-label" for="">Dirección de entrega</label>
-                            <textarea class="form-custom" id="edit_direction" cols="30" rows="3" maxlength="254" placeholder="Dirección completa"></textarea>
+                            <textarea class="form-custom" name="address" cols="30" rows="3" maxlength="254" placeholder="Dirección completa"></textarea>
                         </div>
                     </div>
 
@@ -822,7 +824,7 @@
                                 <div class="i">
                                     <i class="fas fa-user-tag"></i>
                                 </div>
-                                <input class="form-custom-icon b-left" type="text" id="edit_fullname">
+                                <input class="form-custom-icon b-left" type="text" name="receiver">
                             </div>
                         </div>
 
@@ -832,7 +834,7 @@
                                 <div class="i b-right">
                                     <i class="fas fa-phone-alt"></i>
                                 </div>
-                                <input class="form-custom-icon b-left" type="text" id="edit_tel">
+                                <input class="form-custom-icon b-left" type="text" name="telephone">
                             </div>
                         </div>
 
@@ -842,7 +844,7 @@
                                 <div class="i b-right">
                                     <i class="fas fa-list"></i>
                                 </div>
-                                <select class="form-custom-icon search" id="edit_delivery">
+                                <select class="form-custom-icon search" name="delivery">
                                     <option value="-" selected>Nínguno</option>
                                     <option value="envio">Envío</option>
                                     <option value="retiro">Retiro</option>
@@ -854,7 +856,7 @@
                     <div class="row">
                         <div class="form-group col-sm-12">
                             <label class="form-check-label" for="">Comentarios o instrucciones especiales</label>
-                            <textarea class="form-custom" id="edit_observation" cols="30" rows="3" maxlength="254" placeholder="Observaciones"></textarea>
+                            <textarea class="form-custom" name="observation" cols="30" rows="3" maxlength="254" placeholder="Observaciones"></textarea>
                         </div>
                     </div>
 

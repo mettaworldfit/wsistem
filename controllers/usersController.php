@@ -18,7 +18,7 @@ class UsersController
             exit();
         }
 
-         // Verificar si el rol del usuario tiene permiso para la acción solicitada
+        // Verificar si el rol del usuario tiene permiso para la acción solicitada
         $roles = isset($this->permissions[$action]) ? $this->permissions[$action] : [];
 
         // Si el array de roles está vacío, todos los roles tienen acceso
@@ -66,8 +66,12 @@ class UsersController
     // Acción para iniciar sesión
     public function login()
     {
+        if (!isset($_SESSION['identity'])) {
 
-        // Mostrar la vista de login
-        require_once './views/login/login.php';
+            // Mostrar la vista de login
+            require_once './views/login/login.php';
+        } else {
+            require_once './views/layout/denied.php';
+        }
     }
 }

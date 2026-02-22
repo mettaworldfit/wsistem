@@ -119,7 +119,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); AddDQuote(true);">
+                <form action="POST" id="addQuoteDetail">
 
                     <div class="grid-tab-detail">
 
@@ -188,7 +188,6 @@
                                     <input type="hidden" name="" value="" id="piece_id">
                                 </div>
                             </div>
-
 
                             <div class="form-group col-sm-8 product">
                                 <label class="form-check-label" for="">Productos</label>
@@ -489,7 +488,6 @@
 
 
 <!-- Actualizar cotizacion -->
-
 <div class="modal fade" id="save_quote" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -501,69 +499,80 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); updateQuote('<?= $_GET['id'] ?>');">
+                <form action="POST" id="editQuote">
 
-                    <!-- Content -->
-                    <div class="row col-sm-12">
+                    <?php $data = Help::getQuoteInfo($_GET['id']);
+                    while ($info = $data->fetch_object()): ?>
 
-                        <div class="form-group col-sm-6">
-                            <label class="form-check-label" for="">Cliente</label>
-                            <div class="input-div">
-                                <div class="i b-right">
-                                    <i class="fas fa-portrait"></i>
+                        <input type="hidden" name="quote_id" value="<?= $_GET['id'] ?>">
+                        <!-- Content -->
+                        <div class="row col-sm-12">
+
+                            <div class="form-group col-sm-6">
+                                <label class="form-check-label" for="">Cliente</label>
+                                <div class="input-div">
+                                    <div class="i b-right">
+                                        <i class="fas fa-portrait"></i>
+                                    </div>
+                                    <select class="form-custom-icon search" name="customer" id="customer" required>
+                                        <?php
+                                        // Obtener el cliente asociado a la cotización
+                                        $customers = Help::getCustByQuote($_GET['id']);
+                                        while ($customer = $customers->fetch_object()): ?>
+                                            <option value="<?= $customer->cliente_id ?>" selected><?= ucwords($customer->nombre) . " " . ucwords($customer->apellidos ?? '') ?></option>
+                                        <?php endwhile; ?>
+
+                                        <?php
+                                        // Obtener todos los clientes
+                                        $allCustomers = Help::showCustomers();
+                                        while ($customer = $allCustomers->fetch_object()): ?>
+                                            <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre) . " " . ucwords($customer->apellidos ?? '') ?></option>
+                                        <?php endwhile; ?>
+                                    </select>
                                 </div>
-                                <select class="form-custom-icon search" name="" id="customer" requireds>
-                                    <?php $customers = Help::showCustomers();
-                                    while ($customer = $customers->fetch_object()): ?>
-                                        <option value="<?= $customer->cliente_id ?>"><?= ucwords($customer->nombre) . " " . ucwords($customer->apellidos ?? '') ?></option>
-                                    <?php endwhile; ?>
-                                </select>
                             </div>
+
+                            <div class="form-group col-sm-4">
+                                <label class="form-check-label" for="">Fecha</label>
+                                <div class="input-div">
+                                    <div class="i">
+                                        <i class="far fa-calendar-alt"></i>
+                                    </div>
+                                    <input class="form-custom-icon b-left" type="date" name="date" value="<?= $info->fecha ?>" >
+                                </div>
+                            </div>
+
+
+                        </div> <!-- Row -->
+
+                        <div class="row col-sm-12 mt-1">
+
+                            <div class="form-group col-sm-4">
+                                <label class="form-check-label" for="">Vendedor</label>
+                                <div class="input-div">
+                                    <div class="i">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                    <input class="form-custom-icon b-left" type="text" name="seller"
+                                        value="<?= ucwords($_SESSION['identity']->nombre) ?>" id="user_id" disabled>
+                                </div>
+                            </div>
+
+                        </div> <!-- Row -->
+
+
+                        <div class="mt-4 modal-footer">
+                            <button type="button" class="btn-custom btn-red" data-dismiss="modal" id="">
+                                <i class="fas fa-window-close"></i>
+                                <p>Salir</p>
+                            </button>
+                            <button type="submit" class="btn-custom btn-green">
+                                <i class="fas fa-plus"></i>
+                                <p>Actualizar</p>
+                            </button>
                         </div>
 
-
-                        <div class="form-group col-sm-4">
-                            <label class="form-check-label" for="">Fecha</label>
-                            <div class="input-div">
-                                <div class="i">
-                                    <i class="far fa-calendar-alt"></i>
-                                </div>
-                                <input class="form-custom-icon b-left" type="date" name=""
-                                    value="<?php date_default_timezone_set('America/New_York');
-                                            echo date('Y-m-d'); ?>" id="date">
-                            </div>
-                        </div>
-
-
-                    </div> <!-- Row -->
-
-                    <div class="row col-sm-12 mt-1">
-
-                        <div class="form-group col-sm-4">
-                            <label class="form-check-label" for="">Vendedor</label>
-                            <div class="input-div">
-                                <div class="i">
-                                    <i class="fas fa-user-tie"></i>
-                                </div>
-                                <input class="form-custom-icon b-left" type="text" name=""
-                                    value="<?= ucwords($_SESSION['identity']->nombre) ?>" id="user_id" disabled>
-                            </div>
-                        </div>
-
-                    </div> <!-- Row -->
-
-
-                    <div class="mt-4 modal-footer">
-                        <button type="button" class="btn-custom btn-red" data-dismiss="modal" id="">
-                            <i class="fas fa-window-close"></i>
-                            <p>Salir</p>
-                        </button>
-                        <button type="submit" class="btn-custom btn-green">
-                            <i class="fas fa-plus"></i>
-                            <p>Actualizar</p>
-                        </button>
-                    </div>
-
+                    <?php endwhile; ?>
                 </form>
             </div> <!-- Body -->
         </div>

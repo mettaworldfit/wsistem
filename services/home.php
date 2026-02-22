@@ -11,12 +11,15 @@ $action = $_POST['action'] ?? null;
 $permissions = [
 
   // Dashboard / estadísticas
+  'total_vendido' => [],
   'ventas_meses' => ['administrador'],
   'gastos_meses' => ['administrador'],
   'ventas_dias'  => ['administrador'],
 
   // Buscador global
-  'buscador' => [], // todos
+  'buscador' => [] // todos
+
+  
 ];
 
 // Chequear permisos
@@ -329,7 +332,69 @@ switch ($action) {
 
     echo json_encode($result);
     break;
+  case 'total_vendido':
+    
+    $user_condition = "";  // Inicialización de la variable
+
+    // Verificar el valor de modo_cierre y modificar la variable según corresponda
+    if (isset($config['modo_cierre']) && $config['modo_cierre'] === "separado" && $_SESSION['identity']->nombre_rol != 'administrador') {
+      $user_condition = "AND x.usuario_id = '$user_id'";
+    }
+
+    // Determinar el rango de fechas
+    $fecha_condicion = isset($config['auto_cierre']) && $config['auto_cierre'] === 'false'
+      ? "CONCAT(x.fecha, ' ', x.hora) >= (SELECT fecha_apertura FROM cierres_caja WHERE estado = 'abierto' ORDER BY fecha_apertura DESC LIMIT 1)"
+      : "x.fecha = CURDATE()";
+
+    // Generar la consulta
+    $query = "SELECT SUM(total) AS total
+        FROM (
+        -- Subconsulta 1: Facturas ventas con detalles no vacíos
+        SELECT (x.recibido - IFNULL(SUM(p.recibido), 0)) AS total
+        FROM facturas_ventas x
+        LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = x.factura_venta_id
+        LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+        INNER JOIN detalle_facturas_ventas d ON d.factura_venta_id = x.factura_venta_id
+        WHERE $fecha_condicion $user_condition
+        GROUP BY x.factura_venta_id
+
+        UNION ALL
+
+        -- Subconsulta 2: Facturas RP con detalles no vacíos
+        SELECT (x.recibido - IFNULL(SUM(p.recibido), 0)) AS total
+        FROM facturasRP x
+        LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = x.facturaRP_id
+        LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+        INNER JOIN detalle_ordenRP d ON d.orden_rp_id = x.orden_rp_id
+        WHERE $fecha_condicion $user_condition
+        GROUP BY x.facturaRP_id
+
+        UNION ALL
+
+        -- Subconsulta 3: Pagos RP
+        SELECT SUM(x.recibido) AS total
+        FROM pagos_a_facturasRP pf
+        INNER JOIN pagos x ON pf.pago_id = x.pago_id
+        WHERE $fecha_condicion $user_condition
+        GROUP BY x.pago_id
+
+        UNION ALL
+
+        -- Subconsulta 4: Pagos ventas
+        SELECT SUM(x.recibido) AS total
+        FROM pagos_a_facturas_ventas pf
+        INNER JOIN pagos x ON pf.pago_id = x.pago_id
+        WHERE $fecha_condicion $user_condition
+        GROUP BY x.pago_id
+      ) ventas_reales;";
+
+    echo jsonQueryResult($db,$query);
+
+    break;
 }
+
+
+
 
 // if ($_POST['action'] == 'productos_mas_vendidos_mes') {
 //   $db = Database::connect();

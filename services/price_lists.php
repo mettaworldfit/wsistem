@@ -167,8 +167,10 @@ switch ($action) {
       $db->query($sql2);
     }
 
+    // WEBSOCKET
+    webSocketServer('/api/list/update',["list_id" => $list_id]);
+
     echo json_encode(["order_id" => $order_id]);
 
     break;
- 
 }

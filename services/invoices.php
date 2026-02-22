@@ -102,14 +102,14 @@ if ($_POST['action'] === "registrar_orden") {
   $db = Database::connect();
 
   $result = handleProcedureAction($db, 'ov_agregarOrden', [
-    (int)$_POST['customer_id'],
+    (int)$_POST['customer'],
     (int)$_SESSION['identity']->usuario_id,
     6, // Pendiente
     $_POST['observation'],
     $_POST['delivery'] ?? '-',
-    $_POST['direction'],
-    $_POST['name'],
-    $_POST['tel']
+    $_POST['address'],
+    $_POST['receiver'],
+    $_POST['telephone']
   ]);
 
   // WEBSOCKET
@@ -124,13 +124,13 @@ if ($_POST['action'] === "editar_orden") {
 
   $result = handleProcedureAction($db, 'ov_editarOrden', [
     (int)$_POST['order_id'],
-    (int)$_POST['customer_id'],
+    (int)$_POST['customer'],
     (int)$_SESSION['identity']->usuario_id,
     $_POST['observation'],
     $_POST['delivery'] ?? '-',
-    $_POST['direction'],
-    $_POST['name'],
-    $_POST['tel']
+    $_POST['address'],
+    $_POST['receiver'],
+    $_POST['telephone']
   ]);
 
   // WEBSOCKET
@@ -187,7 +187,7 @@ if ($_POST['action'] === "index_ordenes") {
 
       // Solo permitir deleteOrder si es administrador
       if ($_SESSION['identity']->nombre_rol === 'administrador') {
-        $acciones .= '<span onclick="deleteOrder(\'' . $row['comanda_id'] . '\')" class="btn-action action-danger" title="Eliminar">';
+        $acciones .= '<span class="btn-action action-danger erase_order" data-id="' . $row['comanda_id'] . '" title="Eliminar">';
         $acciones .= BUTTON_DELETE . '</span>';
       } else {
         // Mostrar icono deshabilitado sin evento
@@ -209,7 +209,7 @@ if ($_POST['action'] === "index_ordenes") {
         "entrega" => $row['tipo_entrega'],
         "fecha" => $row['fecha'],
         'estado' => ($invoice_id > 0 ? '<a href="' . base_url . 'invoices/edit&id=' . $invoice_id . '" class="Facturado">' . 'Facturado' . '</a>' : '<span class="No">' . 'Sin facturar' . '</span>'),
-        'orden' => '<select class="form-custom ' . $row['nombre_estado'] . '" id="status_order" onchange="updateOrderStatus(this);">'
+        'orden' => '<select class="form-custom ' . $row['nombre_estado'] . '" id="status_order">'
           . '<option order_id="' . $row['comanda_id'] . '" value="' . $row['estado_id'] . '" selected>' . $row['nombre_estado'] . '</option>' .
           '<option class="Pendiente" order_id="' . $row['comanda_id'] . '" value="6">Pendiente</option>' .
           '<option class="En Proceso" order_id="' . $row['comanda_id'] . '" value="8">En Proceso</option>' .
@@ -280,7 +280,7 @@ if ($_POST['action'] == "cargar_detalle_facturas") {
         'impuesto' => '<span class="hide-cell">' . number_format($cantidad * $impuesto, 2) . ' - (' . number_format($valor, 2) . '%)</span>',
         'descuento' => number_format($cantidad * $descuento, 2),
         'total' => number_format($importe, 2),
-        'acciones' => '<a class="btn-action action-danger" onclick="deleteInvoiceDetail(\'' . $row['id'] . '\')">
+        'acciones' => '<a class="btn-action action-danger erase-item" data-id="' . $row['id'] . '">
         ' . BUTTON_ERASE . '
         </a>'
       ];
@@ -399,7 +399,7 @@ if ($_POST['action'] == "index_cotizaciones") {
                   <a class="btn-action action-info" href="' . base_url . 'invoices/edit_quote&id=' . $row['cotizacion_id'] . '" title="editar">
                       ' . BUTTON_EDIT . '
                   </a>
-                  <span onclick="deleteQuote(\'' . $row['cotizacion_id'] . '\')" class="btn-action action-danger">
+                  <span class="btn-action action-danger erase_quote" data-id="' . $row['cotizacion_id'] . '">
                       ' . BUTTON_DELETE . '
                   </span>'
       ];
@@ -450,7 +450,7 @@ if ($_POST['action'] == "index_facturas_ventas") {
       $acciones .= ' title="Editar">' . BUTTON_EDIT . '</a>';
 
       if ($_SESSION['identity']->nombre_rol == 'administrador') {
-        $acciones .= '<span onclick="deleteInvoice(\'' . $row['factura_venta_id'] . '\')" class="btn-action action-danger" title="Eliminar">
+        $acciones .= '<span class="btn-action action-danger erase_invoice" data-id="' . $row['factura_venta_id'] . '" title="Eliminar">
         ' . BUTTON_DELETE . '</span>';
       } else {
         $acciones .= '<span class="btn-action action-danger action-disable" title="Eliminar">' . BUTTON_DELETE . '</span>';
@@ -490,8 +490,7 @@ if ($_POST['action'] == "agregar_detalle_temporal") {
     (int)$_POST['discount'] ?? 0
   ];
 
-echo handleProcedureAction($db, 'vt_crearDetalleTemporal', $params);
-
+  echo handleProcedureAction($db, 'vt_crearDetalleTemporal', $params);
 }
 
 if ($_POST['action'] == "asignar_variantes_temporales") {
@@ -561,8 +560,8 @@ if ($_POST['action'] === "agregar_detalle_venta") {
 
   $db = Database::connect();
 
-   $db->query("SET @usuario_id = " . (int)$_SESSION['identity']->usuario_id);
-   
+  $db->query("SET @usuario_id = " . (int)$_SESSION['identity']->usuario_id);
+
   echo handleProcedureAction($db, 'vt_agregarDetalleVenta', [
     $invoice,
     $order,
@@ -669,7 +668,7 @@ if ($_POST['action'] == "factura_contado") {
 
   $db = Database::connect();
 
-  echo handleProcedureAction($db, 'vt_facturaVenta', [
+  $result = handleProcedureAction($db, 'vt_facturaVenta', [
     (int)$_POST['customer_id'],
     (int)$_POST['method_id'],
     $_POST['total_invoice'],
@@ -678,6 +677,11 @@ if ($_POST['action'] == "factura_contado") {
     $_POST['observation'],
     $_POST['date']
   ]);
+
+  // WEBSOCKET
+  webSocketServer('/api/new/purchase');
+
+  echo $result;
 }
 
 // Pasar detalle temporal al detalle de la venta y asignarle la factura
@@ -787,49 +791,34 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
 
 if ($_POST['action'] == "factura_credito") {
 
-  $customer_id = $_POST['customer_id'];
-  $total = $_POST['total_invoice'];
-  $description = $_POST['description'];
-  $method = $_POST['payment_method'];
-  $user_id = $_SESSION['identity']->usuario_id;
-  $pay = $_POST['pay'];
-  //$pending = $_POST['pending'];
-  $date = $_POST['date'];
-
   $db = Database::connect();
 
-  $query = "CALL vt_facturaAcredito($customer_id,$method,'$total','$pay',$user_id,'$description','$date')";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
+  $params = [
+    (int)$_POST['customer_id'],
+    (int)$_POST['payment_method'],
+    $_POST['total_invoice'],
+    $_POST['pay'],
+    (int)$_SESSION['identity']->usuario_id,
+    $_POST['description'],
+    $_POST['date']
+  ];
 
-  if ($data->msg > 0) {
+  $result = handleProcedureAction($db, 'vt_facturaAcredito', $params);
 
-    echo $data->msg;
-  } else if (str_contains($data->msg, 'SQL')) {
+  // WEBSOCKET
+  webSocketServer('/api/new/purchase');
 
-    echo "Error : " . $data->msg;
-  }
+  echo $result;
 }
 
 
 // Eliminar factura de venta
-
 if ($_POST['action'] == 'eliminar_factura') {
 
-  $id = $_POST['id'];
   $db = Database::connect();
-
-  $query = "CALL vt_eliminarFacturaVenta($id)";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
-
-  if ($data->msg == "ready") {
-
-    echo "ready";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error : " . $data->msg;
-  }
+  echo handleProcedureAction($db, 'vt_eliminarFacturaVenta', [
+    (int)$_POST['id']
+  ]);
 }
 
 // Consultar bono de cliente
@@ -851,27 +840,19 @@ if ($_POST['action'] == 'consultar_bono') {
 }
 
 
-// actualizar datos de factura
-
+// Actualizar datos de factura
 if ($_POST['action'] == 'actualizar_factura') {
 
-  $id = $_POST['id'];
-  $customer_id = $_POST['customer_id'];
-  $observation = $_POST['observation'];
-  $method = $_POST['method'];
   $db = Database::connect();
 
-  $query = "CALL vt_actualizarFactura($id,$customer_id,'$observation',$method)";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
+  $params = [
+    (int)$_POST['id'],
+    (int)$_POST['customer'],
+    $_POST['observation'] ?? "",
+    (int)$_POST['method']
+  ];
 
-  if ($data->msg == "ready") {
-
-    echo "ready";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Error : " . $data->msg;
-  }
+  echo handleProcedureAction($db, 'vt_actualizarFactura', $params);
 }
 
 // Crear cotizaciones
@@ -893,30 +874,19 @@ if ($_POST['action'] == "registrar_cotizaciones") {
 
 if ($_POST['action'] == "actualizar_cotizaciones") {
 
-  $customer_id = $_POST['customer_id'];
-  $observation = $_POST['observation'];
-  $user_id = $_SESSION['identity']->usuario_id;
-  $date = $_POST['date'];
-  $id = $_POST['quote_id'];
-
   $db = Database::connect();
 
-  $query = "CALL ct_actualizarCotizacion($customer_id,$id,'$observation','$date')";
-  $result = $db->query($query);
-  $data = $result->fetch_object();
+  $params = [
+    (int)$_POST['customer'],
+    (int)$_POST['quote_id'],
+    !empty($_POST['observation']) ? $_POST['observation'] : "",
+    $_POST['date']
+  ];
 
-  if ($data->msg == "ready") {
-
-    echo "ready";
-  } else if (str_contains($data->msg, 'SQL')) {
-
-    echo "Ha ocurrido un error al registrar: " . $data->msg;
-  }
+  echo handleProcedureAction($db, "ct_actualizar_cotizacion", $params);
 }
 
 // Agregar detalle de cotizacion
-
-
 if ($_POST['action'] == "crear_detalle_cotizacion") {
 
   $quote_id = $_POST['id'];
@@ -935,12 +905,7 @@ if ($_POST['action'] == "crear_detalle_cotizacion") {
   $query = "INSERT INTO detalle_cotizaciones values 
   (null,$quote_id,$user_id,'$description','$quantity','$price','$taxes','$discount',curdate());";
 
-  if ($db->query($query) === TRUE) {
-    echo "ready";
-  } else {
-    echo "Ha ocurrido un error";
-  }
-
+  echo jsonQueryResult($db,$query);
 
   // Activar trigger
   Help::CREATE_TRIGGER_agregar_item_cotizacion();
@@ -963,15 +928,10 @@ if ($_POST['action'] == "agregar_detalle_cotizacion") {
   $query = "INSERT INTO detalle_cotizaciones values 
   (null,$quote_id,$user_id,'$description','$quantity','$price','$taxes','$discount',curdate());";
 
-  if ($db->query($query) === TRUE) {
-    echo "ready";
-  } else {
-    echo "Ha ocurrido un error";
-  }
+  echo jsonQueryResult($db, $query);
 }
 
 // Eliminar cotizacion
-
 if ($_POST['action'] == 'eliminar_cotizacion') {
 
   $id = $_POST['id'];
@@ -1003,9 +963,9 @@ if ($_POST['action'] == "total_cotizacion") {
   SUM(d.cantidad * d.descuento) AS descuentos,
   SUM(d.cantidad * d.precio)    AS precios,
   SUM((d.cantidad * d.precio) + (d.cantidad * d.impuesto) - d.descuento) AS total_factura
-FROM detalle_cotizaciones d 
-INNER JOIN cotizaciones c ON c.cotizacion_id = d.cotizacion_id
-WHERE c.cotizacion_id = '$id'";
+  FROM detalle_cotizaciones d 
+  INNER JOIN cotizaciones c ON c.cotizacion_id = d.cotizacion_id
+  WHERE c.cotizacion_id = '$id'";
 
   jsonQueryResult($db, $query);
 }
@@ -1086,7 +1046,7 @@ if ($_POST['action'] === "obtener_detalle_orden") {
   // Detalle
   $q1 = "SELECT df.precio,df.descuento,
   COALESCE(p.nombre_producto, s.nombre_servicio, pz.nombre_pieza) AS descripcion,
-  df.comanda_id,df.cantidad
+  df.comanda_id,df.cantidad, df.impuesto
   FROM detalle_facturas_ventas df
   LEFT JOIN detalle_ventas_con_productos dvp ON df.detalle_venta_id = dvp.detalle_venta_id
   LEFT JOIN productos p ON p.producto_id = dvp.producto_id
@@ -1190,7 +1150,7 @@ if ($_POST['action'] === "actualizar_cantidad_detalle_temporal" || $_POST['actio
   $result = updateDetailQuantity($db, $id, $quantity, $item_id, $item_type, $tabla_detalle, $tabla_id);
 
   // WEBSOCKET
-  webSocketServer('/api/order/update');
+  webSocketServer('/api/detail/update');
 
   echo $result;
 }
@@ -1351,13 +1311,18 @@ if ($_POST['action'] == "factura_contado_pos") {
 
   $db = Database::connect();
 
-  echo handleProcedureAction($db, 'pos_factura_venta', [
+  $result = handleProcedureAction($db, 'pos_factura_venta', [
     (int)$_SESSION['identity']->usuario_id,
     (int)$_POST['customer_id'],
     (int)$_POST['method_id'],
     (int)$_POST['order_id'],
     $_POST['total_invoice']
   ]);
+
+  // WEBSOCKET
+  webSocketServer('/api/new/purchase');
+
+  echo $result;
 }
 
 // Factura al contado POS
@@ -1365,7 +1330,7 @@ if ($_POST['action'] == "factura_credito_pos") {
 
   $db = Database::connect();
 
-  echo handleProcedureAction($db, 'pos_factura_credito', [
+  $result = handleProcedureAction($db, 'pos_factura_credito', [
     (int)$_SESSION['identity']->usuario_id,
     (int)$_POST['customer_id'],
     (int)$_POST['method_id'],
@@ -1374,6 +1339,11 @@ if ($_POST['action'] == "factura_credito_pos") {
     $_POST['pay'],
     $_POST['date']
   ]);
+
+  // WEBSOCKET
+  webSocketServer('/api/new/purchase');
+
+  echo $result;
 }
 
 // Devolver datos del detalle para imprimir en POS

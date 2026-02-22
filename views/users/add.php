@@ -7,19 +7,18 @@
 </div>
 
 <div class="generalContainer-medium">
-    <form class="user-content" action="" onsubmit="event.preventDefault(); addUser();">
+    <form class="user-content" method="POST" id="formUser">
         <div class="container">
 
             <div class="row mb-3">
-
                 <div class="col-sm-6">
                     <label for="nombre">Nombre<span class="text-danger">*</span></label>
-                    <input type="text" class="form-custom" placeholder="" id="name" required>
+                    <input type="text" class="form-custom" name="name" required>
                 </div>
 
                 <div class="col-sm-6 mb-3">
                     <label for="apellidos">Apellidos</label>
-                    <input type="text" class="form-custom" placeholder="" id="lastname">
+                    <input type="text" class="form-custom" name="lastname">
                 </div>
             </div>
 
@@ -27,17 +26,17 @@
             <div class="row mb-3">
                 <div class="col-sm-6">
                     <label for="">Username<span class="text-danger">*</span></label>
-                    <input type="text" class="form-custom" placeholder="" id="username" required>
+                    <input type="text" class="form-custom" name="username" required>
                 </div>
 
                 <div class="col-sm-6 mb-3">
                     <label for="">Password<span class="text-danger">*</span></label>
-                    <input type="password" class="form-custom" placeholder="" id="password" required>
+                    <input type="password" class="form-custom" name="password" required>
                 </div>
 
                 <div class="col-sm-6">
                     <label for="">Rol</label>
-                    <select class="form-custom search" name="" id="rol" required>
+                    <select class="form-custom search" name="role" id="rol" required>
                         <?php $roles = Help::roles();
                         while ($rol = $roles->fetch_object()): ?>
                             <option value="<?= $rol->rol_id ?>"><?= ucwords($rol->nombre_rol) ?></option>
@@ -45,7 +44,6 @@
                     </select>
                 </div>
             </div>
-
         </div>
 
         <div class="buttons clearfix">

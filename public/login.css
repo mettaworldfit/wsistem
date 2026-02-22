@@ -58,20 +58,20 @@ body {
 }
 
 .powered-by {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 14px;
-  color: #666;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
 }
 
 .powered-by a {
-  color: var(--color-primary); 
-  text-decoration: none;
+    color: var(--color-primary);
+    text-decoration: none;
 }
 
 .powered-by a:hover {
-  text-decoration: underline;
-  color: var(--color-primary);
+    text-decoration: underline;
+    color: var(--color-primary);
 }
 
 
@@ -262,6 +262,14 @@ input:valid~label {
     top: -5px
 }
 
+input:focus,
+input:valid {
+    color: var(--color-primary) !important;
+    -webkit-text-fill-color: var(--color-primary) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important
+}
+
 .input-div .i {
     position: absolute;
     right: 10px
@@ -282,8 +290,8 @@ button[type=submit]:focus {
 
 input,
 select {
-    color: var(--color-primary) !important;
-    -webkit-text-fill-color: var(--color-primary) !important;
+    color: white !important;
+    -webkit-text-fill-color: white !important;
     -webkit-background-clip: text !important;
     background-clip: text !important
 }

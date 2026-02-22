@@ -1,7 +1,38 @@
+import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "public/functions.js";
+
+// import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/functions.js";
+
 $(document).ready(function () {
 
-    // Abreviar cifras
+    let wsConnection = initWebSocket();
+    let wsConnected = isWebSocketConnected();
 
+    // Manejar el mensaje recibido
+    wsConnection.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+
+        console.log('%c[WS LOG]', 'color:#007bff;font-weight:bold;', data)
+
+        if (data.type === "nueva_venta") {
+            getUpdatedTotal()
+        }
+
+        if (data.type === "caja_abierta") {
+            // Actualizar el contenido de los elementos específicos usando .html()
+            $('.float-right').load(window.location.href + ' .float-right > *');
+            $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
+        }
+
+        if (data.type === "caja_cerrada") {
+            // Actualizar el contenido de los elementos específicos usando .html()
+            $('.float-right').load(window.location.href + ' .float-right > *');
+            $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
+        }
+    };
+
+
+
+    // Abreviar cifras
     function abbreviateNumber(num) {
         if (num >= 1e9) {
             return (num / 1e9).toFixed(1) + "B"; // Billones
@@ -18,8 +49,7 @@ $(document).ready(function () {
     function formatMonthName(monthName) {
         return monthName.charAt(0).toUpperCase() + monthName.slice(1).toLowerCase();
     }
-
-    /**
+  /**
  * Renderiza un gráfico de línea con múltiples datasets utilizando Chart.js.
  *
  * @param {string} elementId - ID del elemento <canvas> donde se renderiza el gráfico.
@@ -223,7 +253,11 @@ $(document).ready(function () {
             { index: 1, label: "Ganancias", color: "#05c65c" }
         ]
     });
-
+    /**============================================================= 
+    * INICIAR FUNCIONES
+    ===============================================================*/
+    
+    getUpdatedTotal()
 
 
 }); // Ready

@@ -910,10 +910,35 @@ class Help
       return $db->query($query);
    }
 
+    public static function getQuoteInfo($id)
+   {
+      $query = "SELECT c.nombre, c.apellidos, c.cliente_id, co.fecha
+      FROM cotizaciones co
+        INNER JOIN clientes c ON c.cliente_id = co.cliente_id
+        WHERE co.cotizacion_id = '$id'";
+
+      $db = Database::connect();
+      return $db->query($query);
+   }
+
+
 
    /**
     * Clientes
      ------------------------------------*/
+
+   public static function getCustByQuote($id)
+   {
+      $query = "SELECT c.nombre, c.apellidos, c.cliente_id
+      FROM clientes c
+        INNER JOIN cotizaciones co ON c.cliente_id = co.cliente_id
+        WHERE co.cotizacion_id = '$id'";
+
+      $db = Database::connect();
+      return $db->query($query);
+   }
+
+
 
    public static function showCustomers()
    {
@@ -1525,8 +1550,76 @@ class Help
     * Configuración
      ---------------------------------------*/
 
-   // Función para mostrar la configuración de los bonos
+   // Función para mostrar la configuración de impresión
+   public static function configPrinter($id)
+   {
+      $query = "SELECT * FROM printer_settings p
+      INNER JOIN usuarios u ON u.usuario_id = p.usuario_id
+      WHERE p.printer_id = $id";
 
+      $db = Database::connect();
+
+      // Ejecutar la consulta
+      $result = $db->query($query);
+
+      // Inicializar un array para almacenar los resultados
+      $configuration = [];
+
+      if ($result && $result->num_rows > 0) {
+         $row = $result->fetch_object();
+
+         $configuration = [
+            'id'                => $row->printer_id,
+            'usuario_id'        => $row->usuario_id,
+            'nombre'            => $row->nombre,
+            'apellidos'         => $row->apellidos,
+            'printer_name'      => $row->printer_name,
+            'printer_type'      => $row->printer_type,
+            'printer_language'  => $row->printer_language,
+            'print_method'      => $row->print_method,
+            'paper_width'       => $row->paper_width,
+            'copies'            => $row->copies,
+            'auto_cut'          => $row->auto_cut,
+            'open_cash_drawer'  => $row->open_cash_drawer,
+            'signature'         => $row->signature,
+            'policy_footer'     => $row->policy_footer,
+            'ticket_footer'     => $row->ticket_footer,
+            'use_barcode'       => $row->use_barcode,
+            'barcode_type'      => $row->barcode_type,
+            'barcode_height'    => $row->barcode_height,
+            'barcode_width'     => $row->barcode_width,
+            'use_qr'            => $row->use_qr,
+            'qr_size'           => $row->qr_size,
+            'logo_density'      => $row->logo_density,
+            'feed_start'        => $row->feed_start,
+            'feed_end'          => $row->feed_end,
+            'created_at'        => $row->created_at,
+            'updated_at'        => $row->updated_at
+         ];
+      }
+
+      return $configuration;
+   }
+
+   // Función para mostrar la informacion del sitio
+   public static function configSiteData()
+   {
+      $query = "SELECT config_key, config_value FROM configuraciones";
+      $db = Database::connect();
+      $result = $db->query($query);
+
+      $configurations = [];
+
+      if ($result && $result->num_rows > 0) {
+         while ($row = $result->fetch_object()) {
+            $configurations[$row->config_key] = $row->config_value;
+         }
+      }
+
+      return $configurations;
+   }
+
+   // Función para mostrar la configuración de los bonos
    public static function configBonus()
    {
       $query = "SELECT * FROM bono_config b

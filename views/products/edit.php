@@ -376,9 +376,8 @@
                     </div>
 
                     <div class="form-group col-sm-6">
-                        <select class="form-custom search col-sm-12" name="price_list" id="price_list" <?php if ($_SESSION['identity']->nombre_rol != 'administrador') {
-                                                                                                            echo 'disabled';
-                                                                                                        } ?>>
+                        <select class="form-custom search col-sm-12" name="price_list" id="price_list" 
+                        <?php if ($_SESSION['identity']->nombre_rol != 'administrador') { echo 'disabled';} ?>>
                             <option value="0" selected>Vacío</option>
                             <?php $lists = Help::loadPriceLists();
                             while ($list = $lists->fetch_object()): ?>
@@ -388,9 +387,8 @@
                     </div>
 
                     <div class="form-group col-sm-6">
-                        <input class="form-custom col-sm-12" type="number" name="" id="list_value" <?php if ($_SESSION['identity']->nombre_rol != 'administrador') {
-                                                                                                        echo 'disabled';
-                                                                                                    } ?>>
+                        <input class="form-custom col-sm-12" type="number" name="" id="list_value" 
+                        <?php if ($_SESSION['identity']->nombre_rol != 'administrador') {echo 'disabled'; } ?>>
                     </div>
 
                     <br><br>

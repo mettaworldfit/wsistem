@@ -1,3 +1,4 @@
+
 // Función para limpiar los campos
 
 function reset_input() {

@@ -61,9 +61,10 @@
             margin-bottom: 10px;
         }
 
+        /* 
         .logo_factura {
             width: 35%;
-        }
+        } */
 
         .info_empresa {
             width: 35%;
@@ -164,12 +165,65 @@
             font-weight: bold;
             font-family: 'BrixSansBlack';
         }
+
+        .logo_factura img {
+            height: auto;
+            object-fit: contain;
+            padding: 0;
+        }
+
+        /* Logos pequeños */
+        .logo_factura img.logo-sm {
+            max-width: 200px;
+            max-height: 120px;
+        }
+
+        /* Logos medianos */
+        .logo_factura img.logo-md {
+            max-width: 180px;
+            max-height: 110px;
+        }
+
+        /* Logos grandes o cuadrados */
+        .logo_factura img.logo-xl {
+            max-width: 150px;
+            max-height: 100px;
+        }
     </style>
 </head>
 
 <?php
-$nombreImagen = base_url . $Logo_pdf;
-$imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nombreImagen));
+
+$claseLogo = '';
+
+// Detectar si es localhost
+$directorio = ($_SERVER['HTTP_HOST'] === 'localhost')
+    ? 'proyecto'
+    : 'wsistem';
+
+$rutaFisica  = $_SERVER['DOCUMENT_ROOT'] . "/{$directorio}/public/uploads/" . $Logo_pdf;
+$rutaDefault = $_SERVER['DOCUMENT_ROOT'] . "/{$directorio}/public/imagen/sistem/pdf.png";
+
+$rutaFinal = file_exists($rutaFisica) ? $rutaFisica : $rutaDefault;
+
+$info = @getimagesize($rutaFinal);
+
+if ($info !== false) {
+
+    $ancho = $info[0];
+    $alto  = $info[1];
+
+    if ($ancho >= 500 || $alto >= 500) {
+        $claseLogo = 'logo-xl';
+    } elseif ($ancho >= 350) {
+        $claseLogo = 'logo-md';
+    } else {
+        $claseLogo = 'logo-sm';
+    }
+}
+
+$imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($rutaFinal));
+
 ?>
 
 <body>
@@ -179,7 +233,7 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
             <tr>
                 <td class="logo_factura">
                     <div>
-                        <img src="<?= $imagenBase64 ?>"> <br>
+                        <img class="<?= $claseLogo ?>" src="<?= $imagenBase64 ?>"> <br>
                         <span class="eslogan"><?= $Slogan ?></span>
                         <p><?= $Dir ?></p>
                         <p><?= $Tel ?></p>
@@ -321,7 +375,7 @@ $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nomb
             <p class="nota textcenter"><?= $Policy ?></p>
             <br>
             <p class="nota textcenter"><b><?= $Title ?></b></p>
-                       
+
             <h4 class="label_gracias">¡Gracias por su compra!</h4>
             <br>
             <p class="nota textcenter">De acuerdo con la Ley No. 172-13 que tiene por objeto la protección integral de los datos personales, le informamos que el tratamiento de los datos que nos proporcione solo serán utilizados para ofrecer nuestros servicios.</p>

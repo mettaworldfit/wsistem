@@ -331,10 +331,15 @@ function handleJSONResponse(response) {
  * @param {boolean} [options.verbose=false] - Si es true, se activan los logs en consola.
  */
 function sendAjaxRequest({ url, data = {}, successCallback, errorCallback, verbose = false }) {
+    const isFormData = data instanceof FormData;
+
     $.ajax({
         type: "POST",
         url: SITE_URL + url,
-        data,
+        data: data,
+        processData: !isFormData,
+        contentType: isFormData ? false : 'application/x-www-form-urlencoded; charset=UTF-8',
+
         success: function (res) {
             // Asegurarse de que la respuesta sea válida JSON (no texto plano)
             let data = handleJSONResponse(res);
@@ -485,6 +490,18 @@ $(document).ready(function () {
     });
 
 
+    /**
+    * Vegas
+    ----------------------------------------------*/
+
+    $(".sidebar-right").vegas({
+        slides: [
+            { src: SITE_URL + "public/imagen/img/img1.jpg" },
+            { src: SITE_URL + "public/imagen/img/img2.jpg" },
+            { src: SITE_URL + "public/imagen/img/img3.jpg" },
+        ],
+        transition: ["fade", "blur", "fade2", "blur2"],
+    });
 
     /**
  * Valores de la sección agregar producto
@@ -994,6 +1011,16 @@ $(document).ready(function () {
         ordering: true,
         info: false
     },
+    {
+        id: '#printers',
+        url: 'services/config.php',
+        action: 'cargar_printers',
+        columns: ['usuario', 'printer', 'tipo', 'lenguaje', 'tamaño', 'acciones'],
+        paging: true,
+        searching: true,
+        ordering: true,
+        info: false
+    },
 
     ];
 
@@ -1044,14 +1071,18 @@ $(document).ready(function () {
 
         // Función que obtiene la fecha desde el servidor vía AJAX
         function getFechaServidor(callback) {
-            sendAjaxRequest({
-                url: "services/config.php",
+            $.ajax({
+                url: SITE_URL + "services/config.php",
+                method: "POST",  // Usualmente se usa POST, si es GET entonces cambialo.
                 data: {
                     action: 'fecha_actual'
                 },
-                successCallback: (res) => {
+                success: function (res) {
                     const data = JSON.parse(res);  // Convertir JSON a objeto
                     callback(data);  // Pasar el objeto con ambas fechas
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al obtener la fecha del servidor:", error);
                 }
             });
         }

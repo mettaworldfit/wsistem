@@ -30,13 +30,15 @@
         <span>Facturas</span>
 
         <ul>
+            <li><a href="<?= base_url ?>config/site">Datos del sitio</a></li>
             <li><a href="<?= base_url ?>config/config_mail">Configuración Email</a></li>
             <li><a href="<?= base_url ?>config/config_pdf">Configuración PDF</a></li>
-             <li><a href="<?= base_url ?>config/printer">Configuración Ticket</a></li>
+            <li><a href="<?= base_url ?>config/printer">Configuración Ticket</a></li>
+            <li><a href="<?= base_url ?>config/printers">Impresoras</a></li>
         </ul>
     </div>
 
-     <div class="card-config">
+    <div class="card-config">
         <span>Cierre de caja</span>
 
         <ul>

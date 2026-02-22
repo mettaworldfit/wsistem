@@ -73,7 +73,7 @@ class HomeController
         $cashOpening = Help::getCashOpening(); // Obtener datos de la caja abierta
 
         // Dashboard
-        $totalPurchase = Help::getPurchaseToday(); // Total vendido hoy
+     //   $totalPurchase = Help::getPurchaseToday(); // Total vendido hoy
         $totalExpenses = Help::getExpensesToday(); // Total gastado hoy
         $products = Help::getTotalProducts();
         $pieces = Help::getTotalPieces();

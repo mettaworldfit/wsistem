@@ -104,7 +104,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); addDetailItem();">
+                <form action="POST" id="addDetailItem">
 
                     <div class="grid-tab-detail">
 
@@ -406,7 +406,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); Update_info_purchase();">
+                <form action="POST" id="updateInvoice">
 
                     <!-- Head -->
                     <?php $data = Help::INFO_INVOICE($_GET['id']);
@@ -441,7 +441,7 @@
                                     <div class="i b-right">
                                         <i class="fas fa-portrait"></i>
                                     </div>
-                                    <select class="form-custom-icon search" name="" id="customer" requireds>
+                                    <select class="form-custom-icon search" name="customer" id="customer" requireds>
                                         <option value="<?= $info->cliente_id ?>" selected><?= ucwords($info->nombre_cliente)." ".ucwords($info->apellidos_cliente ?? "")?></option>
                                         <?php $customers = Help::showCustomers();
                                         while ($customer = $customers->fetch_object()): ?>
@@ -457,7 +457,7 @@
                                     <div class="i b-right">
                                         <i class="fas fa-list"></i>
                                     </div>
-                                    <select class="form-custom-icon search " name="" id="method">
+                                    <select class="form-custom-icon search" name="method" id="method">
                                         <option value="<?= $info->metodo_pago_id ?>" selected><?= $info->nombre_metodo ?>
                                         </option>
                                         <?php $methods = Help::showPaymentMethod();
@@ -475,7 +475,7 @@
                                     <div class="i">
                                         <i class="far fa-calendar-alt"></i>
                                     </div>
-                                    <input class="form-custom-icon b-left" type="text" value="<?= $info->fecha_factura ?>" disabled>
+                                    <input class="form-custom-icon b-left" name="date" type="text" value="<?= $info->fecha_factura ?>" disabled>
                                 </div>
                             </div>
 
@@ -489,7 +489,7 @@
                                     <div class="i">
                                         <i class="fas fa-user-tie"></i>
                                     </div>
-                                    <input class="form-custom-icon b-left" type="text" name=""
+                                    <input class="form-custom-icon b-left" type="text" name="seller"
                                         value="<?= ucwords($info->nombre_usuario) ?>" id="cash-in-seller" disabled>
                                 </div>
                             </div>

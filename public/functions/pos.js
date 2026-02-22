@@ -1,59 +1,44 @@
- import * as qz from "/public/test.js";
+import * as qz from "public/test.js";
+import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "public/functions.js";
+
+// import * as qz from "../test.js";
+// import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "../functions.js";
 
 $(document).ready(function () {
 
-    let wsPOS = null;
-    let wsConnected = false;
+    let wsConnection = initWebSocket();
+    let wsConnected = isWebSocketConnected();
 
-    function initPOSWebSocket() {
+    wsConnection.onmessage = (e) => {
+        const data = JSON.parse(e.data);
 
-        let wsURL;
+        console.log('%c[WS LOG]', 'color:#007bff;font-weight:bold;', data);
 
-        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-            // DESARROLLO LOCAL
-            wsURL = 'ws://127.0.0.1:3001';
-        } else {
-            // PRODUCCIÓN
-            const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
-            wsURL = protocol + 'ws.wsistems.com' + '/ws/';
+        // Otros tipos de mensajes
+        if (data.type === 'detalle_actualizado') {
+            loadDetailPOS();
         }
 
-        wsPOS = new WebSocket(wsURL);
+        if (data.type === 'orden_actualizada') {
+            loadOrdersPOS();
+        }
 
-        wsPOS.onopen = () => {
-            console.group('%c[WEBSOCKET]', 'color:#007bff;font-weight:bold;');
-            console.log('Conexión establecida con', wsURL);
-            console.groupEnd()
-            wsConnected = true;
-        };
+        if (data.type === "precio_lista") {
+            loadDetailPOS();
+        }
 
-        wsPOS.onclose = () => {
-            console.group('%c[WEBSOCKET]', 'color:#df040e;font-weight:bold;');
-            console.log(('No se puedo establecer la conexión con', wsURL));
-            console.groupEnd()
-            wsConnected = false;
-        };
+        // Reportes 
+        if (data.type === "caja_abierta") {
+            $('.float-right').load(window.location.href + ' .float-right > *');
+            $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
+        }
 
-        wsPOS.onerror = () => {
-            wsConnected = false;
-        };
+        if (data.type === "caja_cerrada") {
+            $('.float-right').load(window.location.href + ' .float-right > *');
+            $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
+        }
+    };
 
-        wsPOS.onmessage = (e) => {
-            const data = JSON.parse(e.data);
-            console.log(data)
-
-            if (data.type === 'detalle_actualizado') {
-                loadDetailPOS();
-            }
-
-            if (data.type === 'orden_actualizada') {
-                loadOrdersPOS();
-            }
-        };
-    }
-
-
-    //-------------------------------------
 
     // Cargar metodos de pagos
     function initMethodSelect2(selector, selectedId = null) {
@@ -395,12 +380,13 @@ $(document).ready(function () {
             },
             successCallback: (res) => {
 
-                loadDetailPOS(); // Recargar los detalles
+                if (!wsConnected) return loadDetailPOS(); // Fallback: WS no activo
+
             },
             errorCallback: (res) => {
                 console.error(res)
                 notifyAlert(res, 'error');
-            }, verbose: false
+            }
         });
     }
 
@@ -429,15 +415,14 @@ $(document).ready(function () {
 
     // Actualizar cantidad
     $(document).on('click', '.qty-plus', function () {
-        const input = $(this).siblings('.input-quantity');
+        const input = $(this).siblings('#input-async');
         let val = parseInt(input.val()) || 0;
 
         input.val(val + 1).trigger('change');
-        setTimeout(() => { loadDetailPOS(); }, 500);
     });
 
     $(document).on('click', '.qty-minus', function () {
-        const input = $(this).siblings('.input-quantity');
+        const input = $(this).siblings('#input-async');
         let val = parseInt(input.val()) || 0;
         const min = parseInt(input.attr('min')) || 0;
 
@@ -445,14 +430,74 @@ $(document).ready(function () {
         if (val < min) val = min;
 
         input.val(val).trigger('change');
-        setTimeout(() => { loadDetailPOS(); }, 500);
-
     });
 
-    $(document).on('change', '.input-quantity', function () {
-        setTimeout(() => { loadDetailPOS(); console.log('click') }, 500);
+    // Declarar debounceTimer fuera del evento
+    let debounceTimer = null;
 
-    })
+    // Función externa para manejar la actualización de la cantidad
+    function handleQuantityUpdate($input) {
+        const newQuantity = parseFloat($input.val());  // Convertir el valor a número de punto flotante
+        const detail_id = $input.data('id');  // Obtener el detalle_id del atributo data-id
+        const itemId = $input.data('item-id');
+        const type = $input.data('item-type');
+        const action = 'actualizar_cantidad_orden_venta';
+
+        // Validar si la cantidad es un número válido y mayor a 0
+        if (isNaN(newQuantity) || newQuantity <= 0) {
+            alert('Por favor, ingrese una cantidad válida mayor que cero');
+            return;
+        }
+
+        // Enviar la solicitud AJAX
+        sendAjaxRequest({
+            url: "services/invoices.php",
+            data: {
+                id: detail_id,
+                quantity: newQuantity,
+                item_id: itemId,
+                item_type: type,
+                action: action
+            },
+            successCallback: (res) => {
+                try {
+                    const result = JSON.parse(res);
+                    // Verificar si hay algún error en la respuesta
+                    if (result.error) {
+                        notifyAlert(result.message, 'error');
+                    } else {
+                        notifyAlert("Cantidad actualizada correctamente", 'success', 1500);
+                    }
+
+                    if (!wsConnected) {
+                        loadDetailPOS(); // Fallback: WS no activo
+                    }
+
+                } catch (e) {
+                    console.error("Error al parsear JSON: ", e);
+                    notifyAlert("Hubo un error al procesar la respuesta.", 'error');
+                }
+
+            },
+            errorCallback: (res) => {
+                console.error(res);
+                notifyAlert(res, 'error');
+            }
+        });
+    }
+
+    // Detectar el cambio en el input del detalle
+    $(document).on('change', '#input-async', function () {
+        const $input = $(this);  // Guardar la referencia al input actual
+
+        // Limpiar el temporizador anterior
+        clearTimeout(debounceTimer);
+
+        // Establecer un nuevo temporizador de espera
+        debounceTimer = setTimeout(function () {
+            handleQuantityUpdate($input);  // Llamar la función externa
+        }, 300);  // 300 ms de espera entre cambios rápidos
+    });
 
     /**============================================================= 
     * VENTANA DE EDITAR
@@ -1015,41 +1060,31 @@ $(document).ready(function () {
         })
     }
 
-    // Actualizar datos
-
+    // Actualizar datos de la orden
     $('#updateOrderForm').on('submit', function (e) {
         e.preventDefault();
 
-        const data = {
-            action: "editar_orden",
-            order_id: $('#order_id').val() || 0,
-            customer_id: $('#pos_edit_customer').val(),
-            name: $('#pos_edit_fullname').val(),
-            tel: $('#pos_edit_tel').val(),
-            direction: $('#pos_edit_direction').val(),
-            observation: $('#pos_edit_comment').val(),
-            delivery: $('#pos_edit_delivery').val()
-        }
+        let formData = new FormData(this)
+        formData.append("action", "editar_orden")
+        formData.append("order_id", $('#order_id').val() || 0)
 
         sendAjaxRequest({
             url: "services/invoices.php",
-            data: data,
+            data: formData,
             successCallback: (res) => {
-                if (res === "ready") {
 
-                    if (!wsConnected) {
-                        loadOrdersPOS();
-                    }
-
-                    hiddenOverlay() // Ocultar ventana
-                    notifyAlert("Datos actualizados correctamente", "success", 1500)
-                } else {
-                    notifyAlert("Ha ocurrido un problema", "error")
+                if (!wsConnected) {
+                    loadOrdersPOS();
                 }
 
+                hiddenOverlay() // Ocultar ventana
+                notifyAlert("Datos actualizados correctamente", "success", 1500)
+
             },
-            errorCallback: (e) => console.error(e),
-            verbose: false
+            errorCallback: (e) => {
+                console.error(e)
+                notifyAlert("Ha ocurrido un error", "error")
+            }
         });
 
 
@@ -1102,11 +1137,7 @@ $(document).ready(function () {
                         <br><br>
 
                         <div style="display:flex;gap:10px;justify-content:center;">
-                            <button class="btn-custom btn-default" id="btnTest">
-                                <i class="fas fa-receipt"></i>
-                                <p>TEST</p>
-                            </button>
-
+                            
                              <button class="btn-custom btn-default" id="btnTicket">
                                 <i class="fas fa-receipt"></i>
                                 <p>Ticket</p>
@@ -1130,11 +1161,6 @@ $(document).ready(function () {
                     onshow: function () {
                         // Ahora accedemos directamente a la variable invoiceId
                         const invoiceId = this.invoiceId;
-
-                        document.getElementById('btnTest').onclick = () => {
-                            printerInvTest(invoiceId);  // Pasamos el invoiceId a la función
-                            alertify.printOptions().close();
-                        };
 
                         document.getElementById('btnTicket').onclick = () => {
                             printerInvoicePOS(invoiceId);  // Pasamos el invoiceId a la función
@@ -1218,8 +1244,6 @@ $(document).ready(function () {
                     // Preguntar cómo desea imprimir
                     showPrinterOptions(res);
 
-
-
                 } else {
                     notifyAlert("Ha ocurrido un error", "error");
                 }
@@ -1228,12 +1252,9 @@ $(document).ready(function () {
             errorCallback: (res) => {
                 console.error(res);
                 notifyAlert(res, 'error');
-            },
-            verbose: false
+            }
         });
     });
-
-
 
     // Factura a credito
     $('#invoiceCredit').on('submit', function (e) {
@@ -1309,34 +1330,11 @@ $(document).ready(function () {
                     observation: data.datos.descripcion
                 };
 
-                printer(dataInv, JSON.stringify(data.detalle));
+                // printer(dataInv, JSON.stringify(data.detalle));
+                qz.factura_venta(dataInv, data.detalle)
             },
             verbose: false
         });
-
-        // Funcion de imprimir
-        function printer(dataInv, detail) {
-            $.ajax({
-                type: "POST",
-                url: PRINTER_SERVER + "factura_venta.php",
-                data: {
-                    detail: detail,
-                    data: dataInv
-                },
-                dataType: "json",
-                success: function (res) {
-                    if (res.status === "success") {
-                        console.log('✅ Impresión completada con exito: ', res.data);
-                    } else {
-                        console.error('❌ Error:', res.error || 'Desconocido');
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error('🚨 Error AJAX:', status, error);
-                    console.error(xhr.responseText);
-                }
-            });
-        }
     }
 
     /**
@@ -1364,47 +1362,14 @@ $(document).ready(function () {
                     discount: total.total_descuento,
                     taxes: total.total_impuesto,
                     total: total.total,
-                    orderId: $('#order_id').val()
+                    order_id: $('#order_id').val()
                 };
 
-                // Envía los datos a la impresora
-                printOrder(detail, data, totals);
+                Object.assign(data, totals);
+
+                qz.orden_venta(detail, data) // Imprimir orden
             }
         });
-
-        /**
-         * Envía la orden de venta al servidor de impresión.
-         * @param {Object} detail - Lista de ítems de la orden.
-         * @param {Object} orderData - Información general de la orden.
-         * @param {Object} orderTotal - Totales de la orden (subtotal, descuento, impuestos, total).
-         */
-        function printOrder(detail, orderData, orderTotal) {
-
-            $.ajax({
-                type: "POST",
-                url: PRINTER_SERVER + "orden_venta.php",
-                data: JSON.stringify({
-                    detail: detail,
-                    data: orderData,
-                    totals: orderTotal
-                }),
-                contentType: "application/json", // Enviamos JSON
-                dataType: "json", // Esperamos JSON de respuesta
-                success: function (res) {
-                    if (res.status === "success") {
-                        console.log("✅ Impresión completada:", res.message);
-                        notifyAlert(res.message || "Ticket impreso correctamente.")
-                    } else {
-                        console.warn("⚠️ Error en impresión:", res.message);
-                        notifyAlert(res.message || "Error al imprimir el ticket.", "error");
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("❌ Error AJAX:", error);
-                    alertify.error("No se pudo conectar con el servidor de impresión.");
-                }
-            });
-        }
     });
 
 
@@ -1510,44 +1475,9 @@ $(document).ready(function () {
         }
     }
 
-    // Test 
-    function printerInvTest(invoice_id) {
-        sendAjaxRequest({
-            url: "services/invoices.php",
-            data: {
-                id: invoice_id,
-                action: "devolver_datos_impresion"
-            },
-            successCallback: (response) => {
-
-                var data = typeof response === 'string' ? JSON.parse(response) : response;
-
-                const dataInv = {
-                    customer: data.datos.nombre,
-                    seller: data.datos.usuario,
-                    payment_method: data.datos.nombre_metodo,
-                    invoice_id: data.datos.factura_venta_id,
-                    subtotal: data.datos.subtotal || 0,
-                    discount: data.datos.total_descuento || 0,
-                    taxes: data.datos.total_impuesto || 0,
-                    total: data.datos.total || 0,
-                    received: data.datos.recibido,
-                    pending: data.datos.pendiente,
-                    date: data.datos.fecha,
-                    observation: data.datos.descripcion
-                };
-
-                qz.factura_venta(dataInv,JSON.stringify(data.detalle))
-            },
-            verbose: true
-        });
-    }
-
     /**============================================================= 
     * INICIAR FUNCIONES
     ===============================================================*/
-
-    initPOSWebSocket(); // Websocket
 
     loadItemsPOS();  // Cargar productos por primera vez
     loadDetailPOS() // Cargar detalle

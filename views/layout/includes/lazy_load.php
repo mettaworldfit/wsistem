@@ -44,11 +44,11 @@ $uri = $_SERVER["REQUEST_URI"];
 $globalScripts = [
     [
         'src'  => base_url . 'public/functions/users.js',
-        'type' => 'text/javascript'
+        'type' => 'module'
     ],
     [
         'src'  => base_url . 'public/functions/invoices.js',
-        'type' => 'text/javascript'
+        'type' => 'module'
     ],
     [
         'src'  => base_url . 'public/functions/workshop.js',
@@ -68,16 +68,16 @@ $scriptsMap = [
         ],
         [
             'src'  => base_url . 'public/functions/home.js',
-            'type' => 'text/javascript'
+            'type' => 'module'
         ],
         [
             'src'  => base_url . 'public/functions/reports.js',
-            'type' => 'text/javascript'
+            'type' => 'module'
         ],
     ],
 
     'invoices/addpurchase' => [
-        ['src' => base_url . 'public/functions/pieces.js'],
+        ['src' => base_url . 'public/functions/pieces.js',],
         ['src' => base_url . 'public/functions/products.js'],
         ['src' => base_url . 'public/functions/services.js'],
         ['src' => base_url . 'public/functions/contacts.js'],
@@ -109,7 +109,7 @@ $scriptsMap = [
     ],
 
     'invoices/pos' => [
-        ['src' => base_url . 'public/functions/reports.js'],
+        ['src' => base_url . 'public/functions/reports.js','type' => 'module'],
         ['src' => base_url . 'public/functions/pos.js', 'type' => 'module'],
         ['src' => base_url . 'public/functions/pieces.js'],
         ['src' => base_url . 'public/functions/products.js'],
@@ -204,7 +204,7 @@ $scriptsMap = [
     'reports/day' => [
         ['src' => base_url . 'public/functions/repair.js'],
         ['src' => base_url . 'public/functions/payments.js'],
-        ['src' => base_url . 'public/functions/reports.js'],
+        ['src' => base_url . 'public/functions/reports.js','type' => 'module'],
     ],
 
     'price_lists' => [
@@ -236,7 +236,7 @@ if (empty($matchedScripts)) {
         ['src' => base_url . 'public/functions/offers.js'],
         ['src' => base_url . 'public/functions/bills.js'],
         ['src' => base_url . 'public/functions/payments.js'],
-        ['src' => base_url . 'public/functions/reports.js'],
+        ['src' => base_url . 'public/functions/reports.js','type' => 'module'],
         ['src' => base_url . 'public/functions/services.js'],
     ];
 }

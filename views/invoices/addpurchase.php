@@ -100,7 +100,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); addDetailItem();">
+                <form action="POST" id="addDetailItem">
 
                     <div class="grid-tab-detail">
 
