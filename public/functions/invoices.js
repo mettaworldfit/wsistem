@@ -1,5 +1,5 @@
-import { factura_venta, orden_venta } from "public/test.js";
-import { calculateTotalInvoice, cashBack } from "public/functions.js";
+import { factura_venta, orden_venta } from "/public/test.js";
+import { calculateTotalInvoice, cashBack } from "/public/functions.js";
 
 // import { factura_venta, orden_venta } from "../test.js";
 // import { calculateTotalInvoice, cashBack } from "../functions.js";

@@ -1,5 +1,5 @@
-import * as qz from "public/test.js";
-import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "public/functions.js";
+import * as qz from "/public/test.js";
+import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js";
 
 // import * as qz from "../test.js";
 // import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "../functions.js";
