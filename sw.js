@@ -1,6 +1,6 @@
-const CACHE_STATIC_NAME = "static-v3";
+const CACHE_STATIC_NAME = "static-v4";
 const CACHE_DYNAMIC_NAME = "dynamic-v1";
-const CACHE_INMUTABLE_NAME = "inmutable-v3";
+const CACHE_INMUTABLE_NAME = "inmutable-v4";
 const CACHE_DYNAMIC_LIMIT = 20;
 
 function limpiarCache(cacheName, numeroItems) {
@@ -45,7 +45,6 @@ self.addEventListener("install", (e) => {
     const cacheInmutable = caches.open(CACHE_INMUTABLE_NAME).then((cache) => {
         return cache.addAll([
 
-            "public/vendor/chartjs/chart.umd.js",
             "public/vendor/alertify/alertify.min.js",
             "public/vendor/alertify/css/alertify.min.css",
             "public/vendor/alertify/css/themes/default.min.css",
