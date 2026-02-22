@@ -325,104 +325,98 @@ switch ($action) {
     echo handleDeletionAction($db, (int)$_POST['printer_id'], 'cf_eliminar_printer');
 
     break;
-case 'subir_logo':
+  case 'subir_logo':
 
-  $response = array();  // Array para almacenar las respuestas
-  $dir_name = '';
-  $image_path = '';
+    $response = array();  // Array para almacenar las respuestas
+    $dir_name = '';
+    $image_path = '';
 
-  if (isset($config['carpeta']) && !empty($config['carpeta'])) {
-    $dir_name = $config['carpeta'];
-  }
-
-  // Primero, verificamos si se está subiendo una imagen
-  if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
-
-    // Definir la ruta donde se guardará la imagen 
-    if ($_SERVER['SERVER_NAME'] === 'localhost') {
-      // Si estamos en localhost, usar la ruta relativa
-      $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/" . basename(dirname(__DIR__)) . "/public/uploads/" . $dir_name;
-    } else {
-      // Si no estamos en localhost, usar la ruta pública estándar para producción
-      $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/public/uploads/" . $dir_name;
+    if (isset($config['carpeta']) && !empty($config['carpeta'])) {
+      $dir_name = $config['carpeta'];
     }
 
-    // Verificar si la carpeta existe, si no, crearla
-    if (!file_exists($target_dir)) {
-      if (!mkdir($target_dir, 0777, true)) {
-        $response['error'][] = "Hubo un error al intentar crear la carpeta: " . $target_dir;
+    // Primero, verificamos si se está subiendo una imagen
+    if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+
+      // Definir la ruta donde se guardará la imagen 
+      if ($_SERVER['SERVER_NAME'] === 'localhost') {
+        // Si estamos en localhost, usar la ruta relativa
+        $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/" . basename(dirname(__DIR__)) . "/public/uploads/" . $dir_name;
       } else {
-        $response['success'][] = "La carpeta fue creada con éxito: " . $target_dir;
+        // Si no estamos en localhost, usar la ruta pública estándar para producción
+        $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/public/uploads/" . $dir_name;
+      }
+
+      // Verificar si la carpeta existe, si no, crearla
+      if (!file_exists($target_dir)) {
+        if (!mkdir($target_dir, 0777, true)) {
+          $response['error'][] = "Hubo un error al intentar crear la carpeta: " . $target_dir;
+        } else {
+          $response['success'][] = "La carpeta fue creada con éxito: " . $target_dir;
+        }
+      } else {
+        // Si la carpeta ya existe, devolver la ruta
+        $response['info'][] = "La carpeta ya existe: " . $target_dir;
+      }
+
+      // Obtener el nombre del archivo y la extensión
+      $file_name = basename($_FILES["logo"]["name"]);
+      $target_file = $target_dir . $file_name;
+      $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+      // Verificar si el archivo es una imagen
+      if (getimagesize($_FILES["logo"]["tmp_name"]) === false) {
+        $response['error'][] = "El archivo no es una imagen.";
+        echo json_encode($response);
+        exit;
+      }
+
+      // Verificar el tamaño de la imagen (2 MB máximo)
+      if ($_FILES["logo"]["size"] > 2000000) {
+        $response['error'][] = "Error archivo demasiado grande.";
+        echo json_encode($response);
+        exit;
+      }
+
+      // Verificar la extensión de la imagen
+      $allowed_types = ["jpg", "jpeg", "png"];
+      if (!in_array($imageFileType, $allowed_types)) {
+        $response['error'][] = "Error solo se permiten imágenes JPG, JPEG, PNG";
+        echo json_encode($response);
+        exit;
+      }
+
+      // No comprimir ni convertir la imagen, solo moverla
+      $random_name = "logo";  // Generar un nombre aleatorio para la imagen
+
+      // Establecer la nueva ruta de la imagen con el nombre aleatorio
+      $target_file = $target_dir . $random_name . '.' . $imageFileType;
+
+      // Mover la imagen con el nuevo nombre aleatorio
+      if (!move_uploaded_file($_FILES["logo"]["tmp_name"], $target_file)) {
+        $response['error'][] = "Error al mover el archivo a la carpeta de destino.";
+        exit();
+      }
+
+      // Si la imagen se subió correctamente, proporcionar un mensaje
+      $response['success'][] = "La imagen ha sido subida exitosamente: " . $target_file;
+
+      // Establecer la ruta de la imagen para la base de datos
+      $image_path = $dir_name . $random_name . '.' . $imageFileType;  // Ruta relativa a la carpeta de imágenes
+
+      // Actualizar el producto en la base de datos con la ruta de la imagen
+      $sql = "UPDATE configuraciones SET config_value = '$image_path' WHERE config_key like '%logo_path%'";
+      if (mysqli_query($db, $sql)) {
+        $response['success'][] = "Imagen subida con exito.";
+      } else {
+        $response['error'][] = "Error al actualizar en la base de datos: " . mysqli_error($db);
       }
     } else {
-      // Si la carpeta ya existe, devolver la ruta
-      $response['info'][] = "La carpeta ya existe: " . $target_dir;
+      $response['error'][] = "Hubo un error al subir la imagen.";
     }
 
-    // Obtener el nombre del archivo y la extensión
-    $file_name = basename($_FILES["logo"]["name"]);
-    $target_file = $target_dir . $file_name;
-    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
-    // Verificar si el archivo es una imagen
-    if (getimagesize($_FILES["logo"]["tmp_name"]) === false) {
-      $response['error'][] = "El archivo no es una imagen.";
-      echo json_encode($response);
-      exit;
-    }
-
-    // Verificar el tamaño de la imagen (2 MB máximo)
-    if ($_FILES["logo"]["size"] > 2000000) {
-      $response['error'][] = "Error archivo demasiado grande.";
-      echo json_encode($response);
-      exit;
-    }
-
-    // Verificar la extensión de la imagen
-    $allowed_types = ["jpg", "jpeg", "png"];
-    if (!in_array($imageFileType, $allowed_types)) {
-      $response['error'][] = "Error solo se permiten imágenes JPG, JPEG, PNG";
-      echo json_encode($response);
-      exit;
-    }
-
-    // Generar un nombre aleatorio de 11 caracteres numéricos
-    function generate_random_filename($length = 11)
-    {
-      return substr(uniqid(rand(), true), 0, $length);  // Extraer solo los primeros 11 caracteres
-    }
-
-    // No comprimir ni convertir la imagen, solo moverla
-    $random_name = "logo";  // Generar un nombre aleatorio para la imagen
-
-    // Establecer la nueva ruta de la imagen con el nombre aleatorio
-    $target_file = $target_dir . $random_name . '.' . $imageFileType;
-
-    // Mover la imagen con el nuevo nombre aleatorio
-    if (!move_uploaded_file($_FILES["logo"]["tmp_name"], $target_file)) {
-      $response['error'][] = "Error al mover el archivo a la carpeta de destino.";
-      exit();
-    }
-
-    // Si la imagen se subió correctamente, proporcionar un mensaje
-    $response['success'][] = "La imagen ha sido subida exitosamente: " . $target_file;
-
-    // Establecer la ruta de la imagen para la base de datos
-    $image_path = $dir_name . $random_name . '.' . $imageFileType;  // Ruta relativa a la carpeta de imágenes
-
-    // Actualizar el producto en la base de datos con la ruta de la imagen
-    $sql = "UPDATE configuraciones SET config_value = '$image_path' WHERE config_key like '%logo_path%'";
-    if (mysqli_query($db, $sql)) {
-      $response['success'][] = "Imagen subida con exito.";
-    } else {
-      $response['error'][] = "Error al actualizar en la base de datos: " . mysqli_error($db);
-    }
-  } else {
-    $response['error'][] = "Hubo un error al subir la imagen.";
-  }
-
-  echo json_encode($response);  // Devolver todas las respuestas en formato JSON
-  break;
+    echo json_encode($response);  // Devolver todas las respuestas en formato JSON
+    break;
   case "borrar_imagen":
 
     $response = [

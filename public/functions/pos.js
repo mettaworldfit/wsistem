@@ -1,5 +1,5 @@
-import * as qz from "/public/test.js?v=1.4.5";
-import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "/public/functions.js?v=1.4.5";
+import * as qz from "/public/test.js?v=1.0.1";
+import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "/public/functions.js?v=1.0.1";
 
 // import * as qz from "../test.js";
 // import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "../functions.js";
@@ -951,10 +951,10 @@ $(document).ready(function () {
 
         const data = {
             action: "registrar_orden",
-            customer_id: $('#pos_customer_id').val(),
-            name: $('#pos_fullname').val(),
-            tel: $('#pos_tel').val(),
-            direction: $('#pos_direction').val(),
+            customer: $('#pos_customer_id').val(),
+            receiver: $('#pos_fullname').val(),
+            telephone: $('#pos_tel').val(),
+            address: $('#pos_direction').val(),
             observation: $('#pos_comment').val(),
             delivery: $('#pos_delivery').val()
         }

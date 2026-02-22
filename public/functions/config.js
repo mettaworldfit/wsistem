@@ -1,4 +1,4 @@
-import * as qz from "/public/test.js?v=1.4.5";
+import * as qz from "/public/test.js?v=1.0.1";
 
 // import * as qz from "../test.js";
 

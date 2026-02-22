@@ -44,7 +44,7 @@ $uri = $_SERVER["REQUEST_URI"];
 $globalScripts = [
     [
         'src'  => base_url . 'public/functions/users.js',
-        'type' => 'module'
+        'type' => 'text/javascript'
     ],
     [
         'src'  => base_url . 'public/functions/invoices.js',
