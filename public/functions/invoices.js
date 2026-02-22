@@ -401,7 +401,7 @@ $(document).ready(function () {
     // Generar factura pdf
     function GeneratePDF(invoice) {
 
-        data = {
+       const data = {
             subtotal: $('#in-subtotal').val().replace(/,/g, ""),
             discount: $('#in-discount').val().replace(/,/g, ""),
             taxes: $('#in-taxes').val().replace(/,/g, ""),
