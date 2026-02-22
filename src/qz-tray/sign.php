@@ -18,13 +18,10 @@ if (!isset($input['request'])) {
 
 $data = $input['request'];
 
-if ($_SERVER['HTTP_HOST'] === 'localhost') {
-    // Desarrollo
-    $KEY = __DIR__ . '/private-key.pem';
-} else {
-    // Producción
-    $KEY = '/var/www/qz/private-key.pem';
-}
+// Desarrollo
+// $KEY = __DIR__ . '/private-key.pem';
+// Producción
+$KEY = '/var/www/qz/private-key.pem';
 
 
 if (!file_exists($KEY)) {
@@ -49,4 +46,3 @@ if (!$ok) {
 
 echo base64_encode($signature);
 exit;
-
