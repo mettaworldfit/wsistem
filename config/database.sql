@@ -6,15 +6,12 @@ USE proyecto;
 
 CREATE TABLE etiquetas (
     etiqueta_id INT AUTO_INCREMENT PRIMARY KEY, -- ID único de la configuración
-
     nombre_config VARCHAR(50) NOT NULL,               -- Nombre corto de la configuración
     descripcion VARCHAR(150) NULL,                   -- Descripción más detallada del formato de etiqueta
-
     -- Tamaño físico de la etiqueta
     ancho_mm DECIMAL(6,2) NOT NULL DEFAULT 35.00,   -- Ancho de la etiqueta en mm
     alto_mm DECIMAL(6,2) NOT NULL DEFAULT 25.00,    -- Alto de la etiqueta en mm
     orientacion ENUM('P','L') NOT NULL DEFAULT 'L', -- Orientación: P=Vertical, L=Horizontal
-
     -- Configuración del código de barras
     tipo_barcode ENUM('C128','EAN13','EAN8','UPC') NOT NULL DEFAULT 'C128', -- Tipo de código de barras
     mostrar_texto_barcode TINYINT(1) DEFAULT 1,      -- Mostrar el texto del código debajo de las barras (1=Sí, 0=No)
@@ -23,7 +20,6 @@ CREATE TABLE etiquetas (
     barcode_y DECIMAL(6,2) DEFAULT 2,                -- Posición vertical (Y) del código en mm
     barcode_width DECIMAL(6,2) DEFAULT 31,           -- Ancho total del código de barras
     barcode_height DECIMAL(6,2) DEFAULT 9,           -- Alto total del código de barras
-
     -- Configuración de la descripción
     mostrar_descripcion TINYINT(1) DEFAULT 1,       -- Indica si se imprime la descripción (1=Sí, 0=No)
     descripcion_font_size INT DEFAULT 5,            -- Tamaño de la fuente de la descripción
@@ -31,7 +27,6 @@ CREATE TABLE etiquetas (
     descripcion_y DECIMAL(6,2) DEFAULT 11,         -- Posición vertical (Y) de la descripción
     descripcion_width DECIMAL(6,2) DEFAULT 31,     -- Ancho máximo de la descripción
     descripcion_height DECIMAL(6,2) DEFAULT 4,     -- Alto máximo de la descripción
-
     -- Configuración del precio
     mostrar_precio TINYINT(1) DEFAULT 1,           -- Indica si se imprime el precio (1=Sí, 0=No)
     precio_font_size INT DEFAULT 6,                 -- Tamaño de la fuente del precio
@@ -39,11 +34,9 @@ CREATE TABLE etiquetas (
     precio_y DECIMAL(6,2) DEFAULT 17,              -- Posición vertical (Y) del precio
     precio_width DECIMAL(6,2) DEFAULT 31,          -- Ancho máximo del bloque del precio
     precio_height DECIMAL(6,2) DEFAULT 4,          -- Alto máximo del bloque del precio
-
     -- Información de la impresora
     impresora VARCHAR(50) DEFAULT '2C-LP427B',     -- Modelo o nombre de la impresora
     activo TINYINT(1) DEFAULT 1,                   -- Indica si esta configuración está activa
-
     -- Fechas de creación y actualización
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- Fecha de última actualización
@@ -114,6 +107,52 @@ CONSTRAINT usuarios_estados_generales FOREIGN KEY (estado_id) REFERENCES estados
 CONSTRAINT usuarios_roles FOREIGN KEY (rol_id) REFERENCES roles(rol_id)
 
 )ENGINE = InnoDb; 
+
+
+CREATE TABLE printer_settings (
+    printer_id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+
+    -- ================= IMPRESORA =================
+    printer_name VARCHAR(150) NOT NULL COMMENT 'Nombre de la impresora',
+    printer_type ENUM('main','kitchen','warehouse') NOT NULL,
+    printer_language ENUM('ESCPOS','ZPL','TSPL','EPL') NOT NULL,
+    print_method ENUM('RAW','HTML','IMAGE') DEFAULT 'RAW',
+
+    -- ================= PAPEL =================
+    paper_width DECIMAL(5,2) NOT NULL DEFAULT 80.00 COMMENT 'Ancho de papel en mm',
+
+    -- ================= OPCIONES =================
+    copies TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    auto_cut TINYINT(1) NOT NULL DEFAULT 1,
+    open_cash_drawer TINYINT(1) NOT NULL DEFAULT 0,
+    signature TINYINT(1) NOT NULL DEFAULT 0,
+
+    policy_footer TEXT NULL,
+    ticket_footer TEXT NULL,
+
+    -- ================= CÓDIGO DE BARRAS =================
+    use_barcode TINYINT(1) NOT NULL DEFAULT 0,
+    barcode_type ENUM('CODE39','CODE128','EAN13') DEFAULT 'CODE128',
+    barcode_height SMALLINT UNSIGNED DEFAULT 80,
+    barcode_width TINYINT UNSIGNED DEFAULT 2,
+
+    -- ================= QR =================
+    use_qr TINYINT(1) NOT NULL DEFAULT 0,
+    qr_size TINYINT UNSIGNED DEFAULT 6,
+
+    -- ================= LOGO =================
+    logo_density ENUM('single','double') DEFAULT 'single',
+
+    -- ================= ESPACIADO =================
+    feed_start TINYINT UNSIGNED DEFAULT 1,
+    feed_end TINYINT UNSIGNED DEFAULT 2,
+
+    -- ================= CONTROL =================
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT printer_settings_usuarios FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB ;
 
 
 CREATE TABLE clientes (

@@ -395,7 +395,57 @@ function mysql_error(err) {
     </div>`).set('basic', true);
 }
 
+
+function loadTables(tableConfigs) {
+    tableConfigs.forEach(config => {
+        const { id, url, action, columns, hiddenColumns, ...rest } = config;
+
+        const columnDefs = columns.map(col =>
+            col === 'acciones'
+                ? { data: col, orderable: false, searchable: false }
+                : { data: col }
+        );
+
+        const tableId = id.replace('#', '');
+
+        dataTablesInstances[tableId] = initCustomDataTable({
+            selector: id,
+            ajaxUrl: url,
+            ajaxAction: action,
+            columns: columnDefs,
+            hiddenColumns: hiddenColumns,
+            ...rest
+        });
+    });
+}
+
 $(document).ready(function () {
+
+    // Valores de la sección agregar producto
+    $("#inputMinCantidad").val(1);
+    $("#inputCantidad").val(1);
+
+    // User menú desplegable
+    $(".user").on("click", (e) => {
+        e.preventDefault();
+
+        $(".nav-user").slideToggle();
+    });
+
+    // Atajos de tecla enter
+    $("body").keyup(function (e) {
+        if (e.keyCode == 13) {
+            if (pageURL.includes("products/add")) {
+                $("#createProduct").click();
+            }
+        }
+    });
+
+    // Notificaciones del admin bar
+    setInterval(function () {
+        $(".out-stock p").fadeTo(1200, 0.1).fadeTo(1200, 1);
+        $(".num-order p").fadeTo(1200, 0.1).fadeTo(1200, 1);
+    }, 1600);
 
     // Alerta de cuando se pierde la conexión a internet
     function handleConnectionChange() {
@@ -415,7 +465,10 @@ $(document).ready(function () {
     window.addEventListener("offline", handleConnectionChange);
 
 
-    // Menú Accordeon
+    /**============================================================= 
+    * MENU ACCORDEON SIDEBAR
+    ===============================================================*/
+
     $(function () {
         // Función de Acordeón
         var Accordion = function (el, multiple) {
@@ -490,47 +543,9 @@ $(document).ready(function () {
     });
 
 
-    /**
-    * Vegas
-    ----------------------------------------------*/
-
-    $(".sidebar-right").vegas({
-        slides: [
-            { src: SITE_URL + "public/imagen/img/img1.jpg" },
-            { src: SITE_URL + "public/imagen/img/img2.jpg" },
-            { src: SITE_URL + "public/imagen/img/img3.jpg" },
-        ],
-        transition: ["fade", "blur", "fade2", "blur2"],
-    });
-
-    /**
- * Valores de la sección agregar producto
- ----------------------------------------------*/
-
-    $("#inputMinCantidad").val(1);
-    $("#inputCantidad").val(1);
-
-    /**
- * Activar librerías JavaScript
-------------------------------------- */
-
-    $(".search").select2();
-
-    /**
- * Bootstrap4 PopOvers ?
- -----------------------------------*/
-
-    $(function () {
-        $(".example-popover").popover({
-            container: "body",
-        });
-    });
-
-    $(function () {
-        $('[data-toggle="popover"]').popover();
-    });
-
-
+    /**============================================================= 
+    * MENU RAPIDO
+    ===============================================================*/
 
     // Menú rápido (desliza desde el lado derecho)
     $("#bar-menu").on("click", (e) => {
@@ -547,32 +562,9 @@ $(document).ready(function () {
     });
 
 
-    // User menú desplegable
-
-    $(".user").on("click", (e) => {
-        e.preventDefault();
-
-        $(".nav-user").slideToggle();
-    });
-
-    // Atajos de tecla enter
-
-    $("body").keyup(function (e) {
-        if (e.keyCode == 13) {
-            if (pageURL.includes("products/add")) {
-                $("#createProduct").click();
-            }
-        }
-    });
-
-    // Notificaciones del admin bar
-    setInterval(function () {
-        $(".out-stock p").fadeTo(1200, 0.1).fadeTo(1200, 1);
-        $(".num-order p").fadeTo(1200, 0.1).fadeTo(1200, 1);
-    }, 1600);
-
-
-    // Buscador global
+    /**============================================================= 
+    * BUSCADOR GLOBAL
+    ===============================================================*/
 
     const result = document.getElementById('search_result');
 
@@ -634,31 +626,10 @@ $(document).ready(function () {
         })
     });
 
-    // Inicializar datos de tablas Datatable
 
-    var table_default = $("#example").DataTable({
-        language: {
-            lengthMenu: "_MENU_",
-            zeroRecords: "Aún no tienes datos para mostrar",
-            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-            infoEmpty: "Página no disponible",
-            infoFiltered: "(Filtrado de _MAX_  registros)",
-            search: "Buscar:", // Cambia el texto
-            processing: "Buscando...",
-            paginate: {
-                first: "Primero",
-                last: "Último",
-                next: "<i class='fas fa-caret-right'></i>",
-                previous: "Anterior"
-            }
-        },
-        initComplete: function () {
-
-        }
-    });
-
-    table_default.column("0:visible").order("asc").draw();
-
+    /**============================================================= 
+    * LISTA DE TABLAS DATATABLE
+    ===============================================================*/
 
     // obtener las columnas de las variantes
     function getVariantTableColumns() {
@@ -1025,29 +996,6 @@ $(document).ready(function () {
     ];
 
 
-    // Inicialización automática
-    tableConfigs.forEach(config => {
-        const { id, url, action, columns, hiddenColumns, ...rest } = config;
-
-        const columnDefs = columns.map(col =>
-            col === 'acciones'
-                ? { data: col, orderable: false, searchable: false }
-                : { data: col }
-        );
-
-        const tableId = id.replace('#', '');
-
-        dataTablesInstances[tableId] = initCustomDataTable({
-            selector: id,
-            ajaxUrl: url,
-            ajaxAction: action,
-            columns: columnDefs,
-            hiddenColumns: hiddenColumns,
-            ...rest
-        });
-    });
-
-
     // Hacer autofocus al abrir una modal
 
     $('#add_detail').on('shown.bs.modal', function () {
@@ -1066,6 +1014,9 @@ $(document).ready(function () {
         $('#credit-pay').trigger('focus');
     });
 
+    /**============================================================= 
+    * CARGAR FECHA ACTUAL EN INPUTS
+    ===============================================================*/
 
     $(function () {
 
@@ -1127,53 +1078,6 @@ $(document).ready(function () {
         });
 
     });
-
-
-
-    // Agregar el comando Ctrl+M para redirigir a la página de inicio
-    addKeyboardCommand('Ctrl+M', SITE_URL + '/home/index');
-
-    // Agregar el comando Ctrl+F para redirigir a la página de facturación
-    addKeyboardCommand('Ctrl+F', SITE_URL + '/invoices/addpurchase');
-
-    // Agregar el comando Ctrl+I para redirigir a la página de órdenes de venta
-    addKeyboardCommand('Ctrl+I', SITE_URL + '/invoices/orders');
-
-    // Agregar el comando Ctrl+T para redirigir a la página de ordenes de servicio
-    addKeyboardCommand('Ctrl+T', SITE_URL + 'workshop/index');
-
-    // Agregar el comando Ctrl+D para redirigir a la página de ventas del dia
-    addKeyboardCommand('Ctrl+D', SITE_URL + '/reports/day');
-
-    // Agregar el comando Ctrl+E para redirigir a la página crear contacto
-    addKeyboardCommand('Ctrl+E', SITE_URL + '/contacts/add&type=1');
-
-    // Agregar el comando Ctrl+Q para redirigir a la página consultas
-    addKeyboardCommand('Ctrl+Q', SITE_URL + '/reports/querys');
-
-    // Agregar el comando Ctrl+G para agregar gastos
-    addKeyboardCommand('Ctrl+G', SITE_URL + 'bills/addbills');
-
-    // Agregar el comando Ctrl+S para agregar servicio
-    addKeyboardCommand('Ctrl+S', SITE_URL + '/services/add');
-
-    // Agregar el comando Ctrl+P para agregar servicio
-    addKeyboardCommand('Ctrl+P', SITE_URL + '/products/add');
-
-    // Abrir modals
-    addKeyboardCommandForModal('Ctrl+O', 'modalComanda');
-    addKeyboardCommandForModal('Ctrl+A', 'orden');
-
-    addKeyboardCommandForModal('Ctrl+1', 'cash_invoice');
-    addKeyboardCommandForModal('Ctrl+1', 'create_device');
-    addKeyboardCommandForModal('Ctrl+1', 'update_data_invoice');
-
-    addKeyboardCommandForModal('Ctrl+2', 'credit_invoice');
-    addKeyboardCommandForModal('Ctrl+2', 'create_condition');
-
-    addKeyboardCommandForModal('Ctrl+3', 'add_detail');
-    addKeyboardCommandForModal('Ctrl+0', 'create_customer');
-
 
     /**============================================================= 
     * LECTOR DE CODIGO DE BARRA 
@@ -1259,5 +1163,105 @@ $(document).ready(function () {
     $('#closeScanner').on('click', function () {
         stopScanner();
     });
+
+
+    /**============================================================= 
+    * INICIAR FUNCIONES
+    ===============================================================*/
+
+    // Inicializar Vegas
+    $(".sidebar-right").vegas({
+        slides: [
+            { src: SITE_URL + "public/imagen/img/img1.jpg" },
+            { src: SITE_URL + "public/imagen/img/img2.jpg" },
+            { src: SITE_URL + "public/imagen/img/img3.jpg" },
+        ],
+        transition: ["fade", "blur", "fade2", "blur2"],
+    });
+
+    // Inicializar select2
+    $(".search").select2();
+
+    // Bootstrap4 PopOvers
+    $(function () {
+        $(".example-popover").popover({
+            container: "body",
+        });
+    });
+
+    $(function () {
+        $('[data-toggle="popover"]').popover();
+    });
+
+    // Inicializar datos de tablas Datatable
+    var table_default = $("#example").DataTable({
+        language: {
+            lengthMenu: "_MENU_",
+            zeroRecords: "Aún no tienes datos para mostrar",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Página no disponible",
+            infoFiltered: "(Filtrado de _MAX_  registros)",
+            search: "Buscar:", // Cambia el texto
+            processing: "Buscando...",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "<i class='fas fa-caret-right'></i>",
+                previous: "Anterior"
+            }
+        },
+        initComplete: function () {
+
+        }
+    });
+
+    table_default.column("0:visible").order("asc").draw();
+
+    loadTables(tableConfigs) // Cargar todas las tablas
+
+    // Agregar el comando Ctrl+M para redirigir a la página de inicio
+    addKeyboardCommand('Ctrl+M', SITE_URL + '/home/index');
+
+    // Agregar el comando Ctrl+F para redirigir a la página de facturación
+    addKeyboardCommand('Ctrl+F', SITE_URL + '/invoices/addpurchase');
+
+    // Agregar el comando Ctrl+I para redirigir a la página de órdenes de venta
+    addKeyboardCommand('Ctrl+I', SITE_URL + '/invoices/orders');
+
+    // Agregar el comando Ctrl+T para redirigir a la página de ordenes de servicio
+    addKeyboardCommand('Ctrl+T', SITE_URL + 'workshop/index');
+
+    // Agregar el comando Ctrl+D para redirigir a la página de ventas del dia
+    addKeyboardCommand('Ctrl+D', SITE_URL + '/reports/day');
+
+    // Agregar el comando Ctrl+E para redirigir a la página crear contacto
+    addKeyboardCommand('Ctrl+E', SITE_URL + '/contacts/add&type=1');
+
+    // Agregar el comando Ctrl+Q para redirigir a la página consultas
+    addKeyboardCommand('Ctrl+Q', SITE_URL + '/reports/querys');
+
+    // Agregar el comando Ctrl+G para agregar gastos
+    addKeyboardCommand('Ctrl+G', SITE_URL + 'bills/addbills');
+
+    // Agregar el comando Ctrl+S para agregar servicio
+    addKeyboardCommand('Ctrl+S', SITE_URL + '/services/add');
+
+    // Agregar el comando Ctrl+P para agregar servicio
+    addKeyboardCommand('Ctrl+P', SITE_URL + '/products/add');
+
+    // Abrir modals
+    addKeyboardCommandForModal('Ctrl+O', 'modalComanda');
+    addKeyboardCommandForModal('Ctrl+A', 'orden');
+
+    addKeyboardCommandForModal('Ctrl+1', 'cash_invoice');
+    addKeyboardCommandForModal('Ctrl+1', 'create_device');
+    addKeyboardCommandForModal('Ctrl+1', 'update_data_invoice');
+
+    addKeyboardCommandForModal('Ctrl+2', 'credit_invoice');
+    addKeyboardCommandForModal('Ctrl+2', 'create_condition');
+
+    addKeyboardCommandForModal('Ctrl+3', 'add_detail');
+    addKeyboardCommandForModal('Ctrl+0', 'create_customer');
+
 
 }); // Ready

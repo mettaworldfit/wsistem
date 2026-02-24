@@ -4916,7 +4916,8 @@ section.summary-sales {
     background: var(--background);
     padding: 20px 13px;
     border-radius: 5px;
-    box-shadow: 0px 6px 4px -5px #ccc;
+     border: 0.5px solid #e6e6e6;
+    box-shadow: 0px 0px 10px -3px #ccc;
     margin-bottom: 1rem;
 }
 
@@ -4974,9 +4975,47 @@ div.sales-total_earning {
     background: rgb(255, 188, 4);
 }
 
-.date-filter {
+.filters {
     background: white;
     padding: 8px 15px;
     border-radius: 5px;
-    box-shadow: 0px 6px 4px -5px #ccc;
+   border: 0.5px solid #e6e6e6;
+    box-shadow: 0px 0px 10px -3px #ccc;
+}
+
+.filters h6 {
+    display: flex;
+    align-items: center;
+}
+
+.filters h6 svg {
+    color: #3cb0c1;
+    width: 17px;
+    margin-right: 5px;
+}
+
+/* Filtros */
+.filter-row,
+.date-filter {
+    display: grid;
+    grid-template-columns: repeat(2,237px);
+    gap: 10px;
+}
+
+.filter-row div,
+.date-filter div {
+    display: grid;
+    grid-template-columns: repeat(2, 71px 70%);
+}
+
+.filter-row div label,
+.date-filter div label {
+    align-self: center;
+    margin: 0;
+}
+
+/* Resultados */
+
+.display-result {
+    margin-top: 10px;
 }

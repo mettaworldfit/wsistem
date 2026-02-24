@@ -459,9 +459,50 @@ $(document).ready(function () {
                 notifyAlert("Ha ocurrido un erro inesperado", "error")
             }
         })
-
-
     })
+
+    /**============================================================= 
+    * FUNCIONES DE CONSULTAS
+    ===============================================================*/
+
+    // Configuración de DataTable Server-Side para las tablas
+    const tableConfigs = [
+        {
+            id: '#products',
+            url: 'services/products.php',
+            action: 'index_productos',
+            columns: [
+                'codigo', 'nombre', 'categoria', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
+            ],
+            hiddenColumns: [0, 2, 4]
+        },
+    ]; 
+
+
+    $('#formSales').on('submit', function (e) {
+        e.preventDefault()
+
+        const table = `<table id="products" class="table-custom table">
+            <thead>
+                <tr>
+                    <th class="hide-cell">Código</th>
+                    <th>Nombre</th>
+                    <th class="hide-cell">Categorías</th>
+                    <!-- <th class="hide-cell">Almacen</th> -->
+                    <th>Cantidad</th>
+                    <th class="hide-cell">P/Compra</th>
+                    <th>P/Unitario</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+        </table>`
+
+        $('.display-result').append(table);
+
+        // Inicializar tabla
+        loadTables(tableConfigs)
+    })
+
 
 
 }); // Ready
@@ -535,7 +576,6 @@ function getSoldProducts() {
         }
     })
 }
-
 
 function getSoldPieces() {
     sendAjaxRequest({

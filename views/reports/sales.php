@@ -52,24 +52,51 @@
         </div>
     </section>
 
-    <div class="date-filter">
-        <div class="d-flex">
-            <label for="start-date">Start Date:</label>
-            <input type="date" id="start-date" name="start-date">
+    <div class="filters">
+        <h6><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-funnel-icon lucide-funnel">
+                <path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z" />
+            </svg>
+            Filtros de Busqueda</h6>
 
-            <label for="end-date">End Date:</label>
-            <input type="date" id="end-date" name="end-date">
+        <form method="post" id="formSales">
 
-            <button>Filter</button>
-        </div>
+            <!-- Filtros de fecha -->
+            <div class="date-filter">
+                <div>
+                    <label for="start-date">Fecha Inicio:</label>
+                    <input class="form-custom" type="date" id="start-date" name="fecha_inicio">
+                </div>
+
+                <div>
+                    <label for="end-date">Fecha Final:</label>
+                    <input class="form-custom" type="date" id="end-date" name="fecha_final">
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Filtros vendedores -->
+            <div class="filter-row">
+                <div>
+                    <label for="start-date">Usuario:</label>
+                    <select class="form-custom search" name="user" id="">
+
+                    </select>
+                </div>
+
+                <div>
+                    <label for="start-date">Cliente:</label>
+                    <select class="form-custom search" name="customer" id="">
+
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-custom btn-primary" type="submit">Filtrar</button>
+        </form>
+    </div>
+
+    <div class="display-result">
+       
     </div>
 </div>
-
-
-  <button class="btn btn-success" data-toggle="tooltip" title="Launch QZ" id="launch" href="#">
-     Conectar
-</button>
-
-
-<select id="printers" style="width:100%"></select>
-

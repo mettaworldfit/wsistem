@@ -362,11 +362,14 @@ export function getUpdatedTotal() {
         successCallback: (res) => {
             const data = JSON.parse(res)[0];
 
+            console.log("total",data)
             // Actualizamos el contenido del span con el nuevo valor del total de ventas
             $('#total-purchase').html(`$${format.format(data.total)}`);
 
             // Actualizamos el atributo 'data-title' con el valor total, formateado a 2 decimales
             $('#total-purchase').attr('data-title', parseFloat(data.total).toFixed(2));
+        },errorCallback: (err) => {
+            console.error(err)
         }
     })
 }

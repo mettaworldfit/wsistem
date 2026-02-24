@@ -87,7 +87,7 @@ if ($_POST['action'] == "cargar_detalle_orden") {
         'descuento' => number_format($descuento, 2),
         'importe' => number_format($importe, 2),
         'acciones' => ($is_exists == 0)
-          ? '<a class="btn-action action-danger" onclick="deleteInvoiceDetail(\'' . $row['id'] . '\')">
+          ? '<a class="btn-action action-danger erase-item" data-id="'. $row['id'] .'">
           ' . BUTTON_ERASE . '
           </a>'
           : ''
@@ -358,7 +358,7 @@ if ($_POST['action'] == "cargar_detalle_temporal") {
           2
         ),
         'acciones' => '
-        <a class="btn-action action-danger" onclick="deleteInvoiceDetail(\'' . $row['detalle_temporal_id'] . '\')">
+        <a class="btn-action action-danger erase-item" data-id="'. $row['detalle_temporal_id'] .'">
             ' . BUTTON_ERASE . '
         </a>'
       ];

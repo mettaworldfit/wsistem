@@ -141,7 +141,7 @@ VALUES
     ('smtps', '', 'SMTP habilitado (true/false)'),
     ('puerto', '587', 'Puerto del servidor SMTP'),
     ('logo_url', '', 'URL del logo para la factura por correo'),
-    ('logo', 'public/imagen/sistem/pdf.png', 'Logo del sistema'),
+    ('logo_path', 'public/imagen/sistem/pdf.png', 'Logo del sistema'),
     ('slogan', 'En la web, en todas partes', 'Slogan de la empresa'),
     ('direccion', '-', 'Dirección de la empresa'),
     ('link_facebook', '', 'Enlace a Facebook'),
@@ -199,19 +199,27 @@ END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `us_actualizar_usuario`;
 DELIMITER $$
-CREATE PROCEDURE `us_actualizarUsuario` (in rol_id int, in nombre varchar(100),
-in apellidos varchar(100), in username varchar(50), in password varchar(50), in usuario_id int)
+CREATE PROCEDURE `us_actualizar_usuario` (in _rol_id int, in _nombre varchar(100),
+in _apellidos varchar(100), in _password varchar(50), in _usuario_id int)
 BEGIN
 
  DECLARE EXIT HANDLER FOR 1062 SELECT 'Duplicate keys error encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
     
-    UPDATE usuarios u SET u.rol_id = rol_id , u.nombre = nombre, 
-	u.apellidos = apellidos, u.username = username, u.password = password
-	WHERE u.usuario_id = usuario_id;
-    SELECT 'ready' AS msg;
+    UPDATE usuarios SET 
+    rol_id = _rol_id , nombre = _nombre, 
+	apellidos = _apellidos, password = _password
+	WHERE usuario_id = _usuario_id;
+    
+   -- Verificar si se actualizó alguna fila
+    IF ROW_COUNT() > 0 THEN
+        SELECT 'ready' AS msg;
+    ELSE
+        SELECT 'No se actualizaron filas.' AS msg;
+    END IF;
 
 END $$
 DELIMITER ;
@@ -2202,23 +2210,65 @@ END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `ct_actualizar_cotizacion`;
 DELIMITER $$
-CREATE PROCEDURE `ct_actualizarCotizacion`(in cliente_id int,in id int, in descripcion varchar(150), in fecha date)
+CREATE PROCEDURE `ct_actualizar_cotizacion`(
+    IN _cliente_id INT, 
+    IN _id INT, 
+    IN _descripcion VARCHAR(150), 
+    IN _fecha DATE
+)
 BEGIN
+    -- Declarar manejadores de errores
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+        SELECT 'SQLException encountered' AS msg;
+    DECLARE EXIT HANDLER FOR SQLSTATE '23000' 
+        SELECT 'SQLSTATE 23000' AS msg;
 
- DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
- DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
+    -- Actualizar la cotización
+    UPDATE cotizaciones 
+    SET cliente_id = _cliente_id,  
+        descripcion = _descripcion, 
+        fecha = _fecha
+    WHERE cotizacion_id = _id;
 
-UPDATE cotizaciones SET cliente_id = cliente_id, total = total, 
-fecha = fecha, descripcion = descripcion WHERE cotizacion_id = id;
+    -- Verificar si se actualizó alguna fila
+    IF ROW_COUNT() > 0 THEN
+        SELECT 'ready' AS msg;
+    ELSE
+        SELECT 'No se actualizaron filas.' AS msg;
+    END IF;
 
- select "ready" AS msg;
- 
 END $$
 DELIMITER ;
 
-
 # -------------- Configuración -----------------
+
+DROP PROCEDURE IF EXISTS `cf_datos_del_sitio`;
+DELIMITER $$
+CREATE PROCEDURE `cf_datos_del_sitio` (
+    IN _logo_url TEXT,
+    IN _slogan TEXT,
+    IN _nombre VARCHAR(100),
+    IN _direccion VARCHAR(100),
+    IN _tel VARCHAR(25)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+        SELECT 'SQLException encountered' AS msg;
+    DECLARE EXIT HANDLER FOR SQLSTATE '23000' 
+        SELECT 'SQLSTATE 23000' AS msg;
+
+    UPDATE configuraciones SET config_value = _logo_url WHERE config_key = 'logo_url';
+	UPDATE configuraciones SET config_value = _slogan WHERE config_key = 'slogan';
+	UPDATE configuraciones SET config_value = _nombre WHERE config_key = 'empresa_name';
+	UPDATE configuraciones SET config_value = _direccion WHERE config_key = 'direccion';
+	UPDATE configuraciones SET config_value = _tel WHERE config_key = 'telefono';
+
+    SELECT 'ready' AS msg;
+END $$
+DELIMITER ; 
+
 
 DROP PROCEDURE IF EXISTS `cf_configuracion_bonos`;
 DELIMITER $$
@@ -2239,16 +2289,11 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS `cf_configuracion_correo`;
 DELIMITER $$
 CREATE PROCEDURE `cf_configuracion_correo` (
-    IN p_logo VARCHAR(100),
-    IN p_empresa VARCHAR(50),
     IN p_email VARCHAR(50),
     IN p_password VARCHAR(80),
     IN p_host VARCHAR(35),
     IN p_smtps VARCHAR(3),
-    IN p_port INT,
-    IN p_link_fb VARCHAR(100),
-    IN p_link_ws VARCHAR(100),
-    IN p_link_ig VARCHAR(100)
+    IN p_port INT
 )
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
@@ -2257,16 +2302,11 @@ BEGIN
         SELECT 'SQLSTATE 23000' AS msg;
 
     -- Actualiza cada valor según su clave
-    UPDATE configuraciones SET config_value = p_empresa  WHERE config_key = 'empresa_name';
     UPDATE configuraciones SET config_value = p_email    WHERE config_key = 'correo_servidor';
     UPDATE configuraciones SET config_value = p_password WHERE config_key = 'password';
     UPDATE configuraciones SET config_value = p_host     WHERE config_key = 'servidor';
     UPDATE configuraciones SET config_value = p_smtps    WHERE config_key = 'smtps';
     UPDATE configuraciones SET config_value = p_port     WHERE config_key = 'puerto';
-    UPDATE configuraciones SET config_value = p_logo     WHERE config_key = 'logo_url';
-    UPDATE configuraciones SET config_value = p_link_fb  WHERE config_key = 'link_facebook';
-    UPDATE configuraciones SET config_value = p_link_ig  WHERE config_key = 'link_instagram';
-    UPDATE configuraciones SET config_value = p_link_ws  WHERE config_key = 'link_whatsapp';
 
     SELECT 'ready' AS msg;
 END $$
@@ -2276,10 +2316,6 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS `cf_configuracionPDF`;
 DELIMITER $$
 CREATE PROCEDURE `cf_configuracionPDF` (
-    IN p_logo VARCHAR(50),
-    IN p_slogan VARCHAR(100),
-    IN p_direccion VARCHAR(100),
-    IN p_tel VARCHAR(20),
     IN p_condiciones VARCHAR(400),
     IN p_titulo VARCHAR(200)
 )
@@ -2289,10 +2325,6 @@ BEGIN
     DECLARE EXIT HANDLER FOR SQLSTATE '23000' 
         SELECT 'SQLSTATE 23000' AS msg;
 
-    UPDATE configuraciones SET config_value = p_logo       WHERE config_key = 'logo';
-    UPDATE configuraciones SET config_value = p_slogan     WHERE config_key = 'slogan';
-    UPDATE configuraciones SET config_value = p_direccion  WHERE config_key = 'direccion';
-    UPDATE configuraciones SET config_value = p_tel        WHERE config_key = 'telefono';
     UPDATE configuraciones SET config_value = p_condiciones WHERE config_key = 'condiciones';
     UPDATE configuraciones SET config_value = p_titulo     WHERE config_key = 'titulo';
 
@@ -2416,6 +2448,274 @@ BEGIN
     );
 
     SELECT LAST_INSERT_ID() AS msg;
+END$$
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `cf_agregar_printer_settings`;
+DELIMITER $$
+CREATE PROCEDURE `cf_agregar_printer_settings` (
+
+    -- IMPRESORA
+    IN p_printer_name VARCHAR(150),
+    IN p_user_id INT,
+    IN p_printer_type ENUM('main','kitchen','warehouse'),
+    IN p_printer_language ENUM('ESCPOS','ZPL','TSPL','EPL'),
+    IN p_print_method ENUM('RAW','HTML','IMAGE'),
+
+    -- PAPEL
+    IN p_paper_width DECIMAL(5,2),
+
+    -- OPCIONES
+    IN p_copies TINYINT UNSIGNED,
+    IN p_auto_cut TINYINT(1),
+    IN p_open_cash_drawer TINYINT(1),
+    IN p_signature TINYINT(1),
+
+    IN p_policy_footer TEXT,
+    IN p_ticket_footer TEXT,
+
+    -- BARCODE
+    IN p_use_barcode TINYINT(1),
+    IN p_barcode_type ENUM('CODE39','CODE128','EAN13'),
+    IN p_barcode_height SMALLINT UNSIGNED,
+    IN p_barcode_width TINYINT UNSIGNED,
+
+    -- QR
+    IN p_use_qr TINYINT(1),
+    IN p_qr_size TINYINT UNSIGNED,
+
+    -- LOGO
+    IN p_logo_density ENUM('single','double'),
+
+    -- ESPACIADO
+    IN p_feed_start TINYINT UNSIGNED,
+    IN p_feed_end TINYINT UNSIGNED
+)
+BEGIN
+
+DECLARE v_count INT;
+
+DECLARE EXIT HANDLER FOR 1062
+SELECT "Error la impresora ya existe" AS msg;
+
+	-- Verificar si el nombre de la impresora ya existe para este usuario
+    SELECT COUNT(*) 
+    INTO v_count
+    FROM printer_settings
+    WHERE usuario_id = p_user_id
+    AND printer_name = p_printer_name;
+
+    -- Si ya existe una impresora con el mismo nombre para este usuario, lanzar un error
+    IF v_count > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Ya existe una impresora con este nombre para el mismo usuario';
+    END IF;
+
+    INSERT INTO printer_settings (
+        printer_name,
+        usuario_id,
+        printer_type,
+        printer_language,
+        print_method,
+        paper_width,
+        copies,
+        auto_cut,
+        open_cash_drawer,
+        signature,
+        policy_footer,
+        ticket_footer,
+        use_barcode,
+        barcode_type,
+        barcode_height,
+        barcode_width,
+        use_qr,
+        qr_size,
+        logo_density,
+        feed_start,
+        feed_end
+    )
+    VALUES (
+        p_printer_name,
+        p_user_id,
+        p_printer_type,
+        p_printer_language,
+        p_print_method,
+        p_paper_width,
+        p_copies,
+        p_auto_cut,
+        p_open_cash_drawer,
+        p_signature,
+        p_policy_footer,
+        p_ticket_footer,
+        p_use_barcode,
+        p_barcode_type,
+        p_barcode_height,
+        p_barcode_width,
+        p_use_qr,
+        p_qr_size,
+        p_logo_density,
+        p_feed_start,
+        p_feed_end
+    );
+
+    SELECT "ready" AS msg;
+
+END$$
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `cf_actualizar_printer_settings`;
+DELIMITER $$
+CREATE PROCEDURE `cf_actualizar_printer_settings` (
+    IN p_printer_id INT,
+    IN p_printer_name VARCHAR(150),
+    IN p_user_id INT,
+    IN p_printer_type ENUM('main','kitchen','warehouse'),
+    IN p_printer_language ENUM('ESCPOS','ZPL','TSPL','EPL'),
+    IN p_print_method ENUM('RAW','HTML','IMAGE'),
+
+    -- PAPEL
+    IN p_paper_width DECIMAL(5,2),
+
+    -- OPCIONES
+    IN p_copies TINYINT UNSIGNED,
+    IN p_auto_cut TINYINT(1),
+    IN p_open_cash_drawer TINYINT(1),
+    IN p_signature TINYINT(1),
+
+    IN p_policy_footer TEXT,
+    IN p_ticket_footer TEXT,
+
+    -- BARCODE
+    IN p_use_barcode TINYINT(1),
+    IN p_barcode_type ENUM('CODE39','CODE128','EAN13'),
+    IN p_barcode_height SMALLINT UNSIGNED,
+    IN p_barcode_width TINYINT UNSIGNED,
+
+    -- QR
+    IN p_use_qr TINYINT(1),
+    IN p_qr_size TINYINT UNSIGNED,
+
+    -- LOGO
+    IN p_logo_density ENUM('single','double'),
+
+    -- ESPACIADO
+    IN p_feed_start TINYINT UNSIGNED,
+    IN p_feed_end TINYINT UNSIGNED
+)
+BEGIN
+    DECLARE v_count INT;
+
+	DECLARE EXIT HANDLER FOR 1062
+	SELECT "Error la impresora ya existe" AS msg;
+
+	-- Verificar si el nombre de la impresora ya existe para este usuario
+    SELECT COUNT(*) 
+    INTO v_count
+    FROM printer_settings
+    WHERE usuario_id = p_user_id
+    AND printer_name = p_printer_name;
+
+    -- Si ya existe una impresora con el mismo nombre para este usuario, lanzar un error
+    IF v_count > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Ya existe una impresora con este nombre para el mismo usuario';
+    END IF;
+
+    UPDATE printer_settings
+    SET
+        printer_name        = p_printer_name,
+        usuario_id          = p_user_id,
+        printer_type        = p_printer_type,
+        printer_language    = p_printer_language,
+        print_method        = p_print_method,
+        paper_width         = p_paper_width,
+        copies              = p_copies,
+        auto_cut            = p_auto_cut,
+        open_cash_drawer    = p_open_cash_drawer,
+        signature           = p_signature,
+        policy_footer       = p_policy_footer,
+        ticket_footer       = p_ticket_footer,
+        use_barcode         = p_use_barcode,
+        barcode_type        = p_barcode_type,
+        barcode_height      = p_barcode_height,
+        barcode_width       = p_barcode_width,
+        use_qr              = p_use_qr,
+        qr_size             = p_qr_size,
+        logo_density        = p_logo_density,
+        feed_start          = p_feed_start,
+        feed_end            = p_feed_end
+    WHERE printer_id = p_printer_id;
+
+    -- devuelve cuántas filas se actualizaron
+    SELECT ROW_COUNT() AS msg;
+
+END$$
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `cf_eliminar_etiqueta`;
+DELIMITER $$
+CREATE PROCEDURE `cf_eliminar_etiqueta` (
+    IN p_etiqueta_id INT
+)
+BEGIN
+
+    DECLARE v_error INT DEFAULT 0;
+
+    -- Manejo de errores
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+        SET v_error = 1;
+
+    -- Eliminar etiqueta
+    DELETE FROM etiquetas
+    WHERE etiqueta_id = p_etiqueta_id;
+
+    -- Validar si no afectó filas
+    IF ROW_COUNT() = 0 THEN
+        SET v_error = 1;
+    END IF;
+
+    -- Respuesta
+    IF v_error = 1 THEN
+        SELECT FALSE AS status,'Error al eliminar la etiqueta' AS msg;
+    ELSE
+        SELECT TRUE AS status,'Etiqueta eliminada correctamente' AS msg;
+    END IF;
+
+END$$
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `cf_eliminar_printer`;
+DELIMITER $$
+CREATE PROCEDURE `cf_eliminar_printer` (
+    IN p_printer_id INT
+)
+BEGIN
+    DECLARE v_error INT DEFAULT 0;
+
+    -- Manejo de errores
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+        SET v_error = 1;
+
+    -- Eliminar printer
+    DELETE FROM printer_settings
+    WHERE printer_id = p_printer_id;
+
+    -- Validar si no afectó filas
+    IF ROW_COUNT() = 0 THEN
+        SET v_error = 1;
+    END IF;
+
+    -- Respuesta
+    IF v_error = 1 THEN
+        SELECT FALSE AS status,'Error al eliminar el printer' AS msg;
+    ELSE
+        SELECT TRUE AS status,'Printer eliminado correctamente' AS msg;
+    END IF;
+
 END$$
 DELIMITER ;
 

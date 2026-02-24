@@ -1689,4 +1689,8 @@ $(document).ready(function () {
         window.open(url, 'Cotizacion', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
     }
 
+
+
+
+
 }); // Ready

@@ -7,6 +7,7 @@ session_start();
 $db = Database::connect();
 $config = Database::getConfig();
 $action = $_POST['action'] ?? null;
+$user_id = $_SESSION['identity']->usuario_id;
 
 $permissions = [
 
@@ -17,9 +18,7 @@ $permissions = [
   'ventas_dias'  => ['administrador'],
 
   // Buscador global
-  'buscador' => [] // todos
-
-  
+  'buscador' => [], // todos  
 ];
 
 // Chequear permisos
@@ -333,7 +332,7 @@ switch ($action) {
     echo json_encode($result);
     break;
   case 'total_vendido':
-    
+
     $user_condition = "";  // Inicialización de la variable
 
     // Verificar el valor de modo_cierre y modificar la variable según corresponda
@@ -388,7 +387,7 @@ switch ($action) {
         GROUP BY x.pago_id
       ) ventas_reales;";
 
-    echo jsonQueryResult($db,$query);
+    echo jsonQueryResult($db, $query);
 
     break;
 }
