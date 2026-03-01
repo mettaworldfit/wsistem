@@ -14,7 +14,7 @@
 <div class="generalContainer">
     <div class="queryContainer">
 
-        <form action="" onsubmit="event.preventDefault(); Query();">
+        <form action="" id="queryForm">
             <div class="queryData">
                 <div class="row">
                     <div class="col-sm-4">

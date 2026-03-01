@@ -2301,13 +2301,22 @@ table#variantList {
 }
 
 .table-custom thead th {
-    font-size: 8pt;
+    /* font-size: 8pt;
     color: #fff;
     font-weight: lighter;
     font-family: var(--font-primary) !important;
     background: #303741;
+    border: none !important; */
+
+    font-size: 8pt;
+    color: var(--font-primary);
+    font-weight: lighter;
+    font-family: var(--font-primary) !important;
+    background: #e3e3e3;
     border: none !important;
 }
+
+
 
 .table-custom tbody td {
     height: 1.5em;
@@ -2331,7 +2340,9 @@ table#variantList {
 
 .table-custom tbody tr:hover td {
     cursor: pointer;
-    background-color: #d6d4d4 !important
+    /* background-color: #d6d4d4 !important */
+    background-color: #e4e4e4 !important;
+
 }
 
 .page-item.active .page-link {
@@ -4904,9 +4915,8 @@ button.btn-pos_home:focus {
 }
 
 /* ==============================================
- SECCION REPORTE DE VENTAS 
+ SECCION REPORTE
  ================================================*/
-
 
 section.summary-sales {
     display: grid;
@@ -4916,7 +4926,7 @@ section.summary-sales {
     background: var(--background);
     padding: 20px 13px;
     border-radius: 5px;
-     border: 0.5px solid #e6e6e6;
+    border: 0.5px solid #e6e6e6;
     box-shadow: 0px 0px 10px -3px #ccc;
     margin-bottom: 1rem;
 }
@@ -4977,18 +4987,57 @@ div.sales-total_earning {
 
 .filters {
     background: white;
-    padding: 8px 15px;
+    padding: 15px 20px;
     border-radius: 5px;
-   border: 0.5px solid #e6e6e6;
+    border: 0.5px solid #e6e6e6;
     box-shadow: 0px 0px 10px -3px #ccc;
 }
 
-.filters h6 {
+.summary-result {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 5px;
+    border: 0.5px solid #e6e6e6;
+    box-shadow: 0px 0px 10px -3px #ccc;
+    margin-top: 10px;
+}
+
+@media (min-width: 724px) {
+    .summary-result {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0px;
+    }
+}
+
+.summary-result span {
+    font-family: var(--font-primary);
+    color: #696969;
+
+}
+
+.summary-result span:first-child {
+    font-size: 10pt
+}
+
+.summary-result span:nth-child(2) {
+    font-weight: 600;
+    font-size: 13pt !important;
+    color: var(--text-color)
+}
+
+.summary-result span:last-child {
+    font-size: 8pt;
+}
+
+h6.legend-summary {
     display: flex;
     align-items: center;
 }
 
-.filters h6 svg {
+h6.legend-summary svg {
     color: #3cb0c1;
     width: 17px;
     margin-right: 5px;
@@ -4998,8 +5047,16 @@ div.sales-total_earning {
 .filter-row,
 .date-filter {
     display: grid;
-    grid-template-columns: repeat(2,237px);
+    grid-template-columns: repeat(1, 1fr);
     gap: 10px;
+}
+
+@media (min-width: 724px) {
+
+    .filter-row,
+    .date-filter {
+        grid-template-columns: repeat(2, 237px);
+    }
 }
 
 .filter-row div,
@@ -5012,6 +5069,11 @@ div.sales-total_earning {
 .date-filter div label {
     align-self: center;
     margin: 0;
+}
+
+.filter-buttoms {
+    display: flex;
+    justify-content: end;
 }
 
 /* Resultados */

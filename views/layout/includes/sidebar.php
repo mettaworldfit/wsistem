@@ -223,6 +223,12 @@ $menu_sections = [
                 'icon' => 'fas fa-search',
                 'roles' => ['administrador']
             ],
+             [
+                'label' => 'Consultar ventas',
+                'link' => base_url . 'reports/sales',
+                'icon' => 'fas fa-search',
+                'roles' => ['administrador']
+            ],
             [
                 'label' => 'Cierres de caja',
                 'link' => base_url . 'reports/cash_closing',
@@ -233,7 +239,7 @@ $menu_sections = [
                 'label' => 'Cuentas por cobrar',
                 'link' => base_url . 'reportss/pending',
                 'icon' => 'fas fa-credit-card',
-                'roles' => ['administrador']
+                'roles' => ['']
             ],
         ]
     ],

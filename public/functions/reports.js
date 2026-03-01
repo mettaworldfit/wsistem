@@ -465,72 +465,146 @@ $(document).ready(function () {
     * FUNCIONES DE CONSULTAS
     ===============================================================*/
 
-    // Configuración de DataTable Server-Side para las tablas
-    const tableConfigs = [
-        {
-            id: '#products',
-            url: 'services/products.php',
-            action: 'index_productos',
-            columns: [
-                'codigo', 'nombre', 'categoria', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
-            ],
-            hiddenColumns: [0, 2, 4]
-        },
-    ]; 
+    // Consultar ventas
+    if (!$('#report_venta').length) {
 
+        const table = `
+            <table id="report_venta" class="table-custom table">
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th class="hide-cell">Hora</th>
+                        <th class="hide-cell">Total</th>
+                        <th class="hide-cell">Recibido</th>
+                        <th class="hide-cell">Por cobrar</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+            </table>
+        `;
+
+        $('.display-result').html(table);
+    }
 
     $('#formSales').on('submit', function (e) {
         e.preventDefault()
 
-        const table = `<table id="products" class="table-custom table">
-            <thead>
-                <tr>
-                    <th class="hide-cell">Código</th>
-                    <th>Nombre</th>
-                    <th class="hide-cell">Categorías</th>
-                    <!-- <th class="hide-cell">Almacen</th> -->
-                    <th>Cantidad</th>
-                    <th class="hide-cell">P/Compra</th>
-                    <th>P/Unitario</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-        </table>`
+        const tableId = 'report_venta';
 
-        $('.display-result').append(table);
+        //  Si ya existe DataTable → destruir
+        if ($.fn.DataTable.isDataTable('#' + tableId)) {
+            $('#' + tableId).DataTable().destroy();
+        }
 
-        // Inicializar tabla
-        loadTables(tableConfigs)
+        let formDataTable = new FormData(this)
+        // Convertir FormData a objeto plano
+        const formObject = Object.fromEntries(formDataTable.entries());
+
+        let formData = new FormData(this)
+        formData.append("action", "resumen_reporte_venta")
+
+        // Resumen de resultados
+        sendAjaxRequest({
+            url: "services/reports.php",
+            data: formData,
+            successCallback: (res) => {
+
+                const data = JSON.parse(res)[0]
+
+                $('#inv_total').text(data.total_facturas)
+                $('#total').text("DOP " + format.format(data.total))
+                $('#pending').text("DOP " + format.format(data.pendiente))
+
+                // Inicializar tabla
+                loadTables([
+                    {
+                        id: '#report_venta',
+                        url: 'services/reports.php',
+                        action: 'reporte_ventas',
+                        columns: [
+                            'id', 'nombre', 'fecha', 'hora', 'total', 'recibido', 'pendiente', 'estado', 'acciones'
+                        ],
+                        order: [[0, 'desc']],
+                        hiddenColumns: [3, 4, 5],
+                        ajaxParams: formObject
+                    },
+                ])
+            },
+            errorCallback: (err) => {
+                console.error(err)
+            }
+        })
+    })
+
+    // Obtener todos los detalle de todas las facturas filtradas
+    $('#excelSales').on('click',function(e){
+        e.preventDefault()
+
+         const data = {
+            start: $('#date-start').val(),
+            end: $('#date-end').val(),
+            user_id: $('#user_id').val(),
+            customer_id: $('#customer_id').val(),
+        }
+
+         // Validación rápida
+        if (!data.start && !data.end) {
+            notifyAlert("Debes seleccionar ambos filtros de fecha", 'warning');
+           
+            return;
+        }
+
+        const url = new URL(SITE_URL + 'src/excel/consultar_ventas.php');
+        url.searchParams.set('start', data.start);
+        url.searchParams.set('end', data.end);
+        url.searchParams.set('user_id', data.user_id);
+        url.searchParams.set('customer_id', data.customer_id);
+
+        window.location.href = url.toString();
+       
     })
 
 
 
-}); // Ready
+    $('#queryForm').on('submit', function (e) {
+        e.preventDefault()
+
+        const action = $('#action').val();
+
+        if (action === "productos_vendidos") {
+            getSoldProducts(); // Productos vendidos
+        } else if (action === "piezas_vendidas") {
+            getSoldPieces(); // Piezas vendidas
+        } else if (action === "servicios_vendidos") {
+            getSoldServices(); // Servicios vendidos
+        } else if (action === "serial_facturado") {
+            getInvoicedSerials(); // Seriales facturados
+        } else if (action === "detalle_ventas_mes") {
+            getMonthlySalesDetails()
+        }
+    })
 
 
+    function getMonthlySalesDetails() {
+        const data = {
+            month: $('#month').val(),
+            year: $('#year').val(),
+        }
 
-/**============================================================= 
-* FUNCIONES DE CONSULTAS
-===============================================================*/
+        const url = new URL(SITE_URL + 'src/excel/detalle-ventas-mes.php');
+        url.searchParams.set('year', data.year);
+        url.searchParams.set('month', data.month);
 
-function Query() {
-    const action = $('#action').val();
+        window.location.href = url.toString();
 
-    if (action === "productos_vendidos") {
-        getSoldProducts(); // Productos vendidos
-    } else if (action === "piezas_vendidas") {
-        getSoldPieces(); // Piezas vendidas
-    } else if (action === "servicios_vendidos") {
-        getSoldServices(); // Servicios vendidos
-    } else if (action === "serial_facturado") {
-        getInvoicedSerials(); // Seriales facturados
-    } else if (action === "detalle_ventas_mes") {
-        getMonthlySalesDetails()
     }
-}
+
+    
 
 // Funciones de consultas
-
 function getSoldProducts() {
 
     sendAjaxRequest({
@@ -711,17 +785,10 @@ function getInvoicedSerials() {
     });
 }
 
-function getMonthlySalesDetails() {
 
-    const data = {
-        month: $('#month').val(),
-        year: $('#year').val(),
-    }
+}); // Ready
 
-    const url = new URL(SITE_URL + 'src/excel/detalle-ventas-mes.php');
-    url.searchParams.set('year', data.year);
-    url.searchParams.set('month', data.month);
 
-    window.location.href = url.toString();
 
-}
+
+

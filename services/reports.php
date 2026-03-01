@@ -29,6 +29,9 @@ $permissions = [
     'piezas_vendidas'  => ['administrador'],
     'servicios_vendidos'  => ['administrador'],
     'serial_facturado'  => [],
+
+    'reporte_ventas' => ['administrador'],
+    'resumen_reporte_venta' => ['administrador']
 ];
 
 // Chequear permisos
@@ -204,7 +207,7 @@ switch ($action) {
         INNER JOIN usuarios u ON u.usuario_id = c.usuario_id 
         WHERE c.cierre_id = '$id'";
 
-        echo jsonQueryResult($db,$sql);
+        echo jsonQueryResult($db, $sql);
 
         break;
     // Ventas del dia
@@ -328,15 +331,15 @@ switch ($action) {
                 // Botón de eliminar
                 $acciones .= '<span ';
                 if ($_SESSION['identity']->nombre_rol == 'administrador') {
-                    $acciones .= 'class="action-danger btn-action"';
+                    $acciones .= 'class="action-danger btn-action';
                     if ($row['tipo'] == 'FT') {
-                        $acciones .= ' onclick="deleteInvoice(\'' . $row['id'] . '\')"';
+                        $acciones .= ' erase_invoice" data-id="' . $row['id'] . '"';
                     } elseif ($row['tipo'] == 'RP') {
-                        $acciones .= ' onclick="deleteInvoiceRP(\'' . $row['id'] . '\')"';
+                        $acciones .= '" onclick="deleteInvoiceRP(\'' . $row['id'] . '\')"';
                     } elseif ($row['tipo'] == 'PF') {
-                        $acciones .= ' onclick="deletePayment(\'' . $row['id'] . '\', \'' . $row['orden'] . '\', 0)"';
+                        $acciones .= '" onclick="deletePayment(\'' . $row['id'] . '\', \'' . $row['orden'] . '\', 0)"';
                     } elseif ($row['tipo'] == 'PR') {
-                        $acciones .= ' onclick="deletePayment(\'' . $row['id'] . '\', 0, \'' . $row['orden'] . '\')"';
+                        $acciones .= '" onclick="deletePayment(\'' . $row['id'] . '\', 0, \'' . $row['orden'] . '\')"';
                     }
                 } else {
                     $acciones .= 'class="action-danger btn-action action-disable"';
@@ -497,5 +500,187 @@ switch ($action) {
 
         echo json_encode($arr, JSON_UNESCAPED_UNICODE);
         exit;
+        break;
+    case 'reporte_ventas':
+
+        $fecha_inicio = $_POST['fecha_inicio'] ?? date('Y-m-d');
+        $fecha_fin    = $_POST['fecha_final'] ?? date('Y-m-d');
+        $usuario_id   = $_POST['usuario_id'] ?? 0;
+        $customer_id  = $_POST['customer'] ?? 0;
+
+        $fecha_inicio = $db->real_escape_string($fecha_inicio);
+        $fecha_fin    = $db->real_escape_string($fecha_fin);
+        $usuario_id   = intval($usuario_id);
+        $customer_id  = intval($customer_id);
+
+        // Condición base
+        $baseCondition = "TIMESTAMP(x.fecha, x.hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+
+        if ($usuario_id > 0) {
+            $condition .= " AND x.usuario_id = $usuario_id";
+        }
+
+        // Si hay cliente, se agrega
+        if ($customer_id > 0) {
+            $baseCondition .= " AND x.cliente_id = $customer_id";
+        }
+
+
+        // Definir las columnas disponibles para ordenamiento
+        $columns = [
+            'orden',
+            'id',
+            'nombre',
+            'apellidos',
+            'fecha_factura',
+            'hora',
+            'total',
+            'recibido',
+            'pendiente',
+            'estado',
+            'tipo'
+        ];
+
+        $table_width_joins = "-- Subconsulta 1: Facturas de Ventas
+            (SELECT x.factura_venta_id AS id, 'n/d' AS orden , c.nombre, c.apellidos, x.fecha AS fecha_factura,x.hora, x.total, x.recibido, x.pendiente, s.nombre_estado AS estado, 'FT' AS tipo, m.nombre_metodo FROM facturas_ventas x
+            INNER JOIN clientes c ON x.cliente_id = c.cliente_id
+            INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = x.metodo_pago_id
+            INNER JOIN estados_generales s ON x.estado_id = s.estado_id
+            WHERE $baseCondition
+
+            UNION ALL
+
+             -- Subconsulta 2: Facturas de RP
+            SELECT x.facturarp_id AS id, x.orden_rp_id AS orden,c.nombre, c.apellidos, x.fecha AS fecha_factura,x.hora, x.total, x.recibido, x.pendiente, s.nombre_estado AS estado, 'RP' AS tipo, m.nombre_metodo FROM facturasRP x
+            INNER JOIN clientes c ON x.cliente_id = c.cliente_id
+            INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = x.metodo_pago_id
+            INNER JOIN estados_generales s ON x.estado_id = s.estado_id
+            WHERE $baseCondition
+
+            ) AS reporte";
+
+
+        // Parámetros de configuración para la función handleDataTableRequest
+        $params = [
+            'columns' => $columns, // Las columnas que se pueden ordenar
+            'searchable' => [
+                'nombre',
+                'apellidos',
+                'tipo',
+                'orden',
+                'estado'
+            ], // Columnas sobre las que se puede aplicar búsqueda
+            'base_table' => '(SELECT x.factura_venta_id AS id FROM facturas_ventas x
+            UNION ALL
+            SELECT x.facturarp_id AS id FROM facturasRP x
+            ) AS all_data', // Base table
+
+            'table_with_joins' => $table_width_joins,
+
+            'select' => 'SELECT id, tipo, orden, nombre, apellidos, total, recibido, pendiente, estado, fecha_factura,hora, nombre_metodo', // Selección de columnas
+
+            'base_condition' => '1=1', // Condición base (aquí se puede agregar más filtros si es necesario)
+
+            'table_rows' => function ($row) use ($db) {
+                // Formatear los resultados para DataTables
+                $acciones = '';
+
+                // Generar botones de acción según el tipo de factura
+                if ($row['tipo'] == 'FT') {
+                    if ($_SESSION['identity']->nombre_rol == 'administrador') {
+                        $acciones .= '<a class="btn-action action-info" href="' . base_url . 'invoices/edit&id=' . $row['id'] . '" title="editar">' . BUTTON_EDIT . '</a>';
+                    } else {
+                        $acciones .= '<a class="btn-action action-info action-disable" href="#" title="editar">' . BUTTON_EDIT . '</a>';
+                    }
+                } elseif ($row['tipo'] == 'RP') {
+                    if ($row['estado'] != 'Anulada' && $_SESSION['identity']->nombre_rol == 'administrador') {
+                        $acciones .= '<a class="btn-action action-info" href="' . base_url . 'invoices/repair_edit&id=' . $row['orden'] . '" title="Editar">' . BUTTON_EDIT . '</a>';
+                    } else {
+                        $acciones .= '<a class="btn-action action-info action-disable" href="#" title="Editar">' . BUTTON_EDIT . '</a>';
+                    }
+                }
+
+                // Botón de eliminar
+                $acciones .= '<span ';
+                if ($_SESSION['identity']->nombre_rol == 'administrador') {
+                    $acciones .= 'class="action-danger btn-action';
+                    if ($row['tipo'] == 'FT') {
+                        $acciones .= ' erase_invoice" data-id="' . $row['id'] . '"';
+                    } elseif ($row['tipo'] == 'RP') {
+                        $acciones .= ' onclick="deleteInvoiceRP(\'' . $row['id'] . '\')"';
+                    }
+                } else {
+                    $acciones .= 'class="action-danger btn-action action-disable"';
+                }
+                $acciones .= ' title="Eliminar">' . BUTTON_DELETE . '</span>';
+
+                // Verificar si la factura tiene detalles
+                $hasDetails = Help::checkIfInvoiceHasDetails($row['id'], $row['tipo']);
+
+                return [
+                    'id' => '<span><a href="#">' . $row['tipo'] . '-00' . $row['id'] . '</a><span id="toggle" class="toggle-right toggle-md">' . 'Método: ' . $row['nombre_metodo'] . '</span></span>',
+                    'nombre' => ucwords($row['nombre'] . ' ' . $row['apellidos']),
+                    'fecha' => $row['fecha_factura'],
+                    'hora' => $row['hora'],
+                    'total' => '<span class="text-primary">' . number_format($row['total'], 2) . '</span>',
+                    'recibido' => '<span class="text-success">' . number_format($row['recibido'], 2) . '</span>',
+                    'pendiente' => '<span class="text-danger">' . number_format($row['pendiente'], 2) . '</span>',
+                    // 'estado' => $hasDetails ? '<p class="' . $row['estado'] . '">' . $row['estado'] . '</p>' : '<p class="no-details">N/D</p>',
+                    'estado' => $hasDetails
+                        ? '<p class="' . ($row['estado'] ?? 'sin-estado') . '">' . ($row['estado'] ?? 'N/D') . '</p>'
+                        : '<p class="no-details">N/D</p>',
+                    'acciones' => $acciones
+                ];
+            }
+        ];
+
+        handleDataTableRequest($db, $params);
+
+        break;
+    case 'resumen_reporte_venta':
+
+        $fecha_inicio = $_POST['fecha_inicio'] ?? date('Y-m-d');
+        $fecha_fin    = $_POST['fecha_final'] ?? date('Y-m-d');
+        $usuario_id   = $_POST['usuario_id'] ?? 0;
+        $customer_id   = $_POST['customer'] ?? 0;
+
+        $fecha_inicio = $db->real_escape_string($fecha_inicio);
+        $fecha_fin    = $db->real_escape_string($fecha_fin);
+        $usuario_id   = intval($usuario_id);
+        $customer_id   = intval($customer_id);
+
+        // Condición base
+        $baseCondition = "TIMESTAMP(x.fecha, x.hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+
+        if ($usuario_id > 0) {
+            $condition .= " AND x.usuario_id = $usuario_id";
+        }
+
+        // Si hay cliente, se agrega
+        if ($customer_id > 0) {
+            $baseCondition .= " AND x.cliente_id = $customer_id";
+        }
+
+        $sql = "SELECT count(*) AS total_facturas, sum(recibido) as total, sum(pendiente) AS pendiente FROM
+           -- Subconsulta 1: Facturas de Ventas
+            (SELECT  x.total, x.recibido, x.pendiente FROM facturas_ventas x
+            INNER JOIN clientes c ON x.cliente_id = c.cliente_id
+            INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = x.metodo_pago_id
+            INNER JOIN estados_generales s ON x.estado_id = s.estado_id
+            WHERE $baseCondition
+
+            UNION ALL
+
+             -- Subconsulta 2: Facturas de RP
+            SELECT x.total, x.recibido, x.pendiente FROM facturasRP x
+            INNER JOIN clientes c ON x.cliente_id = c.cliente_id
+            INNER JOIN metodos_de_pagos m ON m.metodo_pago_id = x.metodo_pago_id
+            INNER JOIN estados_generales s ON x.estado_id = s.estado_id
+            WHERE $baseCondition
+         
+
+            ) AS reporte";
+
+        echo jsonQueryResult($db, $sql);
         break;
 }

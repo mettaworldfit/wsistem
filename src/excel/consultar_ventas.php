@@ -1,0 +1,295 @@
+<?php
+
+session_start();
+
+require '../../vendor/autoload.php';
+require_once '../../config/db.php';
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+
+$spreadsheet = new Spreadsheet();
+$sheet = $spreadsheet->getActiveSheet();
+$sheet->setTitle("Ingresos y Gastos");
+
+$db = Database::connect();
+$config = Database::getConfig();
+
+
+if (!isset($_GET['start'], $_GET['end'])) {
+    echo "Parámetros inválidos.";
+    exit;
+}
+
+$date_start = $_GET['start'];
+$date_end = $_GET['end'];
+$user_id = $_GET['user_id'];
+$customer_id = $_GET['customer_id'];
+
+$row = 1;
+
+// ===== Título Ingresos =====
+$sheet->setCellValue("A$row", "INGRESOS DEL DÍA");
+$sheet->mergeCells("A$row:I$row");
+$sheet->getStyle("A$row")->getFont()->setBold(true)->setSize(13);
+$sheet->getStyle("A$row")->getAlignment()->setHorizontal('center');
+$sheet->getStyle("A$row")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('D9EAD3');
+$row++;
+
+// ===== Encabezados Ingresos =====
+$headers = ['Descripción', 'Cantidad', 'Precio Unidad', 'Descuento', 'Recibido', 'Factura', 'Método', 'Estado', 'Total Final'];
+$colIndex = 'A';
+foreach ($headers as $header) {
+    $sheet->setCellValue($colIndex . $row, $header);
+    $sheet->getStyle($colIndex . $row)->getFont()->setBold(true);
+    $sheet->getStyle($colIndex . $row)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('D0E0E3');
+    $colIndex++;
+}
+$row++;
+
+// ===== Datos Ingresos =====
+
+// filtro
+$condition = "TIMESTAMP(x.fecha, x.hora) BETWEEN '$date_start' AND '$date_end'";
+
+if ($user_id > 0) {
+    $condition .= " AND x.usuario_id = $user_id";
+}
+
+// Si hay cliente
+if ($customer_id > 0) {
+    $condition .= " AND x.cliente_id = $customer_id";
+}
+
+$queryIngresos = "SELECT * FROM (
+    -- Subconsulta 1: Abono recibido de Facturas de Ventas
+    SELECT 
+        '1' AS cantidad,
+        concat('Abono recibido de',' | ',c.nombre, ' ', IFNULL(c.apellidos, '')) AS descripcion,
+        '-' AS precio,
+        (x.recibido - IFNULL(SUM(p.recibido), 0)) AS recibido,
+        CONCAT('FT-00', x.factura_venta_id) AS factura,
+        concat(c.nombre,' ', IFNULL(c.apellidos, '')) AS cliente_proveedor,
+        e.nombre_estado AS estado,
+        '-' AS descuento,
+        x.fecha, mp.nombre_metodo as tipo_pago
+    FROM facturas_ventas x 
+    INNER JOIN metodos_de_pagos mp ON mp.metodo_pago_id = x.metodo_pago_id
+    INNER JOIN estados_generales e ON e.estado_id = x.estado_id
+    INNER JOIN clientes c ON c.cliente_id = x.cliente_id
+    LEFT JOIN pagos_a_facturas_ventas pf ON pf.factura_venta_id = x.factura_venta_id
+    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+    WHERE $condition
+    AND e.nombre_estado = 'por cobrar'
+    GROUP BY x.factura_venta_id, x.recibido, e.nombre_estado, x.fecha
+
+    UNION ALL
+
+    -- Subconsulta 2: Abono recibido de Facturas de RP
+    SELECT 
+        '1' AS cantidad,
+        concat('Abono recibido de',' | ',c.nombre, ' ', IFNULL(c.apellidos, '')) AS descripcion,
+        '-' AS precio,
+        (x.recibido - IFNULL(SUM(p.recibido), 0)) AS recibido,
+        CONCAT('RP-00', x.facturaRP_id) AS factura,
+        concat(c.nombre,' ', IFNULL(c.apellidos, '')) AS cliente_proveedor,
+        e.nombre_estado AS estado,
+        '-' AS descuento,
+        x.fecha, mp.nombre_metodo as tipo_pago
+    FROM facturasRP x 
+    INNER JOIN metodos_de_pagos mp ON mp.metodo_pago_id = x.metodo_pago_id
+    INNER JOIN estados_generales e ON e.estado_id = x.estado_id
+    INNER JOIN clientes c ON c.cliente_id = x.cliente_id
+    LEFT JOIN pagos_a_facturasRP pf ON pf.facturaRP_id = x.facturaRP_id
+    LEFT JOIN pagos p ON pf.pago_id = p.pago_id
+    WHERE $condition
+    AND e.nombre_estado = 'por cobrar'
+    GROUP BY x.facturaRP_id, x.recibido, e.nombre_estado, x.fecha
+
+    UNION ALL
+
+    -- Subconsulta 3: Detalles de productos de Facturas de Ventas
+    SELECT d.cantidad, p.nombre_producto AS descripcion, d.precio AS precio,
+           '-' AS recibido,
+           CONCAT('FT-00', x.factura_venta_id), concat(c.nombre,' ', IFNULL(c.apellidos, '')) AS cliente_proveedor,
+           e.nombre_estado, d.descuento, x.fecha, mp.nombre_metodo as tipo_pago
+    FROM detalle_facturas_ventas d
+    INNER JOIN facturas_ventas x ON x.factura_venta_id = d.factura_venta_id
+    INNER JOIN clientes c ON c.cliente_id = x.cliente_id
+    INNER JOIN metodos_de_pagos mp ON mp.metodo_pago_id = x.metodo_pago_id
+    INNER JOIN estados_generales e ON e.estado_id = x.estado_id
+    INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
+    INNER JOIN productos p ON p.producto_id = dp.producto_id
+    WHERE $condition
+    AND e.nombre_estado <> 'por cobrar'
+
+    UNION ALL
+
+    -- Subconsulta 4: Detalles de servicios de Facturas de Ventas
+    SELECT d.cantidad, s.nombre_servicio AS descripcion, d.precio AS precio,
+           '-' AS recibido,
+           CONCAT('FT-00', x.factura_venta_id), concat(c.nombre,' ', IFNULL(c.apellidos, '')) AS cliente_proveedor,
+           e.nombre_estado, d.descuento, x.fecha, mp.nombre_metodo as tipo_pago
+    FROM detalle_facturas_ventas d
+    INNER JOIN facturas_ventas x ON x.factura_venta_id = d.factura_venta_id
+    INNER JOIN clientes c ON c.cliente_id = x.cliente_id
+    INNER JOIN metodos_de_pagos mp ON mp.metodo_pago_id = x.metodo_pago_id
+    INNER JOIN estados_generales e ON e.estado_id = x.estado_id
+    INNER JOIN detalle_ventas_con_servicios ds ON ds.detalle_venta_id = d.detalle_venta_id
+    INNER JOIN servicios s ON s.servicio_id = ds.servicio_id
+    WHERE $condition
+    AND e.nombre_estado <> 'por cobrar'
+
+    UNION ALL
+
+    -- Subconsulta 5: Detalles de piezas de Facturas de Ventas
+    SELECT d.cantidad, pz.nombre_pieza AS descripcion, d.precio AS precio,
+           '-' AS recibido,
+           CONCAT('FT-00', x.factura_venta_id), concat(c.nombre,' ', IFNULL(c.apellidos, '')) AS cliente_proveedor,
+           e.nombre_estado, d.descuento, x.fecha, mp.nombre_metodo as tipo_pago
+    FROM detalle_facturas_ventas d
+    INNER JOIN facturas_ventas x ON x.factura_venta_id = d.factura_venta_id
+    INNER JOIN clientes c ON c.cliente_id = x.cliente_id
+    INNER JOIN metodos_de_pagos mp ON mp.metodo_pago_id = x.metodo_pago_id
+    INNER JOIN estados_generales e ON e.estado_id = x.estado_id
+    INNER JOIN detalle_ventas_con_piezas_ dp ON dp.detalle_venta_id = d.detalle_venta_id
+    INNER JOIN piezas pz ON pz.pieza_id = dp.pieza_id
+    WHERE $condition
+    AND e.nombre_estado <> 'por cobrar'
+
+    UNION ALL
+
+    -- Subconsulta 6: Detalles de servicios de Facturas de RP
+    SELECT d.cantidad, s.nombre_servicio AS descripcion, d.precio AS precio,
+           '-' AS recibido,
+           CONCAT('RP-00', x.facturaRP_id), concat(c.nombre,' ', IFNULL(c.apellidos, '')) AS cliente_proveedor,
+           e.nombre_estado, d.descuento, x.fecha, mp.nombre_metodo as tipo_pago
+    FROM detalle_ordenRP d
+    INNER JOIN facturasRP x ON x.orden_rp_id = d.orden_rp_id
+    INNER JOIN clientes c ON c.cliente_id = x.cliente_id
+    INNER JOIN metodos_de_pagos mp ON mp.metodo_pago_id = x.metodo_pago_id
+    INNER JOIN estados_generales e ON e.estado_id = x.estado_id
+    INNER JOIN detalle_ordenRP_con_servicios dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
+    INNER JOIN servicios s ON s.servicio_id = dp.servicio_id
+    WHERE $condition
+    AND e.nombre_estado <> 'por cobrar'
+
+    UNION ALL
+
+    -- Subconsulta 7: Detalles de piezas de Facturas de RP
+    SELECT d.cantidad, d.descripcion, d.precio AS precio,
+           '-' AS recibido,
+           CONCAT('RP-00', x.facturaRP_id), concat(c.nombre,' ', IFNULL(c.apellidos, '')) AS cliente_proveedor,
+           e.nombre_estado, d.descuento, x.fecha, mp.nombre_metodo as tipo_pago
+    FROM detalle_ordenRP d
+    INNER JOIN facturasRP x ON x.orden_rp_id = d.orden_rp_id
+    INNER JOIN clientes c ON c.cliente_id = x.cliente_id
+    INNER JOIN metodos_de_pagos mp ON mp.metodo_pago_id = x.metodo_pago_id
+    INNER JOIN estados_generales e ON e.estado_id = x.estado_id
+    INNER JOIN detalle_ordenRP_con_piezas dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
+    INNER JOIN piezas pz ON pz.pieza_id = dp.pieza_id
+    WHERE $condition
+    AND e.nombre_estado <> 'por cobrar'
+
+    UNION ALL
+
+    -- Subconsulta 8: Pagos de Facturas de Ventas
+    SELECT 1 AS cantidad, CONCAT('Pago de factura ','FT-00',f.factura_venta_id) AS descripcion,
+           '-' AS precio,
+           x.recibido AS recibido,
+           CONCAT('P-00', x.pago_id) AS factura, concat(c.nombre,' ', IFNULL(c.apellidos, '')) AS cliente_proveedor,
+           CASE 
+               WHEN e.nombre_estado = 'por cobrar' THEN e.nombre_estado
+               ELSE 'pagada'
+           END AS estado,
+           0 AS descuento, x.fecha, mp.nombre_metodo as tipo_pago
+    FROM pagos x
+    INNER JOIN clientes c ON c.cliente_id = x.cliente_id
+    INNER JOIN pagos_a_facturas_ventas pf ON pf.pago_id = x.pago_id
+    INNER JOIN facturas_ventas f ON f.factura_venta_id = pf.factura_venta_id
+    INNER JOIN metodos_de_pagos mp ON mp.metodo_pago_id = f.metodo_pago_id
+    INNER JOIN estados_generales e ON e.estado_id = f.estado_id
+    WHERE $condition
+    AND (e.nombre_estado = 'por cobrar' OR (e.nombre_estado <> 'por cobrar' AND f.fecha <> x.fecha))
+
+    UNION ALL
+
+    -- Subconsulta 9: Pagos de Facturas de RP
+    SELECT 1 AS cantidad, CONCAT('Pago de factura ','RP-00',f.facturaRP_id) AS descripcion,
+           '-' AS precio,
+           x.recibido AS recibido,
+           CONCAT('P-00', x.pago_id) AS factura, concat(c.nombre,' ', IFNULL(c.apellidos, '')) AS cliente_proveedor,
+           CASE 
+               WHEN e.nombre_estado = 'por cobrar' THEN e.nombre_estado
+               ELSE 'pagada'
+           END AS estado,
+           0 AS descuento, x.fecha, mp.nombre_metodo as tipo_pago
+    FROM pagos x
+    INNER JOIN clientes c ON c.cliente_id = x.cliente_id
+    INNER JOIN pagos_a_facturasRP pf ON pf.pago_id = x.pago_id
+    INNER JOIN facturasRP f ON f.facturaRP_id = pf.facturaRP_id
+    INNER JOIN metodos_de_pagos mp ON mp.metodo_pago_id = f.metodo_pago_id
+    INNER JOIN estados_generales e ON e.estado_id = f.estado_id
+    WHERE $condition
+    AND (e.nombre_estado = 'por cobrar' OR (e.nombre_estado <> 'por cobrar' AND f.fecha <> x.fecha))
+
+) ingresos ORDER BY estado ASC;";
+
+
+$res = $db->query($queryIngresos);
+$startIngresosRow = $row;
+
+while ($r = $res->fetch_object()) {
+    $cantidad = is_numeric($r->cantidad) ? $r->cantidad : 0;
+    $precio = is_numeric($r->precio) ? $r->precio : 0;
+    $descuento = is_numeric($r->descuento) ? $r->descuento : 0;
+    $recibido = is_numeric($r->recibido) ? $r->recibido : 0;
+    $total = ($cantidad * $precio - $descuento) + $recibido;;
+
+    $sheet->fromArray([
+        $r->descripcion,
+        $cantidad,
+        $precio,
+        $descuento,
+        $recibido,
+        $r->factura,
+        $r->tipo_pago,
+        $r->estado,
+        $total
+    ], null, "A$row");
+    $row++;
+}
+$endIngresosRow = $row - 1;
+
+// ===== Total Ingresos =====
+$sheet->setCellValue("H$row", "Total ingresos:");
+$sheet->setCellValue("I$row", "=SUM(I$startIngresosRow:I$endIngresosRow)");
+$sheet->getStyle("H$row:I$row")->getFont()->setBold(true);
+$sheet->getStyle("I$row")->getNumberFormat()->setFormatCode('"$"* #,##0.00_);[Red]("$"* #,##0.00)');
+$row++;
+
+
+// ===== Ajuste Columnas y Formatos =====
+foreach (range('A', 'I') as $col) {
+    $sheet->getColumnDimension($col)->setAutoSize(true);
+}
+
+// Alineación centrada para ambas secciones
+$sheet->getStyle("A$startIngresosRow:I$endIngresosRow")->getAlignment()->setHorizontal('center');
+$sheet->getStyle("A$startIngresosRow:I$endIngresosRow")->getAlignment()->setVertical('center');
+
+// Formato moneda
+$currencyFormat = '"$"* #,##0.00_);[Red]("$"* #,##0.00)';
+$sheet->getStyle("C$startIngresosRow:C$endIngresosRow")->getNumberFormat()->setFormatCode($currencyFormat); // Precio
+$sheet->getStyle("D$startIngresosRow:D$endIngresosRow")->getNumberFormat()->setFormatCode($currencyFormat); // Descuento
+$sheet->getStyle("E$startIngresosRow:E$endIngresosRow")->getNumberFormat()->setFormatCode($currencyFormat); // ITBIS
+$sheet->getStyle("I$startIngresosRow:I$endIngresosRow")->getNumberFormat()->setFormatCode($currencyFormat); // Total
+
+// ===== Salida Excel =====
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header('Content-Disposition: attachment;filename="Reporte-' . $date_start.'-'.$date_end. '.xlsx"');
+header('Cache-Control: max-age=0');
+$writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+$writer->save('php://output');
+exit;

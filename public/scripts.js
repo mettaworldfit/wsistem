@@ -154,6 +154,7 @@ function initCustomDataTable({
     loadTime = 300,
     hideZeroRecordsMessage = false,
     hiddenColumns = [], // índices a ocultar con clase
+    ajaxParams = {}, // Parametros
     ...options
 }) {
     if (!selector || !ajaxUrl || !ajaxAction || !Array.isArray(columns)) {
@@ -203,13 +204,20 @@ function initCustomDataTable({
             `);
 
             setTimeout(() => {
+
+                const extraParams = typeof ajaxParams === 'function'
+                    ? ajaxParams()
+                    : ajaxParams;
+
                 $.ajax({
                     url: SITE_URL + ajaxUrl,
                     type: 'POST',
                     data: {
                         action: ajaxAction,
-                        id: $.urlParam('id') || $.urlParam('o'),
-                        ...data
+                        id: $.urlParam('id') || $.urlParam('o'), // parámetros url
+                        ...extraParams,   // parámetros personalizados
+                        ...data          // parámetros internos de DataTables
+
                     },
                     dataType: 'json',
                     success: response => {
@@ -398,7 +406,7 @@ function mysql_error(err) {
 
 function loadTables(tableConfigs) {
     tableConfigs.forEach(config => {
-        const { id, url, action, columns, hiddenColumns, ...rest } = config;
+        const { id, url, action, columns, hiddenColumns, params,...rest } = config;
 
         const columnDefs = columns.map(col =>
             col === 'acciones'
@@ -414,6 +422,7 @@ function loadTables(tableConfigs) {
             ajaxAction: action,
             columns: columnDefs,
             hiddenColumns: hiddenColumns,
+            ajaxParams: params,
             ...rest
         });
     });

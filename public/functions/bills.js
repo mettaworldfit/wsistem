@@ -16,7 +16,6 @@ $(document).ready(function () {
     if (pageURL.includes("bills/addbills")) {
 
         $(function () {
-
             // Verificar
             if (localStorage.getItem("detalle_gasto")) {
                 SpendingLocalStorage = JSON.parse(localStorage.getItem("detalle_gasto"));

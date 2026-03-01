@@ -67,7 +67,7 @@ $(document).ready(function () {
             if (pageURL.includes("invoices/addpurchase")) {
                 action = 'actualizar_cantidad_detalle_temporal';
             } else if (pageURL.includes("invoices/add_order")) {
-                 action = 'actualizar_cantidad_orden_venta';
+                action = 'actualizar_cantidad_orden_venta';
             }
 
             // Validar si la cantidad es un número válido y mayor a 0
@@ -400,7 +400,7 @@ $(document).ready(function () {
     // Generar factura pdf
     function GeneratePDF(invoice) {
 
-       const data = {
+        const data = {
             subtotal: $('#in-subtotal').val().replace(/,/g, ""),
             discount: $('#in-discount').val().replace(/,/g, ""),
             taxes: $('#in-taxes').val().replace(/,/g, ""),
@@ -987,8 +987,13 @@ $(document).ready(function () {
                         id: id
                     },
                     successCallback: (res) => {
-                        (pageURL.includes("invoices/index")) ?
-                            dataTablesInstances['invoices'].ajax.reload(null, false) : dataTablesInstances['today'].ajax.reload(null, false);
+                        if (pageURL.includes("invoices/index")) {
+                            dataTablesInstances['invoices'].ajax.reload(null, false)
+                        } else if (pageURL.includes("reports/sales")) {
+                            dataTablesInstances['report_venta'].ajax.reload(null, false);
+                        } else {
+                            dataTablesInstances['today'].ajax.reload(null, false);
+                        }
                     },
                     errorCallback: (err) => {
                         console.log('%c[INVOICES]', 'color:#b51717;font-weight:bold;', err)

@@ -12,6 +12,7 @@
  * - 'table_with_joins' (string): Tabla principal junto con cualquier JOIN necesario para consultas con filtros.
  * - 'select' (string): Sentencia SELECT (sin el FROM), es decir, qué columnas seleccionar.
  * - 'base_condition' (string): Cláusula WHERE de la consulta (por ejemplo, filtro por producto_id).
+ * - 'group_by' (string): Columna por la cual se va agrupar.
  * - 'table_rows' (callable): Callback que recibe una fila y devuelve un arreglo con el formato requerido por DataTables.
  *
  * @return void Imprime un JSON con los datos esperados por DataTables:
@@ -57,8 +58,6 @@ function handleDataTableRequest(mysqli $db, array $params)
     // ===============================================================
     // Detección inteligente del tipo de tabla para el conteo total
     // ===============================================================
-    // Si el base_condition contiene alias (ej. "p.producto_id"), usamos los JOINs
-    // Si no, contamos directamente desde la tabla base
     $tableForCount = (str_contains($baseCondition, '.') && $baseCondition !== '1=1')
         ? $params['table_with_joins']
         : $params['base_table'];
@@ -73,10 +72,14 @@ function handleDataTableRequest(mysqli $db, array $params)
     $filteredResult = $db->query($filteredQuery);
     $filteredRecords = $filteredResult->fetch_assoc()['total'] ?? 0;
 
-    // Consulta principal con orden y paginación
+    // Si se especifica un 'GROUP BY', lo agregamos a la consulta
+    $groupBy = isset($params['group_by']) ? "GROUP BY " . $params['group_by'] : '';
+
+    // Consulta principal con orden, paginación y agrupación
     $query = "{$params['select']} 
               FROM {$params['table_with_joins']} 
               WHERE $where 
+              $groupBy
               ORDER BY $orderColumn $orderDir";
 
     if ($length > 0) {
@@ -200,33 +203,6 @@ function handleDeletionAction(mysqli $db, int $id, string $procedureName): strin
     }
 }
 
-// function handleDeletionAction(mysqli $db, int $id, string $procedureName): string
-// {
-//     if (empty($procedureName)) {
-//         return "Nombre del procedimiento requerido.";
-//     }
-
-//     $query = "CALL $procedureName($id)";
-//     $result = $db->query($query);
-
-//     if (!$result) {
-//         return "Error al ejecutar el procedimiento: " . $db->error;
-//     }
-
-//     $data = $result->fetch_object();
-
-//     // Validar que $data es un objeto y que contiene 'msg'
-//     if (!$data || !isset($data->msg)) {
-//         return "Error: Respuesta inesperada del procedimiento $procedureName.";
-//     }
-
-//     if ($data->msg === "ready") {
-//         return "ready";
-//     } else {
-//         return "Error en $procedureName: " . $data->msg;
-//     }
-// }
-
 
 /**
  * Ejecuta un procedimiento almacenado con parámetros dados y devuelve el resultado según el mensaje de salida.
@@ -236,111 +212,109 @@ function handleDeletionAction(mysqli $db, int $id, string $procedureName): strin
  * @param array $params Lista de parámetros en orden para el procedimiento.
  * @return string Resultado de la operación: "ready", "duplicate", error SQL, o mensaje personalizado.
  */
-function handleProcedureAction(mysqli $db, string $procedure, array $params): string
-{
-    $escapedParams = array_map(function ($param) use ($db) {
-
-        // NULL real
-        if ($param === null) {
-            return "NULL";
-        }
-
-        // String "null" (muy común en forms / JS)
-        if (is_string($param) && strtolower($param) === 'null') {
-            return "NULL";
-        }
-
-        // Numéricos (incluye 0 y 0.00)
-        if (is_numeric($param)) {
-            return $param;
-        }
-
-        // Strings normales
-        if (is_string($param)) {
-            return "'" . $db->real_escape_string($param) . "'";
-        }
-
-        // Fallback seguro
-        return "NULL";
-
-    }, $params);
-
-    $query = "CALL $procedure(" . implode(',', $escapedParams) . ")";
-
-    try {
-        if (!$db->multi_query($query)) {
-            throw new mysqli_sql_exception("Error en $procedure: " . $db->error);
-        }
-
-        do {
-            if ($result = $db->store_result()) {
-                $row = $result->fetch_assoc();
-                $result->free();
-
-                if (isset($row['msg'])) {
-                    return $row['msg'];
-                }
-            }
-        } while ($db->more_results() && $db->next_result());
-
-        return "Error: No se recibió respuesta del procedimiento.";
-
-    } catch (mysqli_sql_exception $e) {
-        return "Error: " . $e->getMessage();
-    }
-}
-
 // function handleProcedureAction(mysqli $db, string $procedure, array $params): string
 // {
-//     // Escapar los parámetros, pero asegurándonos de que 'codigo' siempre sea tratado como una cadena
 //     $escapedParams = array_map(function ($param) use ($db) {
-//         // Asegurar que 'codigo' siempre sea tratado como cadena de texto
-//         if (is_numeric($param) && !is_string($param)) {
-//             // Si es numérico, devolverlo tal cual
-//             return $param;
-//         } elseif (is_string($param)) {
-//             // Si es una cadena, escapar el valor
-//             return "'" . $db->real_escape_string($param) . "'";
-//         } elseif (empty($param)) {
-//             // Si el valor está vacío, devolver NULL
+
+//         // NULL real
+//         if ($param === null) {
 //             return "NULL";
-//         } else {
-//             // En cualquier otro caso, escaparlo correctamente
+//         }
+
+//         // String "null" (muy común en forms / JS)
+//         if (is_string($param) && strtolower($param) === 'null') {
+//             return "NULL";
+//         }
+
+//         // Numéricos (incluye 0 y 0.00)
+//         if (is_numeric($param)) {
+//             return $param;
+//         }
+
+//         // Strings normales
+//         if (is_string($param)) {
 //             return "'" . $db->real_escape_string($param) . "'";
 //         }
+
+//         // Fallback seguro
+//         return "NULL";
 //     }, $params);
 
-//     // Crear la consulta con los parámetros escapados
 //     $query = "CALL $procedure(" . implode(',', $escapedParams) . ")";
 
 //     try {
-//         // Ejecutar la consulta
 //         if (!$db->multi_query($query)) {
-//             // Si la consulta falla, lanzar una excepción con el error de MySQL
 //             throw new mysqli_sql_exception("Error en $procedure: " . $db->error);
 //         }
 
-//         // Recorrer los result sets si hay más de uno
 //         do {
 //             if ($result = $db->store_result()) {
-//                 // Procesar el primer conjunto de resultados
 //                 $row = $result->fetch_assoc();
 //                 $result->free();
 
-//                 // Si la respuesta tiene un campo 'msg', devolverlo
 //                 if (isset($row['msg'])) {
 //                     return $row['msg'];
 //                 }
 //             }
 //         } while ($db->more_results() && $db->next_result());
 
-//         // Si no se recibe ningún mensaje, devolver un error genérico
 //         return "Error: No se recibió respuesta del procedimiento.";
 //     } catch (mysqli_sql_exception $e) {
-//         // Capturar la excepción y devolver un mensaje detallado de error
 //         return "Error: " . $e->getMessage();
 //     }
 // }
+
+function handleProcedureAction(mysqli $db, string $procedure, array $params): string
+{
+    // Escapar los parámetros, pero asegurándonos de que 'codigo' siempre sea tratado como una cadena
+    $escapedParams = array_map(function ($param) use ($db) {
+        // Asegurar que 'codigo' siempre sea tratado como cadena de texto
+        if (is_numeric($param) && !is_string($param)) {
+            // Si es numérico, devolverlo tal cual
+            return $param;
+        } elseif (is_string($param)) {
+            // Si es una cadena, escapar el valor
+            return "'" . $db->real_escape_string($param) . "'";
+        } elseif (empty($param)) {
+            // Si el valor está vacío, devolver NULL
+            return "NULL";
+        } else {
+            // En cualquier otro caso, escaparlo correctamente
+            return "'" . $db->real_escape_string($param) . "'";
+        }
+    }, $params);
+
+    // Crear la consulta con los parámetros escapados
+    $query = "CALL $procedure(" . implode(',', $escapedParams) . ")";
+
+    try {
+        // Ejecutar la consulta
+        if (!$db->multi_query($query)) {
+            // Si la consulta falla, lanzar una excepción con el error de MySQL
+            throw new mysqli_sql_exception("Error en $procedure: " . $db->error);
+        }
+
+        // Recorrer los result sets si hay más de uno
+        do {
+            if ($result = $db->store_result()) {
+                // Procesar el primer conjunto de resultados
+                $row = $result->fetch_assoc();
+                $result->free();
+
+                // Si la respuesta tiene un campo 'msg', devolverlo
+                if (isset($row['msg'])) {
+                    return $row['msg'];
+                }
+            }
+        } while ($db->more_results() && $db->next_result());
+
+        // Si no se recibe ningún mensaje, devolver un error genérico
+        return "Error: No se recibió respuesta del procedimiento.";
+    } catch (mysqli_sql_exception $e) {
+        // Capturar la excepción y devolver un mensaje detallado de error
+        return "Error: " . $e->getMessage();
+    }
+}
 
 
 
