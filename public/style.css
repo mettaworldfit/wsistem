@@ -5059,15 +5059,17 @@ h6.legend-summary svg {
     }
 }
 
-.filter-row div,
-.date-filter div {
-    display: grid;
-    grid-template-columns: repeat(2, 71px 70%);
+.filter-row label svg,
+.date-filter label svg {
+    color: #b5b5b5;
+    margin-right: 2px;
 }
 
 .filter-row div label,
 .date-filter div label {
     align-self: center;
+    font-weight: 500;
+    font-family: var(--font-title);
     margin: 0;
 }
 

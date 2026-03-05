@@ -68,7 +68,7 @@ $menu_sections = [
                 'link' => base_url . 'bills/bills',
                 'icon' => 'fas fa-plus-circle',
                 'icon_link' => base_url . 'bills/addbills',
-                'roles' => ['administrador','cajero']
+                'roles' => ['administrador', 'cajero']
             ],
             [
                 'label' => 'Pagos',
@@ -88,7 +88,7 @@ $menu_sections = [
     ],
     'taller' => [
         'label' => 'Taller',
-         'drop_num' => 3,
+        'drop_num' => 3,
         'icon' => 'fas fa-tools',
         'submenu' => [
             [
@@ -103,14 +103,14 @@ $menu_sections = [
         'label' => 'Inventario',
         'drop_num' => 4,
         'icon' => 'fas fa-box',
-        'roles' => ['administrador','cajero'],
+        'roles' => ['administrador', 'cajero'],
         'submenu' => [
             [
                 'label' => 'Productos',
                 'link' => base_url . 'products/index',
                 'icon' => 'fas fa-plus-circle',
                 'icon_link' => base_url . 'products/add',
-                'roles' => ['administrador','cajero']
+                'roles' => ['administrador', 'cajero']
             ],
             [
                 'label' => 'Piezas',
@@ -124,7 +124,7 @@ $menu_sections = [
                 'link' => base_url . 'services/index',
                 'icon' => 'fas fa-plus-circle',
                 'icon_link' => base_url . 'services/add',
-                'roles' => ['administrador','cajero']
+                'roles' => ['administrador', 'cajero']
             ],
             [
                 'label' => 'Valor de inventario',
@@ -207,7 +207,7 @@ $menu_sections = [
     ],
     'reportes' => [
         'label' => 'Reportes',
-         'drop_num' => 6,
+        'drop_num' => 6,
         'icon' => 'fas fa-chart-bar',
         'roles' => ['administrador', 'cajero'],
         'submenu' => [
@@ -223,9 +223,15 @@ $menu_sections = [
                 'icon' => 'fas fa-search',
                 'roles' => ['administrador']
             ],
-             [
+            [
                 'label' => 'Consultar ventas',
                 'link' => base_url . 'reports/sales',
+                'icon' => 'fas fa-search',
+                'roles' => ['administrador']
+            ],
+            [
+                'label' => 'Consultar datos',
+                'link' => base_url . 'reports/query_data',
                 'icon' => 'fas fa-search',
                 'roles' => ['administrador']
             ],
@@ -266,7 +272,8 @@ $menu_sections = [
 
 
 // Función para mostrar un elemento del menú
-function display_menu_item($item) {
+function display_menu_item($item)
+{
     // Asegurarse de que 'roles' esté definido y sea un array
     $roles = isset($item['roles']) ? $item['roles'] : ['administrador'];
 
@@ -274,7 +281,7 @@ function display_menu_item($item) {
     if (in_array($_SESSION['identity']->nombre_rol, $roles)) {
         // Si tiene submenu, mostrar como dropdown
         if (isset($item['submenu'])) {
-            echo '<li class="dropdown-'. $item['drop_num'] .'">'; // Clase para el item principal del menú
+            echo '<li class="dropdown-' . $item['drop_num'] . '">'; // Clase para el item principal del menú
             echo '<div class="link"><i class="mr-3 ' . $item['icon'] . '"></i>' . $item['label'] . ' <i class="fas fa-chevron-down"></i></div>';
             echo '<ul class="submenu">'; // Submenú
 
@@ -301,6 +308,3 @@ function display_menu_item($item) {
         }
     }
 }
-
-
-

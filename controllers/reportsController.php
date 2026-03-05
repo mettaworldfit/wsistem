@@ -6,8 +6,9 @@ class ReportsController
     private $permissions = [
         'day' => [],                   // Todos tienen permiso
         'querys' => ['administrador'], // Roles con acceso a la acción 'querys'
-        'cash_closing' => [], 
-        'sales' => ['administrador']
+        'cash_closing' => [],
+        'sales' => ['administrador'],
+        'query_data' => ['administrador']
     ];
 
     // Verificación de permisos
@@ -19,7 +20,7 @@ class ReportsController
             exit();
         }
 
-           // Verificar si el rol del usuario tiene permiso para la acción solicitada
+        // Verificar si el rol del usuario tiene permiso para la acción solicitada
         $roles = isset($this->permissions[$action]) ? $this->permissions[$action] : [];
 
         // Si el array de roles está vacío, todos los roles tienen acceso
@@ -78,5 +79,15 @@ class ReportsController
 
         // Mostrar la vista
         require_once './views/reports/sales.php';
+    }
+
+    // Acción para consultar datos
+    public function query_data()
+    {
+        // Verificar permisos para la acción
+        $this->check_permission('query_data');
+
+        // Mostrar la vista
+        require_once './views/reports/query_data.php';
     }
 }
