@@ -1,7 +1,7 @@
 <div class="section-wrapper">
     <div class="align-content clearfix">
         <div class="float-left">
-            <h1>Consultar datos</h1>
+            <h1>Equipos vendidos</h1>
         </div>
     </div>
 </div>
@@ -15,41 +15,41 @@
         Filtros de Busqueda</h6>
 
     <div class="filters">
-        <form method="post" id="formQueryData">
+        <form method="post" id="formQueryDevice">
 
-            <!-- Filtros de fecha -->
-            <div class="date-filter">
-                <div>
-                    <label for="start-date"><i class="far fa-calendar-alt"></i> Fecha Inicio:</label>
-                    <input class="form-custom" type="datetime-local" name="fecha_inicio" id="date-start" required>
-                </div>
-
-                <div>
-                    <label for="end-date"><i class="far fa-calendar-alt"></i> Fecha Final:</label>
-                    <input class="form-custom" type="datetime-local" name="fecha_final" id="date-end" required>
-                </div>
-            </div>
-
-            <hr>
-
-            <!-- Filtros vendedores -->
+            <!-- Filtros -->
             <div class="filter-row">
-                <div>
-                    <label for="start-date"><i class="fas fa-mobile-alt"></i> S/N:</label>
-                    <input class="form-custom" type="text" name="" id="query" placeholder="Serial o IMEI">
-                </div>
-
-                <div>
-                    <label for="start-date"><i class="fas fa-users"></i> Cliente:</label>
-                    <select class="form-custom search" name="customer" id="customer_id">
-                        <option value="0">No filtrar</option>
+            
+                 <div>
+                    <label for="product_id"><i class="fas fa-users"></i> Productos</label>
+                    <select class="form-custom search" name="product_id" id="product_id">
+                          <option value="" selected disabled>Seleccione un producto</option>
+                          <option value="0">No filtrar</option>
                         <?php
-                        $customers = Help::showCustomers();
-                        while ($customer = $customers->fetch_assoc()): ?>
-                            <option value="<?= $customer['cliente_id'] ?>"><?= ucwords($customer['nombre']) ?> <?= ucwords($customer['apellidos'] ?? "")  ?></option>
+                        $products = Help::showProducts();
+                        while ($product = $products->fetch_assoc()): ?>
+                            <option value="<?= $product['IDproducto'] ?>"><?= ucwords($product['nombre_producto']) ?></option>
                         <?php endwhile; ?>
                     </select>
                 </div>
+
+                <div>
+                    <label for="provider"><i class="fas fa-users"></i> Proveedor</label>
+                    <select class="form-custom search" name="provider" id="provider_id">
+                        <option value="0">No filtrar</option>
+                        <?php
+                        $providers = Help::showProviders();
+                        while ($provider = $providers->fetch_assoc()): ?>
+                            <option value="<?= $provider['proveedor_id'] ?>"><?= ucwords($provider['nombre_proveedor']) ?> <?= ucwords($provider['apellidos'] ?? "")  ?></option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+
+                 <div>
+                    <label for="start-date"><i class="fas fa-mobile-alt"></i> S/N</label>
+                    <input class="form-custom" type="number" name="serial" id="serial" placeholder="Serial o IMEI">
+                </div>
+
             </div>
 
             <div class="filter-buttoms">
@@ -65,24 +65,6 @@
     <!-- Resumen de venta -->
     <h6 class="legend-summary" style="margin-top: 10px;"><i class="far fa-chart-bar" style="color: #66c532"></i>
         Resumen de resultados</h6>
-
-    <div class="summary-result">
-        <div>
-            <span>Facturas</span>
-            <span id="inv_total">0</span>
-            <span>En el periodo</span>
-        </div>
-
-        <div>
-            <span>Total Facturado:</span>
-            <span id="total">DOP 0.00</span>
-        </div>
-
-        <div>
-            <span>Pendiente:</span>
-            <span id="pending">DOP 0.00</span>
-        </div>
-    </div>
 
     <div id="display1">
 

@@ -230,8 +230,8 @@ $menu_sections = [
                 'roles' => ['administrador']
             ],
             [
-                'label' => 'Consultar datos',
-                'link' => base_url . 'reports/query_data',
+                'label' => 'Equipos vendidos',
+                'link' => base_url . 'reports/query_device',
                 'icon' => 'fas fa-search',
                 'roles' => ['administrador']
             ],

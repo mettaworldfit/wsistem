@@ -31,7 +31,8 @@ $permissions = [
     'serial_facturado'  => [],
 
     'reporte_ventas' => ['administrador'],
-    'resumen_reporte_venta' => ['administrador']
+    'resumen_reporte_venta' => ['administrador'],
+    'equipos_vendidos' => ['administrador'],
 ];
 
 // Chequear permisos
@@ -517,7 +518,7 @@ switch ($action) {
         $baseCondition = "TIMESTAMP(x.fecha, x.hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
 
         if ($usuario_id > 0) {
-            $condition .= " AND x.usuario_id = $usuario_id";
+            $baseCondition .= " AND x.usuario_id = $usuario_id";
         }
 
         // Si hay cliente, se agrega
@@ -653,7 +654,7 @@ switch ($action) {
         $baseCondition = "TIMESTAMP(x.fecha, x.hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
 
         if ($usuario_id > 0) {
-            $condition .= " AND x.usuario_id = $usuario_id";
+            $baseCondition .= " AND x.usuario_id = $usuario_id";
         }
 
         // Si hay cliente, se agrega
@@ -682,5 +683,79 @@ switch ($action) {
             ) AS reporte";
 
         echo jsonQueryResult($db, $sql);
+        break;
+    case 'equipos_vendidos':
+
+        $product_id   = $_POST['product_id'] ?? 0;
+        $provider_id  = $_POST['provider'] ?? 0;
+        $serial  = $_POST['serial'] ?? 0;
+
+        $product_id   = intval($product_id);
+        $provider_id  = intval($provider_id);
+
+        // Condición base
+        $baseCondition = "";
+
+        if ($product_id > 0 || !empty($product_id)) {
+            $baseCondition .= "p.producto_id = $product_id";
+
+            if ($provider_id > 0) {
+                $baseCondition .= " AND vp.proveedor_id = $proveedor_id";
+            }
+
+             if (!empty($serial)) {
+                $baseCondition .= " AND v.serial like '%$serial%'";
+            }
+        }
+
+        handleDataTableRequest($db, [
+            'columns' => [
+                'factura_venta_id',
+                'nombre',
+                'serial',
+                'costo_unitario',
+                'precio_venta',
+                'entrada',
+                'salida'
+            ],
+
+            'searchable' => [
+                'factura_venta_id',
+                'nombre',
+                'serial',
+                'costo_unitario',
+                'precio_venta',
+                'entrada',
+                'salida'
+            ],
+
+            'base_table' => 'variantes v',
+
+            'table_with_joins' => 'variantes v 
+                inner join variantes_facturadas vf on v.variante_id = vf.variante_id
+                inner join detalle_facturas_ventas d on d.detalle_venta_id = vf.detalle_venta_id
+                inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
+                inner join variantes_con_proveedores vp on vp.variante_id = v.variante_id
+                inner join proveedores pr on pr.proveedor_id = vp.proveedor_id
+                 inner join productos p on p.producto_id = v.producto_id',
+
+            'select' => 'SELECT f.factura_venta_id, concat(pr.nombre_proveedor," ",IFNULL(pr.apellidos,"")) as nombre, v.serial, 
+                        v.costo_unitario,(d.precio-IFNULL(d.descuento,0)) as precio_venta, v.fecha as entrada, f.fecha as salida',
+
+            'base_condition' => $baseCondition,
+
+            'table_rows' => function ($row) {
+
+                return [
+                    'id' => $row['factura_venta_id'],
+                    'proveedor' => ucwords($row['nombre']),
+                    'serial' => $row['serial'],
+                    'costo' => $row['costo_unitario'],
+                    'precio_venta' => number_format($row['precio_venta'], 2),
+                    'entrada' => $row['entrada'],
+                    'salida' => $row['salida']
+                ];
+            }
+        ]);
         break;
 }

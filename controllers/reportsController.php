@@ -8,7 +8,7 @@ class ReportsController
         'querys' => ['administrador'], // Roles con acceso a la acción 'querys'
         'cash_closing' => [],
         'sales' => ['administrador'],
-        'query_data' => ['administrador']
+        'query_device' => ['administrador']
     ];
 
     // Verificación de permisos
@@ -82,12 +82,12 @@ class ReportsController
     }
 
     // Acción para consultar datos
-    public function query_data()
+    public function query_device()
     {
         // Verificar permisos para la acción
-        $this->check_permission('query_data');
+        $this->check_permission('query_device');
 
         // Mostrar la vista
-        require_once './views/reports/query_data.php';
+        require_once './views/reports/query_device.php';
     }
 }

@@ -462,7 +462,7 @@ $(document).ready(function () {
     })
 
     /**============================================================= 
-    * FUNCIONES DE CONSULTAS
+    * CONSULTAR VENTAS
     ===============================================================*/
 
     // Consultar ventas
@@ -540,20 +540,41 @@ $(document).ready(function () {
     })
 
     // Obtener todos los detalle de todas las facturas filtradas
-    $('#excelSales').on('click',function(e){
+    $('#excelSales').on('click', function (e) {
         e.preventDefault()
 
-         const data = {
+        const table = `
+            <table id="report_venta" class="table-custom table">
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th class="hide-cell">Hora</th>
+                        <th class="hide-cell">Total</th>
+                        <th class="hide-cell">Recibido</th>
+                        <th class="hide-cell">Por cobrar</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+            </table>
+        `;
+
+        $('.display-result').html(table);
+
+
+        const data = {
             start: $('#date-start').val(),
             end: $('#date-end').val(),
             user_id: $('#user_id').val(),
             customer_id: $('#customer_id').val(),
         }
 
-         // Validación rápida
+        // Validación rápida
         if (!data.start && !data.end) {
             notifyAlert("Debes seleccionar ambos filtros de fecha", 'warning');
-           
+
             return;
         }
 
@@ -564,8 +585,90 @@ $(document).ready(function () {
         url.searchParams.set('customer_id', data.customer_id);
 
         window.location.href = url.toString();
-       
+
     })
+
+    /**============================================================= 
+    * EQUIPOS VENDIDOS
+    ===============================================================*/
+
+    $('#formQueryDevice').on('submit', function (e) {
+        e.preventDefault()
+
+        const tableId = 'device_query';
+
+        //  Si ya existe DataTable → destruir
+        if ($.fn.DataTable.isDataTable('#' + tableId)) {
+            $('#' + tableId).DataTable().destroy();
+        }
+
+        let formDataTable = new FormData(this)
+        // Convertir FormData a objeto plano
+        const formObject = Object.fromEntries(formDataTable.entries());
+
+          const data = {
+            product_id: $('#product_id').val(),
+            serial: $('#serial').val(),
+           
+        }
+
+        // Validación rápida
+        if (!data.product_id && !data.serial) {
+            notifyAlert("Debes seleccionar un producto o serial", 'warning');
+
+            return;
+        }
+     
+        const table = `
+            <table id="device_query" class="table-custom table">
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th class="hide-cell">Proveedor</th>
+                        <th>Serial</th>
+                        <th class="hide-cell">Costo</th>
+                        <th class="hide-cell">Precio venta</th>
+                        <th class="hide-cell">Entrada</th>
+                        <th>Salida</th>
+                    </tr>
+                </thead>
+            </table>
+        `;
+
+        $('#display1').html(table);
+
+
+        // Inicializar tabla
+        loadTables([
+            {
+                id: '#device_query',
+                url: 'services/reports.php',
+                action: 'equipos_vendidos',
+                columns: [
+                    'id', 'proveedor', 'serial', 'costo', 'precio_venta', 'entrada', 'salida'
+                ],
+                order: [[0, 'desc']],
+                hiddenColumns: [1, 3, 4, 5],
+                ajaxParams: formObject
+            },
+        ])
+    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -602,24 +705,24 @@ $(document).ready(function () {
 
     }
 
-    
 
-// Funciones de consultas
-function getSoldProducts() {
 
-    sendAjaxRequest({
-        url: "services/reports.php",
-        data: {
-            query: $('#query').val(),
-            dateq1: $('#dateq1').val(),
-            dateq2: $('#dateq2').val(),
-            action: $('#action').val()
-        },
-        successCallback: (res) => {
-            var data = JSON.parse(res);
+    // Funciones de consultas
+    function getSoldProducts() {
 
-            // Vaciar campos de resultado
-            document.querySelector("#queryResult").innerHTML = `
+        sendAjaxRequest({
+            url: "services/reports.php",
+            data: {
+                query: $('#query').val(),
+                dateq1: $('#dateq1').val(),
+                dateq2: $('#dateq2').val(),
+                action: $('#action').val()
+            },
+            successCallback: (res) => {
+                var data = JSON.parse(res);
+
+                // Vaciar campos de resultado
+                document.querySelector("#queryResult").innerHTML = `
             <table class="queryTable" id="echoQuery" style="width: 100%; margin-top: 2.5em; background: #f1f1f1; border-radius: 7px;">
                 <thead>
                     <tr>
@@ -633,9 +736,9 @@ function getSoldProducts() {
                 <tbody></tbody>
             </table>`;
 
-            // Generar filas por separado
-            $(data).each(function (index, element) {
-                var row = `
+                // Generar filas por separado
+                $(data).each(function (index, element) {
+                    var row = `
             <tr>
                 <td style='padding: 2px 10px; font-size: 13px;'>${element.nombre_producto}</td>
                 <td style='padding: 2px 10px; font-size: 13px;'>${element.cantidad}</td>
@@ -644,28 +747,28 @@ function getSoldProducts() {
                 <td style='padding: 2px 10px; font-size: 13px;'>${format.format(element.ganancia)}</td>
             </tr>`;
 
-                $('#echoQuery tbody').append(row);
-            });
+                    $('#echoQuery tbody').append(row);
+                });
 
-        }
-    })
-}
+            }
+        })
+    }
 
-function getSoldPieces() {
-    sendAjaxRequest({
-        url: "services/reports.php",
-        data: {
-            query: $('#query').val(),
-            dateq1: $('#dateq1').val(),
-            dateq2: $('#dateq2').val(),
-            action: $('#action').val()
-        },
-        successCallback: (res) => {
+    function getSoldPieces() {
+        sendAjaxRequest({
+            url: "services/reports.php",
+            data: {
+                query: $('#query').val(),
+                dateq1: $('#dateq1').val(),
+                dateq2: $('#dateq2').val(),
+                action: $('#action').val()
+            },
+            successCallback: (res) => {
 
-            var data = JSON.parse(res);
+                var data = JSON.parse(res);
 
-            document.querySelector("#queryResult").innerHTML = ""; // Vaciar campos de resultado
-            document.querySelector("#queryResult").innerHTML = ` 
+                document.querySelector("#queryResult").innerHTML = ""; // Vaciar campos de resultado
+                document.querySelector("#queryResult").innerHTML = ` 
             <table class="queryTable" id="echoQuery" style="width: 100%; margin-top: 2.5em; 
             background: #f1f1f1; border-radius: 7px;">
                     <thead>
@@ -679,37 +782,37 @@ function getSoldPieces() {
                     </thead>
                 </table>`;
 
-            var tr = "<tr>";
-            $(data).each(function (index, element) {
+                var tr = "<tr>";
+                $(data).each(function (index, element) {
 
-                tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.nombre_pieza + "</td>";
-                tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.cantidad + "</td>";
-                tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + format.format(element.costo) + "</td>";
-                tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + format.format(element.total) + "</td>";
-                tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + format.format(element.ganancia) + "</td>";
-                tr += "</tr>";
-            });
-            $('#echoQuery').append(tr);
-        }
-    })
-}
+                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.nombre_pieza + "</td>";
+                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.cantidad + "</td>";
+                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + format.format(element.costo) + "</td>";
+                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + format.format(element.total) + "</td>";
+                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + format.format(element.ganancia) + "</td>";
+                    tr += "</tr>";
+                });
+                $('#echoQuery').append(tr);
+            }
+        })
+    }
 
 
-function getSoldServices() {
-    sendAjaxRequest({
-        url: "services/reports.php",
-        data: {
-            query: $('#query').val(),
-            dateq1: $('#dateq1').val(),
-            dateq2: $('#dateq2').val(),
-            action: $('#action').val()
-        },
-        successCallback: (res) => {
-            var data = JSON.parse(res);
+    function getSoldServices() {
+        sendAjaxRequest({
+            url: "services/reports.php",
+            data: {
+                query: $('#query').val(),
+                dateq1: $('#dateq1').val(),
+                dateq2: $('#dateq2').val(),
+                action: $('#action').val()
+            },
+            successCallback: (res) => {
+                var data = JSON.parse(res);
 
-            // Vaciar contenido anterior
-            const queryContainer = document.querySelector("#queryResult");
-            queryContainer.innerHTML = `
+                // Vaciar contenido anterior
+                const queryContainer = document.querySelector("#queryResult");
+                queryContainer.innerHTML = `
             <table class="queryTable" id="echoQuery" style="width: 100%; margin-top: 2.5em; background: #f1f1f1; border-radius: 7px;">
                 <thead>
                     <tr>
@@ -732,28 +835,28 @@ function getSoldServices() {
                     `).join('')}
                 </tbody>
             </table>`;
-        },
-        verbose: true
-    })
-}
+            },
+            verbose: true
+        })
+    }
 
-function getInvoicedSerials() {
-    $.ajax({
-        type: "post",
-        url: SITE_URL + "services/reports.php",
-        data: {
-            query: $('#query').val(),
-            action: $('#action').val()
-        },
-        beforeSend: function () {
+    function getInvoicedSerials() {
+        $.ajax({
+            type: "post",
+            url: SITE_URL + "services/reports.php",
+            data: {
+                query: $('#query').val(),
+                action: $('#action').val()
+            },
+            beforeSend: function () {
 
-        },
-        success: function (res) {
+            },
+            success: function (res) {
 
-            var data = JSON.parse(res);
+                var data = JSON.parse(res);
 
-            document.querySelector("#queryResult").innerHTML = ""; // Vaciar campos de resultado
-            document.querySelector("#queryResult").innerHTML = ` 
+                document.querySelector("#queryResult").innerHTML = ""; // Vaciar campos de resultado
+                document.querySelector("#queryResult").innerHTML = ` 
       <table class="queryTable" id="echoQuery" style="width: 100%; margin-top: 2.5em; 
       background: #f1f1f1; border-radius: 7px;">
             <thead>
@@ -768,22 +871,22 @@ function getInvoicedSerials() {
             </thead>
         </table>`;
 
-            var tr = "<tr>";
-            $(data).each(function (index, element) {
+                var tr = "<tr>";
+                $(data).each(function (index, element) {
 
-                tr += "<td style='padding: 2px 10px; font-size: 13px;'> FT-00" + element.factura_venta_id + "</td>";
-                tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.nombre + "</td>";
-                tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.serial + "</td>";
-                tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.costo_unitario + "</td>";
-                tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.fecha_entrada + "</td>";
-                tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.fecha + "</td>";
-                tr += "</tr>";
-            });
-            $('#echoQuery').append(tr);
+                    tr += "<td style='padding: 2px 10px; font-size: 13px;'> FT-00" + element.factura_venta_id + "</td>";
+                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.nombre + "</td>";
+                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.serial + "</td>";
+                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.costo_unitario + "</td>";
+                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.fecha_entrada + "</td>";
+                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.fecha + "</td>";
+                    tr += "</tr>";
+                });
+                $('#echoQuery').append(tr);
 
-        },
-    });
-}
+            },
+        });
+    }
 
 
 }); // Ready
