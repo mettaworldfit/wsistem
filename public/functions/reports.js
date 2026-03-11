@@ -613,11 +613,11 @@ $(document).ready(function () {
         }
 
         // Validación rápida
-        if (!data.product_id && !data.serial) {
-            notifyAlert("Debes seleccionar un producto o serial", 'warning');
+        // if (!data.product_id && !data.serial) {
+        //     notifyAlert("Debes seleccionar un producto o serial", 'warning');
 
-            return;
-        }
+        //     return;
+        // }
      
         const table = `
             <table id="device_query" class="table-custom table">
@@ -625,9 +625,9 @@ $(document).ready(function () {
                     <tr>
                         <th>N°</th>
                         <th class="hide-cell">Proveedor</th>
+                        <th class="hide-cell">Item</th>
                         <th>Serial</th>
                         <th class="hide-cell">Costo</th>
-                        <th class="hide-cell">Precio venta</th>
                         <th class="hide-cell">Entrada</th>
                         <th>Salida</th>
                     </tr>
@@ -645,7 +645,7 @@ $(document).ready(function () {
                 url: 'services/reports.php',
                 action: 'equipos_vendidos',
                 columns: [
-                    'id', 'proveedor', 'serial', 'costo', 'precio_venta', 'entrada', 'salida'
+                    'id', 'proveedor','producto','serial', 'costo', 'entrada', 'salida'
                 ],
                 order: [[0, 'desc']],
                 hiddenColumns: [1, 3, 4, 5],

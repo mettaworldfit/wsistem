@@ -18,11 +18,16 @@
     src: url(./fonts/Nunito-Regular.ttf);
 }
 
+@font-face {
+    font-family: 'Poppins';
+    src: url(./fonts/Poppins-Regular.ttf);
+}
+
 :root {
     --background: #f4f5fb;
     --color-primary: #6a3cc0;
     --text-color: #334155;
-    --font-primary: "Nunito", sans-serif;
+    --font-primary: "Poppins", sans-serif;
     --font-secondary: "Roboto", sans-serif;
     --font-title: "Cabin", sans-serif;
 }
@@ -3638,6 +3643,7 @@ span.select2-container--default {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
     cursor: pointer;
+    font-family: var(--font-primary);
 }
 
 button.product-card:focus {

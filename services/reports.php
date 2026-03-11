@@ -686,27 +686,25 @@ switch ($action) {
         break;
     case 'equipos_vendidos':
 
-        $product_id   = $_POST['product_id'] ?? 0;
-        $provider_id  = $_POST['provider'] ?? 0;
-        $serial  = $_POST['serial'] ?? 0;
+        $product_id  = intval($_POST['product_id'] ?? 0);
+        $provider_id = intval($_POST['provider'] ?? 0);
+        $serial      = $_POST['serial'] ?? '';
 
-        $product_id   = intval($product_id);
-        $provider_id  = intval($provider_id);
+        $conditions = [];
 
-        // Condición base
-        $baseCondition = "";
-
-        if ($product_id > 0 || !empty($product_id)) {
-            $baseCondition .= "p.producto_id = $product_id";
-
-            if ($provider_id > 0) {
-                $baseCondition .= " AND vp.proveedor_id = $proveedor_id";
-            }
-
-             if (!empty($serial)) {
-                $baseCondition .= " AND v.serial like '%$serial%'";
-            }
+        if ($product_id > 0) {
+            $conditions[] = "p.producto_id = $product_id";
         }
+
+        if ($provider_id > 0) {
+            $conditions[] = "pr.proveedor_id = $provider_id";
+        }
+
+        if (!empty($serial)) {
+            $conditions[] = "v.serial LIKE '%$serial%'";
+        }
+
+        $baseCondition = implode(' AND ', $conditions);
 
         handleDataTableRequest($db, [
             'columns' => [
@@ -714,7 +712,7 @@ switch ($action) {
                 'nombre',
                 'serial',
                 'costo_unitario',
-                'precio_venta',
+                'nombre_producto',
                 'entrada',
                 'salida'
             ],
@@ -724,7 +722,7 @@ switch ($action) {
                 'nombre',
                 'serial',
                 'costo_unitario',
-                'precio_venta',
+                'nombre_producto',
                 'entrada',
                 'salida'
             ],
@@ -737,10 +735,10 @@ switch ($action) {
                 inner join facturas_ventas f on f.factura_venta_id = d.factura_venta_id
                 inner join variantes_con_proveedores vp on vp.variante_id = v.variante_id
                 inner join proveedores pr on pr.proveedor_id = vp.proveedor_id
-                 inner join productos p on p.producto_id = v.producto_id',
+                inner join productos p on p.producto_id = v.producto_id',
 
             'select' => 'SELECT f.factura_venta_id, concat(pr.nombre_proveedor," ",IFNULL(pr.apellidos,"")) as nombre, v.serial, 
-                        v.costo_unitario,(d.precio-IFNULL(d.descuento,0)) as precio_venta, v.fecha as entrada, f.fecha as salida',
+                        p.nombre_producto,v.costo_unitario, v.fecha as entrada, f.fecha as salida',
 
             'base_condition' => $baseCondition,
 
@@ -749,9 +747,9 @@ switch ($action) {
                 return [
                     'id' => $row['factura_venta_id'],
                     'proveedor' => ucwords($row['nombre']),
+                    'producto' => ucwords($row['nombre_producto']),
                     'serial' => $row['serial'],
                     'costo' => $row['costo_unitario'],
-                    'precio_venta' => number_format($row['precio_venta'], 2),
                     'entrada' => $row['entrada'],
                     'salida' => $row['salida']
                 ];

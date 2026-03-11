@@ -24,7 +24,7 @@
                     <label for="product_id"><i class="fas fa-users"></i> Productos</label>
                     <select class="form-custom search" name="product_id" id="product_id">
                           <option value="" selected disabled>Seleccione un producto</option>
-                          <option value="0">No filtrar</option>
+                          <option value="">No filtrar</option>
                         <?php
                         $products = Help::showProducts();
                         while ($product = $products->fetch_assoc()): ?>
