@@ -1,4 +1,4 @@
-import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.1";
+import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
 
 // import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "../functions.js";
 
