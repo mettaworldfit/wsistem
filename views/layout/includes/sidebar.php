@@ -57,33 +57,13 @@ $menu_sections = [
         'roles' => ['administrador', 'cajero'],
         'submenu' => [
             [
-                'label' => 'Facturas de proveedores',
-                'link' => base_url . 'bills/invoices',
-                'icon' => 'fas fa-plus-circle',
-                'icon_link' => base_url . 'bills/addinvoice',
-                'roles' => ['administrador']
-            ],
-            [
                 'label' => 'Gastos',
                 'link' => base_url . 'bills/bills',
                 'icon' => 'fas fa-plus-circle',
                 'icon_link' => base_url . 'bills/addbills',
                 'roles' => ['administrador', 'cajero']
-            ],
-            [
-                'label' => 'Pagos',
-                'link' => base_url . 'bills/payments',
-                'icon' => 'fas fa-plus-circle',
-                'icon_link' => base_url . 'bills/add_payment',
-                'roles' => ['administrador']
-            ],
-            [
-                'label' => 'Órdenes de compras',
-                'link' => base_url . 'bills/orders',
-                'icon' => 'fas fa-plus-circle',
-                'icon_link' => base_url . 'bills/add_order',
-                'roles' => ['administrador']
-            ],
+            ]
+           
         ]
     ],
     'taller' => [
@@ -125,12 +105,6 @@ $menu_sections = [
                 'icon' => 'fas fa-plus-circle',
                 'icon_link' => base_url . 'services/add',
                 'roles' => ['administrador', 'cajero']
-            ],
-            [
-                'label' => 'Valor de inventario',
-                'link' => base_url . 'inventory_control/inventory',
-                'icon' => 'fas fa-plus-circle',
-                'roles' => ['administrador']
             ],
             [
                 'label' => 'Almacenes',
@@ -224,7 +198,13 @@ $menu_sections = [
                 'roles' => ['administrador']
             ],
             [
-                'label' => 'Consultar ventas',
+                'label' => 'Reportes de inventario',
+                'link' => base_url . 'reports/inventory',
+                'icon' => 'fas fa-plus-circle',
+                'roles' => ['administrador']
+            ],
+            [
+                'label' => 'Reportes de ventas',
                 'link' => base_url . 'reports/sales',
                 'icon' => 'fas fa-search',
                 'roles' => ['administrador']

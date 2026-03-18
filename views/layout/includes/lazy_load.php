@@ -54,7 +54,7 @@ $globalScripts = [
         'src'  => base_url . 'public/functions/workshop.js',
         'type' => 'text/javascript'
     ],
- 
+
 ];
 
 // ==================================
@@ -190,6 +190,10 @@ $scriptsMap = [
         ['src' => base_url . 'public/functions/warehouses.js'],
     ],
 
+    'bills' => [
+        ['src' => base_url . 'public/functions/bills.js', 'type' => 'module'],
+    ],
+
     'categories' => [
         ['src' => base_url . 'public/functions/categories.js'],
     ],
@@ -235,7 +239,6 @@ if (empty($matchedScripts)) {
     $matchedScripts = [
         ['src' => base_url . 'public/functions/positions.js'],
         ['src' => base_url . 'public/functions/offers.js'],
-        ['src' => base_url . 'public/functions/bills.js'],
         ['src' => base_url . 'public/functions/payments.js'],
         ['src' => base_url . 'public/functions/reports.js', 'type' => 'module'],
         ['src' => base_url . 'public/functions/services.js'],

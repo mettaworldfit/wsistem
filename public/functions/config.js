@@ -1,6 +1,6 @@
-// import * as qz from "/public/test.js?v=1.0.1";
+import * as qz from "/public/test.js?v=1.0.1";
 
-import * as qz from "../test.js";
+// import * as qz from "../test.js";
 
 $(document).ready(function () {
 
@@ -252,34 +252,26 @@ $(document).ready(function () {
     // Boton de test
     $("#printTest").on('click', function () {
 
-        const data = {
-            // Datos de impresion
-            tickets_invoices: '12345, 67890, 23456',  // Ejemplo de facturas
-            tickets_payments: '1000, 500, 200',       // Ejemplo de pagos
-            difference: '50.00',                       // Diferencia
-            total_expected: '10000.00',                // Total esperado
-            user_name: 'Juan Pérez',                   // Nombre del usuario
-            opening_date: '2026-02-16 08:00:00',      // Fecha de apertura
+        // sendAjaxRequest({
+        //     url: "services/bills.php",
+        //     data: {
+        //         action: 'datos_impresion'
+        //     },
+        //     successCallback: (res) => {
+        //         try {
+        //             var data = JSON.parse(res)
+        //             console.log(data)
 
-            // Datos para guardar
-            action: "cierre_caja",                     // Acción para cerrar caja
-            user_id: '1',                              // ID del usuario
-            closing_date: '2026-02-16 18:00:00',      // Fecha de cierre
-            initial_balance: 5000.00,                  // Saldo inicial
-            cash_income: 15000.50,                     // Ingreso en efectivo
-            card_income: 25000.75,                     // Ingreso por tarjeta
-            transfer_income: 10000.00,                 // Ingreso por transferencias
-            check_income: 5000.25,                     // Ingreso por cheques
-            cash_expenses: 2000.50,                    // Gastos en efectivo
-            external_expenses: 1500.00,                // Gastos externos
-            withdrawals: 5000.00,                      // Retiros
-            refunds: 1000.00,                          // Reembolsos
-            total: 35000.00,                           // Total real
-            current_total: '35000.00',                 // Total actual
-            notes: 'Cierre de caja con saldo correcto.' // Notas
-        };
+        //          qz.gastos(data[0],data[1]);
+        //         } catch (error) {
+        //         console.log(error)
+        //         }
+        //     },
+        //     errorCallback: (err) => {
+        //         console.error(err)
+        //     }
+        // })
 
-        qz.cierre_caja(data);
     });
 
     // Guardar configuracion

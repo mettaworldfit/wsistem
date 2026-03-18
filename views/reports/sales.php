@@ -1,7 +1,7 @@
 <div class="section-wrapper">
     <div class="align-content clearfix">
         <div class="float-left">
-            <h1>Consultar ventas</h1>
+            <h1>Reportes de ventas</h1>
         </div>
     </div>
 </div>
@@ -35,7 +35,7 @@
             <!-- Filtros vendedores -->
             <div class="filter-row">
                 <div>
-                    <label for="start-date">Usuario:</label>
+                    <label for="usuario_id">Usuario:</label>
                     <select class="form-custom search" name="usuario_id" id="user_id" required>
                         <option value="0">No filtrar</option>
                         <?php
@@ -48,13 +48,25 @@
                 </div>
 
                 <div>
-                    <label for="start-date">Cliente:</label>
+                    <label for="customer">Cliente:</label>
                     <select class="form-custom search" name="customer" id="customer_id">
                         <option value="0">No filtrar</option>
                         <?php
                         $customers = Help::showCustomers();
                         while ($customer = $customers->fetch_assoc()): ?>
                             <option value="<?= $customer['cliente_id'] ?>"><?= ucwords($customer['nombre']) ?> <?= ucwords($customer['apellidos'] ?? "")  ?></option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+
+                 <div>
+                    <label for="method">Método:</label>
+                    <select class="form-custom search" name="method" id="method_id">
+                        <option value="0">No filtrar</option>
+                        <?php
+                        $methods = Help::showPaymentMethod();
+                        while ($method = $methods->fetch_assoc()): ?>
+                            <option value="<?= $method['metodo_pago_id'] ?>"><?= ucwords($method['nombre_metodo']) ?> </option>
                         <?php endwhile; ?>
                     </select>
                 </div>

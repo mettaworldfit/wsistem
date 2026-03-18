@@ -5065,6 +5065,14 @@ h6.legend-summary svg {
     }
 }
 
+@media (min-width: 924px) {
+
+    .filter-row,
+    .date-filter {
+        grid-template-columns: repeat(3, 237px);
+    }
+}
+
 .filter-row label svg,
 .date-filter label svg {
     color: #b5b5b5;

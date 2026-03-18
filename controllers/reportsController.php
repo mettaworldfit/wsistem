@@ -8,7 +8,8 @@ class ReportsController
         'querys' => ['administrador'], // Roles con acceso a la acción 'querys'
         'cash_closing' => [],
         'sales' => ['administrador'],
-        'query_device' => ['administrador']
+        'query_device' => ['administrador'],
+        'inventory' => []
     ];
 
     // Verificación de permisos
@@ -89,5 +90,21 @@ class ReportsController
 
         // Mostrar la vista
         require_once './views/reports/query_device.php';
+    }
+
+    // Acción para mostrar el control del inventario
+    public function inventory()
+    {
+        // Verificar permisos para la acción 'inventory'
+        $this->check_permission('inventory');
+
+        // Calcular el total del inventario
+        $data = Help::getTotalInventoryValue()->fetch_object();
+
+        $value = number_format($data->total, 2);
+        $bruto = number_format($data->bruto, 2);
+
+        // Mostrar la vista del inventario
+        require_once './views/reports/inventory.php';
     }
 }

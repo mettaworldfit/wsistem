@@ -508,11 +508,13 @@ switch ($action) {
         $fecha_fin    = $_POST['fecha_final'] ?? date('Y-m-d');
         $usuario_id   = $_POST['usuario_id'] ?? 0;
         $customer_id  = $_POST['customer'] ?? 0;
+        $method_id = $_POST['method'] ?? 0;
 
         $fecha_inicio = $db->real_escape_string($fecha_inicio);
         $fecha_fin    = $db->real_escape_string($fecha_fin);
         $usuario_id   = intval($usuario_id);
         $customer_id  = intval($customer_id);
+        $method_id = intval($method_id);
 
         // Condición base
         $baseCondition = "TIMESTAMP(x.fecha, x.hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
@@ -526,6 +528,9 @@ switch ($action) {
             $baseCondition .= " AND x.cliente_id = $customer_id";
         }
 
+        if ($method_id > 0) {
+            $baseCondition .= " AND x.metodo_pago_id = $method_id";
+        }
 
         // Definir las columnas disponibles para ordenamiento
         $columns = [
@@ -644,11 +649,13 @@ switch ($action) {
         $fecha_fin    = $_POST['fecha_final'] ?? date('Y-m-d');
         $usuario_id   = $_POST['usuario_id'] ?? 0;
         $customer_id   = $_POST['customer'] ?? 0;
+        $method_id = $_POST['method'] ?? 0;
 
         $fecha_inicio = $db->real_escape_string($fecha_inicio);
         $fecha_fin    = $db->real_escape_string($fecha_fin);
         $usuario_id   = intval($usuario_id);
         $customer_id   = intval($customer_id);
+        $method_id = intval($method_id);
 
         // Condición base
         $baseCondition = "TIMESTAMP(x.fecha, x.hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
@@ -660,6 +667,10 @@ switch ($action) {
         // Si hay cliente, se agrega
         if ($customer_id > 0) {
             $baseCondition .= " AND x.cliente_id = $customer_id";
+        }
+
+         if ($method_id > 0) {
+            $baseCondition .= " AND x.metodo_pago_id = $method_id";
         }
 
         $sql = "SELECT count(*) AS total_facturas, sum(recibido) as total, sum(pendiente) AS pendiente FROM

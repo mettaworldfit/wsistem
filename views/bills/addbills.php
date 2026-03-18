@@ -93,7 +93,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); AddBills();">
+                <form action="" id="formAddBill">
 
                     <!-- Content -->
                     <div class="row col-sm-12">
@@ -104,12 +104,12 @@
                                 <div class="i b-right">
                                     <i class="fas fa-list"></i>
                                 </div>
-                                <select class="form-custom-icon search" name="" id="reason" required>
-                                    <option value="" disabled selected>Seleccionar motivo de gasto</option>
+                                <select class="form-custom-icon" name="reason" id="reason" required>
+                                    <!-- <option value="" disabled selected>Seleccionar motivo de gasto</option>
                                     <?php $reasons = Help::loadReasons();
                                     while ($reason = $reasons->fetch_object()): ?>
                                         <option value="<?= $reason->motivo_id ?>"><?= $reason->descripcion ?></option>
-                                    <?php endwhile; ?>
+                                    <?php endwhile; ?> -->
                                 </select>
                             </div>
                         </div>
@@ -121,12 +121,9 @@
                                 <div class="i">
                                     <i class="fas fa-dollar-sign"></i>
                                 </div>
-                                <input type="text" class="form-custom-icon b-left" name="valor" id="g_value" required>
+                                <input type="number" class="form-custom-icon b-left" name="valor" id="g_value" required>
                             </div>
                         </div>
-
-
-
                     </div> <!-- Row -->
 
                     <div class="row col-sm-12 mt-1">
@@ -197,7 +194,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" onsubmit="event.preventDefault(); saveBills();">
+                <form action="" id="formSaveBills">
 
                     <!-- Head -->
 
@@ -293,7 +290,6 @@
 
 
 <!-- Agregar motivo de gasto -->
-
 <div class="modal fade" id="addReason" data-bs-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-md">
@@ -306,7 +302,7 @@
             </div>
             <div class="modal-body">
 
-                <form action="" onsubmit="event.preventDefault(); addReason();">
+                <form action="" id="formNewBill">
 
                     <div class="form-group col-sm-12">
                         <p class="title-info">
@@ -317,14 +313,11 @@
                     <div class="row col-md-12">
 
                         <div class="form-group col-sm-12">
-                            <label for="motivo" class="form-check-label label-nomb">Motivo<span
+                            <label for="description" class="form-check-label label-nomb">Motivo<span
                                     class="text-danger">*</span></label>
-                            <input class="form-custom" type="text" name="motivo" id="newReason" required>
+                            <input class="form-custom" type="text" name="description" required>
                         </div>
-
-
-                    </div> <!-- Row col-md-12 -->
-
+                    </div> 
 
                     <div class="mt-4 modal-footer">
                         <button type="button" class="btn-custom btn-red" data-dismiss="modal">
@@ -337,9 +330,7 @@
                             <p>Registrar</p>
                         </button>
                     </div>
-
                 </form>
-
             </div> <!-- Body -->
         </div>
     </div>

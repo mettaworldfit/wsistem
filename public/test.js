@@ -949,6 +949,11 @@ export function getSelectedLanguage() {
 ========================= */
 export async function runQzDiagnostic() {
 
+    // Datos predeterminados
+    const printer_config = await getData();
+    // const printers = printer_config[0]; // Impresoras
+    const site = printer_config[1]; // Datos del sitio
+
     console.group('%c[QZ DIAGNOSTIC]', 'color:#1565c0;font-weight:bold;');
 
     try {
@@ -996,9 +1001,11 @@ export async function runQzDiagnostic() {
         let logoBase64 = null;
 
         try {
-            logoBase64 = await convertImageUrlToBase64(
-                SITE_URL + 'public/imagen/sistem/pdf.png'
-            );
+            let logoPath = site[7]?.config_value
+                ? SITE_URL + 'public/uploads/' + site[7].config_value
+                : SITE_URL + 'public/imagen/sistem/pdf.png';
+
+            logoBase64 = await convertImageUrlToBase64(logoPath);
         } catch (e) {
             console.warn('Logo no disponible, usando texto');
         }
@@ -1080,249 +1087,11 @@ export function printImageExample() {
         });
 }
 
-// Prueba de ticket
-export async function printExample() {
-    // ================== DATOS MOCK ==================
-    const negocio = {
-        nombre: "SUPERMERCADO EL AHORRO",
-        direccion1: "Av. Duarte #123",
-        direccion2: "Santo Domingo, R.D.",
-        telefono: "809-555-8899",
-        firma: true
-    };
-
-    const dataOrder = {
-        orderId: "1234",
-        fecha: "06/02/2026 09:30 AM",
-        cajero: "María López",
-        nombre: "José Pérez",
-        telefono1: "809-222-3344",
-        nombre_receptor: "Ana Rodríguez",
-        telefono_receptor: "809-333-4455",
-        tipo_entrega: "DELIVERY",
-        direccion_entrega: "Calle 10, Los Prados",
-        observacion: "Entregar antes de las 12:00 PM"
-    };
-
-    const arr = [
-        [150.00, 0, "Café expreso grande", 0, 1],
-        [120.00, 0, "Sandwich mixto especial", 0, 2],
-        [90.00, 0, "Jugo natural de naranja", 0, 1],
-        [50.00, 0, "Empanada de pollo", 0, 3]
-    ];
-
-    const info = {
-        subtotal: 610.00,
-        discount: 50.00,
-        total: 560.00
-    };
-
-    // ================== FORM CONFIGURACION ==================
-
-    const form = document.getElementById('formPrinter');
-    const f = new FormData(form);
-
-    const printer = f.get('printer_name');
-    const language = f.get('printer_language') || 'ESCPOS';
-    //const paperWidth = parseInt(f.get('paper_width')) || 80;
-    const copies = parseInt(f.get('copies')) || 1;
-    const autoCut = f.get('auto_cut') === '1';
-
-    const feedStart = parseInt(f.get('feed_start')) || 0;
-    const feedEnd = parseInt(f.get('feed_end')) || 0;
-
-    const useBarcode = f.get('use_barcode') === '1';
-    const barcodeHeight = parseInt(f.get('barcode_height')) || 80;
-    const barcodeWidth = parseInt(f.get('barcode_width')) || 2;
-
-    const useQr = f.get('use_qr') === '1';
-    const qrSize = parseInt(f.get('qr_size')) || 6;
-
-    const logoDensity = f.get('logo_density') || 'single';
-    const companyName = f.get('company_name');
-
-
-    // const language = '';  // Detecta el lenguaje automáticamente
-
-    const paperSize = '80mm'; // Aquí puedes cambiarlo a '58mm' si necesitas otro tamaño
-    const W = getPrinterWidth(paperSize);  // Calculamos el ancho en función del tamaño del papel
-
-    const config = qz.configs.create(printer, { copies: copies });
-    const buffer = createPrintBuffer();  // Creamos el buffer de impresión
-
-    // ================== CONFIG LOGO ==================
-    let logoBase64 = null;
-
-    try {
-        logoBase64 = await convertImageUrlToBase64(SITE_URL + 'public/imagen/sistem/chino_com.png');
-    } catch (e) {
-        console.warn('Logo no disponible, usando texto');
-    }
-
-    // let logoBase64 = null;
-    // const logoFile = f.get('logo');
-
-    // if (logoFile && logoFile.size > 0) {
-    //     logoBase64 = await fileToBase64(logoFile);
-    // }
-
-    // ================== INIT ==================
-    const data = [];
-    data.push(initPrinter(language));
-
-    if (feedStart > 0) buffer.push(feed(feedStart, language));
-    data.push(align('center', language));
-
-    // 👉 LOGO FUERA DEL BUFFER
-    if (logoBase64) {
-        data.push({
-            type: 'raw',
-            format: 'image',
-            flavor: 'base64',
-            data: logoBase64,
-            options: {
-                language: 'ESCPOS',
-                dotDensity: logoDensity
-            }
-        });
-
-    } else {
-        data.push(bold(true, language));
-        data.push(size(2, 2, language));
-        data.push(normalizeText(companyName) + '\n'),
-            data.push(size(1, 1, language));
-        data.push(bold(false, language));
-        data.push(feed(1, language));
-    }
-
-    // ================== ENCABEZADO ==================
-    buffer.push(
-        align('center'),
-        normalizeText(negocio.direccion1) + '\n',
-        normalizeText(negocio.direccion2) + '\n',
-        `Tel.: ${negocio.telefono}\n`,
-        line(W)
-    );
-
-    // ================== DATOS ==================
-    buffer.push(
-        align('left'),
-        `FACTURA: FT-00${dataOrder.orderId}\n`,
-        `Fecha: ${dataOrder.fecha}\n`,
-        normalizeText('Cajero: ' + dataOrder.cajero + '\n'),
-        normalizeText('Cliente: ' + dataOrder.nombre + '\n'),
-        normalizeText('Teléfono: ' + dataOrder.telefono1 + '\n'),
-    );
-
-    // ================== TITULO ==================
-    buffer.push(
-        feed(),
-        align('center'),
-        bold(true),
-        normalizeText('*** FACTURA DE VENTA ***\n'),
-        bold(false)
-    );
-
-    // ================== DETALLE ==================
-    buffer.push(
-        align('left'),
-        line(W),
-        normalizeText('CANT  DESCRIPCIÓN').padEnd(34) + 'VALOR'.padStart(14) + '\n',
-        line(W)
-    );
-
-    arr.forEach(row => {
-        let precio = row[0];
-        let desc = row[2];
-        let cant = row[4];
-        let total = precio * cant;
-
-        buffer.push(
-            `${cant}`.padEnd(6) +
-            normalizeText(desc).substring(0, 28).padEnd(28) +
-            total.toFixed(2).padStart(14) + '\n'
-        );
-    });
-
-    // ================== TOTALES ==================
-    buffer.push(
-        line(W),
-        normalizeText('Subtotal').padEnd(34) + info.subtotal.toFixed(2).padStart(14) + '\n',
-        normalizeText('Descuento').padEnd(34) + info.discount.toFixed(2).padStart(14) + '\n',
-        bold(true),
-        normalizeText('TOTAL').padEnd(34) + info.total.toFixed(2).padStart(14) + '\n',
-        bold(false),
-        feed(2)
-    );
-
-    // ================== CÓDIGO DE BARRAS ==================
-
-    if (useBarcode) {
-        buffer.push(feed(1, language));
-        buffer.push(align('center', language));
-        buffer.push(
-            generateBarcodeCommand(
-                '88556321',
-                language,
-                barcodeWidth,
-                barcodeHeight
-            )
-        );
-    }
-
-    // ================= QR =================
-    if (useQr) {
-        buffer.push(feed(1, language));
-        buffer.push(align('center', language));
-        buffer.push(generateQRCommand('https://codevrd.com', qrSize));
-    }
-
-
-    // ================== PIE ==================
-    // buffer.push(
-    //     feed(2, language),
-    //     normalizeText(f.get('ticket_footer') || '') + '\n'
-    // );
-    // ================== FINAL ==================
-
-    if (feedEnd > 0) buffer.push(feed(feedEnd, language));
-    if (autoCut > 0) buffer.push(cutPaper(language));
-
-    // 👉 TEXTO DEL BUFFER AL ARRAY
-    data.push({
-        type: 'raw',
-        format: 'command',
-        data: buffer.get() // Obtener el contenido del buffer
-    });
-
-    // ================== PRINT ==================
-    qz.print(config, data).catch(console.error);
-}
 
 
 /**============================================================= 
 * FACTURA DE VENTA
 ===============================================================*/
-
-
-// (async () => {
-
-//     const printer_config = await getData();
-//     const printers = printer_config[0]; // Impresoras
-//     const site = printer_config[1]; // Datos del sitio
-
-//     const printer = printers.find(p =>
-//         p.printer_type === "main"
-//     );
-
-//     if (printer) {
-//         console.log("Impresora encontrada:", printer);
-//     } else {
-//         console.log("No existe esa impresora");
-//     }
-
-
-// })();
 
 
 /**
@@ -1345,7 +1114,7 @@ export async function factura_venta(dataInv, detail) {
         console.error("No main printer configured");
         return;
     }
-    console.log(printer)
+
     // Configuracion de impresion
 
     const paperSize = parseInt(printer.paper_width) + 'mm'; // Aquí puedes cambiarlo a '58mm' si necesitas otro tamaño
@@ -1379,7 +1148,7 @@ export async function factura_venta(dataInv, detail) {
             flavor: 'base64',
             data: logoBase64,
             options: {
-                language: printer.language,
+                language: "ESCPOS",
                 dotDensity: printer.logo_density
             }
         });
@@ -1630,7 +1399,7 @@ export async function orden_venta(detail, info) {
                 flavor: 'base64',
                 data: logoBase64,
                 options: {
-                    language: printer.language,
+                    language: "ESCPOS",
                     dotDensity: printer.logo_density
                 }
             });
@@ -1909,7 +1678,7 @@ export async function cierre_caja(info) {
             flavor: 'base64',
             data: logoBase64,
             options: {
-                language: printer.language,
+                language: "ESCPOS",
                 dotDensity: printer.logo_density
             }
         });
@@ -2003,6 +1772,226 @@ export async function cierre_caja(info) {
     // ================== MENSAJE FINAL ================== //
     buffer.push(align("center", language))
     buffer.push("Generado por wsistems.com" + "\n")
+
+    // ======== CIERRE ======= //
+    if (printer.feed_end > 0) buffer.push(feed(printer.feed_end, language));
+    if (printer.auto_cut > 0) buffer.push(cutPaper(language));
+
+    data.push({
+        type: 'raw',
+        format: 'command',
+        data: buffer.get() // Obtener el contenido del buffer
+    });
+
+    // ======= PRINT ======
+    qz.print(config, data)
+        .then(() => {
+            console.log("%c[QZ]", "color:#1976d2;font-weight:bold;", "Impresión exitosa en:", printer.printer_name);
+        })
+        .catch(err => {
+            console.error("%c[QZ]", "color:#df1212;font-weight:bold;", "Error en:", printer.printer_name, err);
+        })
+        .catch(console.error);
+
+}
+
+
+/**
+ * Genera e imprime el comprobante de gastos.
+ *
+ * Esta función construye el contenido a imprimir incluyendo:
+ * - Información general del gasto (proveedor, vendedor, totales, etc.)
+ * - Detalle de los conceptos (motivos, cantidades, precios e impuestos)
+ * - Logo de la empresa (si está disponible)
+ *
+ * @async
+ * @function gastos
+ * @param {Object|Object[]} info - Información principal de la orden de gasto.
+ * @param {Array<Object>} detail - Lista de detalles del gasto.
+ *
+ * @returns {Promise<void>} No retorna valor. Ejecuta el proceso de impresión.
+ */
+export async function gastos(info, detail) {
+
+    // Datos predeterminados
+    const printer_config = await getData();
+    const printers = printer_config[0]; // Impresoras
+    const site = printer_config[1]; // Datos del sitio
+
+    const printer = printers.find(p =>
+        p.printer_type === "main"
+    );
+
+    if (!printer) {
+        console.error("No main printer configured");
+        return;
+    }
+
+    // Configuracion de impresion
+
+    const paperSize = parseInt(printer.paper_width) + 'mm'; // Aquí puedes cambiarlo a '58mm' si necesitas otro tamaño
+    const W = getPrinterWidth(paperSize);  // Calculamos el ancho en función del tamaño del papel
+
+    const language = printer.printer_language;
+
+    const config = qz.configs.create(printer.printer_name, { copies: printer.copies });
+    const buffer = createPrintBuffer();  // Creamos el buffer de impresión
+    const data = [];
+
+    // ================== CONFIG LOGO ==================
+    let logoBase64 = null;
+
+    try {
+        logoBase64 = await convertImageUrlToBase64(SITE_URL + 'public/uploads/' + site[7].config_value);
+    } catch (e) {
+        console.warn('Logo no disponible, usando texto');
+    }
+
+    data.push(initPrinter(language));
+
+    if (printer.feed_start > 0) buffer.push(feed(printer.feed_start, language));
+    data.push(align('center', language));
+
+    // 👉 LOGO FUERA DEL BUFFER
+    if (logoBase64) {
+        data.push({
+            type: 'raw',
+            format: 'image',
+            flavor: 'base64',
+            data: logoBase64,
+            options: {
+                language: "ESCPOS",
+                dotDensity: printer.logo_density
+            }
+        });
+
+    } else {
+        data.push(bold(true, language));
+        data.push(size(2, 2, language));
+        data.push(normalizeText(site[0].config_value) + '\n'),
+            data.push(size(1, 1, language));
+        data.push(bold(false, language));
+    }
+
+    buffer.push(bold(true, language))
+    buffer.push(normalizeText(site[9].config_value + "\n"))
+    buffer.push(normalizeText("Tel.: " + site[13].config_value + "\n"))
+    buffer.push(bold(false, language))
+    buffer.push(feed(1))
+
+    // ================== INFORMACIÓN FACTURA ================== //
+
+    buffer.push(align("left", language))
+    buffer.push(normalizeText("No.: G-00" + info.gasto_id + "\n"))
+    buffer.push("Fecha: " + info.fecha + "\n")
+    buffer.push(
+        normalizeText(
+            "Proveedor: " + (info.proveedor ? info.proveedor.toUpperCase() : "") + "\n"
+        )
+    );
+    buffer.push(feed(1, language))
+
+    buffer.push(feed(1, language))
+    buffer.push(align("center", language))
+    buffer.push(bold(true, language))
+    buffer.push("*** GASTO REGISTRADO ***" + "\n")
+    buffer.push(bold(false, language))
+
+    // ================== DETALLE ================== //
+    buffer.push(align("left", language))
+    buffer.push(bold(true, language))
+    buffer.push(line(W, "-", language))
+    buffer.push("DESCRIPCION                  ITBIS     VALOR" + "\n")
+    buffer.push(line(W, "-", language))
+    buffer.push(bold(false, language))
+
+    let subtotal = 0;
+    let impuestos = 0;
+    let total = 0;
+
+    detail.forEach(item => {
+
+        const cant = parseFloat(item.cantidad) || 0;
+        const precio = parseFloat(item.precio) || 0;
+        const impuesto = parseFloat(item.impuestos) || 0;
+        let desc = item.descripcion || '';
+
+        const valor = cant * precio;
+        const totalImpuesto = cant * impuesto;
+
+        // 🔹 acumular totales
+        subtotal += valor;
+        impuestos += totalImpuesto;
+
+        // 🔹 Formato cantidad
+        const cantFormat = Number.isInteger(cant) ? cant : cant.toFixed(2);
+
+        // 🔹 Línea principal
+        const linea =
+            `${cantFormat} x ${formatMoney(precio)}`.padEnd(28, ' ') +
+            `${formatMoney(totalImpuesto)}`.padStart(10, ' ') +
+            `${formatMoney(valor)}`.padStart(10, ' ');
+
+        buffer.push(linea + "\n");
+
+        // 🔹 Descripción
+        if (desc) {
+
+            desc = desc.replace(/(\r\n|\n|\r)/gm, " ");
+
+            if (desc.length > 46) {
+                desc = desc.substring(0, 43) + "...";
+            }
+
+            buffer.push(bold(true, language));
+            buffer.push(normalizeText(desc) + "\n");
+            buffer.push(bold(false, language));
+        }
+
+    });
+
+    // 🔹 calcular total
+    total = subtotal + impuestos;
+
+    // ================== TABLA DE PRECIO ================== //
+    buffer.push(bold(true, language));
+    buffer.push(line(W, "-", language) + "\n");
+    buffer.push(bold(false, language));
+
+    buffer.push(
+        padRight("Subtotal", 20) + "$ " +
+        padLeft(formatMoney(subtotal), 10) + "\n"
+    );
+
+    buffer.push(
+        padRight("+ Impuesto", 20) + "$ " +
+        padLeft(formatMoney(impuestos), 10) + "\n"
+    );
+
+    buffer.push(bold(true, language));
+    buffer.push(line(W, "-", language));
+
+    buffer.push(align("left", language));
+    buffer.push(size(2, 2, language));
+
+    buffer.push(
+        padRight("TOTAL", 6) +
+        " " +
+        padLeft("$" + formatMoney(total), 8) + "\n"
+    );
+
+    buffer.push(size(1, 1, language));
+    buffer.push(bold(false, language));
+    buffer.push(feed(1, language));
+
+    buffer.push("Generado por: " + (info.vendedor || "Sistema") + "\n");
+    buffer.push(normalizeText("Fecha impresión: " + await getPrintDate() + "\n"))
+    buffer.push(feed(1, language));
+
+    buffer.push(align("center", language));
+    buffer.push(bold(true, language));
+    buffer.push("---- FIN DEL TICKET ----\n");
+    buffer.push(bold(false, language));
 
     // ======== CIERRE ======= //
     if (printer.feed_end > 0) buffer.push(feed(printer.feed_end, language));
