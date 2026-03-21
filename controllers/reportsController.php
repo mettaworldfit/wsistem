@@ -47,7 +47,7 @@ class ReportsController
         $invoices = Help::calculateSalesToDay();
 
         // Mostrar la vista correspondiente
-        require_once './views/reports/day.php';
+        require_once './views/reports/sales_today.php';
     }
 
     // Acción para mostrar las consultas
