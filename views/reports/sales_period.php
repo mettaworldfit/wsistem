@@ -20,22 +20,22 @@
             <!-- Filtros de fecha -->
             <div class="date-filter">
                 <div>
-                    <label for="start-date">Fecha Inicio:</label>
+                    <label for="start-date"><i class="far fa-calendar-alt"></i> Fecha Inicio:</label>
                     <input class="form-custom" type="datetime-local" name="fecha_inicio" id="date-start" required>
                 </div>
 
                 <div>
-                    <label for="end-date">Fecha Final:</label>
+                    <label for="end-date"><i class="far fa-calendar-alt"></i> Fecha Final:</label>
                     <input class="form-custom" type="datetime-local" name="fecha_final" id="date-end" required>
                 </div>
             </div>
 
             <hr>
 
-            <!-- Filtros vendedores -->
+            <!-- Filtros -->
             <div class="filter-row">
                 <div>
-                    <label for="usuario_id">Usuario:</label>
+                    <label for="usuario_id"><i class="fas fa-user"></i> Usuario:</label>
                     <select class="form-custom search" name="usuario_id" id="user_id" required>
                         <option value="0">No filtrar</option>
                         <?php
@@ -48,7 +48,7 @@
                 </div>
 
                 <div>
-                    <label for="customer">Cliente:</label>
+                    <label for="customer"><i class="fas fa-users"></i> Cliente:</label>
                     <select class="form-custom search" name="customer" id="customer_id">
                         <option value="0">No filtrar</option>
                         <?php
@@ -60,7 +60,7 @@
                 </div>
 
                  <div>
-                    <label for="method">Método:</label>
+                    <label for="method"><i class="fas fa-list-ul"></i> Método:</label>
                     <select class="form-custom search" name="method" id="method_id">
                         <option value="0">No filtrar</option>
                         <?php

@@ -63,7 +63,7 @@ $menu_sections = [
                 'icon_link' => base_url . 'bills/addbills',
                 'roles' => ['administrador', 'cajero']
             ]
-           
+
         ]
     ],
     'taller' => [
@@ -186,14 +186,20 @@ $menu_sections = [
         'roles' => ['administrador', 'cajero'],
         'submenu' => [
             [
-                'label' => 'Ventas del día',
-                'link' => base_url . 'reports/day',
-                'icon' => 'fas fa-chart-line',
+                'label' => 'Ganancias por período',
+                'link' => base_url . 'reports/earnings_period',
+                'icon' => 'fas fa-search',
+                'roles' => ['administrador']
+            ],
+            [
+                'label' => 'Cierres de caja',
+                'link' => base_url . 'reports/cash_closing',
+                'icon' => 'fas fa-cash-register',
                 'roles' => ['administrador', 'cajero']
             ],
             [
-                'label' => 'Consultas',
-                'link' => base_url . 'reports/querys',
+                'label' => 'Reportes de cantidades',
+                'link' => base_url . 'reports/item_quantity',
                 'icon' => 'fas fa-search',
                 'roles' => ['administrador']
             ],
@@ -205,28 +211,22 @@ $menu_sections = [
             ],
             [
                 'label' => 'Reportes de ventas',
-                'link' => base_url . 'reports/sales',
+                'link' => base_url . 'reports/sales_period',
                 'icon' => 'fas fa-search',
                 'roles' => ['administrador']
             ],
             [
                 'label' => 'Equipos vendidos',
-                'link' => base_url . 'reports/query_device',
+                'link' => base_url . 'reports/equipment_sold',
                 'icon' => 'fas fa-search',
                 'roles' => ['administrador']
             ],
             [
-                'label' => 'Cierres de caja',
-                'link' => base_url . 'reports/cash_closing',
-                'icon' => 'fas fa-cash-register',
+                'label' => 'Ventas del día',
+                'link' => base_url . 'reports/sales_today',
+                'icon' => 'fas fa-chart-line',
                 'roles' => ['administrador', 'cajero']
-            ],
-            [
-                'label' => 'Cuentas por cobrar',
-                'link' => base_url . 'reportss/pending',
-                'icon' => 'fas fa-credit-card',
-                'roles' => ['']
-            ],
+            ]
         ]
     ],
     'usuarios' => [

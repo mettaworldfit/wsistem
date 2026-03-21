@@ -19,7 +19,7 @@ if (!isset($input['request'])) {
 $data = $input['request'];
 
 // Desarrollo
-//$KEY = __DIR__ . '/private-key.pem';
+// $KEY = __DIR__ . '/private-key.pem';
 
 // Producción
 $KEY = '/var/www/qz/private-key.pem';

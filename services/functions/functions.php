@@ -23,86 +23,219 @@
  */
 function handleDataTableRequest(mysqli $db, array $params)
 {
-    // Parámetros base enviados por DataTables
+    // =========================
+    // Parámetros DataTables
+    // =========================
     $draw = intval($_POST['draw'] ?? 0);
     $start = intval($_POST['start'] ?? 0);
     $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
+
     if ($length <= 0) {
-        $length = 10; // Evitar valores negativos o inválidos
+        $length = 10;
     }
 
-    // Configuración de búsqueda y orden
     $searchValue = $_POST['search']['value'] ?? '';
     $columns = $params['columns'];
+
     $orderColumnIndex = $_POST['order'][0]['column'] ?? 0;
     $orderColumn = $columns[$orderColumnIndex] ?? $columns[0];
     $orderDir = ($_POST['order'][0]['dir'] ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
 
-    // Condición base (filtro general)
+    // Orden por defecto (opcional)
+    if (!empty($params['order_default'])) {
+        $orderSQL = $params['order_default'];
+    } else {
+        $orderSQL = "$orderColumn $orderDir";
+    }
+
+    // =========================
+    // WHERE base
+    // =========================
     $baseCondition = trim($params['base_condition'] ?? '1=1');
     $where = $baseCondition;
 
-    // Aplicar búsqueda global si hay texto
+    // =========================
+    // Búsqueda global
+    // =========================
     if (!empty($searchValue) && !empty($params['searchable'])) {
         $searchEscaped = $db->real_escape_string($searchValue);
 
-        // Crear condiciones LIKE dinámicas para las columnas buscables
         $searchConditions = array_map(function ($col) use ($searchEscaped) {
             return "$col LIKE '%$searchEscaped%'";
         }, $params['searchable']);
 
-        // Agregar al WHERE con OR entre columnas
         $where .= " AND (" . implode(' OR ', $searchConditions) . ")";
     }
 
-    // ===============================================================
-    // Detección inteligente del tipo de tabla para el conteo total
-    // ===============================================================
-    $tableForCount = (str_contains($baseCondition, '.') && $baseCondition !== '1=1')
-        ? $params['table_with_joins']
-        : $params['base_table'];
+    // =========================
+    // GROUP BY
+    // =========================
+    $groupBy = !empty($params['group_by']) ? "GROUP BY " . $params['group_by'] : '';
 
-    // Conteo total de registros (sin búsqueda, pero respetando el filtro si lo hay)
-    $totalQuery = "SELECT COUNT(*) AS total FROM $tableForCount WHERE $baseCondition";
+    // =========================
+    // TABLAS
+    // =========================
+    $tableWithJoins = $params['table_with_joins'];
+
+    // 🔥 Asegurar alias en subqueries
+    if (preg_match('/^\s*\(/', trim($tableWithJoins)) && !preg_match('/\)\s+AS\s+/i', $tableWithJoins)) {
+        $tableWithJoins .= " AS t";
+    }
+
+    // =========================
+    // QUERY BASE (REUTILIZABLE)
+    // =========================
+    $baseQuery = "{$params['select']} 
+                  FROM $tableWithJoins 
+                  WHERE $where 
+                  $groupBy";
+
+    // =========================
+    // TOTAL RECORDS (SIN BÚSQUEDA)
+    // =========================
+    $baseQueryNoSearch = "{$params['select']} 
+                          FROM $tableWithJoins 
+                          WHERE $baseCondition 
+                          $groupBy";
+
+    if (!empty($params['group_by'])) {
+        // 🔥 Conteo correcto con GROUP BY
+        $totalQuery = "SELECT COUNT(*) AS total FROM ($baseQueryNoSearch) AS total_table";
+    } else {
+        $totalQuery = "SELECT COUNT(*) AS total FROM $tableWithJoins WHERE $baseCondition";
+    }
+
     $totalResult = $db->query($totalQuery);
     $totalRecords = $totalResult->fetch_assoc()['total'] ?? 0;
 
-    // Conteo de registros luego de aplicar búsqueda
-    $filteredQuery = "SELECT COUNT(*) AS total FROM {$params['table_with_joins']} WHERE $where";
+    // =========================
+    // FILTERED RECORDS
+    // =========================
+    if (!empty($params['group_by'])) {
+        $filteredQuery = "SELECT COUNT(*) AS total FROM ($baseQuery) AS filtered_table";
+    } else {
+        $filteredQuery = "SELECT COUNT(*) AS total FROM $tableWithJoins WHERE $where";
+    }
+
     $filteredResult = $db->query($filteredQuery);
     $filteredRecords = $filteredResult->fetch_assoc()['total'] ?? 0;
 
-    // Si se especifica un 'GROUP BY', lo agregamos a la consulta
-    $groupBy = isset($params['group_by']) ? "GROUP BY " . $params['group_by'] : '';
-
-    // Consulta principal con orden, paginación y agrupación
-    $query = "{$params['select']} 
-              FROM {$params['table_with_joins']} 
-              WHERE $where 
-              $groupBy
-              ORDER BY $orderColumn $orderDir";
+    // =========================
+    // QUERY FINAL
+    // =========================
+    $query = "$baseQuery ORDER BY $orderSQL";
 
     if ($length > 0) {
         $query .= " LIMIT $start, $length";
     }
 
-    // Ejecución de la consulta y formateo de resultados
+    // =========================
+    // EJECUCIÓN
+    // =========================
     $result = $db->query($query);
+
+    if (!$result) {
+        die("Error en query: " . $db->error);
+    }
+
     $data = [];
 
     while ($row = $result->fetch_assoc()) {
-        // Callback definido por el usuario para dar formato a cada fila
         $data[] = call_user_func($params['table_rows'], $row);
     }
 
-    // Respuesta final compatible con DataTables
+    // =========================
+    // RESPUESTA
+    // =========================
     echo json_encode([
         "draw" => $draw,
-        "recordsTotal" => $totalRecords,      // Total general (filtrado por producto si aplica)
-        "recordsFiltered" => $filteredRecords, // Total luego de búsqueda
-        "data" => $data                       // Datos finales
+        "recordsTotal" => $totalRecords,
+        "recordsFiltered" => $filteredRecords,
+        "data" => $data
     ]);
 }
+// function handleDataTableRequest(mysqli $db, array $params)
+// {
+//     // Parámetros base enviados por DataTables
+//     $draw = intval($_POST['draw'] ?? 0);
+//     $start = intval($_POST['start'] ?? 0);
+//     $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
+//     if ($length <= 0) {
+//         $length = 10; // Evitar valores negativos o inválidos
+//     }
+
+//     // Configuración de búsqueda y orden
+//     $searchValue = $_POST['search']['value'] ?? '';
+//     $columns = $params['columns'];
+//     $orderColumnIndex = $_POST['order'][0]['column'] ?? 0;
+//     $orderColumn = $columns[$orderColumnIndex] ?? $columns[0];
+//     $orderDir = ($_POST['order'][0]['dir'] ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
+
+//     // Condición base (filtro general)
+//     $baseCondition = trim($params['base_condition'] ?? '1=1');
+//     $where = $baseCondition;
+
+//     // Aplicar búsqueda global si hay texto
+//     if (!empty($searchValue) && !empty($params['searchable'])) {
+//         $searchEscaped = $db->real_escape_string($searchValue);
+
+//         // Crear condiciones LIKE dinámicas para las columnas buscables
+//         $searchConditions = array_map(function ($col) use ($searchEscaped) {
+//             return "$col LIKE '%$searchEscaped%'";
+//         }, $params['searchable']);
+
+//         // Agregar al WHERE con OR entre columnas
+//         $where .= " AND (" . implode(' OR ', $searchConditions) . ")";
+//     }
+
+//     // ===============================================================
+//     // Detección inteligente del tipo de tabla para el conteo total
+//     // ===============================================================
+//     $tableForCount = (str_contains($baseCondition, '.') && $baseCondition !== '1=1')
+//         ? $params['table_with_joins']
+//         : $params['base_table'];
+
+//     // Conteo total de registros (sin búsqueda, pero respetando el filtro si lo hay)
+//     $totalQuery = "SELECT COUNT(*) AS total FROM $tableForCount WHERE $baseCondition";
+//     $totalResult = $db->query($totalQuery);
+//     $totalRecords = $totalResult->fetch_assoc()['total'] ?? 0;
+
+//     // Conteo de registros luego de aplicar búsqueda
+//     $filteredQuery = "SELECT COUNT(*) AS total FROM {$params['table_with_joins']} WHERE $where";
+//     $filteredResult = $db->query($filteredQuery);
+//     $filteredRecords = $filteredResult->fetch_assoc()['total'] ?? 0;
+
+//     // Si se especifica un 'GROUP BY', lo agregamos a la consulta
+//     $groupBy = isset($params['group_by']) ? "GROUP BY " . $params['group_by'] : '';
+
+//     // Consulta principal con orden, paginación y agrupación
+//     $query = "{$params['select']} 
+//               FROM {$params['table_with_joins']} 
+//               WHERE $where 
+//               $groupBy
+//               ORDER BY $orderColumn $orderDir";
+
+//     if ($length > 0) {
+//         $query .= " LIMIT $start, $length";
+//     }
+
+//     // Ejecución de la consulta y formateo de resultados
+//     $result = $db->query($query);
+//     $data = [];
+
+//     while ($row = $result->fetch_assoc()) {
+//         // Callback definido por el usuario para dar formato a cada fila
+//         $data[] = call_user_func($params['table_rows'], $row);
+//     }
+
+//     // Respuesta final compatible con DataTables
+//     echo json_encode([
+//         "draw" => $draw,
+//         "recordsTotal" => $totalRecords,      // Total general (filtrado por producto si aplica)
+//         "recordsFiltered" => $filteredRecords, // Total luego de búsqueda
+//         "data" => $data                       // Datos finales
+//     ]);
+// }
 
 
 /**

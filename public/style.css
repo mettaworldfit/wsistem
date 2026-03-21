@@ -5094,6 +5094,7 @@ h6.legend-summary svg {
 
 /* Resultados */
 
+.table_items_quantity,
 .display-result {
     margin-top: 10px;
 }

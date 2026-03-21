@@ -25,14 +25,19 @@ $permissions = [
     'index_ventas_hoy'  => [],
 
     // Consultas
-    'productos_vendidos'  => ['administrador'],
     'piezas_vendidas'  => ['administrador'],
-    'servicios_vendidos'  => ['administrador'],
     'serial_facturado'  => [],
 
+    // Reportes de ventas
     'reporte_ventas' => ['administrador'],
     'resumen_reporte_venta' => ['administrador'],
+
+    // Equipos vendidos
     'equipos_vendidos' => ['administrador'],
+
+    // Reportes por cantidades
+    'item_vendidos' => ['administrador'],
+    'resumen_reporte_cantidades' => ['administrador']
 ];
 
 // Chequear permisos
@@ -371,25 +376,6 @@ switch ($action) {
         exit;
         break;
 
-    // Productos vendidos
-    case 'productos_vendidos':
-        $q = $_POST['query'];
-        $d1 = $_POST['dateq1'];
-        $d2 = $_POST['dateq2'];
-
-        $query = "SELECT p.nombre_producto, sum(d.cantidad) as cantidad,
-        sum(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) as costo, 
-        sum(d.precio * d.cantidad - d.descuento) as total,
-        sum((d.precio * d.cantidad - d.descuento)-(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad)) as ganancia  
-        from detalle_facturas_ventas d 
-        inner join detalle_ventas_con_productos dp on dp.detalle_venta_id = d.detalle_venta_id
-        inner join productos p on p.producto_id = dp.producto_id
-        where p.nombre_producto like '%$q%' and d.fecha between '$d1' and '$d2' group by p.nombre_producto order by total desc;";
-        $result = $db->query($query);
-
-        jsonQueryResult($db, $query);
-
-        break;
     // Piezas vendidas
     case 'piezas_vendidas':
 
@@ -431,55 +417,7 @@ switch ($action) {
         echo json_encode($arr, JSON_UNESCAPED_UNICODE);
         exit;
         break;
-    // Servicios vendidos
-    case 'servicios_vendidos':
-
-        $q = $_POST['query'];
-        $d1 = $_POST['dateq1'];
-        $d2 = $_POST['dateq2'];
-
-        $query = "SELECT nombre, sum(cantidad) as cantidad, sum(costo) as costo,
-        sum(total) as total, sum(ganancia) as ganancia FROM (
-
-        SELECT s.nombre_servicio as nombre, 'Servicio' as tipo ,sum(d.cantidad) as cantidad, 
-        sum(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad,0)) as costo,
-        -- Total facturado (precio - descuento)
-        sum(d.precio * d.cantidad - d.descuento) as total,
-        -- Ganancia = total - costo
-        sum((d.precio * d.cantidad - d.descuento)-COALESCE((IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo)) * d.cantidad,0)) as ganancia
-        from detalle_facturas_ventas d 
-        inner join detalle_ventas_con_servicios ds on ds.detalle_venta_id = d.detalle_venta_id
-        inner join servicios s on s.servicio_id = ds.servicio_id 
-        where s.nombre_servicio like '%$q%' and d.fecha between '$d1' and '$d2' group by s.nombre_servicio
-
-        UNION ALL
-        
-        SELECT s.nombre_servicio as nombre,'Servicio' as tipo, sum(d.cantidad) as cantidad, 
-        sum(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad,0)) as costo,
-        -- Total facturado (precio - descuento)
-        sum(d.precio * d.cantidad - d.descuento) as total,
-        -- Ganancia = total - costo
-        sum((d.precio * d.cantidad - d.descuento)-COALESCE((IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo)) * d.cantidad,0)) as ganancia
-        from detalle_ordenRP d 
-        inner join facturasRP frp on frp.orden_rp_id = d.orden_rp_id
-        inner join detalle_ordenRP_con_servicios dp on dp.detalle_ordenRP_id = d.detalle_ordenRP_id
-        inner join servicios s on s.servicio_id = dp.servicio_id
-        where s.nombre_servicio like '%$q%' and d.fecha between '$d1' and '$d2' group by s.nombre_servicio
-
-        ) servicios_vendidos group by nombre order by total desc;";
-
-        $result = $db->query($query);
-
-        $arr = [];
-
-        while ($element = $result->fetch_assoc()) {
-            $arr[] = $element;
-        }
-
-        echo json_encode($arr, JSON_UNESCAPED_UNICODE);
-        exit;
-        break;
-
+  
     // Buscar el serial facturado
     case 'serial_facturado':
         $q = $_POST['query'];
@@ -669,7 +607,7 @@ switch ($action) {
             $baseCondition .= " AND x.cliente_id = $customer_id";
         }
 
-         if ($method_id > 0) {
+        if ($method_id > 0) {
             $baseCondition .= " AND x.metodo_pago_id = $method_id";
         }
 
@@ -760,11 +698,155 @@ switch ($action) {
                     'proveedor' => ucwords($row['nombre']),
                     'producto' => ucwords($row['nombre_producto']),
                     'serial' => $row['serial'],
-                    'costo' => $row['costo_unitario'],
+                    'costo' => number_format($row['costo_unitario'], 2),
                     'entrada' => $row['entrada'],
-                    'salida' => $row['salida']
+                    'salida' => '<span class="text-danger">' . $row['salida'] . '</span>'
                 ];
             }
         ]);
+        break;
+    case 'item_vendidos':
+
+        $query = $_POST['query'] ?? '';
+        $fecha_inicio = $_POST['fecha_inicio'] ?? date('Y-m-d');
+        $fecha_fin    = $_POST['fecha_final'] ?? date('Y-m-d');
+
+        $query = $db->real_escape_string($query);
+        $fecha_inicio = $db->real_escape_string($fecha_inicio);
+        $fecha_fin    = $db->real_escape_string($fecha_fin);
+
+        $table_width_joins = "(
+        SELECT p.nombre_producto as nombre, 'Producto' as tipo,
+        sum(d.cantidad) as cantidad,
+        sum(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) as costo, 
+        sum(d.precio * d.cantidad - d.descuento) as total,
+        sum((d.precio * d.cantidad - d.descuento)-(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad)) as ganancia  
+        from detalle_facturas_ventas d 
+        inner join detalle_ventas_con_productos dp on dp.detalle_venta_id = d.detalle_venta_id
+        inner join productos p on p.producto_id = dp.producto_id
+        where p.nombre_producto like '%$query%' and d.fecha 
+        between '$fecha_inicio' and '$fecha_fin' group by p.nombre_producto
+
+        UNION ALL
+
+        SELECT s.nombre_servicio as nombre, 'Servicio' as tipo ,
+        sum(d.cantidad) as cantidad, 
+        sum(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad,0)) as costo,
+        -- Total facturado (precio - descuento)
+        sum(d.precio * d.cantidad - d.descuento) as total,
+        -- Ganancia = total - costo
+        sum((d.precio * d.cantidad - d.descuento)-COALESCE((IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo)) * d.cantidad,0)) as ganancia
+        from detalle_facturas_ventas d 
+        inner join detalle_ventas_con_servicios ds on ds.detalle_venta_id = d.detalle_venta_id
+        inner join servicios s on s.servicio_id = ds.servicio_id 
+        where s.nombre_servicio like '%$query%' and d.fecha 
+        between '$fecha_inicio' and '$fecha_fin' group by s.nombre_servicio
+
+        UNION ALL
+
+        SELECT s.nombre_servicio as nombre, 'Servicio' as tipo, 
+        sum(d.cantidad) as cantidad, 
+        sum(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad,0)) as costo,
+        -- Total facturado (precio - descuento)
+        sum(d.precio * d.cantidad - d.descuento) as total,
+        -- Ganancia = total - costo
+        sum((d.precio * d.cantidad - d.descuento)-COALESCE((IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo)) * d.cantidad,0)) as ganancia
+        from detalle_ordenRP d 
+        inner join facturasRP frp on frp.orden_rp_id = d.orden_rp_id
+        inner join detalle_ordenRP_con_servicios dp on dp.detalle_ordenRP_id = d.detalle_ordenRP_id
+        inner join servicios s on s.servicio_id = dp.servicio_id
+        where s.nombre_servicio like '%$query%' and d.fecha 
+        between '$fecha_inicio' and '$fecha_fin' group by s.nombre_servicio
+        ) AS items_vendidos";
+
+        handleDataTableRequest($db, [
+            'columns' => ['nombre', 'tipo', 'cantidad', 'costo', 'total', 'ganancia'],
+            'searchable' => ['nombre', 'tipo'],
+
+            'base_table' => '(SELECT d.detalle_venta_id as id FROM detalle_facturas_ventas d 
+                            UNION ALL
+                            SELECT d.detalle_ordenRP_id as id FROM detalle_ordenRP d 
+                            ) AS all_data',
+
+            'table_with_joins' => $table_width_joins,
+
+            'select' => 'SELECT nombre, tipo ,sum(cantidad) as cantidad, sum(costo) as costo,
+                         sum(total) as total, sum(ganancia) as ganancia',
+
+            'group_by' => 'nombre, tipo',
+
+            'base_condition' => '1=1',
+
+            'table_rows' => function ($row) {
+                return [
+                    'descripcion' => $row['nombre'],
+                    'tipo' => $row['tipo'],
+                    'cantidad' => $row['cantidad'],
+                    'costo' => '<span class="text-danger">' . number_format($row['costo'], 2) . '</span>',
+                    'total' => number_format($row['total'], 2),
+                    'ganancias' => '<span class="text-success">' . number_format($row['ganancia'], 2) . '</span>'
+                ];
+            }
+        ]);
+
+        break;
+    case 'resumen_reporte_cantidades':
+
+        $query = $_POST['query'] ?? '';
+        $fecha_inicio = $_POST['fecha_inicio'] ?? date('Y-m-d');
+        $fecha_fin    = $_POST['fecha_final'] ?? date('Y-m-d');
+
+        $query = $db->real_escape_string($query);
+        $fecha_inicio = $db->real_escape_string($fecha_inicio);
+        $fecha_fin    = $db->real_escape_string($fecha_fin);
+
+        $sql = "SELECT count(id) as id ,sum(cantidad) as cantidad, sum(costo) as costo,
+        sum(total) as total, sum(ganancia) as ganancia FROM (
+
+        SELECT count(d.detalle_venta_id) as id,
+        sum(d.cantidad) as cantidad,
+        sum(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) as costo, 
+        sum(d.precio * d.cantidad - d.descuento) as total,
+        sum((d.precio * d.cantidad - d.descuento)-(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad)) as ganancia  
+        from detalle_facturas_ventas d 
+        inner join detalle_ventas_con_productos dp on dp.detalle_venta_id = d.detalle_venta_id
+        inner join productos p on p.producto_id = dp.producto_id
+        where p.nombre_producto like '%$query%' and d.fecha 
+        between '$fecha_inicio' and '$fecha_fin' group by p.nombre_producto
+
+        UNION ALL
+
+        SELECT count(d.detalle_venta_id) as id,
+        sum(d.cantidad) as cantidad, 
+        sum(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad,0)) as costo,
+        -- Total facturado (precio - descuento)
+        sum(d.precio * d.cantidad - d.descuento) as total,
+        -- Ganancia = total - costo
+        sum((d.precio * d.cantidad - d.descuento)-COALESCE((IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo)) * d.cantidad,0)) as ganancia
+        from detalle_facturas_ventas d 
+        inner join detalle_ventas_con_servicios ds on ds.detalle_venta_id = d.detalle_venta_id
+        inner join servicios s on s.servicio_id = ds.servicio_id 
+        where s.nombre_servicio like '%$query%' and d.fecha 
+        between '$fecha_inicio' and '$fecha_fin' group by s.nombre_servicio
+
+        UNION ALL
+
+        SELECT count(dp.detalle_ordenRP_id) as id,
+        sum(d.cantidad) as cantidad, 
+        sum(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad,0)) as costo,
+        -- Total facturado (precio - descuento)
+        sum(d.precio * d.cantidad - d.descuento) as total,
+        -- Ganancia = total - costo
+        sum((d.precio * d.cantidad - d.descuento)-COALESCE((IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo)) * d.cantidad,0)) as ganancia
+        from detalle_ordenRP d 
+        inner join facturasRP frp on frp.orden_rp_id = d.orden_rp_id
+        inner join detalle_ordenRP_con_servicios dp on dp.detalle_ordenRP_id = d.detalle_ordenRP_id
+        inner join servicios s on s.servicio_id = dp.servicio_id
+        where s.nombre_servicio like '%$query%' and d.fecha 
+        between '$fecha_inicio' and '$fecha_fin' group by s.nombre_servicio
+
+        ) items_vendidos";
+
+        jsonQueryResult($db, $sql);
         break;
 }

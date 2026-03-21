@@ -32,69 +32,6 @@ $(document).ready(function () {
         }
     };
 
-
-    $("#col-dateq1, #col-dateq2,#col-year,#col-month").fadeOut(200);
-
-    $('#action').on('change', function () {
-        const selected = this.value;
-
-        console.log(selected)
-
-        if (selected === "productos_vendidos" || selected === "servicios_vendidos") {
-
-            // Ocultar los campos
-            $("#col-year,#col-month").fadeOut(200);
-            // Mostrar los campos
-            $("#col-dateq1, #col-dateq2,#col-query").fadeIn(400);
-            // Requerir todos los campos necesarios
-            $("#query, #dateq1, #dateq2").attr("required", true);
-
-        } else if (selected === "serial_facturado") {
-
-            // Ocultar los campos
-            $("#col-dateq1, #col-dateq2,#col-year,#col-month").fadeOut(200);
-            // Mostrar campo keyword
-            $('#col-query').fadeIn(400);
-
-            // Solo 'query' es requerido
-            $("#query").attr("required", true);
-            $("#dateq1, #dateq2").removeAttr("required");
-
-        } else if (selected === "detalle_ventas_mes") {
-
-            // Ocultar los campos
-            $("#col-dateq1, #col-dateq2, #col-query").fadeOut(200);
-            // Mostrar los campos 
-            $('#col-month,#col-year').fadeIn(400);
-
-            $("#year, #month").attr("required", true);
-            $("#query, #dateq1, #dateq2").removeAttr("required");
-
-        } else {
-
-            // Otras acciones: limpiar y ocultar por defecto
-            $("#col-dateq1, #col-dateq2,#col-year,#col-month").fadeOut(200);
-            // Mostrar campo keyword
-            $('#col-query').fadeIn(400);
-            $("#query, #dateq1, #dateq2").removeAttr("required");
-        }
-    });
-
-
-    /**
-    * Reporte de ventas filtrado por fecha 
-    */
-
-    $('#date_query').change((e) => {
-        e.preventDefault()
-
-        const url = new URL(SITE_URL + 'src/excel/reporte-fecha.php');
-        url.searchParams.set('date', $('#date_query').val());
-
-        window.location.href = url.toString();
-    })
-
-
     /**============================================================= 
     * FUNCIONES Y EVENTOS DEL CIERRE DE CAJA 
     ===============================================================*/
@@ -606,19 +543,12 @@ $(document).ready(function () {
         // Convertir FormData a objeto plano
         const formObject = Object.fromEntries(formDataTable.entries());
 
-          const data = {
+        const data = {
             product_id: $('#product_id').val(),
             serial: $('#serial').val(),
-           
+
         }
 
-        // Validación rápida
-        // if (!data.product_id && !data.serial) {
-        //     notifyAlert("Debes seleccionar un producto o serial", 'warning');
-
-        //     return;
-        // }
-     
         const table = `
             <table id="device_query" class="table-custom table">
                 <thead>
@@ -645,7 +575,7 @@ $(document).ready(function () {
                 url: 'services/reports.php',
                 action: 'equipos_vendidos',
                 columns: [
-                    'id', 'proveedor','producto','serial', 'costo', 'entrada', 'salida'
+                    'id', 'proveedor', 'producto', 'serial', 'costo', 'entrada', 'salida'
                 ],
                 order: [[0, 'desc']],
                 hiddenColumns: [1, 3, 4, 5],
@@ -655,43 +585,87 @@ $(document).ready(function () {
     })
 
 
+    /**============================================================= 
+    * CANTIDADES VENDIDAS
+    ===============================================================*/
+
+    if (!$('#items_quantity').length) {
+
+        const table = `
+            <table id="items_quantity" class="table-custom table">
+                <thead>
+                    <tr>
+                        <th>Descripcion</th>
+                        <th class="hide-cell">Tipo</th>
+                        <th>Cantidad</th>
+                        <th class="hide-cell">Costo total</th>
+                        <th>Total</th>
+                        <th>Ganancias</th>
+                    </tr>
+                </thead>
+            </table>
+        `;
+
+        $('.table_items_quantity').html(table);
+    }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    $('#queryForm').on('submit', function (e) {
+    $('#formItemsQuantity').on('submit', function (e) {
         e.preventDefault()
 
-        const action = $('#action').val();
+        const tableId = 'items_quantity';
 
-        if (action === "productos_vendidos") {
-            getSoldProducts(); // Productos vendidos
-        } else if (action === "piezas_vendidas") {
-            getSoldPieces(); // Piezas vendidas
-        } else if (action === "servicios_vendidos") {
-            getSoldServices(); // Servicios vendidos
-        } else if (action === "serial_facturado") {
-            getInvoicedSerials(); // Seriales facturados
-        } else if (action === "detalle_ventas_mes") {
-            getMonthlySalesDetails()
+        //  Si ya existe DataTable → destruir
+        if ($.fn.DataTable.isDataTable('#' + tableId)) {
+            $('#' + tableId).DataTable().destroy();
         }
+
+        let formDataTable = new FormData(this)
+        // Convertir FormData a objeto plano
+        const formObject = Object.fromEntries(formDataTable.entries());
+
+        let formData = new FormData(this)
+        formData.append("action", "resumen_reporte_cantidades")
+
+        sendAjaxRequest({
+            url: "services/reports.php",
+            data: formData,
+            successCallback: (res) => {
+
+                const data = JSON.parse(res)[0]
+
+                $('#items_total').text(data.id)
+                $('#quantitys').text(format.format(data.cantidad))
+                $('#earning').text("DOP " + format.format(data.ganancia))
+
+                // Inicializar tabla
+                loadTables([
+                    {
+                        id: '#items_quantity',
+                        url: 'services/reports.php',
+                        action: 'item_vendidos',
+                        columns: [
+                            'descripcion', 'tipo', 'cantidad', 'costo', 'total', 'ganancias'
+                        ],
+                        order: [[5, 'desc']],
+                        hiddenColumns: [1, 3],
+                        ajaxParams: formObject
+                    },
+                ])
+            },
+            errorCallback: (err) => {
+                console.error(err)
+            }
+        })
+
+
     })
 
 
-    function getMonthlySalesDetails() {
+    // Ganancias por periodo
+    $('#queryForm').on('submit', function (e) {
+        e.preventDefault()
+
         const data = {
             month: $('#month').val(),
             year: $('#year').val(),
@@ -702,192 +676,18 @@ $(document).ready(function () {
         url.searchParams.set('month', data.month);
 
         window.location.href = url.toString();
-
-    }
-
+    })
 
 
-    // Funciones de consultas
-    function getSoldProducts() {
+    // Reporte de ventas filtrado por fecha 
+    $('#date_query').change((e) => {
+        e.preventDefault()
 
-        sendAjaxRequest({
-            url: "services/reports.php",
-            data: {
-                query: $('#query').val(),
-                dateq1: $('#dateq1').val(),
-                dateq2: $('#dateq2').val(),
-                action: $('#action').val()
-            },
-            successCallback: (res) => {
-                var data = JSON.parse(res);
+        const url = new URL(SITE_URL + 'src/excel/reporte-fecha.php');
+        url.searchParams.set('date', $('#date_query').val());
 
-                // Vaciar campos de resultado
-                document.querySelector("#queryResult").innerHTML = `
-            <table class="queryTable" id="echoQuery" style="width: 100%; margin-top: 2.5em; background: #f1f1f1; border-radius: 7px;">
-                <thead>
-                    <tr>
-                        <th style="padding: 2px 10px; font-size: 13px;">Nombre producto</td>
-                        <th style="padding: 2px 10px; font-size: 13px;">Cantidad</td>
-                        <th style="padding: 2px 10px; font-size: 13px;">Costo total</td>
-                        <th style="padding: 2px 10px; font-size: 13px;">Total</td>
-                        <th style="padding: 2px 10px; font-size: 13px;">Ganancias</td>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>`;
-
-                // Generar filas por separado
-                $(data).each(function (index, element) {
-                    var row = `
-            <tr>
-                <td style='padding: 2px 10px; font-size: 13px;'>${element.nombre_producto}</td>
-                <td style='padding: 2px 10px; font-size: 13px;'>${element.cantidad}</td>
-                <td style='padding: 2px 10px; font-size: 13px;'>${format.format(element.costo)}</td>
-                <td style='padding: 2px 10px; font-size: 13px;'>${format.format(element.total)}</td>
-                <td style='padding: 2px 10px; font-size: 13px;'>${format.format(element.ganancia)}</td>
-            </tr>`;
-
-                    $('#echoQuery tbody').append(row);
-                });
-
-            }
-        })
-    }
-
-    function getSoldPieces() {
-        sendAjaxRequest({
-            url: "services/reports.php",
-            data: {
-                query: $('#query').val(),
-                dateq1: $('#dateq1').val(),
-                dateq2: $('#dateq2').val(),
-                action: $('#action').val()
-            },
-            successCallback: (res) => {
-
-                var data = JSON.parse(res);
-
-                document.querySelector("#queryResult").innerHTML = ""; // Vaciar campos de resultado
-                document.querySelector("#queryResult").innerHTML = ` 
-            <table class="queryTable" id="echoQuery" style="width: 100%; margin-top: 2.5em; 
-            background: #f1f1f1; border-radius: 7px;">
-                    <thead>
-                        <tr>
-                            <th style=" padding: 2px 10px; font-size: 13px;">Nombre pieza</th>
-                            <th style=" padding: 2px 10px; font-size: 13px;">Cantidad</th>
-                            <th style=" padding: 2px 10px; font-size: 13px;">Costo total</th>
-                            <th style=" padding: 2px 10px; font-size: 13px;">Total</th>
-                            <th style=" padding: 2px 10px; font-size: 13px;">Ganancias</th>
-                        </tr>
-                    </thead>
-                </table>`;
-
-                var tr = "<tr>";
-                $(data).each(function (index, element) {
-
-                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.nombre_pieza + "</td>";
-                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.cantidad + "</td>";
-                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + format.format(element.costo) + "</td>";
-                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + format.format(element.total) + "</td>";
-                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + format.format(element.ganancia) + "</td>";
-                    tr += "</tr>";
-                });
-                $('#echoQuery').append(tr);
-            }
-        })
-    }
-
-
-    function getSoldServices() {
-        sendAjaxRequest({
-            url: "services/reports.php",
-            data: {
-                query: $('#query').val(),
-                dateq1: $('#dateq1').val(),
-                dateq2: $('#dateq2').val(),
-                action: $('#action').val()
-            },
-            successCallback: (res) => {
-                var data = JSON.parse(res);
-
-                // Vaciar contenido anterior
-                const queryContainer = document.querySelector("#queryResult");
-                queryContainer.innerHTML = `
-            <table class="queryTable" id="echoQuery" style="width: 100%; margin-top: 2.5em; background: #f1f1f1; border-radius: 7px;">
-                <thead>
-                    <tr>
-                        <th style="padding: 2px 10pt; font-size: 10pt;">Nombre servicio</th>
-                        <th style="padding: 2px 10pt; font-size: 10pt;">Cantidad</th>
-                        <th style="padding: 2px 10pt; font-size: 10pt;">Costo</th>
-                        <th style="padding: 2px 10pt; font-size: 10pt;">Total</th>
-                        <th style="padding: 2px 10pt; font-size: 10pt;">Ganancias</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${data.map(el => `
-                        <tr>
-                            <td style="padding: 2px 10pt; font-size: 10pt;">${el.nombre}</td>
-                            <td style="padding: 2px 10pt; font-size: 10pt;">${el.cantidad}</td>
-                            <td style="padding: 2px 10pt; font-size: 10pt;">${format.format(el.costo || 0)}</td>
-                            <td style="padding: 2px 10pt; font-size: 10pt;">${format.format(el.total || 0)}</td>
-                            <td style="padding: 2px 10pt; font-size: 10pt;">${format.format(el.ganancia || 0)}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>`;
-            },
-            verbose: true
-        })
-    }
-
-    function getInvoicedSerials() {
-        $.ajax({
-            type: "post",
-            url: SITE_URL + "services/reports.php",
-            data: {
-                query: $('#query').val(),
-                action: $('#action').val()
-            },
-            beforeSend: function () {
-
-            },
-            success: function (res) {
-
-                var data = JSON.parse(res);
-
-                document.querySelector("#queryResult").innerHTML = ""; // Vaciar campos de resultado
-                document.querySelector("#queryResult").innerHTML = ` 
-      <table class="queryTable" id="echoQuery" style="width: 100%; margin-top: 2.5em; 
-      background: #f1f1f1; border-radius: 7px;">
-            <thead>
-                <tr>
-                    <td style=" padding: 2px 10px; font-size: 13px;">Factura_id</td>
-                    <td style=" padding: 2px 10px; font-size: 13px;">Cliente</td>
-                    <td style=" padding: 2px 10px; font-size: 13px;">Serial</td>
-                    <td style=" padding: 2px 10px; font-size: 13px;">Costo</td>
-                    <td style=" padding: 2px 10px; font-size: 13px;">Entrada</td>
-                    <td style=" padding: 2px 10px; font-size: 13px;">Facturado_el</td>
-                </tr>
-            </thead>
-        </table>`;
-
-                var tr = "<tr>";
-                $(data).each(function (index, element) {
-
-                    tr += "<td style='padding: 2px 10px; font-size: 13px;'> FT-00" + element.factura_venta_id + "</td>";
-                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.nombre + "</td>";
-                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.serial + "</td>";
-                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.costo_unitario + "</td>";
-                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.fecha_entrada + "</td>";
-                    tr += "<td style='padding: 2px 10px; font-size: 13px;'>" + element.fecha + "</td>";
-                    tr += "</tr>";
-                });
-                $('#echoQuery').append(tr);
-
-            },
-        });
-    }
-
+        window.location.href = url.toString();
+    })
 
 }); // Ready
 

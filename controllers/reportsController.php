@@ -4,12 +4,13 @@ class ReportsController
 {
     // Array de permisos por acción
     private $permissions = [
-        'day' => [],                   // Todos tienen permiso
-        'querys' => ['administrador'], // Roles con acceso a la acción 'querys'
+        'sales_today' => [],                   // Todos tienen permiso
+        'earnings_period' => ['administrador'], // Roles con acceso a la acción 'querys'
         'cash_closing' => [],
-        'sales' => ['administrador'],
-        'query_device' => ['administrador'],
-        'inventory' => []
+        'sales_period' => ['administrador'],
+        'equipment_sold' => ['administrador'],
+        'inventory' => ['administrador'],
+        'item_quantity' => ['administrador']
     ];
 
     // Verificación de permisos
@@ -37,10 +38,10 @@ class ReportsController
     }
 
     // Acción para mostrar las ventas del día
-    public function day()
+    public function sales_today()
     {
-        // Verificar permisos para la acción 'day'
-        $this->check_permission('day');
+        // Verificar permisos para la acción 
+        $this->check_permission('sales_today');
 
         // Obtener las ventas del día
         $invoices = Help::calculateSalesToDay();
@@ -50,13 +51,13 @@ class ReportsController
     }
 
     // Acción para mostrar las consultas
-    public function querys()
+    public function earnings_period()
     {
         // Verificar permisos para la acción 'querys'
-        $this->check_permission('querys');
+        $this->check_permission('earnings_period');
 
         // Mostrar la vista de consultas
-        require_once './views/reports/querys.php';
+        require_once './views/reports/earnings-period.php';
     }
 
     // Acción para mostrar el cierre de caja
@@ -73,23 +74,23 @@ class ReportsController
     }
 
     // Acción para mostrar datos de ventas
-    public function sales()
+    public function sales_period()
     {
         // Verificar permisos para la acción
-        $this->check_permission('sales');
+        $this->check_permission('sales_period');
 
         // Mostrar la vista
-        require_once './views/reports/sales.php';
+        require_once './views/reports/sales_period.php';
     }
 
     // Acción para consultar datos
-    public function query_device()
+    public function equipment_sold()
     {
         // Verificar permisos para la acción
-        $this->check_permission('query_device');
+        $this->check_permission('equipment_sold');
 
         // Mostrar la vista
-        require_once './views/reports/query_device.php';
+        require_once './views/reports/equipment_sold.php';
     }
 
     // Acción para mostrar el control del inventario
@@ -106,5 +107,15 @@ class ReportsController
 
         // Mostrar la vista del inventario
         require_once './views/reports/inventory.php';
+    }
+
+    // Acción para mostrar reportes por cantidades
+    public function item_quantity()
+    {
+        // Verificar permisos para la acción 
+        $this->check_permission('item_quantity');
+
+        // Mostrar la vista del inventario
+        require_once './views/reports/item_quantity.php';
     }
 }
