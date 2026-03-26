@@ -92,11 +92,6 @@
     <!-- ================ HEADER ==================== -->
 
     <header class="admin-bar clearfix">
-      <div class="container-logo">
-        <!-- Logo -->
-        <!-- <img src="<?= base_url ?>public/imagen/sistem/" alt="" class="logo"> -->
-      </div>
-
       <section class="content-bar">
         <div class="admin-left">
 
@@ -256,21 +251,8 @@
                 </span>
               </a>
             </div>
-
-            <!-- session de usuario -->
-            <div class="user">
-              <span><i class="fas fa-user-circle"></i></span>
-              <span><?= $_SESSION['identity']->nombre ?></span>
-            </div>
-
           </div>
 
-          <nav class="nav-user">
-            <ul class="user-menu">
-              <li><a href="<?= base_url ?>users/edit&id=<?= $_SESSION['identity']->usuario_id ?>">Perfil</a></li>
-              <li id="logout"><a href="#">Cerrar sesión</a></li>
-            </ul>
-          </nav>
         </div> <!-- admin-right -->
       </section> <!-- content-bar -->
     </header>
@@ -279,16 +261,55 @@
     <!-- ================ SIDEBAR (APP-MENU) ==================== -->
 
     <aside class="sidebar clearfix">
-      <nav class="app-menu">
+
+      <!-- HEADER (usuario) -->
+      <div class="sidebar-header">
+
+        <div class="user-header">
+          <div class="user-avatar">
+            <?= strtoupper(substr($_SESSION['identity']->nombre, 0, 1)) ?>
+          </div>
+
+          <div class="user-info">
+            <span class="user-name">
+              <?= $_SESSION['identity']->nombre ?>
+            </span>
+            <span class="user-role">
+              <?= $_SESSION['identity']->nombre_rol ?>
+            </span>
+          </div>
+
+          <!-- BOTÓN CERRAR SESIÓN -->
+          <a href="<?= base_url ?>users/logout" class="user-logout" id="logout">
+            <i class="fas fa-sign-out-alt"></i>
+          </a>
+        </div>
+
+      </div>
+
+      <!-- MENU -->
+      <nav class="sidebar-menu">
         <ul id="accordion" class="accordion">
           <?php
-          // Mostrar las secciones del menú
           foreach ($menu_sections as $section) {
             display_menu_item($section);
           }
           ?>
         </ul>
-      </nav> <!-- app-menu -->
+      </nav>
+
+      <!-- FOOTER (FUERA del nav) -->
+      <div class="sidebar-footer">
+        <ul class="accordion">
+          <?php
+          foreach ($sidebar_footer as $item) {
+            display_menu_item($item, true);
+          }
+          ?>
+        </ul>
+      </div>
+
+
     </aside>
 
     <!-- ================ CONTENIDO ==================== -->

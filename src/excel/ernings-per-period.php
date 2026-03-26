@@ -40,15 +40,26 @@ FROM (
     -- Productos en facturas de ventas
     SELECT 
       p.nombre_producto AS nombre,
-      'Producto' AS tipo,
-      SUM(d.cantidad) AS cantidad,
-      SUM(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) AS costo,
-      SUM(d.precio * d.cantidad - d.descuento) AS total,
-      SUM(
-        (f.recibido / NULLIF(ft.total_facturado, 0)) * 
-        ((d.precio * d.cantidad - d.descuento) - 
-        COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
-      ) AS ganancia
+  'Producto' AS tipo,
+  SUM(d.cantidad) AS cantidad,
+
+  SUM(
+    IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad
+  ) AS costo,
+
+  SUM(d.precio * d.cantidad - d.descuento) AS total,
+
+  SUM(
+    (
+      (f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+    )
+    -
+    (
+      COALESCE(
+        IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0
+      ) * d.cantidad
+    )
+  ) AS ganancia
     FROM detalle_facturas_ventas d
     INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
     INNER JOIN (
@@ -71,11 +82,17 @@ FROM (
       SUM(d.cantidad) AS cantidad,
       SUM(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) AS costo,
       SUM(d.precio * d.cantidad - d.descuento) AS total,
-      SUM(
-        (f.recibido / NULLIF(ft.total_facturado, 0)) * 
-        ((d.precio * d.cantidad - d.descuento) - 
-        COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
-      ) AS ganancia
+       SUM(
+    (
+      (f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+    )
+    -
+    (
+      COALESCE(
+        IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0
+      ) * d.cantidad
+    )
+  ) AS ganancia
     FROM detalle_facturas_ventas d
     INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
     INNER JOIN (
@@ -99,10 +116,16 @@ FROM (
       SUM(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) AS costo,
       SUM(d.precio * d.cantidad - d.descuento) AS total,
       SUM(
-        (frp.recibido / NULLIF(ft.total_facturado, 0)) * 
-        ((d.precio * d.cantidad - d.descuento) - 
-        COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0))
-      ) AS ganancia
+      (
+        (frp.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+      )
+      -
+      (
+        COALESCE(
+          IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0
+        ) * d.cantidad
+      )
+    ) AS ganancia
     FROM detalle_ordenRP d
     INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
     INNER JOIN (
@@ -125,11 +148,17 @@ FROM (
       SUM(d.cantidad) AS cantidad,
       SUM(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)) AS costo,
       SUM(d.precio * d.cantidad - d.descuento) AS total,
-      SUM(
-        (f.recibido / NULLIF(ft.total_facturado, 0)) * 
-        ((d.precio * d.cantidad - d.descuento) - 
-        COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0))
-      ) AS ganancia
+       SUM(
+      (
+        (f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+      )
+      -
+      (
+        COALESCE(
+          IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo), 0
+        ) * d.cantidad
+      )
+    ) AS ganancia
     FROM detalle_facturas_ventas d
     INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
     INNER JOIN (
@@ -152,11 +181,17 @@ FROM (
       SUM(d.cantidad) AS cantidad,
       SUM(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)) AS costo,
       SUM(d.precio * d.cantidad - d.descuento) AS total,
-      SUM(
-        (frp.recibido / NULLIF(ft.total_facturado, 0)) * 
-        ((d.precio * d.cantidad - d.descuento) - 
-        COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0))
-      ) AS ganancia
+       SUM(
+    (
+      (frp.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+    )
+    -
+    (
+      COALESCE(
+        IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo), 0
+      ) * d.cantidad
+    )
+  ) AS ganancia
     FROM detalle_ordenRP d
     INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
     INNER JOIN (
@@ -170,7 +205,7 @@ FROM (
     WHERE MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year'
     GROUP BY s.nombre_servicio
 ) AS detalle_ventas_mes GROUP BY nombre, tipo
- ORDER BY tipo DESC;";
+ ORDER BY ganancia DESC;";
 
 $result = $db->query($query);
 
@@ -221,7 +256,7 @@ $sheet->setCellValue("A{$row}", 'TOTALES');
 $sheet->mergeCells("A{$row}:C{$row}");
 $sheet->getStyle("A{$row}:F{$row}")->getFont()->setBold(true);
 $sheet->setCellValue("D{$row}", $totalCosto);
-$sheet->setCellValue("E{$row}",$totalGanancia);
+$sheet->setCellValue("E{$row}", $totalGanancia);
 $sheet->setCellValue("F{$row}", $totalTotal);
 
 // Bordes exteriores gruesos en la fila
@@ -260,7 +295,7 @@ foreach (range('A', 'F') as $col) {
 
 /**====================================================
  * GASTOS
- =====================================================*/ 
+ =====================================================*/
 
 
 // Agregar un espacio de 4 filas
@@ -387,7 +422,7 @@ foreach (range('A', 'E') as $col) {
 
 // Descargar archivo
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment;filename="detalle-ventas-y-gastos ' . $month . '-' . $year . '.xlsx"');
+header('Content-Disposition: attachment;filename="resumen ' . $month . '-' . $year . '.xlsx"');
 header('Cache-Control: max-age=0');
 
 $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');

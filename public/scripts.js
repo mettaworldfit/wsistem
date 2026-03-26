@@ -27,6 +27,10 @@ if (pageURL.includes('invoices/pos')) {
         .wrap {
             width: 100% !important;
         }
+
+        .admin-bar {
+            width: 100% !important;
+        }
         `;
     // Agrega el estilo al head del documento
     document.head.appendChild(style);
@@ -406,7 +410,7 @@ function mysql_error(err) {
 
 function loadTables(tableConfigs) {
     tableConfigs.forEach(config => {
-        const { id, url, action, columns, hiddenColumns, params,...rest } = config;
+        const { id, url, action, columns, hiddenColumns, params, ...rest } = config;
 
         const columnDefs = columns.map(col =>
             col === 'acciones'
@@ -433,13 +437,6 @@ $(document).ready(function () {
     // Valores de la sección agregar producto
     $("#inputMinCantidad").val(1);
     $("#inputCantidad").val(1);
-
-    // User menú desplegable
-    $(".user").on("click", (e) => {
-        e.preventDefault();
-
-        $(".nav-user").slideToggle();
-    });
 
     // Atajos de tecla enter
     $("body").keyup(function (e) {
@@ -516,10 +513,10 @@ $(document).ready(function () {
         const menuMap = [
             { keywords: ["invoices/index", "invoices/edit", "invoices/addpurchase", "invoices/index_repair", "invoices/repair_edit", "payments/index", "payments/add", "invoices/quotes", "invoices/quote", "invoices/edit_quote", "invoices/orders", "invoices/add_order"], dropdown: "dropdown-1" },
             { keywords: ["bills"], dropdown: "dropdown-2" },
-            { keywords: ["workshop"], dropdown: "dropdown-3" },
-            { keywords: ["products", "inventory_control", "services/index", "services/add", "price_list", "categories", "taxes", "offers", "pieces", "warehouses", "positions", "brands"], dropdown: "dropdown-4" },
-            { keywords: ["contacts"], dropdown: "dropdown-5" },
-            { keywords: ["reports"], dropdown: "dropdown-6" },
+            { keywords: ["workshop"], dropdown: "dropdown-1" },
+            { keywords: ["products", "services/index", "services/add", "price_list", "categories", "taxes", "offers", "pieces", "warehouses", "positions", "brands"], dropdown: "dropdown-3" },
+            { keywords: ["contacts"], dropdown: "dropdown-4" },
+            { keywords: ["reports"], dropdown: "dropdown-5" },
         ];
 
         menuMap.forEach(({ keywords, dropdown }) => {

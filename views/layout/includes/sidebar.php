@@ -42,6 +42,12 @@ $menu_sections = [
                 'roles' => ['administrador', 'cajero'] // Ambos roles tienen acceso
             ],
             [
+                'label' => 'Órdenes de servicios',
+                'link' => base_url . 'workshop/index',
+                'icon' => 'fas fa-plus-circle',
+                'roles' => ['administrador', 'cajero'] // Ambos roles tienen acceso
+            ],
+            [
                 'label' => 'Pagos',
                 'link' => base_url . 'payments/index',
                 'icon' => 'fas fa-plus-circle',
@@ -66,22 +72,22 @@ $menu_sections = [
 
         ]
     ],
-    'taller' => [
-        'label' => 'Taller',
-        'drop_num' => 3,
-        'icon' => 'fas fa-tools',
-        'submenu' => [
-            [
-                'label' => 'Órdenes de servicios',
-                'link' => base_url . 'workshop/index',
-                'icon' => 'fas fa-plus-circle',
-                'roles' => ['administrador', 'cajero'] // Ambos roles tienen acceso
-            ]
-        ]
-    ],
+    // 'taller' => [
+    //     'label' => 'Taller',
+    //     'drop_num' => 3,
+    //     'icon' => 'fas fa-tools',
+    //     'submenu' => [
+    //         [
+    //             'label' => 'Órdenes de servicios',
+    //             'link' => base_url . 'workshop/index',
+    //             'icon' => 'fas fa-plus-circle',
+    //             'roles' => ['administrador', 'cajero'] // Ambos roles tienen acceso
+    //         ]
+    //     ]
+    // ],
     'inventario' => [
         'label' => 'Inventario',
-        'drop_num' => 4,
+        'drop_num' => 3,
         'icon' => 'fas fa-box',
         'roles' => ['administrador', 'cajero'],
         'submenu' => [
@@ -159,7 +165,7 @@ $menu_sections = [
     ],
     'contactos' => [
         'label' => 'Contactos',
-        'drop_num' => 5,
+        'drop_num' => 4,
         'icon' => 'fas fa-address-book',
         'roles' => ['administrador', 'cajero'],
         'submenu' => [
@@ -181,7 +187,7 @@ $menu_sections = [
     ],
     'reportes' => [
         'label' => 'Reportes',
-        'drop_num' => 6,
+        'drop_num' => 5,
         'icon' => 'fas fa-chart-bar',
         'roles' => ['administrador', 'cajero'],
         'submenu' => [
@@ -229,62 +235,95 @@ $menu_sections = [
             ]
         ]
     ],
+    'pos' => [
+        'label' => 'POS',
+        'icon' => 'fas fa-print',
+        'link' => base_url . 'invoices/pos',
+        'roles' => ['administrador']
+    ],
+];
+
+$sidebar_footer = [
+    'pos' => [
+        'label' => 'POS',
+        'icon' => 'fas fa-print',
+        'link' => base_url . 'invoices/pos',
+        'roles' => ['cajero']
+    ],
     'usuarios' => [
         'label' => 'Usuarios',
         'icon' => 'fas fa-users',
         'link' => base_url . 'users/index',
         'roles' => ['administrador']
     ],
-    'configuracion' => [
+    [
         'label' => 'Configuración',
         'icon' => 'fas fa-cog',
         'link' => base_url . 'config/index',
         'roles' => ['administrador']
     ],
-    'pos' => [
-        'label' => 'POS',
-        'icon' => 'fas fa-print',
-        'link' => base_url . 'invoices/pos',
-        'roles' => ['administrador', 'cajero']
-    ],
 ];
 
-
-
 // Función para mostrar un elemento del menú
-function display_menu_item($item)
+function display_menu_item($item, $footer = false)
 {
-    // Asegurarse de que 'roles' esté definido y sea un array
-    $roles = isset($item['roles']) ? $item['roles'] : ['administrador'];
+    $role = $_SESSION['identity']->nombre_rol;
 
-    // Verificar si el rol del usuario tiene permiso para ver esta sección
-    if (in_array($_SESSION['identity']->nombre_rol, $roles)) {
-        // Si tiene submenu, mostrar como dropdown
-        if (isset($item['submenu'])) {
-            echo '<li class="dropdown-' . $item['drop_num'] . '">'; // Clase para el item principal del menú
-            echo '<div class="link"><i class="mr-3 ' . $item['icon'] . '"></i>' . $item['label'] . ' <i class="fas fa-chevron-down"></i></div>';
-            echo '<ul class="submenu">'; // Submenú
+    // ===== FOOTER =====
+    if ($footer) {
 
-            // Recorrer el submenú y mostrar solo los elementos que el usuario tiene permiso de ver
-            foreach ($item['submenu'] as $submenu) {
-                // Verificar si el usuario tiene el rol necesario para ver el submenú
-                if (isset($submenu['roles']) && in_array($_SESSION['identity']->nombre_rol, $submenu['roles'])) {
-                    echo '<li class="page">'; // Aseguramos que cada elemento en el submenú tenga la clase "page"
-                    echo '<a href="' . $submenu['link'] . '">' . $submenu['label'] . '</a>';
-                    if (isset($submenu['icon_link'])) {
-                        echo '<a href="' . $submenu['icon_link'] . '"><i class="' . $submenu['icon'] . '"></i></a>';
-                    }
-                    echo '</li>';
-                }
-            }
+        // LINKS
 
-            echo '</ul>'; // Cerrar el submenú
-            echo '</li>'; // Cerrar el item del menú
-        } else {
-            // Si no tiene submenu, solo mostrar el enlace
+        if (in_array($role, $item['roles'])) {
+
             echo '<li>';
-            echo '<div class="link"><a href="' . $item['link'] . '"><i class="mr-3 ' . $item['icon'] . '"></i>' . $item['label'] . '</a></div>';
+            echo '<div class="link">';
+            echo '<a href="' . $item['link'] . '" class="full-link">';
+            echo '<i class="mr-3 ' . $item['icon'] . '"></i>' . $item['label'];
+            echo '</a>';
+            echo '</div>';
             echo '</li>';
         }
+
+        return;
+    }
+
+    // ===== MENU NORMAL =====
+    $roles = isset($item['roles']) ? $item['roles'] : ['administrador'];
+
+    if (!in_array($role, $roles)) return;
+
+    if (isset($item['submenu'])) {
+
+        echo '<li class="dropdown-' . $item['drop_num'] . '">';
+        echo '<div class="link"><i class="mr-3 ' . $item['icon'] . '"></i>' . $item['label'] . ' <i class="fas fa-chevron-down"></i></div>';
+        echo '<ul class="submenu">';
+
+        foreach ($item['submenu'] as $submenu) {
+
+            if (in_array($role, $submenu['roles'])) {
+
+                echo '<li class="page">';
+                echo '<a href="' . $submenu['link'] . '">' . $submenu['label'] . '</a>';
+
+                if (isset($submenu['icon_link'])) {
+                    echo '<a href="' . $submenu['icon_link'] . '"><i class="' . $submenu['icon'] . '"></i></a>';
+                }
+
+                echo '</li>';
+            }
+        }
+
+        echo '</ul>';
+        echo '</li>';
+    } else {
+
+        echo '<li>';
+        echo '<div class="link">
+                <a href="' . $item['link'] . '" class="full-link">
+                    <i class="mr-3 ' . $item['icon'] . '"></i>' . $item['label'] . '
+                </a>
+              </div>';
+        echo '</li>';
     }
 }

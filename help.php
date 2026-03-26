@@ -13,13 +13,13 @@ class Help
       $query = "SELECT SUM(ganancia) AS total_ganancias FROM (
 
   -- Ganancia Productos en facturas de ventas hoy
-  SELECT SUM(
-    (f.recibido / NULLIF(ft.total_facturado, 0)) *
-    (
-      (d.precio * d.cantidad - d.descuento) -
-      COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)
-    )
-  ) AS ganancia
+  SELECT (
+  (f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+   )
+   -
+   (
+   COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0) * d.cantidad
+   ) AS ganancia
   FROM detalle_facturas_ventas d
   INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
   INNER JOIN (
@@ -35,13 +35,13 @@ class Help
   UNION ALL
 
   -- Ganancia Piezas en facturas de ventas hoy
-  SELECT SUM(
-    (f.recibido / NULLIF(ft.total_facturado, 0)) *
-    (
-      (d.precio * d.cantidad - d.descuento) -
-      COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)
-    )
-  ) AS ganancia
+  SELECT (
+  (f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+   )
+   -
+   (
+   COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0) * d.cantidad
+   ) AS ganancia
   FROM detalle_facturas_ventas d
   INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
   INNER JOIN (
@@ -57,13 +57,13 @@ class Help
   UNION ALL
 
   -- Ganancia Piezas en órdenes de reparación hoy
-  SELECT SUM(
-    (frp.recibido / NULLIF(ft.total_facturado, 0)) *
-    (
-      (d.precio * d.cantidad - d.descuento) -
-      COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)
-    )
-  ) AS ganancia
+  SELECT (
+  (frp.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+   )
+   -
+   (
+   COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0) * d.cantidad
+   ) AS ganancia
   FROM detalle_ordenRP d
   INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
   INNER JOIN (
@@ -79,13 +79,13 @@ class Help
   UNION ALL
 
   -- Ganancia Servicios en facturas de ventas hoy
-  SELECT SUM(
-    (f.recibido / NULLIF(ft.total_facturado, 0)) *
-    (
-      (d.precio * d.cantidad - d.descuento) -
-      COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)
-    )
-  ) AS ganancia
+  SELECT (
+  (f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+   )
+   -
+   (
+   COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo), 0) * d.cantidad
+   ) AS ganancia
   FROM detalle_facturas_ventas d
   INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
   INNER JOIN (
@@ -101,13 +101,13 @@ class Help
   UNION ALL
 
   -- Ganancia Servicios en órdenes de reparación hoy
-  SELECT SUM(
-    (frp.recibido / NULLIF(ft.total_facturado, 0)) *
-    (
-      (d.precio * d.cantidad - d.descuento) -
-      COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)
-    )
-  ) AS ganancia
+  SELECT (
+  (frp.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+   )
+   -
+   (
+   COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo), 0) * d.cantidad
+   ) AS ganancia
   FROM detalle_ordenRP d
   INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
   INNER JOIN (
@@ -132,13 +132,13 @@ class Help
       $query = "SELECT SUM(ganancia) AS total_ganancias FROM (
 
   -- Ganancia Productos en facturas de ventas
-  SELECT SUM(
-    (f.recibido / NULLIF(ft.total_facturado, 0)) *
-    (
-      (d.precio * d.cantidad - d.descuento) -
-      COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)
-    )
-  ) AS ganancia
+  SELECT (
+  (f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+   )
+   -
+   (
+   COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0) * d.cantidad
+   ) AS ganancia
   FROM detalle_facturas_ventas d
   INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
   INNER JOIN (
@@ -154,13 +154,13 @@ class Help
   UNION ALL
 
   -- Ganancia Piezas en facturas de ventas
-  SELECT SUM(
-    (f.recibido / NULLIF(ft.total_facturado, 0)) *
-    (
-      (d.precio * d.cantidad - d.descuento) -
-      COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)
-    )
-  ) AS ganancia
+  SELECT (
+  (f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+   )
+   -
+   (
+   COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0) * d.cantidad
+   ) AS ganancia
   FROM detalle_facturas_ventas d
   INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
   INNER JOIN (
@@ -176,13 +176,13 @@ class Help
   UNION ALL
 
   -- Ganancia Piezas en ordenes de reparacion
-  SELECT SUM(
-    (frp.recibido / NULLIF(ft.total_facturado, 0)) *
-    (
-      (d.precio * d.cantidad - d.descuento) -
-      COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad, 0)
-    )
-  ) AS ganancia
+  SELECT (
+  (frp.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+   )
+   -
+   (
+   COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0) * d.cantidad
+   ) AS ganancia
   FROM detalle_ordenRP d
   INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
   INNER JOIN (
@@ -198,13 +198,13 @@ class Help
   UNION ALL
 
   -- Ganancia Servicios en facturas de ventas
-  SELECT SUM(
-    (f.recibido / NULLIF(ft.total_facturado, 0)) *
-    (
-      (d.precio * d.cantidad - d.descuento) -
-      COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)
-    )
-  ) AS ganancia
+  SELECT (
+  (f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+   )
+   -
+   (
+   COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo), 0) * d.cantidad
+   ) AS ganancia
   FROM detalle_facturas_ventas d
   INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
   INNER JOIN (
@@ -220,13 +220,13 @@ class Help
   UNION ALL
 
   -- Ganancia Servicios en ordenes de reparacion
-  SELECT SUM(
-    (frp.recibido / NULLIF(ft.total_facturado, 0)) *
-    (
-      (d.precio * d.cantidad - d.descuento) -
-      COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)
-    )
-  ) AS ganancia
+  SELECT (
+  (frp.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+   )
+   -
+   (
+   COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo), 0) * d.cantidad
+   ) AS ganancia
   FROM detalle_ordenRP d
   INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
   INNER JOIN (

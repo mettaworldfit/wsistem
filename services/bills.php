@@ -209,7 +209,7 @@ switch ($action) {
 
     $sql = "SELECT concat(u.nombre,' ',IFNULL(u.apellidos,'')) as vendedor,
         concat(p.nombre_proveedor,' ',IFNULL(p.apellidos,'')) as proveedor,
-        g.orden_id,g.total,g.pagado,g.observacion, concat(g.fecha,' ',g.hora) as fecha
+        g.orden_id,g.gasto_id,g.total,g.pagado,g.observacion, concat(g.fecha,' ',g.hora) as fecha
         FROM gastos g 
         INNER JOIN proveedores p ON p.proveedor_id = g.proveedor_id
         INNER JOIN usuarios u ON u.usuario_id = g.usuario_id

@@ -1,8 +1,8 @@
-import * as qz from "/public/test.js?v=1.0.2";
-import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "/public/functions.js?v=1.0.2";
+// import * as qz from "/public/test.js?v=1.0.2";
+// import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "/public/functions.js?v=1.0.2";
 
-// import * as qz from "../test.js";
-// import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "../functions.js";
+import * as qz from "../test.js";
+import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "../functions.js";
 
 $(document).ready(function () {
 

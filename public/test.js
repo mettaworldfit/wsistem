@@ -1884,11 +1884,7 @@ export async function gastos(info, detail) {
     buffer.push(align("left", language))
     buffer.push(normalizeText("No.: G-00" + info.gasto_id + "\n"))
     buffer.push("Fecha: " + info.fecha + "\n")
-    buffer.push(
-        normalizeText(
-            "Proveedor: " + (info.proveedor ? info.proveedor.toUpperCase() : "") + "\n"
-        )
-    );
+    buffer.push(normalizeText("Proveedor: " + info.proveedor  + "\n"));
     buffer.push(feed(1, language))
 
     buffer.push(feed(1, language))

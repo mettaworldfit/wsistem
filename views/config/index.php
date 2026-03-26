@@ -7,7 +7,6 @@
 </div>
 
 <div class="grid-config">
-
     <div class="card-config">
         <span>Bonos</span>
 

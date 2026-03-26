@@ -1,8 +1,8 @@
-import * as qz from "/public/test.js?v=1.0.2";
-import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
+// import * as qz from "/public/test.js?v=1.0.2";
+// import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
 
-// import * as qz from "../test.js";
-// import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "../functions.js";
+import * as qz from "../test.js";
+import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "../functions.js";
 
 $(document).ready(function () {
 
@@ -671,7 +671,7 @@ $(document).ready(function () {
             year: $('#year').val(),
         }
 
-        const url = new URL(SITE_URL + 'src/excel/detalle-ventas-mes.php');
+        const url = new URL(SITE_URL + 'src/excel/ernings-per-period.php');
         url.searchParams.set('year', data.year);
         url.searchParams.set('month', data.month);
 
