@@ -95,6 +95,10 @@
       <section class="content-bar">
         <div class="admin-left">
 
+          <a href="<?= base_url ?>" class="pos-exit" data-title="Inicio">
+            <i class="fas fa-home"></i>
+          </a>
+
           <!-- Menu rapido -->
           <nav class="nav-container">
             <ul>
@@ -283,6 +287,10 @@
           <a href="<?= base_url ?>users/logout" class="user-logout" id="logout">
             <i class="fas fa-sign-out-alt"></i>
           </a>
+        </div>
+
+        <!-- BARRA DE EXPIRACION -->
+        <div id="plan-progress-container">
         </div>
 
       </div>

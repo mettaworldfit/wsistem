@@ -1,6 +1,6 @@
-// import * as qz from "/public/test.js?v=1.0.2";
+import * as qz from "/public/test.js?v=1.0.2";
 
-import * as qz from "../test.js";
+// import * as qz from "../test.js";
 
 $(document).ready(function () {
 

@@ -1,8 +1,8 @@
-// import * as qz from "/public/test.js?v=1.0.2";
-// import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "/public/functions.js?v=1.0.2";
+import * as qz from "/public/test.js?v=1.0.2";
+import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "/public/functions.js?v=1.0.2";
 
-import * as qz from "../test.js";
-import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "../functions.js";
+// import * as qz from "../test.js";
+// import { calculateTotalInvoice, cashBack, initWebSocket, isWebSocketConnected } from "../functions.js";
 
 $(document).ready(function () {
 
@@ -918,6 +918,8 @@ $(document).ready(function () {
     // Ir a facturacion sin orden
     $('.btn-pos_home').on('click', function () {
 
+        initClientSelect2('#customer_id', 1);
+
         // Quitar datos de las ordenes
         $('#order_id').val('');
         const radio = $('.order-item').find('.order-radio');
@@ -1240,6 +1242,7 @@ $(document).ready(function () {
                     $('#order_id').val(''); // quitar orden
                     loadDetailPOS();
                     initMethodSelect2('#method_id', 1);
+                    initClientSelect2('#customer_id', 1);
 
                     // Preguntar cómo desea imprimir
                     showPrinterOptions(res);

@@ -7,7 +7,7 @@
         <div class="pos-sidebar-order">
 
             <button type="button" class="btn-pos_home">
-                <i class="fas fa-home"></i>
+                <i class="fas fa-bolt"></i>
             </button>
 
             <button type="button" class="btn-add_order">

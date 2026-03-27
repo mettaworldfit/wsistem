@@ -1,8 +1,8 @@
-// import * as qz from "/public/test.js?v=1.0.2";
-// import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
+import * as qz from "/public/test.js?v=1.0.2";
+import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
 
-import * as qz from "../test.js";
-import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "../functions.js";
+// import * as qz from "../test.js";
+// import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "../functions.js";
 
 $(document).ready(function () {
 

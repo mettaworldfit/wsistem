@@ -12,6 +12,7 @@ $user_id = $_SESSION['identity']->usuario_id;
 $permissions = [
 
   // Dashboard / estadísticas
+  'plan_expiracion' => [],
   'total_vendido' => [],
   'ventas_meses' => ['administrador'],
   'gastos_meses' => ['administrador'],
@@ -29,6 +30,10 @@ if (isset($_POST['action'])) {
 switch ($action) {
 
   // Ventas de todos los meses
+  case 'plan_expiracion': 
+
+    echo json_encode([$config['start_date'],$config['end_date']],JSON_UNESCAPED_UNICODE);
+    break;
   case 'ventas_meses':
 
     $query1 = "SET @@lc_time_names = 'es_DO';";

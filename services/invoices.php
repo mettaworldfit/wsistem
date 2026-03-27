@@ -1289,7 +1289,8 @@ if ($_POST['action'] == "cargar_ordenes_pos") {
   $db = Database::connect();
 
   // Ordenes sin factura
-  $sql = "SELECT COUNT(d.comanda_id) AS total_items,co.comanda_id, c.cliente_id, c.nombre
+  $sql = "SELECT COUNT(d.comanda_id) AS total_items,co.comanda_id, c.cliente_id, 
+  CONCAT(c.nombre,' ',IFNULL(c.apellidos,'')) as nombre
   FROM comandas co
   INNER JOIN clientes c ON c.cliente_id = co.cliente_id
   LEFT JOIN detalle_facturas_ventas d ON d.comanda_id = co.comanda_id

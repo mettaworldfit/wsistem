@@ -31,6 +31,13 @@ if (pageURL.includes('invoices/pos')) {
         .admin-bar {
             width: 100% !important;
         }
+
+        .pos-exit {
+          display: block !important;
+            color: var(--text-color);
+            font-size: 1.3rem;
+            margin-left: 1.3rem;
+        }
         `;
     // Agrega el estilo al head del documento
     document.head.appendChild(style);
@@ -1170,6 +1177,96 @@ $(document).ready(function () {
         stopScanner();
     });
 
+    /**============================================================= 
+   * EXPIRACION DEL PLAN
+   ===============================================================*/
+
+    // Función para obtener y mostrar el progreso del plan
+    function renderPlanProgress(fecha_inicio, fecha_fin) {
+        // Ajustar las fechas para evitar problemas de zona horaria
+        const inicio = new Date(fecha_inicio + 'T00:00:00');  // Forzar la hora a medianoche
+        const fin = new Date(fecha_fin + 'T00:00:00');        // Forzar la hora a medianoche
+        const hoy = new Date();
+
+        // Calcular total de días del plan
+        const totalDias = Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24));
+
+        // Calcular días consumidos
+        let diasConsumidos = Math.ceil((hoy - inicio) / (1000 * 60 * 60 * 24));
+        diasConsumidos = Math.max(0, Math.min(diasConsumidos, totalDias));
+
+        // Días restantes
+        let diasRestantes = Math.max(0, totalDias - diasConsumidos);
+
+        // Porcentaje de progreso
+        const porcentaje = (diasConsumidos / totalDias) * 100;
+
+        // Color dinámico según días restantes
+        let color = 'var(--color-primary)';
+        if (diasRestantes <= 3) color = '#e53935';      // rojo
+        else if (diasRestantes <= 7) color = '#fbc02d'; // amarillo
+
+        // Meses del plan
+        const mesesPlan = `${inicio.toLocaleString('default', { month: 'short' })} – ${fin.toLocaleString('default', { month: 'short', year: 'numeric' })}`;
+
+        // Construir HTML
+        const html = `
+        <div class="plan-progress-container">
+            <div class="plan-progress-text">
+                Expira - <span class="dias-restantes">${diasRestantes}</span> días &nbsp;|&nbsp;
+                <span class="meses-plan">${mesesPlan}</span>
+            </div>
+            <div class="plan-progress">
+                <div class="plan-progress-bar" style="width: ${porcentaje}%; background: ${color};"></div>
+            </div>
+        </div>
+    `;
+
+        // Insertar en el contenedor
+        document.getElementById('plan-progress-container').innerHTML = html;
+    }
+
+    function fetchPlanExpiracion() {
+        const lastFetch = localStorage.getItem('lastFetch');  // Fecha del último fetch
+        const now = new Date();
+        const currentTime = now.getTime();
+        const twelveHours = 1000 * 60 * 60 * 12;  // 12 horas en milisegundos
+
+        // Verificar si han pasado más de 12 horas desde la última consulta
+        if (!lastFetch || currentTime - lastFetch > twelveHours) {
+            // Si han pasado más de 12 horas, hacer una consulta y actualizar lastFetch
+            sendAjaxRequest({
+                url: 'services/home.php',
+                data: { action: 'plan_expiracion' },
+                successCallback: (res) => {
+                    const data = JSON.parse(res);  // Datos de las fechas
+
+                    // Guardar los datos en localStorage
+                    localStorage.setItem('planData', JSON.stringify(data));  // Guardamos las fechas de inicio y fin
+                    localStorage.setItem('lastFetch', currentTime);  // Guardamos la fecha del último fetch
+
+                    // Renderizar la barra de progreso
+                    renderPlanProgress(data[0], data[1]);
+                },
+                errorCallback: (err) => {
+                    console.error("Error en la consulta:", err);
+                }
+            });
+        } else {
+            // Si no han pasado 12 horas, usamos los datos almacenados en localStorage
+            const storedData = JSON.parse(localStorage.getItem('planData'));
+            if (storedData) {
+                // Renderizamos el progreso usando los datos guardados
+                renderPlanProgress(storedData[0], storedData[1]);
+            } else {
+                console.error("No hay datos almacenados en localStorage.");
+            }
+        }
+    }
+
+    // Llamar a la función para obtener la expiración del plan
+    fetchPlanExpiracion();
+
 
     /**============================================================= 
     * INICIAR FUNCIONES
@@ -1268,6 +1365,8 @@ $(document).ready(function () {
 
     addKeyboardCommandForModal('Ctrl+3', 'add_detail');
     addKeyboardCommandForModal('Ctrl+0', 'create_customer');
+
+
 
 
 }); // Ready
