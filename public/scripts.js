@@ -1183,9 +1183,24 @@ $(document).ready(function () {
 
     // Función para obtener y mostrar el progreso del plan
     function renderPlanProgress(fecha_inicio, fecha_fin) {
+        // Verificar si las fechas son válidas
+        if (!fecha_inicio || !fecha_fin) {
+            // Si no hay fechas, no mostrar nada
+            document.getElementById('plan-progress-container').innerHTML = '';
+            return;
+        }
+
         // Ajustar las fechas para evitar problemas de zona horaria
         const inicio = new Date(fecha_inicio + 'T00:00:00');  // Forzar la hora a medianoche
         const fin = new Date(fecha_fin + 'T00:00:00');        // Forzar la hora a medianoche
+
+        // Verificar si las fechas son válidas
+        if (isNaN(inicio.getTime()) || isNaN(fin.getTime())) {
+            // Si alguna fecha no es válida, no mostrar nada
+            document.getElementById('plan-progress-container').innerHTML = '';
+            return;
+        }
+
         const hoy = new Date();
 
         // Calcular total de días del plan
