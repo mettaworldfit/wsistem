@@ -308,6 +308,7 @@ input[type="date"].form-custom-icon {
     font-size: 11px;
     font-weight: 600;
     border: 1px solid #ccc;
+    border-radius: 6px;
     font-family: var(--font-primary);
 }
 
@@ -3036,19 +3037,19 @@ a.button-404:hover {
 
 .card-grid:nth-child(7) {
     grid-column: 1 / 3;
-    height: 250px;
+    height: auto;
     background: white;
 }
 
 .card-grid:nth-child(8) {
     grid-column: 1 / 3;
-    height: 250px;
+    height: auto;
     background: white;
 }
 
 .card-grid:last-child {
     grid-column: 1 / 3;
-    height: 250px;
+    height: auto;
     background: white;
 }
 
@@ -3076,29 +3077,29 @@ a.button-404:hover {
 
 @media (min-width: 1350px) {
     .card-grid:nth-child(7) {
-        height: 350px !important;
+        height: auto !important;
     }
 
     .card-grid:nth-child(8) {
-        height: 350px !important;
+        height: auto !important;
     }
 
     .card-grid:last-child {
-        height: 350px !important;
+        height: auto !important;
     }
 }
 
 @media (min-width: 1750px) {
     .card-grid:nth-child(7) {
-        height: 420px !important;
+        height: auto !important;
     }
 
     .card-grid:nth-child(8) {
-        height: 420px !important;
+        height: auto !important;
     }
 
     .card-grid:last-child {
-        height: 420px !important;
+        height: auto !important;
     }
 }
 
@@ -4136,7 +4137,7 @@ button.pos-button-credit {
 
 .pos-button-credit p {
     margin: 0;
-    font-family: var(--font-title);
+    font-family: var(--font-primary);
 }
 
 button.pos-button-cash {
@@ -4180,7 +4181,8 @@ button.pos-button-cash {
 
 .pos-button-cash p {
     margin: 0;
-    font-family: var(--font-title);
+    font-family: var(--font-primary);
+    /* font-size: 0.8rem; */
 }
 
 button.pos-count-item {
@@ -4405,6 +4407,7 @@ span.item-price {
     height: 24px;
     font-size: 7pt;
     border: none;
+    border-radius: 6px;
     background: var(--background);
     font-weight: bold;
     color: var(--color-primary);

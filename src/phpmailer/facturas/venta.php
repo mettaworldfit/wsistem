@@ -12,61 +12,71 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #f4f6f9;
         }
-        
+
         .wrap {
             width: 100%;
             padding: 38px 0px 10px 0px;
         }
-        
+
         p {
-            color: #fff;
+            color: #333;
         }
-        
+
         .container {
+            width: 100%;
             max-width: 600px;
             margin: 20px auto;
-            background: #fff;
-            padding: 20px;
+            background: #ffffff;
+            border-radius: 6px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
-        
+
         .header {
             text-align: center;
-            overflow: hidden;
-            height: 80px;
-            color: #fff;
-            padding-bottom: 40px;
-        }
-        
-        .content {
             padding: 20px;
-            border: 0.5px solid #919191;
+            background: #ffffff;
         }
-        
+
+        .header img {
+            max-width: 180px;
+            height: auto;
+        }
+
+        .content {
+            padding: 25px;
+            color: #333;
+            font-size: 14px;
+        }
+
         .details {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 25px;
         }
-        
+
         .details th,
         .details td {
-            padding: 10px;
+            padding: 8px;
             text-align: left;
-            border-bottom: 1px solid #ddd !important;
             font-size: 13px;
             color: black;
         }
-        
-        .footer {
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-            margin-top: 20px;
+
+        .details th {
+            background: #f9fafc;
         }
-        
+
+        .footer {
+            background: #f1f3f6;
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+            color: #777;
+        }
+
         .button {
             display: inline-block;
             padding: 10px 15px;
@@ -76,28 +86,28 @@
             text-decoration: none;
             border-radius: 5px;
         }
-        
+
         .button:hover {
             background: #218838;
         }
-        
+
         .social-media img {
             max-width: 100%;
             height: 34px;
             margin: 0px 4px;
         }
-        
+
         p.poweredby {
             font-size: 14pt;
             font-weight: 800;
             color: #ddd;
         }
-        
+
         .poweredby a {
             color: black !important;
             text-decoration: none;
         }
-        
+
         img.logo {
             max-width: 200px;
             height: auto;
@@ -108,16 +118,16 @@
 <body>
 
     <div class="container">
-        <div class="wrap" style="background: rgb(56, 56, 56);">
-            <div class="header" style="background: #a2a7aa;">
-
-                <img class="logo" src="<?= $Logo_url ?>" alt="logo">
-          
+        <div class="wrap">
+            <div class="header">
+                <img src="<?= $Logo_url ?>" alt="Logo <?= $Company ?>">
             </div>
+
             <div class="content">
                 <p>Estimado/a <strong><?= $CustName; ?> <?= $CustLastName; ?></strong>,</p>
-                <p>Gracias por visitar <?= $Company; ?>. A continuación, los detalles de su factura:</p>
+                <p>Gracias por visitar <strong><?= $Company; ?></strong>. A continuación, los detalles de su factura:</p>
 
+                <h3 style="border-bottom: 1px solid #eee; padding-bottom: 8px;">Detalles de la Factura</h3>
                 <table class="details">
                     <tr>
                         <th>Factura No.</th>
@@ -133,26 +143,18 @@
                     </tr>
                     <tr>
                         <th>Total</th>
-                        <td><?= number_format($total,2) ?></td>
+                        <td><?= number_format($total, 2) ?></td>
                     </tr>
                 </table>
 
                 <p>Puede ver y descargar su factura al final</p>
             </div>
+
+            <!-- Pie de página con los datos de la empresa -->
             <div class="footer">
-                <div class="social-media">
-                    <a href="<?= $Link_ws ?>">
-                        <img src="https://d1csarkz8obe9u.cloudfront.net/assets/social-icons/circle-black/social-icon-whatsapp.png?ts=1731689004" alt="">
-                    </a>
-                    <a href="<?= $Link_fb ?>">
-                        <img src="https://d1csarkz8obe9u.cloudfront.net/assets/social-icons/circle-black/social-icon-facebook.png?ts=1731689004" alt="">
-                    </a>
-                    <a href="<?= $Link_ig ?>">
-                        <img src="https://d1csarkz8obe9u.cloudfront.net/assets/social-icons/circle-black/social-icon-instagram.png?ts=1731689004" alt="">
-                    </a>
-                </div>
-                <p><a href="" style="color: white;"><?= $Dir ?></a></p>
-                <p><a href="" style="color: white;">Tel: <?= $Tel ?></a></p>
+                <p><strong><?= $Company ?></strong></p>
+                <p><?= $Dir ?></p>
+                <p>Tel: <?= $Tel ?></p>
                 <p class="poweredby">Powered by <a href="https://wa.me/18295020900?text=Me%20intereza%20saber%20m%C3%A1s%20sobre%20el%20sistema">Codevrd</a></p>
             </div>
         </div>

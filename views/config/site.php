@@ -68,6 +68,13 @@
                 </div>
 
                 <div class="form-group d-flex">
+                    <label for="direccion" class="col-sm-3 text-right ">Correo</label>
+                    <input class="form-custom col-sm-12 ml-3" type="mail" value="<?= $config['correo_adm'] ?>" name="mail">
+                    <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Correo administración"
+                        data-content="Ingresa tu correo electronico."><i class="far fa-question-circle"></i></a>
+                </div>
+
+                <div class="form-group d-flex">
                     <label for="tel" class="col-sm-3 text-right ">Teléfono</label>
                     <input class="form-custom col-sm-12 ml-3" type="text" value="<?= $config['telefono'] ?>" name="tel">
                     <a href="#" class=" ml-1 example-popover" data-toggle="popover" title="Teléfono"

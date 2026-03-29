@@ -483,6 +483,7 @@ switch ($action) {
       $_POST['slogan'],
       $_POST['site_name'],
       $_POST['address'],
+      $_POST['mail'],
       $_POST['tel'],
     ];
 

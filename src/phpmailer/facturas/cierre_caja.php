@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Factura Electrónica</title>
+    <title>Cierre de Caja</title>
     <link rel="stylesheet" href="/fontawesome/all.min.css">
     <script src="/fontawesome/all.min.js"></script>
     <style>
@@ -12,59 +12,72 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        .wrap {
-            width: 100%;
-            padding: 38px 0px 10px 0px;
-        }
-
-        p {
-            color: #fff;
+            background-color: #f4f6f9;
         }
 
         .container {
+            width: 100%;
             max-width: 600px;
             margin: 20px auto;
-            background: #fff;
-            padding: 20px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
 
         .header {
             text-align: center;
-            overflow: hidden;
-            height: 80px;
-            color: #fff;
-            padding-bottom: 40px;
+            padding: 20px;
+            background: #ffffff;
+        }
+
+        .header img {
+            max-width: 180px;
+            height: auto;
         }
 
         .content {
-            padding: 20px;
-            border: 0.5px solid #919191;
+            padding: 25px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .content h3 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            margin-top: 25px;
         }
 
         .details {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         .details th,
         .details td {
-            padding: 10px;
+            padding: 8px;
             text-align: left;
-            border-bottom: 1px solid #ddd !important;
-            font-size: 13px;
-            color: black;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .details th {
+            background: #f9fafc;
         }
 
         .footer {
+            background: #f1f3f6;
             text-align: center;
+            padding: 15px;
             font-size: 12px;
-            color: #666;
-            margin-top: 20px;
+            color: #777;
+        }
+
+        .social-media img {
+            width: 34px;
+            height: 34px;
+            margin: 0 4px;
         }
 
         .button {
@@ -81,12 +94,6 @@
             background: #218838;
         }
 
-        .social-media img {
-            max-width: 100%;
-            height: 34px;
-            margin: 0px 4px;
-        }
-
         p.poweredby {
             font-size: 14pt;
             font-weight: 800;
@@ -97,68 +104,68 @@
             color: black !important;
             text-decoration: none;
         }
-
-        img.logo {
-            max-width: 200px;
-            height: auto;
-        }
     </style>
 </head>
 
 <body>
-
     <div class="container">
-        <div class="wrap" style="background: rgb(56, 56, 56);">
-            <div class="header" style="background: #a2a7aa;">
+        <!-- Header con logo -->
+        <div class="header">
+            <img src="<?= $logo_url ?>" alt="Logo <?= $Company ?>">
+        </div>
 
-                <img class="logo" src="<?= $Logo_url ?>" alt="logo">
+        <!-- Contenido principal -->
+        <div class="content">
+            <p>Estimado/a <strong>Equipo de Administración</strong>,</p>
+            <p>Se ha generado correctamente un nuevo <strong>cierre de caja</strong> dentro del sistema <strong><?= $Company; ?></strong>.</p>
+            <p>A continuación se detallan los datos principales del cierre:</p>
 
-            </div>
-            <div class="content">
-                <p>Estimado equipo de <strong>Administración</strong>,</p>
-                <p>Se ha generado correctamente un nuevo <strong>cierre de caja</strong> dentro del sistema <strong><?= $Company; ?></strong>.</p>
-                <p>A continuación se detallan los datos principales del cierre:</p>
+            <h3>Detalles del Cierre de Caja</h3>
+            <table class="details">
+                <tr>
+                    <th>Código de Cierre</th>
+                    <td>0<?= $cierreNumero ?? '' ?></td>
+                </tr>
+                <tr>
+                    <th>Fecha</th>
+                    <td><?= $fechaCierre ?? date('d/m/Y') ?></td>
+                </tr>
+                <tr>
+                    <th>Responsable</th>
+                    <td><?= $cajero ?? '-' ?></td>
+                </tr>
+                <tr>
+                    <th>Total del Cierre</th>
+                    <td><?= number_format($totalCierre, 2) ?></td>
+                </tr>
+                <tr>
+                    <th>Total efectivo en caja</th>
+                    <td><?= number_format($total_esperado, 2) ?></td>
+                </tr>
+                <tr>
+                    <th>Diferencia</th>
+                    <td><?= number_format($diferencia, 2) ?></td>
+                </tr>
+            </table>
 
-                <table class="details">
-                    <tr>
-                        <th>Código de Cierre</th>
-                        <td>CC-00</td>
-                    </tr>
-                    <tr>
-                        <th>Fecha</th>
-                        <td>01/11/2025</td>
-                    </tr>
-                    <tr>
-                        <th>Responsable</th>
-                        <td>Wilmin</td>
-                    </tr>
-                    <tr>
-                        <th>Total del cierre</th>
-                        <td><?= number_format(5000, 2) ?></td>
-                    </tr>
-                </table>
+            <p>Este mensaje ha sido generado automáticamente como confirmación del cierre de caja.</p>
 
-                <p>Este mensaje ha sido generado automáticamente como confirmación del cierre de caja.</p>
-                <p>Gracias por su gestión y confianza.</p>
-            </div>
+        </div>
 
-            <div class="footer">
-                <div class="social-media">
-                    <a href="https://wa.me/18295020900?text=Me%20intereza%20saber%20m%C3%A1s%20sobre%20el%20sistema">
-                        <img src="https://d1csarkz8obe9u.cloudfront.net/assets/social-icons/circle-black/social-icon-whatsapp.png?ts=1731689004" alt="">
-                    </a>
-
-                    <a href="https://www.instagram.com/codevrd">
-                        <img src="https://d1csarkz8obe9u.cloudfront.net/assets/social-icons/circle-black/social-icon-instagram.png?ts=1731689004" alt="">
-                    </a>
-                </div>
-                <p><a href="" style="color: white;"><?= $Dir ?></a></p>
-                <p><a href="" style="color: white;">Tel: <?= $Tel ?></a></p>
-                <p class="poweredby">Powered by <a href="https://wa.me/18295020900?text=Me%20intereza%20saber%20m%C3%A1s%20sobre%20el%20sistema">Codevrd</a></p>
-
+        <!-- Pie de página con datos de la empresa -->
+        <div class="footer">
+            <p><strong><?= $Company ?></strong></p>
+            <p><?= $Dir ?></p>
+            <p>Tel: <?= $Tel ?></p>
+            <div class="social-media">
+                <a href="<?= $Link_ws ?? '#' ?>">
+                    <img src="https://d1csarkz8obe9u.cloudfront.net/assets/social-icons/circle-black/social-icon-whatsapp.png?ts=1731689004" alt="WhatsApp">
                 </a>
-
+                <a href="<?= $Link_ig ?? '#' ?>">
+                    <img src="https://d1csarkz8obe9u.cloudfront.net/assets/social-icons/circle-black/social-icon-instagram.png?ts=1731689004" alt="Instagram">
+                </a>
             </div>
+            <p class="poweredby">Powered by <a href="https://wa.me/18295020900?text=Me%20intereza%20saber%20más%20sobre%20el%20sistema">Codevrd</a></p>
         </div>
     </div>
 </body>

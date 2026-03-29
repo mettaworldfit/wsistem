@@ -931,3 +931,42 @@ DELIMITER ;
 SHOW TRIGGERS;
 
 
+-- ===================== CAMBIOS POR APLICAR =========================
+UPDATE detalle_facturas_ventas 
+SET descuento = 0 
+WHERE descuento IS NULL;
+
+ALTER TABLE detalle_facturas_ventas 
+MODIFY descuento DECIMAL(10,2) NOT NULL DEFAULT 0;
+
+INSERT INTO configuraciones (config_key, config_value, descripcion) 
+VALUES 
+('start_date', '2026-01-01', 'Fecha de inicio del plan'),
+('end_date', '2026-06-01', 'Fecha de final del plan');
+
+DROP PROCEDURE IF EXISTS `cf_datos_del_sitio`;
+DELIMITER $$
+CREATE PROCEDURE `cf_datos_del_sitio` (
+    IN _logo_url TEXT,
+    IN _slogan TEXT,
+    IN _nombre VARCHAR(100),
+    IN _direccion VARCHAR(100),
+    IN _correo VARCHAR(50),
+    IN _tel VARCHAR(40)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+        SELECT 'SQLException encountered' AS msg;
+    DECLARE EXIT HANDLER FOR SQLSTATE '23000' 
+        SELECT 'SQLSTATE 23000' AS msg;
+
+    UPDATE configuraciones SET config_value = _logo_url WHERE config_key = 'logo_url';
+	UPDATE configuraciones SET config_value = _slogan WHERE config_key = 'slogan';
+	UPDATE configuraciones SET config_value = _nombre WHERE config_key = 'empresa_name';
+	UPDATE configuraciones SET config_value = _direccion WHERE config_key = 'direccion';
+	UPDATE configuraciones SET config_value = _correo WHERE config_key = 'correo_adm';
+	UPDATE configuraciones SET config_value = _tel WHERE config_key = 'telefono';
+
+    SELECT 'ready' AS msg;
+END $$
+DELIMITER ; 

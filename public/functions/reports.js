@@ -1,8 +1,8 @@
-import * as qz from "/public/test.js?v=1.0.2";
-import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
+// import * as qz from "/public/test.js?v=1.0.2";
+// import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
 
-// import * as qz from "../test.js";
-// import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "../functions.js";
+import * as qz from "../test.js";
+import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "../functions.js";
 
 $(document).ready(function () {
 
@@ -47,8 +47,7 @@ $(document).ready(function () {
             successCallback: (res) => {
 
                 const data = JSON.parse(res)
-                console.log(data)
-
+             
                 // Datos
                 $('#closingId').val(data['caja']['apertura'].cierre_id);
                 $('#tickets_invoices').val(data['ventas']['tickets_emitidos'].total_facturas);
@@ -283,7 +282,7 @@ $(document).ready(function () {
 
                 Object.assign(data, response)
                 qz.cierre_caja(data) // Imprimir
-                // sendCashClosing(res) // Enviar el cierr de caja por correo
+                sendCashClosing(res) // Enviar el cierr de caja por correo
             },
             errorCallback: (res) => mysql_error(res),
             verbose: false
@@ -299,10 +298,6 @@ $(document).ready(function () {
             .then(data => {
                 console.log("Respuesta:", data);
 
-                // Recargar la página después del envío
-                if (data.includes("enviado correctamente") || data.includes("ok")) {
-                    location.reload();
-                }
             })
             .catch(error => {
                 console.error("Error al ejecutar cierre_caja.php:", error);
