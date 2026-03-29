@@ -58,15 +58,36 @@ INNER JOIN usuarios u ON u.usuario_id = c.usuario_id WHERE c.cierre_id = '$id'";
   date_default_timezone_set('America/Santo_Domingo');
   $datetimeRD = date('Y-m-d\TH:i');
 
-  $query_conf = "SELECT logo_pdf,tel,direccion,empresa,condiciones,titulo 
-	           FROM configuraciones WHERE config_id = 1";
+  // ==============================================================
+  // Obtener configuracion del servidor SMTP desde la base de datos
+  // ==============================================================
 
-  $conf = $db->query($query_conf)->fetch_object();
+  $config = Database::getConfig();
 
-  $Logo_pdf = $conf->logo_pdf;
-  $empresa = $conf->empresa;
+  // Asignar las configuraciones a las variables
+  $Host = isset($config['servidor']) ? $config['servidor'] : '';
+  $Pass = isset($config['password']) ? $config['password'] : '';
+  $Email = isset($config['correo_servidor']) ? $config['correo_servidor'] : '';
+  $Email_adm = isset($config['correo_adm']) ? $config['correo_adm'] : '';
+  $Company = isset($config['empresa_name']) ? $config['empresa_name'] : '';
+  $Port = isset($config['puerto']) ? $config['puerto'] : '';
+  $SMTPS = isset($config['smtps']) ? $config['smtps'] : '';
+  $logo_url = isset($config['logo_url']) ? $config['logo_url'] : '';
+  $logo = isset($config['logo']) ? $config['logo'] : '';
+  $Slogan = isset($config['slogan']) ? $config['slogan'] : '';
+  $Tel = isset($config['telefono']) ? $config['telefono'] : '';
+  $Dir = isset($config['direccion']) ? $config['direccion'] : '';
+  $Policy = isset($config['condiciones']) ? $config['condiciones'] : '';
+  $Title = isset($config['titulo']) ? $config['titulo'] : '';
 
-  $nombreImagen = base_url . $Logo_pdf;
+  // Redes sociales
+  $Link_ws = isset($config['link_whatsapp']) ? $config['link_whatsapp'] : '';
+  $Link_fb = isset($config['link_facebook']) ? $config['link_facebook'] : '';
+  $Link_ig = isset($config['link_instagram']) ? $config['link_instagram'] : '';
+
+
+
+  $nombreImagen = base_url . $logo;
   $imagenBase64 = "data:image/png;base64," . base64_encode(file_get_contents($nombreImagen));
 
   $html = "
@@ -97,7 +118,7 @@ INNER JOIN usuarios u ON u.usuario_id = c.usuario_id WHERE c.cierre_id = '$id'";
 <div class='container'>
 <div class='center' style='margin-bottom: 10px;'>
   <img src='" . $imagenBase64 . "' style='display:block; margin:auto; max-height:80px;' alt='Logo'>
-  <div style='font-size: 18px; font-weight: bold; margin-top: 5px;'>$empresa</div>
+  <div style='font-size: 18px; font-weight: bold; margin-top: 5px;'>$Company</div>
 </div>
   <div class='title'>Cierre de Caja</div>
   <div class='sub-title'>
@@ -106,7 +127,7 @@ INNER JOIN usuarios u ON u.usuario_id = c.usuario_id WHERE c.cierre_id = '$id'";
   </div>
 
   <div class='section'>
-    Estimado(a), se detalla a continuación el cierre de caja n° $cierreNumero del punto de venta de $empresa.
+    Estimado(a), se detalla a continuación el cierre de caja n° $cierreNumero del punto de venta de $Company.
   </div>
 
 <div class='section'>
@@ -193,34 +214,6 @@ INNER JOIN usuarios u ON u.usuario_id = c.usuario_id WHERE c.cierre_id = '$id'";
 
   // Obtener el contenido del PDF en una variable
   $pdfOutput = $dompdf->output();
-
-
-  // ==============================================================
-  // Obtener configuracion del servidor SMTP desde la base de datos
-  // ==============================================================
-
-  $config = Database::getConfig();
-
-  // Asignar las configuraciones a las variables
-  $Host = isset($config['servidor']) ? $config['servidor'] : '';
-  $Pass = isset($config['password']) ? $config['password'] : '';
-  $Email = isset($config['correo_servidor']) ? $config['correo_servidor'] : '';
-  $Email_adm = isset($config['correo_adm']) ? $config['correo_adm'] : '';
-  $Company = isset($config['empresa_name']) ? $config['empresa_name'] : '';
-  $Port = isset($config['puerto']) ? $config['puerto'] : '';
-  $SMTPS = isset($config['smtps']) ? $config['smtps'] : '';
-  $Logo_url = isset($config['logo_url']) ? $config['logo_url'] : '';
-  $Logo_pdf = isset($config['logo']) ? $config['logo'] : '';
-  $Slogan = isset($config['slogan']) ? $config['slogan'] : '';
-  $Tel = isset($config['telefono']) ? $config['telefono'] : '';
-  $Dir = isset($config['direccion']) ? $config['direccion'] : '';
-  $Policy = isset($config['condiciones']) ? $config['condiciones'] : '';
-  $Title = isset($config['titulo']) ? $config['titulo'] : '';
-
-  // Redes sociales
-  $Link_ws = isset($config['link_whatsapp']) ? $config['link_whatsapp'] : '';
-  $Link_fb = isset($config['link_facebook']) ? $config['link_facebook'] : '';
-  $Link_ig = isset($config['link_instagram']) ? $config['link_instagram'] : '';
 
 
   // ===========================================

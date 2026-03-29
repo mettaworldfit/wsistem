@@ -38,6 +38,13 @@ if (pageURL.includes('invoices/pos')) {
             font-size: 1.3rem;
             margin-left: 1.3rem;
         }
+
+        @media (min-width: 1320px) {
+            .pos-exit {
+                font-size: 1.7rem;
+                margin-left: 1.6rem;
+            }
+        }
         `;
     // Agrega el estilo al head del documento
     document.head.appendChild(style);
@@ -45,11 +52,11 @@ if (pageURL.includes('invoices/pos')) {
 
 let toastTimeout = null;
 /**
-    * 
-    * @param {any} response - respuesta del mensaje
-    * @param {string} type - tipo de notificacion
-    * @param {int} duration  - duracion de la notificacion
-*/
+ * 
+ * @param {any} response - respuesta del mensaje
+ * @param {string} type - tipo de notificacion
+ * @param {int} duration  - duracion de la notificacion
+ */
 function notifyAlert(message, type = 'success', duration = 3000) {
 
     // Evitar llamadas simultáneas
@@ -83,7 +90,7 @@ const dataTablesInstances = {};
  * @param {string} name - Nombre del parámetro.
  * @returns {string|null} Valor decodificado del parámetro o null si no existe.
  */
-$.urlParam = function (name) {
+$.urlParam = function(name) {
     const results = new RegExp(`[?&]${name}=([^&#]*)`).exec(window.location.href);
     return results ? decodeURIComponent(results[1]) : null;
 };
@@ -100,7 +107,7 @@ function addKeyboardCommand(keyCombo, url, preventDefault = true) {
     const key = keyCombo.toLowerCase().replace('ctrl+', '');
 
     // Escucha el evento global
-    $(document).keydown(function (e) {
+    $(document).keydown(function(e) {
         // Ignorar si el foco está dentro de un input, textarea o select
         if ($(e.target).is('input, textarea, select')) {
             return;
@@ -126,7 +133,7 @@ function addKeyboardCommandForModal(keyCombo, modalId, preventDefault = true) {
     // Extrae la tecla (por ejemplo "n" en "ctrl+n")
     const key = keyCombo.toLowerCase().replace('ctrl+', '');
 
-    $(document).keydown(function (e) {
+    $(document).keydown(function(e) {
         // Evita activar el comando si el foco está en un campo editable
         if ($(e.target).is('input, textarea, select')) {
             return;
@@ -216,9 +223,9 @@ function initCustomDataTable({
 
             setTimeout(() => {
 
-                const extraParams = typeof ajaxParams === 'function'
-                    ? ajaxParams()
-                    : ajaxParams;
+                const extraParams = typeof ajaxParams === 'function' ?
+                    ajaxParams() :
+                    ajaxParams;
 
                 $.ajax({
                     url: SITE_URL + ajaxUrl,
@@ -226,16 +233,16 @@ function initCustomDataTable({
                     data: {
                         action: ajaxAction,
                         id: $.urlParam('id') || $.urlParam('o'), // parámetros url
-                        ...extraParams,   // parámetros personalizados
-                        ...data          // parámetros internos de DataTables
+                        ...extraParams, // parámetros personalizados
+                        ...data // parámetros internos de DataTables
 
                     },
                     dataType: 'json',
                     success: response => {
 
-                        const json = typeof response === 'string'
-                            ? JSON.parse(response)
-                            : response;
+                        const json = typeof response === 'string' ?
+                            JSON.parse(response) :
+                            response;
 
                         callback(json);
 
@@ -268,7 +275,7 @@ function initCustomDataTable({
             }, loadTime);
         },
         columns,
-        createdRow: function (row, data, dataIndex) {
+        createdRow: function(row, data, dataIndex) {
             hiddenColumns.forEach(index => {
                 $(row).find('td').eq(index).addClass('hide-cell');
             });
@@ -359,16 +366,16 @@ function sendAjaxRequest({ url, data = {}, successCallback, errorCallback, verbo
         processData: !isFormData,
         contentType: isFormData ? false : 'application/x-www-form-urlencoded; charset=UTF-8',
 
-        success: function (res) {
+        success: function(res) {
             // Asegurarse de que la respuesta sea válida JSON (no texto plano)
             let data = handleJSONResponse(res);
 
             // Si la respuesta no tiene errores
             if (data && (data.error === false || data.error === null)) {
-                successCallback?.(res);
+                successCallback ? .(res);
             } else {
                 // Si error es true, mandamos la respuesta al errorCallback
-                errorCallback?.(data.message || res);
+                errorCallback ? .(data.message || res);
             }
 
             if (verbose) {
@@ -377,7 +384,7 @@ function sendAjaxRequest({ url, data = {}, successCallback, errorCallback, verbo
                 console.groupEnd();
             }
         },
-        error: function (xhr, status, error) {
+        error: function(xhr, status, error) {
             const msg = `Error HTTP: ${status} - ${error}`;
 
             if (verbose) {
@@ -386,7 +393,7 @@ function sendAjaxRequest({ url, data = {}, successCallback, errorCallback, verbo
                 console.groupEnd();
             }
 
-            errorCallback?.(msg);
+            errorCallback ? .(msg);
         }
     });
 }
@@ -420,9 +427,9 @@ function loadTables(tableConfigs) {
         const { id, url, action, columns, hiddenColumns, params, ...rest } = config;
 
         const columnDefs = columns.map(col =>
-            col === 'acciones'
-                ? { data: col, orderable: false, searchable: false }
-                : { data: col }
+            col === 'acciones' ?
+            { data: col, orderable: false, searchable: false } :
+            { data: col }
         );
 
         const tableId = id.replace('#', '');
@@ -439,14 +446,14 @@ function loadTables(tableConfigs) {
     });
 }
 
-$(document).ready(function () {
+$(document).ready(function() {
 
     // Valores de la sección agregar producto
     $("#inputMinCantidad").val(1);
     $("#inputCantidad").val(1);
 
     // Atajos de tecla enter
-    $("body").keyup(function (e) {
+    $("body").keyup(function(e) {
         if (e.keyCode == 13) {
             if (pageURL.includes("products/add")) {
                 $("#createProduct").click();
@@ -455,7 +462,7 @@ $(document).ready(function () {
     });
 
     // Notificaciones del admin bar
-    setInterval(function () {
+    setInterval(function() {
         $(".out-stock p").fadeTo(1200, 0.1).fadeTo(1200, 1);
         $(".num-order p").fadeTo(1200, 0.1).fadeTo(1200, 1);
     }, 1600);
@@ -482,9 +489,9 @@ $(document).ready(function () {
     * MENU ACCORDEON SIDEBAR
     ===============================================================*/
 
-    $(function () {
+    $(function() {
         // Función de Acordeón
-        var Accordion = function (el, multiple) {
+        var Accordion = function(el, multiple) {
             this.el = el || {};
             this.multiple = multiple || false;
 
@@ -498,7 +505,7 @@ $(document).ready(function () {
             }, this.dropdown);
         };
 
-        Accordion.prototype.dropdown = function (e) {
+        Accordion.prototype.dropdown = function(e) {
             var $el = e.data.el;
             var $this = $(this),
                 $next = $this.next();
@@ -534,7 +541,7 @@ $(document).ready(function () {
         });
 
         // Cerrar el menú cuando se haga clic fuera de él
-        $(document).click(function (event) {
+        $(document).click(function(event) {
             // Verificar si el clic no es dentro del menú o del botón de toggle
             if (!$(event.target).closest('#accordion-movil').length &&
                 !$(event.target).closest('#menuToggle').length &&
@@ -547,10 +554,10 @@ $(document).ready(function () {
         });
 
         // Prevenir que el clic dentro del menú o del botón de toggle lo cierre
-        $('#accordion-movil').click(function (event) {
+        $('#accordion-movil').click(function(event) {
             event.stopPropagation();
         });
-        $('#menuToggle').click(function (event) {
+        $('#menuToggle').click(function(event) {
             event.stopPropagation();
         });
     });
@@ -568,7 +575,7 @@ $(document).ready(function () {
     });
 
     // Cerrar el menú si se hace clic fuera de él
-    $(document).on("click", function (event) {
+    $(document).on("click", function(event) {
         if (!$(event.target).closest(".nav-container, #bar-menu").length) {
             $(".nav-container").removeClass("open");
         }
@@ -656,374 +663,400 @@ $(document).ready(function () {
 
     // Configuración de DataTable Server-Side para las tablas
     const tableConfigs = [{
-        id: '#invoices',
-        url: 'services/invoices.php',
-        action: 'index_facturas_ventas',
-        columns: [
-            'factura_venta_id', 'nombre', 'fecha_factura', 'total', 'recibido', 'pendiente', 'bono', 'nombre_estado', 'acciones'
-        ],
-        order: [[0, 'desc']],
-        hiddenColumns: [3, 4, 5, 6]
-    },
-    {
-        id: '#today',
-        url: 'services/reports.php',
-        action: 'index_ventas_hoy',
-        columns: [
-            'id', 'nombre', 'fecha', 'total', 'recibido', 'pendiente', 'estado', 'acciones'
-        ],
-        order: [[0, 'desc']],
-    },
-    {
-        id: '#customers',
-        url: 'services/contacts.php',
-        action: 'index_clientes',
-        columns: [
-            'id', 'nombre', 'direccion', 'cedula', 'telefono', 'fecha', 'acciones'
-        ],
-        hiddenColumns: [2, 3]
-    },
-    {
-        id: '#providers',
-        url: 'services/contacts.php',
-        action: 'index_proveedores',
-        columns: [
-            'id', 'nombre', 'correo', 'telefono', 'fecha', 'acciones'
-        ],
-        hiddenColumns: [0, 2]
-    },
-    {
-        id: '#workshop',
-        url: 'services/workshop.php',
-        action: 'index_taller',
-        columns: [
-            'orden', 'nombre', 'equipo', 'fecha_entrada', 'fecha_salida', 'condicion', 'estado', 'acciones'
-        ],
-        order: [[0, 'desc']],
-        hiddenColumns: [3, 4, 5]
-    },
-    {
-        id: '#products',
-        url: 'services/products.php',
-        action: 'index_productos',
-        columns: [
-            'codigo', 'nombre', 'categoria', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
-        ],
-        hiddenColumns: [0, 2, 4]
-    },
-    {
-        id: '#invoicesrp',
-        url: 'services/repair.php',
-        action: 'index_facturas_reparacion',
-        columns: [
-            'id', 'nombre', 'fecha', 'total', 'recibido', 'pendiente', 'estado', 'acciones'
-        ],
-        order: [[0, 'desc']],
-        hiddenColumns: [3, 4, 5]
-    },
-    {
-        id: '#quotes',
-        url: 'services/invoices.php',
-        action: 'index_cotizaciones',
-        columns: [
-            'id', 'nombre', 'fecha', 'total', 'acciones'
-        ],
-        order: [[0, 'desc']],
-        hiddenColumns: [3]
-    },
-    {
-        id: '#payments',
-        url: 'services/payments.php',
-        action: 'index_pagos_facturas_ventas',
-        columns: [
-            'pago_id', 'factura_id', 'nombre', 'recibido', 'observacion', 'fecha', 'acciones'
-        ],
-        order: [[0, 'desc']],
-        hiddenColumns: [0, 4, 5]
-    },
-    {
-        id: '#ordersc',
-        url: 'services/bills.php',
-        action: 'index_ordenes_compras',
-        columns: [
-            'orden_id', 'proveedor', 'articulos', 'fecha', 'expiracion', 'estado', 'acciones'
-        ],
-        order: [[0, 'desc']],
-        hiddenColumns: [2, 4, 5]
-    },
-    {
-        id: '#invoicesp',
-        url: 'services/bills.php',
-        action: 'index_facturas_proveedores',
-        columns: [
-            'id', 'proveedor', 'fecha', 'total', 'pagado', 'por_pagar', 'estado', 'acciones'
-        ],
-        order: [[0, 'desc']],
-        hiddenColumns: [0,]
-    },
-    {
-        id: '#bills',
-        url: 'services/bills.php',
-        action: 'index_gastos',
-        columns: [
-            'id', 'proveedor', 'gastos', 'fecha', 'total', 'pagado', 'acciones'
-        ],
-        order: [[0, 'desc']],
-        hiddenColumns: [1, 5]
-    },
-    {
-        id: '#payments_providers',
-        url: 'services/payments.php',
-        action: 'index_pagos_proveedores',
-        columns: [
-            'pago_id', 'factura', 'proveedor', 'recibido', 'observacion', 'fecha', 'acciones'
-        ],
-        order: [[0, 'desc']],
-    },
-    {
-        id: '#pieces',
-        url: 'services/pieces.php',
-        action: 'index_piezas',
-        columns: [
-            'id', 'nombre', 'categoria', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
-        ],
-        hiddenColumns: [0, 2, 4]
-    },
-    {
-        id: '#minStockProduct',
-        url: 'services/products.php',
-        action: 'index_casi_agotados',
-        columns: [
-            'cod_producto', 'nombre', 'categoria', 'almacen', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
-        ]
-    },
-    {
-        id: '#services',
-        url: 'services/services.php',
-        action: 'index_servicios',
-        columns: [
-            'servicio_id', 'nombre_servicio', 'costo', 'precio', 'acciones'
-        ]
-    },
-    {
-        id: '#users',
-        url: 'services/users.php',
-        action: 'index_usuarios',
-        columns: [
-            'usuario_id', 'nombre', 'rol', 'estado', 'fecha', 'acciones'
-        ],
-        hiddenColumns: [0]
-    },
-    {
-        id: '#brands',
-        url: 'services/workshop.php',
-        action: 'index_marcas',
-        columns: [
-            'nombre_marca', 'fecha', 'acciones'
-        ]
-    },
-    {
-        id: '#pricelists',
-        url: 'services/price_lists.php',
-        action: 'index_lista_precios',
-        columns: [
-            'id', 'nombre_lista', 'descripcion', 'acciones'
-        ]
-    },
-    {
-        id: '#warehouses',
-        url: 'services/warehouses.php',
-        action: 'index_almacen',
-        columns: [
-            'id', 'nombre_almacen', 'descripcion', 'fecha', 'acciones'
-        ]
-    },
-    {
-        id: '#categories',
-        url: 'services/categories.php',
-        action: 'index_categorias',
-        columns: [
-            'id', 'nombre_categoria', 'descripcion', 'fecha', 'acciones'
-        ]
-    },
-    {
-        id: '#positions',
-        url: 'services/positions.php',
-        action: 'index_posiciones',
-        columns: [
-            'id', 'referencia', 'fecha', 'acciones'
-        ]
-    },
-    {
-        id: '#offers',
-        url: 'services/offers.php',
-        action: 'index_ofertas',
-        columns: [
-            'id', 'nombre', 'valor', 'descripcion', 'fecha', 'acciones'
-        ]
-    },
-    {
-        id: '#taxs',
-        url: 'services/taxes.php',
-        action: 'index_impuestos',
-        columns: [
-            'id', 'nombre', 'valor', 'descripcion', 'fecha', 'acciones'
-        ]
-    },
-    {
-        id: '#inventory',
-        url: 'services/products.php',
-        action: 'index_valor_inventario',
-        columns: [
-            'codigo', 'nombre', 'cantidad', 'estado', 'precio_costo', 'total_costo'
-        ]
-    },
-    {
-        id: '#bonus',
-        url: 'services/config.php',
-        action: 'index_bonos',
-        columns: [
-            'id', 'cliente', 'valor', 'usuario', 'fecha', 'acciones'
-        ],
-        order: [[0, 'desc']],
-    },
+            id: '#invoices',
+            url: 'services/invoices.php',
+            action: 'index_facturas_ventas',
+            columns: [
+                'factura_venta_id', 'nombre', 'fecha_factura', 'total', 'recibido', 'pendiente', 'bono', 'nombre_estado', 'acciones'
+            ],
+            order: [
+                [0, 'desc']
+            ],
+            hiddenColumns: [3, 4, 5, 6]
+        },
+        {
+            id: '#today',
+            url: 'services/reports.php',
+            action: 'index_ventas_hoy',
+            columns: [
+                'id', 'nombre', 'fecha', 'total', 'recibido', 'pendiente', 'estado', 'acciones'
+            ],
+            order: [
+                [0, 'desc']
+            ],
+        },
+        {
+            id: '#customers',
+            url: 'services/contacts.php',
+            action: 'index_clientes',
+            columns: [
+                'id', 'nombre', 'direccion', 'cedula', 'telefono', 'fecha', 'acciones'
+            ],
+            hiddenColumns: [2, 3]
+        },
+        {
+            id: '#providers',
+            url: 'services/contacts.php',
+            action: 'index_proveedores',
+            columns: [
+                'id', 'nombre', 'correo', 'telefono', 'fecha', 'acciones'
+            ],
+            hiddenColumns: [0, 2]
+        },
+        {
+            id: '#workshop',
+            url: 'services/workshop.php',
+            action: 'index_taller',
+            columns: [
+                'orden', 'nombre', 'equipo', 'fecha_entrada', 'fecha_salida', 'condicion', 'estado', 'acciones'
+            ],
+            order: [
+                [0, 'desc']
+            ],
+            hiddenColumns: [3, 4, 5]
+        },
+        {
+            id: '#products',
+            url: 'services/products.php',
+            action: 'index_productos',
+            columns: [
+                'codigo', 'nombre', 'categoria', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
+            ],
+            hiddenColumns: [0, 2, 4]
+        },
+        {
+            id: '#invoicesrp',
+            url: 'services/repair.php',
+            action: 'index_facturas_reparacion',
+            columns: [
+                'id', 'nombre', 'fecha', 'total', 'recibido', 'pendiente', 'estado', 'acciones'
+            ],
+            order: [
+                [0, 'desc']
+            ],
+            hiddenColumns: [3, 4, 5]
+        },
+        {
+            id: '#quotes',
+            url: 'services/invoices.php',
+            action: 'index_cotizaciones',
+            columns: [
+                'id', 'nombre', 'fecha', 'total', 'acciones'
+            ],
+            order: [
+                [0, 'desc']
+            ],
+            hiddenColumns: [3]
+        },
+        {
+            id: '#payments',
+            url: 'services/payments.php',
+            action: 'index_pagos_facturas_ventas',
+            columns: [
+                'pago_id', 'factura_id', 'nombre', 'recibido', 'observacion', 'fecha', 'acciones'
+            ],
+            order: [
+                [0, 'desc']
+            ],
+            hiddenColumns: [0, 4, 5]
+        },
+        {
+            id: '#ordersc',
+            url: 'services/bills.php',
+            action: 'index_ordenes_compras',
+            columns: [
+                'orden_id', 'proveedor', 'articulos', 'fecha', 'expiracion', 'estado', 'acciones'
+            ],
+            order: [
+                [0, 'desc']
+            ],
+            hiddenColumns: [2, 4, 5]
+        },
+        {
+            id: '#invoicesp',
+            url: 'services/bills.php',
+            action: 'index_facturas_proveedores',
+            columns: [
+                'id', 'proveedor', 'fecha', 'total', 'pagado', 'por_pagar', 'estado', 'acciones'
+            ],
+            order: [
+                [0, 'desc']
+            ],
+            hiddenColumns: [0, ]
+        },
+        {
+            id: '#bills',
+            url: 'services/bills.php',
+            action: 'index_gastos',
+            columns: [
+                'id', 'proveedor', 'gastos', 'fecha', 'total', 'pagado', 'acciones'
+            ],
+            order: [
+                [0, 'desc']
+            ],
+            hiddenColumns: [1, 5]
+        },
+        {
+            id: '#payments_providers',
+            url: 'services/payments.php',
+            action: 'index_pagos_proveedores',
+            columns: [
+                'pago_id', 'factura', 'proveedor', 'recibido', 'observacion', 'fecha', 'acciones'
+            ],
+            order: [
+                [0, 'desc']
+            ],
+        },
+        {
+            id: '#pieces',
+            url: 'services/pieces.php',
+            action: 'index_piezas',
+            columns: [
+                'id', 'nombre', 'categoria', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
+            ],
+            hiddenColumns: [0, 2, 4]
+        },
+        {
+            id: '#minStockProduct',
+            url: 'services/products.php',
+            action: 'index_casi_agotados',
+            columns: [
+                'cod_producto', 'nombre', 'categoria', 'almacen', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
+            ]
+        },
+        {
+            id: '#services',
+            url: 'services/services.php',
+            action: 'index_servicios',
+            columns: [
+                'servicio_id', 'nombre_servicio', 'costo', 'precio', 'acciones'
+            ]
+        },
+        {
+            id: '#users',
+            url: 'services/users.php',
+            action: 'index_usuarios',
+            columns: [
+                'usuario_id', 'nombre', 'rol', 'estado', 'fecha', 'acciones'
+            ],
+            hiddenColumns: [0]
+        },
+        {
+            id: '#brands',
+            url: 'services/workshop.php',
+            action: 'index_marcas',
+            columns: [
+                'nombre_marca', 'fecha', 'acciones'
+            ]
+        },
+        {
+            id: '#pricelists',
+            url: 'services/price_lists.php',
+            action: 'index_lista_precios',
+            columns: [
+                'id', 'nombre_lista', 'descripcion', 'acciones'
+            ]
+        },
+        {
+            id: '#warehouses',
+            url: 'services/warehouses.php',
+            action: 'index_almacen',
+            columns: [
+                'id', 'nombre_almacen', 'descripcion', 'fecha', 'acciones'
+            ]
+        },
+        {
+            id: '#categories',
+            url: 'services/categories.php',
+            action: 'index_categorias',
+            columns: [
+                'id', 'nombre_categoria', 'descripcion', 'fecha', 'acciones'
+            ]
+        },
+        {
+            id: '#positions',
+            url: 'services/positions.php',
+            action: 'index_posiciones',
+            columns: [
+                'id', 'referencia', 'fecha', 'acciones'
+            ]
+        },
+        {
+            id: '#offers',
+            url: 'services/offers.php',
+            action: 'index_ofertas',
+            columns: [
+                'id', 'nombre', 'valor', 'descripcion', 'fecha', 'acciones'
+            ]
+        },
+        {
+            id: '#taxs',
+            url: 'services/taxes.php',
+            action: 'index_impuestos',
+            columns: [
+                'id', 'nombre', 'valor', 'descripcion', 'fecha', 'acciones'
+            ]
+        },
+        {
+            id: '#inventory',
+            url: 'services/products.php',
+            action: 'index_valor_inventario',
+            columns: [
+                'codigo', 'nombre', 'cantidad', 'estado', 'precio_costo', 'total_costo'
+            ]
+        },
+        {
+            id: '#bonus',
+            url: 'services/config.php',
+            action: 'index_bonos',
+            columns: [
+                'id', 'cliente', 'valor', 'usuario', 'fecha', 'acciones'
+            ],
+            order: [
+                [0, 'desc']
+            ],
+        },
 
-    // Cargar detalles
-    {
-        id: '#detailTemp',
-        url: 'services/invoices.php',
-        action: 'cargar_detalle_temporal',
-        columns: ['descripcion', 'cantidad', 'precio', 'impuesto', 'descuento', 'importe', 'acciones'],
-        hiddenColumns: [3],
-        paging: true,
-        searching: false,
-        ordering: false,
-        info: false
-    },
-    {
-        id: '#editInvoice',
-        url: 'services/invoices.php',
-        action: 'cargar_detalle_facturas',
-        columns: ['descripcion', 'cantidad', 'precio', 'impuesto', 'descuento', 'total', 'acciones'],
-        hiddenColumns: [3],
-        paging: true,
-        searching: false,
-        ordering: false,
-        info: false
-    },
-    {
-        id: '#addrepair',
-        url: 'services/repair.php',
-        action: 'cargar_ordenrp',
-        columns: ['descripcion', 'cantidad', 'precio', 'descuento', 'total', 'acciones'],
-        paging: true,
-        searching: false,
-        ordering: false,
-        info: false
-    },
-    {
-        id: '#editrepair',
-        url: 'services/repair.php',
-        action: 'cargar_facturarp',
-        columns: ['descripcion', 'cantidad', 'precio', 'descuento', 'total', 'acciones'],
-        paging: true,
-        searching: false,
-        ordering: false,
-        info: false
-    },
-    {
-        id: '#variantList',
-        url: 'services/products.php',
-        action: 'cargar_variantes',
-        columns: getVariantTableColumns(),
-        paging: true,
-        searching: true,
-        ordering: false,
-        hideZeroRecordsMessage: true,
-        info: false
-    },
-    {
-        id: '#cashClosing',
-        url: 'services/reports.php',
-        action: 'index_cierre_caja',
-        columns: ['id', 'cajero', 'total_real', 'gastos', 'diferencia', 'fecha_apertura', 'fecha_cierre', 'estado', 'acciones'],
-        order: [[0, 'desc']],
-        hiddenColumns: [0, 2, 3, 4, 7]
-    },
-    {
-        id: '#orders',
-        url: 'services/invoices.php',
-        action: 'index_ordenes',
-        columns: [
-            'comanda_id', 'nombre', 'telefono', 'entrega', 'fecha', 'estado', 'orden', 'acciones'
-        ],
-        order: [[0, 'desc']]
-    },
-    {
-        id: '#addorder',
-        url: 'services/invoices.php',
-        action: 'cargar_detalle_orden',
-        columns: [
-            'descripcion', 'cantidad', 'precio', 'impuesto', 'descuento', 'importe', 'acciones'
-        ],
-        hiddenColumns: [3],
-        paging: false,
-        searching: false,
-        ordering: false,
-        info: false
-    },
-    {
-        id: '#customer_history',
-        url: 'services/contacts.php',
-        action: 'historial_cliente',
-        columns: [
-            'factura_id', 'item', 'cantidad', 'precio', 'descuento', 'total', 'fecha'
-        ],
-        hiddenColumns: [1, 2, 4, 5, 6],
-        paging: true,
-        searching: false,
-        ordering: true,
-        info: false
-    },
-    {
-        id: '#labels',
-        url: 'services/config.php',
-        action: 'cargar_etiquetas',
-        columns: ['id', 'nombre', 'ancho', 'alto', 'impresora', 'acciones'],
-        paging: true,
-        searching: true,
-        ordering: true,
-        info: false
-    },
-    {
-        id: '#printers',
-        url: 'services/config.php',
-        action: 'cargar_printers',
-        columns: ['usuario', 'printer', 'tipo', 'lenguaje', 'tamaño', 'acciones'],
-        paging: true,
-        searching: true,
-        ordering: true,
-        info: false
-    },
+        // Cargar detalles
+        {
+            id: '#detailTemp',
+            url: 'services/invoices.php',
+            action: 'cargar_detalle_temporal',
+            columns: ['descripcion', 'cantidad', 'precio', 'impuesto', 'descuento', 'importe', 'acciones'],
+            hiddenColumns: [3],
+            paging: true,
+            searching: false,
+            ordering: false,
+            info: false
+        },
+        {
+            id: '#editInvoice',
+            url: 'services/invoices.php',
+            action: 'cargar_detalle_facturas',
+            columns: ['descripcion', 'cantidad', 'precio', 'impuesto', 'descuento', 'total', 'acciones'],
+            hiddenColumns: [3],
+            paging: true,
+            searching: false,
+            ordering: false,
+            info: false
+        },
+        {
+            id: '#addrepair',
+            url: 'services/repair.php',
+            action: 'cargar_ordenrp',
+            columns: ['descripcion', 'cantidad', 'precio', 'descuento', 'total', 'acciones'],
+            paging: true,
+            searching: false,
+            ordering: false,
+            info: false
+        },
+        {
+            id: '#editrepair',
+            url: 'services/repair.php',
+            action: 'cargar_facturarp',
+            columns: ['descripcion', 'cantidad', 'precio', 'descuento', 'total', 'acciones'],
+            paging: true,
+            searching: false,
+            ordering: false,
+            info: false
+        },
+        {
+            id: '#variantList',
+            url: 'services/products.php',
+            action: 'cargar_variantes',
+            columns: getVariantTableColumns(),
+            paging: true,
+            searching: true,
+            ordering: false,
+            hideZeroRecordsMessage: true,
+            info: false
+        },
+        {
+            id: '#cashClosing',
+            url: 'services/reports.php',
+            action: 'index_cierre_caja',
+            columns: ['id', 'cajero', 'total_real', 'gastos', 'diferencia', 'fecha_apertura', 'fecha_cierre', 'estado', 'acciones'],
+            order: [
+                [0, 'desc']
+            ],
+            hiddenColumns: [0, 2, 3, 4, 7]
+        },
+        {
+            id: '#orders',
+            url: 'services/invoices.php',
+            action: 'index_ordenes',
+            columns: [
+                'comanda_id', 'nombre', 'telefono', 'entrega', 'fecha', 'estado', 'orden', 'acciones'
+            ],
+            order: [
+                [0, 'desc']
+            ]
+        },
+        {
+            id: '#addorder',
+            url: 'services/invoices.php',
+            action: 'cargar_detalle_orden',
+            columns: [
+                'descripcion', 'cantidad', 'precio', 'impuesto', 'descuento', 'importe', 'acciones'
+            ],
+            hiddenColumns: [3],
+            paging: false,
+            searching: false,
+            ordering: false,
+            info: false
+        },
+        {
+            id: '#customer_history',
+            url: 'services/contacts.php',
+            action: 'historial_cliente',
+            columns: [
+                'factura_id', 'item', 'cantidad', 'precio', 'descuento', 'total', 'fecha'
+            ],
+            hiddenColumns: [1, 2, 4, 5, 6],
+            paging: true,
+            searching: false,
+            ordering: true,
+            info: false
+        },
+        {
+            id: '#labels',
+            url: 'services/config.php',
+            action: 'cargar_etiquetas',
+            columns: ['id', 'nombre', 'ancho', 'alto', 'impresora', 'acciones'],
+            paging: true,
+            searching: true,
+            ordering: true,
+            info: false
+        },
+        {
+            id: '#printers',
+            url: 'services/config.php',
+            action: 'cargar_printers',
+            columns: ['usuario', 'printer', 'tipo', 'lenguaje', 'tamaño', 'acciones'],
+            paging: true,
+            searching: true,
+            ordering: true,
+            info: false
+        },
 
     ];
 
 
     // Hacer autofocus al abrir una modal
 
-    $('#add_detail').on('shown.bs.modal', function () {
+    $('#add_detail').on('shown.bs.modal', function() {
         $('#code').trigger('focus');
     });
 
-    $('#modalCashOpening').on('shown.bs.modal', function () {
+    $('#modalCashOpening').on('shown.bs.modal', function() {
         $('#cash_initial').trigger('focus');
     });
 
-    $('#modalCashClosing').on('shown.bs.modal', function () {
+    $('#modalCashClosing').on('shown.bs.modal', function() {
         $('#current_total').trigger('focus');
     });
 
-    $('#credit_invoice').on('shown.bs.modal', function () {
+    $('#credit_invoice').on('shown.bs.modal', function() {
         $('#credit-pay').trigger('focus');
     });
 
@@ -1031,62 +1064,62 @@ $(document).ready(function () {
     * CARGAR FECHA ACTUAL EN INPUTS
     ===============================================================*/
 
-    $(function () {
+    $(function() {
 
         // Función que obtiene la fecha desde el servidor vía AJAX
         function getFechaServidor(callback) {
             $.ajax({
                 url: SITE_URL + "services/config.php",
-                method: "POST",  // Usualmente se usa POST, si es GET entonces cambialo.
+                method: "POST", // Usualmente se usa POST, si es GET entonces cambialo.
                 data: {
                     action: 'fecha_actual'
                 },
-                success: function (res) {
-                    const data = JSON.parse(res);  // Convertir JSON a objeto
-                    callback(data);  // Pasar el objeto con ambas fechas
+                success: function(res) {
+                    const data = JSON.parse(res); // Convertir JSON a objeto
+                    callback(data); // Pasar el objeto con ambas fechas
                 },
-                error: function (xhr, status, error) {
+                error: function(xhr, status, error) {
                     console.error("Error al obtener la fecha del servidor:", error);
                 }
             });
         }
 
         // CASH MODAL
-        $(document).on('shown.bs.modal', '#cash_invoice', function () {
-            getFechaServidor(function (data) {
-                $('#cash-in-date').val(data.fecha);  // Asignar solo la fecha (YYYY-MM-DD)
+        $(document).on('shown.bs.modal', '#cash_invoice', function() {
+            getFechaServidor(function(data) {
+                $('#cash-in-date').val(data.fecha); // Asignar solo la fecha (YYYY-MM-DD)
             });
         });
 
         // CREDIT MODAL
-        $(document).on('shown.bs.modal', '#credit_invoice', function () {
-            getFechaServidor(function (data) {
-                $('#credit-in-date').val(data.fecha);  // Asignar solo la fecha (YYYY-MM-DD)
+        $(document).on('shown.bs.modal', '#credit_invoice', function() {
+            getFechaServidor(function(data) {
+                $('#credit-in-date').val(data.fecha); // Asignar solo la fecha (YYYY-MM-DD)
             });
         });
 
         // CREDIT MODAL POS
-        $(document).on('shown.bs.modal', '#pos-credit', function () {
-            getFechaServidor(function (data) {
-                $('#modal-date').val(data.fecha);  // Asignar solo la fecha (YYYY-MM-DD)
+        $(document).on('shown.bs.modal', '#pos-credit', function() {
+            getFechaServidor(function(data) {
+                $('#modal-date').val(data.fecha); // Asignar solo la fecha (YYYY-MM-DD)
             });
         });
 
         // CIERRE DE CAJA
-        $(document).on('shown.bs.modal', '#modalCashClosing', function () {
-            getFechaServidor(function (data) {
-                console.log("Fecha y hora del servidor (Cierre de Caja):", data.fecha_completa);  // Fecha completa
-                var fechaFormateada = data.fecha_completa.replace(' ', 'T').slice(0, 16);  // Reemplazar espacio por T y recortar a YYYY-MM-DDTHH:MM
-                $('#closing_date').val(fechaFormateada);  // Asignar el valor formateado al input
+        $(document).on('shown.bs.modal', '#modalCashClosing', function() {
+            getFechaServidor(function(data) {
+                console.log("Fecha y hora del servidor (Cierre de Caja):", data.fecha_completa); // Fecha completa
+                var fechaFormateada = data.fecha_completa.replace(' ', 'T').slice(0, 16); // Reemplazar espacio por T y recortar a YYYY-MM-DDTHH:MM
+                $('#closing_date').val(fechaFormateada); // Asignar el valor formateado al input
             });
         });
 
         // APERTURA DE CAJA
-        $(document).on('shown.bs.modal', '#modalCashOpening', function () {
-            getFechaServidor(function (data) {
-                console.log("Fecha y hora del servidor (Abrir caja):", data.fecha_completa);  // Fecha completa
-                var fechaFormateada = data.fecha_completa.replace(' ', 'T').slice(0, 16);  // Reemplazar espacio por T y recortar a YYYY-MM-DDTHH:MM
-                $('#opening').val(fechaFormateada);  // Asignar el valor formateado al input
+        $(document).on('shown.bs.modal', '#modalCashOpening', function() {
+            getFechaServidor(function(data) {
+                console.log("Fecha y hora del servidor (Abrir caja):", data.fecha_completa); // Fecha completa
+                var fechaFormateada = data.fecha_completa.replace(' ', 'T').slice(0, 16); // Reemplazar espacio por T y recortar a YYYY-MM-DDTHH:MM
+                $('#opening').val(fechaFormateada); // Asignar el valor formateado al input
             });
         });
 
@@ -1099,7 +1132,7 @@ $(document).ready(function () {
     let scanner = null;
     let scanning = false;
 
-    $('#scannerProduct, #scannerExplorer, #scannerPos').on('click', function () {
+    $('#scannerProduct, #scannerExplorer, #scannerPos').on('click', function() {
 
         if (scanning) return;
 
@@ -1113,8 +1146,7 @@ $(document).ready(function () {
 
             scanning = true;
 
-            scanner.start(
-                { facingMode: "environment" }, // Este es el objeto correcto con solo una clave
+            scanner.start({ facingMode: "environment" }, // Este es el objeto correcto con solo una clave
                 {
                     fps: 15,
                     qrbox: (vw, vh) => {
@@ -1145,11 +1177,11 @@ $(document).ready(function () {
                     }
 
                     // 📳 Vibración (móvil)
-                    navigator.vibrate?.(100);
+                    navigator.vibrate ? .(100);
 
                     stopScanner();
                 },
-                () => { }
+                () => {}
             ).catch(err => {
                 console.error("Error cámara:", err);
                 alert("Error cámara:", err)
@@ -1173,7 +1205,7 @@ $(document).ready(function () {
     }
 
     // ❌ BOTÓN SALIR
-    $('#closeScanner').on('click', function () {
+    $('#closeScanner').on('click', function() {
         stopScanner();
     });
 
@@ -1191,8 +1223,8 @@ $(document).ready(function () {
         }
 
         // Ajustar las fechas para evitar problemas de zona horaria
-        const inicio = new Date(fecha_inicio + 'T00:00:00');  // Forzar la hora a medianoche
-        const fin = new Date(fecha_fin + 'T00:00:00');        // Forzar la hora a medianoche
+        const inicio = new Date(fecha_inicio + 'T00:00:00'); // Forzar la hora a medianoche
+        const fin = new Date(fecha_fin + 'T00:00:00'); // Forzar la hora a medianoche
 
         // Verificar si las fechas son válidas
         if (isNaN(inicio.getTime()) || isNaN(fin.getTime())) {
@@ -1218,7 +1250,7 @@ $(document).ready(function () {
 
         // Color dinámico según días restantes
         let color = 'var(--color-primary)';
-        if (diasRestantes <= 3) color = '#e53935';      // rojo
+        if (diasRestantes <= 3) color = '#e53935'; // rojo
         else if (diasRestantes <= 7) color = '#fbc02d'; // amarillo
 
         // Meses del plan
@@ -1242,10 +1274,10 @@ $(document).ready(function () {
     }
 
     function fetchPlanExpiracion() {
-        const lastFetch = localStorage.getItem('lastFetch');  // Fecha del último fetch
+        const lastFetch = localStorage.getItem('lastFetch'); // Fecha del último fetch
         const now = new Date();
         const currentTime = now.getTime();
-        const twelveHours = 1000 * 60 * 60 * 12;  // 12 horas en milisegundos
+        const twelveHours = 1000 * 60 * 60 * 12; // 12 horas en milisegundos
 
         // Verificar si han pasado más de 12 horas desde la última consulta
         if (!lastFetch || currentTime - lastFetch > twelveHours) {
@@ -1254,11 +1286,11 @@ $(document).ready(function () {
                 url: 'services/home.php',
                 data: { action: 'plan_expiracion' },
                 successCallback: (res) => {
-                    const data = JSON.parse(res);  // Datos de las fechas
+                    const data = JSON.parse(res); // Datos de las fechas
 
                     // Guardar los datos en localStorage
-                    localStorage.setItem('planData', JSON.stringify(data));  // Guardamos las fechas de inicio y fin
-                    localStorage.setItem('lastFetch', currentTime);  // Guardamos la fecha del último fetch
+                    localStorage.setItem('planData', JSON.stringify(data)); // Guardamos las fechas de inicio y fin
+                    localStorage.setItem('lastFetch', currentTime); // Guardamos la fecha del último fetch
 
                     // Renderizar la barra de progreso
                     renderPlanProgress(data[0], data[1]);
@@ -1301,13 +1333,13 @@ $(document).ready(function () {
     $(".search").select2();
 
     // Bootstrap4 PopOvers
-    $(function () {
+    $(function() {
         $(".example-popover").popover({
             container: "body",
         });
     });
 
-    $(function () {
+    $(function() {
         $('[data-toggle="popover"]').popover();
     });
 
@@ -1328,7 +1360,7 @@ $(document).ready(function () {
                 previous: "Anterior"
             }
         },
-        initComplete: function () {
+        initComplete: function() {
 
         }
     });

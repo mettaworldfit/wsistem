@@ -1,8 +1,8 @@
-import { factura_venta, orden_venta } from "/public/test.js?v=1.0.2";
-import { calculateTotalInvoice, cashBack } from "/public/functions.js?v=1.0.2";
+// import { factura_venta, orden_venta } from "/public/test.js?v=1.0.2";
+// import { calculateTotalInvoice, cashBack } from "/public/functions.js?v=1.0.2";
 
-// import { factura_venta, orden_venta } from "../test.js";
-// import { calculateTotalInvoice, cashBack } from "../functions.js";
+import { factura_venta, orden_venta } from "../test.js";
+import { calculateTotalInvoice, cashBack } from "../functions.js";
 
 $(document).ready(function () {
 
@@ -355,7 +355,7 @@ $(document).ready(function () {
 
                         // Enviar email (si está marcado)
                         if ($("#sendMail").is(':checked')) {
-                            SendmailCashft(invoice_id);
+                            sendMail(invoice_id);
                         }
 
                     } else {
@@ -366,7 +366,7 @@ $(document).ready(function () {
 
                         // Enviar email si #sendMail está marcado
                         if ($("#sendMail").is(':checked')) {
-                            SendmailCashft(invoice_id); // Enviar correo
+                            sendMail(invoice_id); // Enviar correo
                         }
                     }
 
@@ -430,9 +430,9 @@ $(document).ready(function () {
 
 
     // Generar Email de factura al contado
-    function SendmailCashft(invoice) {
+    function sendMail(invoice) {
 
-        data = {
+       const data = {
             subtotal: $('#in-subtotal').val().replace(/,/g, ""),
             discount: $('#in-discount').val().replace(/,/g, ""),
             taxes: $('#in-taxes').val().replace(/,/g, ""),
@@ -489,7 +489,7 @@ $(document).ready(function () {
         e.preventDefault()
 
         var id = $('#invoice_id').val()
-        SendmailCashft(id)
+        sendMail(id)
     })
 
     // Consultar si el cliente a crédito tiene un bono

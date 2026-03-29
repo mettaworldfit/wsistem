@@ -95,7 +95,7 @@
       <section class="content-bar">
         <div class="admin-left">
 
-          <a href="<?= base_url ?>" class="pos-exit" data-title="Inicio">
+          <a href="<?= base_url ?>home/index" class="pos-exit" data-title="Inicio">
             <i class="fas fa-home"></i>
           </a>
 

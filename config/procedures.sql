@@ -155,7 +155,9 @@ VALUES
     ('etiqueta_id', 1, 'Selecciona la etiqueta que por defecto'),
     ('tinify_API_KEY', '', 'Clave para comprimir las imagenes'),
 	('auto_cierre', 'true', 'Cierre continuo que cierra automaticamente a la 12:00 am'),
-    ('modo_cierre', 'separado', 'estilo de cierre de caja normal/separado');
+    ('modo_cierre', 'separado', 'estilo de cierre de caja normal/separado'),
+    ('start_date', '2026-01-01', 'Fecha de inicio del plan'),
+    ('end_date', '2026-06-01', 'Fecha de final del plan');
 
 # Store Procedures
 #-------------------------------------------------------------------
@@ -2073,7 +2075,8 @@ CREATE PROCEDURE `cf_datos_del_sitio` (
     IN _slogan TEXT,
     IN _nombre VARCHAR(100),
     IN _direccion VARCHAR(100),
-    IN _tel VARCHAR(25)
+    IN _correo VARCHAR(50),
+    IN _tel VARCHAR(40)
 )
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
@@ -2085,6 +2088,7 @@ BEGIN
 	UPDATE configuraciones SET config_value = _slogan WHERE config_key = 'slogan';
 	UPDATE configuraciones SET config_value = _nombre WHERE config_key = 'empresa_name';
 	UPDATE configuraciones SET config_value = _direccion WHERE config_key = 'direccion';
+	UPDATE configuraciones SET config_value = _correo WHERE config_key = 'correo_adm';
 	UPDATE configuraciones SET config_value = _tel WHERE config_key = 'telefono';
 
     SELECT 'ready' AS msg;

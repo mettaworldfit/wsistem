@@ -306,6 +306,7 @@ input[type="date"].form-custom-icon {
     font-size: 11px;
     font-weight: 600;
     border: 1px solid #ccc;
+    border-radius: 6px;
     font-family: var(--font-primary);
 }
 
@@ -1491,36 +1492,6 @@ span.alert-notify-lg p {
 }
 
 
-/* CONTENEDOR DEL USUARIO */
-
-.user-header {
-    display: flex;
-    align-items: center;
-    padding: 10px 15px;
-    cursor: pointer;
-}
-
-
-/* AVATAR CON INICIAL */
-
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #6a3cc0;
-    /* color de fondo */
-    color: #fff;
-    /* letra blanca */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 18px;
-    margin-right: 10px;
-    flex-shrink: 0;
-}
-
-
 /* INFO DEL USUARIO */
 
 @media (max-width: 727px) {
@@ -1539,6 +1510,12 @@ span.alert-notify-lg p {
     gap: 10px;
 }
 
+@media (min-width: 1320px) {
+    .user-header {
+        padding: 29px 15px;
+    }
+}
+
 
 /* Avatar */
 
@@ -1553,7 +1530,16 @@ span.alert-notify-lg p {
     justify-content: center;
     font-weight: bold;
     font-size: 18px;
+    margin-right: 10px;
     flex-shrink: 0;
+}
+
+@media (min-width: 1320px) {
+    .user-avatar {
+        width: 50px;
+        height: 50px;
+        font-size: 1.6rem;
+    }
 }
 
 
@@ -1577,6 +1563,18 @@ span.alert-notify-lg p {
     color: #777;
 }
 
+@media (min-width: 1320px) {
+    .user-name {
+        font-weight: bold;
+        font-size: 1rem;
+        color: var(--sidebar-text-color);
+    }
+    .user-role {
+        font-size: 0.85rem;
+        color: #777;
+    }
+}
+
 
 /* BotÃ³n cerrar sesiÃ³n */
 
@@ -1589,6 +1587,12 @@ span.alert-notify-lg p {
     text-decoration: none;
     padding: 5px;
     transition: color 0.3s;
+}
+
+@media (min-width: 1320px) {
+    .user-logout {
+        font-size: 1.4rem;
+    }
 }
 
 .user-logout:hover {
@@ -1659,6 +1663,12 @@ span.alert-notify-lg p {
     color: var(--sidebar-text-color);
     font-family: var(--font-primary);
     white-space: nowrap;
+}
+
+@media (min-width: 1320px) {
+    .plan-progress-text {
+        font-size: 0.7rem;
+    }
 }
 
 
@@ -3065,19 +3075,19 @@ a.button-404:hover {
 
 .card-grid:nth-child(7) {
     grid-column: 1 / 3;
-    height: 250px;
+    height: auto;
     background: white;
 }
 
 .card-grid:nth-child(8) {
     grid-column: 1 / 3;
-    height: 250px;
+    height: auto;
     background: white;
 }
 
 .card-grid:last-child {
     grid-column: 1 / 3;
-    height: 250px;
+    height: auto;
     background: white;
 }
 
@@ -3103,25 +3113,25 @@ a.button-404:hover {
 
 @media (min-width: 1350px) {
     .card-grid:nth-child(7) {
-        height: 350px !important;
+        height: auto !important;
     }
     .card-grid:nth-child(8) {
-        height: 350px !important;
+        height: auto !important;
     }
     .card-grid:last-child {
-        height: 350px !important;
+        height: auto !important;
     }
 }
 
 @media (min-width: 1750px) {
     .card-grid:nth-child(7) {
-        height: 420px !important;
+        height: auto !important;
     }
     .card-grid:nth-child(8) {
-        height: 420px !important;
+        height: auto !important;
     }
     .card-grid:last-child {
-        height: 420px !important;
+        height: auto !important;
     }
 }
 
@@ -4151,7 +4161,7 @@ button.pos-button-credit {
 
 .pos-button-credit p {
     margin: 0;
-    font-family: var(--font-title);
+    font-family: var(--font-primary);
 }
 
 button.pos-button-cash {
@@ -4194,7 +4204,8 @@ button.pos-button-cash {
 
 .pos-button-cash p {
     margin: 0;
-    font-family: var(--font-title);
+    font-family: var(--font-primary);
+    /* font-size: 0.8rem; */
 }
 
 button.pos-count-item {
@@ -4416,6 +4427,7 @@ span.item-price {
     height: 24px;
     font-size: 7pt;
     border: none;
+    border-radius: 6px;
     background: var(--background);
     font-weight: bold;
     color: var(--color-primary);
