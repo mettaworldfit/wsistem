@@ -284,7 +284,7 @@
           </div>
 
           <!-- BOTÓN CERRAR SESIÓN -->
-          <a href="<?= base_url ?>users/logout" class="user-logout" id="logout">
+          <a href="<?= base_url ?>users/logout" class="user-logout" data-title="Cerrar sesión" id="logout">
             <i class="fas fa-sign-out-alt"></i>
           </a>
         </div>
