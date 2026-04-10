@@ -10,7 +10,8 @@ class ReportsController
         'sales_period' => ['administrador'],
         'equipment_sold' => ['administrador'],
         'inventory' => ['administrador'],
-        'item_quantity' => ['administrador']
+        'item_quantity' => ['administrador'],
+        'expense_period' => ['administrador']
     ];
 
     // Verificación de permisos
@@ -115,7 +116,14 @@ class ReportsController
         // Verificar permisos para la acción 
         $this->check_permission('item_quantity');
 
-        // Mostrar la vista del inventario
         require_once './views/reports/item_quantity.php';
+    }
+
+    public function expense_period()
+    {
+        // Verificar permisos para la acción 
+        $this->check_permission('expense_period');
+
+        require_once './views/reports/expense_period.php';
     }
 }

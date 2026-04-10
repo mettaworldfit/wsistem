@@ -192,16 +192,28 @@ $menu_sections = [
         'roles' => ['administrador', 'cajero'],
         'submenu' => [
             [
+                'label' => 'Cierres de caja',
+                'link' => base_url . 'reports/cash_closing',
+                'icon' => 'fas fa-cash-register',
+                'roles' => ['administrador', 'cajero']
+            ],
+               [
+                'label' => 'Equipos vendidos',
+                'link' => base_url . 'reports/equipment_sold',
+                'icon' => 'fas fa-search',
+                'roles' => ['administrador']
+            ],
+            [
                 'label' => 'Ganancias por período',
                 'link' => base_url . 'reports/earnings_period',
                 'icon' => 'fas fa-search',
                 'roles' => ['administrador']
             ],
             [
-                'label' => 'Cierres de caja',
-                'link' => base_url . 'reports/cash_closing',
-                'icon' => 'fas fa-cash-register',
-                'roles' => ['administrador', 'cajero']
+                'label' => 'Gastos por período',
+                'link' => base_url . 'reports/expense_period',
+                'icon' => 'fas fa-search',
+                'roles' => ['administrador']
             ],
             [
                 'label' => 'Reportes de cantidades',
@@ -218,12 +230,6 @@ $menu_sections = [
             [
                 'label' => 'Reportes de ventas',
                 'link' => base_url . 'reports/sales_period',
-                'icon' => 'fas fa-search',
-                'roles' => ['administrador']
-            ],
-            [
-                'label' => 'Equipos vendidos',
-                'link' => base_url . 'reports/equipment_sold',
                 'icon' => 'fas fa-search',
                 'roles' => ['administrador']
             ],

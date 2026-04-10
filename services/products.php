@@ -100,20 +100,23 @@ switch ($action) {
         'nombre'
       ],
       'base_table' => '(SELECT 1) AS dummy', // Solo para el total sin filtro
+
       'table_with_joins' => "(
-        SELECT nombre_almacen, cod_producto as codigo, nombre_producto as nombre, cantidad, precio_costo, nombre_estado, cantidad_min
-        FROM productos p 
-        INNER JOIN almacenes a ON a.almacen_id = p.almacen_id
-        INNER JOIN estados_generales e ON e.estado_id = p.estado_id
-        
-        UNION ALL
-        
-        SELECT nombre_almacen, cod_pieza as codigo, nombre_pieza as nombre, cantidad, precio_costo, nombre_estado, cantidad_min
-        FROM piezas pz 
-        INNER JOIN almacenes a ON a.almacen_id = pz.almacen_id
-        INNER JOIN estados_generales e ON e.estado_id = pz.estado_id
-    ) inventario",
+          SELECT nombre_almacen, cod_producto as codigo, nombre_producto as nombre, cantidad, precio_costo, nombre_estado, cantidad_min
+          FROM productos p 
+          INNER JOIN almacenes a ON a.almacen_id = p.almacen_id
+          INNER JOIN estados_generales e ON e.estado_id = p.estado_id
+          
+          UNION ALL
+          
+          SELECT nombre_almacen, cod_pieza as codigo, nombre_pieza as nombre, cantidad, precio_costo, nombre_estado, cantidad_min
+          FROM piezas pz 
+          INNER JOIN almacenes a ON a.almacen_id = pz.almacen_id
+          INNER JOIN estados_generales e ON e.estado_id = pz.estado_id
+      )",
+
       'select' => "SELECT nombre_almacen, codigo, nombre, cantidad, precio_costo, nombre_estado, cantidad_min",
+
       'table_rows' => function ($row) {
         // Determinar clase de color según la cantidad
         $claseCantidad = 'text-warning';
@@ -432,7 +435,7 @@ switch ($action) {
 
   // Caso: Eliminar producto
   case 'eliminar_producto':
-     $db->query("SET @usuario_id = " . (int)$user_id);
+    $db->query("SET @usuario_id = " . (int)$user_id);
     echo handleProcedureAction($db, 'pr_eliminarProducto', [$_POST['product_id']]);
     break;
 

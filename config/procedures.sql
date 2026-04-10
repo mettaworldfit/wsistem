@@ -2763,12 +2763,14 @@ BEGIN
     IF (_comanda_id > 0) THEN
         -- Si hay una comanda_id, actualizar los detalles de la factura
         UPDATE detalle_facturas_ventas 
-        SET factura_venta_id = factura_id 
+        SET factura_venta_id = factura_id,
+        fecha = curdate()
         WHERE comanda_id = _comanda_id;
     ELSE
         -- Si no hay comanda_id, asignar el ID de la factura a los detalles sin comanda ni factura
         UPDATE detalle_facturas_ventas 
-        SET factura_venta_id = factura_id 
+        SET factura_venta_id = factura_id,
+        fecha = curdate()
         WHERE usuario_id = _usuario_id 
           AND comanda_id IS NULL
           AND factura_venta_id IS NULL;

@@ -47,7 +47,7 @@ $(document).ready(function () {
             successCallback: (res) => {
 
                 const data = JSON.parse(res)
-             
+
                 // Datos
                 $('#closingId').val(data['caja']['apertura'].cierre_id);
                 $('#tickets_invoices').val(data['ventas']['tickets_emitidos'].total_facturas);
@@ -562,7 +562,6 @@ $(document).ready(function () {
 
         $('#display1').html(table);
 
-
         // Inicializar tabla
         loadTables([
             {
@@ -652,13 +651,134 @@ $(document).ready(function () {
                 console.error(err)
             }
         })
+    })
+
+    /**============================================================= 
+    * REPORTES DE GASTOS
+    ===============================================================*/
+
+    if (!$('#expense_period').length) {
+
+        const table = `
+            <table id="expense_period" class="table-custom table">
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th class="hide-cell">Proveedor</th>
+                        <th>Gastos</th>
+                        <th>Observacion</th>
+                        <th class="hide-cell">Fecha</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+            </table>
+        `;
+
+        $('.table_expense_period').html(table);
+    }
 
 
+    $('#formExpensePeriod').on('submit', function (e) {
+        e.preventDefault()
+
+        const tableId = 'expense_period';
+
+        //  Si ya existe DataTable → destruir
+        if ($.fn.DataTable.isDataTable('#' + tableId)) {
+            $('#' + tableId).DataTable().destroy();
+        }
+
+        let formDataTable = new FormData(this)
+        // Convertir FormData a objeto plano
+        const formObject = Object.fromEntries(formDataTable.entries());
+
+        let formData = new FormData(this)
+        formData.append("action", "resumen_gastos_periodo")
+
+        sendAjaxRequest({
+            url: "services/reports.php",
+            data: formData,
+            successCallback: (res) => {
+
+                const data = JSON.parse(res)[0]
+
+                $('#inv_total').text(data.facturas)
+                $('#total').text("DOP " + format.format(data.total))
+
+                // Inicializar tabla
+                loadTables([
+                    {
+                        id: '#expense_period',
+                        url: 'services/reports.php',
+                        action: 'reportes_por_periodo',
+                        columns: [
+                            'id', 'proveedor', 'gastos', 'observacion', 'fecha', 'total'
+                        ],
+                        order: [[5, 'desc']],
+                        hiddenColumns: [1, 3],
+                        ajaxParams: formObject
+                    },
+                ])
+            },
+            errorCallback: (err) => {
+                console.error(err)
+            }
+        })
     })
 
 
-    // Ganancias por periodo
-    $('#queryForm').on('submit', function (e) {
+    /**============================================================= 
+    * GANANCIAS POR PERIODO
+    ===============================================================*/
+
+    $(function () {
+
+        function toggleFiltros() {
+
+            if ($('#filtro_rango').is(':checked')) {
+
+                // Mostrar rango
+                $('.filtroRango').show()
+                    .find('input, select')
+                    .prop('required', true)
+                    .prop('disabled', false);
+                
+                 $('#earning_report').hide()
+
+                // Ocultar mes y limpiar
+                $('.filtroMes').hide()
+                    .find('input, select')
+                    .prop('required', false)
+                    .prop('disabled', true);
+
+            } else {
+
+                // Mostrar mes
+                $('.filtroMes').show()
+                    .find('input, select')
+                    .prop('required', true)
+                    .prop('disabled', false);
+
+                $('#earning_report').show()
+
+                // Ocultar rango y limpiar
+                $('.filtroRango').hide()
+                    .find('input, select')
+                    .prop('required', false)
+                    .prop('disabled', true)
+                    .val(''); // limpiar valores
+            }
+        }
+
+        // Evento cambio
+        $(document).on('change', 'input[name="tipo_filtro"]', toggleFiltros);
+
+        // Ejecutar al cargar
+        toggleFiltros();
+    });
+
+    // Ganancias por periodo reporte
+    $('#earning_report').on('click', function (e) {
         e.preventDefault()
 
         const data = {
@@ -682,6 +802,75 @@ $(document).ready(function () {
         url.searchParams.set('date', $('#date_query').val());
 
         window.location.href = url.toString();
+    })
+
+
+    if (!$('#earning_period').length) {
+
+        const table = `
+            <table id="earning_period" class="table-custom table">
+                <thead>
+                    <tr>
+                        <th>Descripcion</th>
+                        <th class="hide-cell">Cantidad total</th>
+                        <th>Costo total</th>
+                        <th>Ganancia</th>
+                        <th class="hide-cell">Total vendido</th>
+                    </tr>
+                </thead>
+            </table>
+        `;
+
+        $('.table_earning_period').html(table);
+    }
+
+    $('#formEarningPeriod').on('submit', function (e) {
+        e.preventDefault()
+
+        const tableId = 'earning_period';
+
+        //  Si ya existe DataTable → destruir
+        if ($.fn.DataTable.isDataTable('#' + tableId)) {
+            $('#' + tableId).DataTable().destroy();
+        }
+
+        let formDataTable = new FormData(this)
+        // Convertir FormData a objeto plano
+        const formObject = Object.fromEntries(formDataTable.entries());
+
+        let formData = new FormData(this)
+        formData.append("action", "resumen_ganancias_periodo")
+
+        sendAjaxRequest({
+            url: "services/reports.php",
+            data: formData,
+            successCallback: (res) => {
+
+                const data = JSON.parse(res)[0]
+
+                $('#item_total').text(data.total_registros)
+                $('#earning').text("DOP " + format.format(data.total_ganancia))
+                $('#total').text("DOP " + format.format(data.total_vendido))
+
+                // Inicializar tabla
+                loadTables([
+                    {
+                        id: '#earning_period',
+                        url: 'services/reports.php',
+                        action: 'ganancias_por_periodo',
+                        columns: [
+                            'descripcion', 'cantidad_total', 'costo_total', 'ganancia_total', 'total_vendido'
+                        ],
+                        order: [[0, 'desc']],
+                        hiddenColumns: [1, 3],
+                        ajaxParams: formObject
+                    },
+                ])
+            },
+            errorCallback: (err) => {
+                console.error(err)
+            }
+        })
     })
 
 }); // Ready

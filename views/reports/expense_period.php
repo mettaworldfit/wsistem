@@ -1,11 +1,12 @@
 <div class="section-wrapper">
     <div class="align-content clearfix">
         <div class="float-left">
-            <h1>Reportes de cantidades</h1>
+            <h1>Reportes de gastos</h1>
         </div>
     </div>
 </div>
 
+<!-- Header resumen -->
 <div class="generalContainer">
 
     <h6 class="legend-summary"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-funnel-icon lucide-funnel">
@@ -14,21 +15,39 @@
         Filtros de Busqueda</h6>
 
     <div class="filters">
-        <form method="post" id="formItemsQuantity">
+        <form method="post" id="formExpensePeriod">
 
             <!-- Filtros de fecha -->
             <div class="date-filter">
                 <div>
-                    <label for="query"><i class="fas fa-search"></i> Palabra clave:</label>
-                    <input class="form-custom" type="text" name="query" id="query" placeholder="Introduce una palabra clave" required>
+                    <label for="reason"><i class="fas fa-list-ul"></i> Motivo de gasto</label>
+                    <select class="form-custom search" name="reason" id="reason">
+                        <option value="0">No filtrar</option>
+                        <?php $reasons = Help::loadReasons();
+                        while ($reason = $reasons->fetch_object()): ?>
+                            <option value="<?= $reason->motivo_id ?>"><?= $reason->descripcion ?></option>
+                        <?php endwhile; ?>
+                    </select>
+
+                </div>
+
+                <div>
+                    <label for="provider"><i class="fas fa-users"></i> Proveedor</label>
+                    <select class="form-custom search" name="provider" id="provider_id">
+                        <option value="0">No filtrar</option>
+                        <?php
+                        $providers = Help::showProviders();
+                        while ($provider = $providers->fetch_assoc()): ?>
+                            <option value="<?= $provider['proveedor_id'] ?>"><?= ucwords($provider['nombre_proveedor']) ?> <?= ucwords($provider['apellidos'] ?? "")  ?></option>
+                        <?php endwhile; ?>
+                    </select>
                 </div>
             </div>
 
             <hr>
 
-            <!-- Filtros vendedores -->
+            <!-- Filtros -->
             <div class="filter-row">
-                
                 <div>
                     <label for="start-date"><i class="far fa-calendar-alt"></i> Fecha Inicio:</label>
                     <input class="form-custom" type="datetime-local" name="fecha_inicio" id="date-start" required>
@@ -56,24 +75,19 @@
 
     <div class="summary-result">
         <div>
-            <span>Items</span>
-            <span id="items_total">0</span>
+            <span>Facturas</span>
+            <span id="inv_total">0</span>
             <span>En el periodo</span>
         </div>
 
         <div>
-            <span>Cantidades:</span>
-            <span id="quantitys">0.00</span>
-        </div>
-
-        <div>
-            <span>Ganancias:</span>
-            <span id="earning">DOP 0.00</span>
+            <span>Total Gastado:</span>
+            <span id="total">DOP 0.00</span>
         </div>
     </div>
 
     <!-- Resultado -->
-    <div class="table_items_quantity">
+    <div class="table_expense_period">
 
     </div>
 </div>

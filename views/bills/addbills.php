@@ -105,11 +105,7 @@
                                     <i class="fas fa-list"></i>
                                 </div>
                                 <select class="form-custom-icon" name="reason" id="reason" required>
-                                    <!-- <option value="" disabled selected>Seleccionar motivo de gasto</option>
-                                    <?php $reasons = Help::loadReasons();
-                                    while ($reason = $reasons->fetch_object()): ?>
-                                        <option value="<?= $reason->motivo_id ?>"><?= $reason->descripcion ?></option>
-                                    <?php endwhile; ?> -->
+                                 
                                 </select>
                             </div>
                         </div>

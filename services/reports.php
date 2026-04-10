@@ -20,7 +20,6 @@ $permissions = [
     'eliminar_cierre' => ['administrador'],
     'imprimir_cierre' => [],
 
-
     // Ventas
     'index_ventas_hoy'  => [],
 
@@ -37,7 +36,15 @@ $permissions = [
 
     // Reportes por cantidades
     'item_vendidos' => ['administrador'],
-    'resumen_reporte_cantidades' => ['administrador']
+    'resumen_reporte_cantidades' => ['administrador'],
+
+    // Reportes de gastos
+    'reportes_por_periodo' => ['administrador'],
+    'resumen_gastos_periodo' => ['administrador'],
+
+    // Reportes de ganancias
+    'ganancias_por_periodo' => ['administrador'],
+    'resumen_ganancias_periodo' => ['administrador'],
 ];
 
 // Chequear permisos
@@ -417,7 +424,7 @@ switch ($action) {
         echo json_encode($arr, JSON_UNESCAPED_UNICODE);
         exit;
         break;
-  
+
     // Buscar el serial facturado
     case 'serial_facturado':
         $q = $_POST['query'];
@@ -848,5 +855,493 @@ switch ($action) {
         ) items_vendidos";
 
         jsonQueryResult($db, $sql);
+        break;
+    // reportes de gastos 
+    case 'reportes_por_periodo':
+
+        $fecha_inicio = $_POST['fecha_inicio'] ?? date('Y-m-d');
+        $fecha_fin    = $_POST['fecha_final'] ?? date('Y-m-d');
+        $provider_id  = intval($_POST['provider'] ?? 0);
+        $reason_id    =  intval($_POST['reason'] ?? 0);
+
+        $fecha_inicio = $db->real_escape_string($fecha_inicio);
+        $fecha_fin    = $db->real_escape_string($fecha_fin);
+
+        $conditions = [];
+
+        // Filtro por proveedor
+        if ($provider_id > 0) {
+            $conditions[] = "p.proveedor_id = $provider_id";
+        }
+
+        // Filtro por motivo de gasto
+        if ($reason_id > 0) {
+            $conditions[] = "m.motivo_id = $reason_id";
+        }
+
+        // Filtro por fecha
+        $conditions[] = "TIMESTAMP(x.fecha, x.hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+
+        // Unir condiciones
+        $baseCondition = implode(' AND ', $conditions);
+
+        handleDataTableRequest($db, [
+            'columns' => [
+                'x.fecha',
+                'x.gasto_id',
+                'nombre',
+                'x.total',
+                'x.pagado',
+                'x.orden_id'
+            ],
+            'searchable' => [
+                'nombre',
+                'x.total',
+                'x.pagado',
+                'x.fecha'
+            ],
+            'base_table' => 'gastos',
+
+            'table_with_joins' => 'gastos x 
+            INNER JOIN proveedores p ON p.proveedor_id = x.proveedor_id 
+            INNER JOIN usuarios u ON u.usuario_id = x.usuario_id
+            INNER JOIN detalle_gasto d ON d.orden_id = x.orden_id
+            INNER JOIN motivos m ON m.motivo_id = d.motivo_id',
+
+            'select' => 'SELECT x.gasto_id, concat(p.nombre_proveedor," ",IFNULL(p.apellidos,"")) as nombre, x.total, 
+            x.pagado, x.orden_id, x.fecha, x.hora, x.observacion',
+
+            'base_condition' => $baseCondition,
+
+            'group_by' => 'x.gasto_id',
+
+            'table_rows' => function ($element) {
+                return [
+                    'id'    => 'G-00' . $element['gasto_id'],
+                    'proveedor' => '<span class="hide-cell">' . ucwords($element['nombre']) . '</span>',
+                    'gastos'    => Help::loadSpendingsById($element['orden_id']),
+                    'fecha'     => $element['fecha'],
+                    'observacion' => $element['observacion'],
+                    'total'     => '<span class="text-danger">' . number_format($element['total'], 2) . '</span>',
+                    'acciones'  => '<span class="action-danger btn-action delete_bill" data-id="' . $element['orden_id'] . '">' . BUTTON_DELETE . '</span>'
+                ];
+            }
+        ]);
+        break;
+
+    case 'resumen_gastos_periodo':
+
+        $fecha_inicio = $_POST['fecha_inicio'] ?? date('Y-m-d');
+        $fecha_fin    = $_POST['fecha_final'] ?? date('Y-m-d');
+        $provider_id  = intval($_POST['provider'] ?? 0);
+        $reason_id    =  intval($_POST['reason'] ?? 0);
+
+        $fecha_inicio = $db->real_escape_string($fecha_inicio);
+        $fecha_fin    = $db->real_escape_string($fecha_fin);
+
+        $conditions = [];
+
+        // Filtro por proveedor
+        if ($provider_id > 0) {
+            $conditions[] = "p.proveedor_id = $provider_id";
+        }
+
+        // Filtro por motivo de gasto
+        if ($reason_id > 0) {
+            $conditions[] = "m.motivo_id = $reason_id";
+        }
+
+        // Filtro por fecha
+        $conditions[] = "TIMESTAMP(x.fecha, x.hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+
+        // Unir condiciones
+        $baseCondition = implode(' AND ', $conditions);
+
+        $sql = "SELECT 
+            COUNT(DISTINCT x.gasto_id) AS facturas,
+            SUM(DISTINCT x.total) AS total
+        FROM gastos x 
+        INNER JOIN proveedores p ON p.proveedor_id = x.proveedor_id 
+        INNER JOIN usuarios u ON u.usuario_id = x.usuario_id
+        INNER JOIN detalle_gasto d ON d.orden_id = x.orden_id
+        INNER JOIN motivos m ON m.motivo_id = d.motivo_id
+        WHERE $baseCondition";
+
+        jsonQueryResult($db, $sql);
+
+        break;
+
+    case 'ganancias_por_periodo':
+
+        $baseCondition = "";
+        $subCondition = "";
+
+        if (!empty($_POST['fecha_inicio']) && !empty($_POST['fecha_final'])) {
+            $fecha_inicio = $_POST['fecha_inicio'] ?? date('Y-m-d');
+            $fecha_fin    = $_POST['fecha_final'] ?? date('Y-m-d');
+
+            $fecha_inicio = $db->real_escape_string($fecha_inicio);
+            $fecha_fin    = $db->real_escape_string($fecha_fin);
+
+            // Filtro por fecha
+            $baseCondition .= "TIMESTAMP(d.fecha, d.hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+            $subCondition .= "TIMESTAMP(fecha, hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+        } else {
+            $month = $_POST['month'];
+            $year  = $_POST['year'];
+
+            $month = $db->real_escape_string($month);
+            $year   = $db->real_escape_string($year);
+
+            // Filtro por mes y año
+            $baseCondition .= "MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year'";
+            $subCondition .= "MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'";
+        }
+
+        $table_with_joins = "
+    (SELECT 
+        nombre, 
+        tipo, 
+        SUM(cantidad) AS cantidad, 
+        SUM(costo) AS costo,
+        SUM(total) AS total, 
+        ROUND(SUM(ganancia), 2) AS ganancia
+    FROM (
+
+        -- PRODUCTOS
+        SELECT 
+            p.nombre_producto AS nombre,
+            'Producto' AS tipo,
+            SUM(d.cantidad) AS cantidad,
+
+            SUM(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) AS costo,
+
+            SUM(d.precio * d.cantidad - d.descuento) AS total,
+
+            SUM(
+                ((f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento))
+                -
+                (COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0) * d.cantidad)
+            ) AS ganancia
+
+        FROM detalle_facturas_ventas d
+        INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+
+        INNER JOIN (
+            SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+            FROM detalle_facturas_ventas
+            WHERE $subCondition
+            GROUP BY factura_venta_id
+        ) ft ON ft.factura_venta_id = f.factura_venta_id
+
+        INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
+        INNER JOIN productos p ON p.producto_id = dp.producto_id
+
+        WHERE $baseCondition
+        GROUP BY p.nombre_producto
+
+        UNION ALL
+
+        -- PIEZAS (FACTURAS)
+        SELECT 
+            p.nombre_pieza,
+            'Pieza',
+            SUM(d.cantidad),
+            SUM(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad),
+            SUM(d.precio * d.cantidad - d.descuento),
+
+            SUM(
+                ((f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento))
+                -
+                (COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0) * d.cantidad)
+            )
+
+        FROM detalle_facturas_ventas d
+        INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+
+        INNER JOIN (
+            SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+            FROM detalle_facturas_ventas
+            WHERE $subCondition
+            GROUP BY factura_venta_id
+        ) ft ON ft.factura_venta_id = f.factura_venta_id
+
+        INNER JOIN detalle_ventas_con_piezas_ dp ON dp.detalle_venta_id = d.detalle_venta_id
+        INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
+
+        WHERE $baseCondition
+        GROUP BY p.nombre_pieza
+
+        UNION ALL
+
+        -- SERVICIOS (FACTURAS)
+        SELECT 
+            s.nombre_servicio,
+            'Servicio',
+            SUM(d.cantidad),
+            SUM(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)),
+            SUM(d.precio * d.cantidad - d.descuento),
+
+            SUM(
+                ((f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento))
+                -
+                (COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo), 0) * d.cantidad)
+            )
+
+        FROM detalle_facturas_ventas d
+        INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+
+        INNER JOIN (
+            SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+            FROM detalle_facturas_ventas
+            WHERE $subCondition
+            GROUP BY factura_venta_id
+        ) ft ON ft.factura_venta_id = f.factura_venta_id
+
+        INNER JOIN detalle_ventas_con_servicios ds ON ds.detalle_venta_id = d.detalle_venta_id
+        INNER JOIN servicios s ON s.servicio_id = ds.servicio_id
+
+        WHERE $baseCondition
+        GROUP BY s.nombre_servicio
+
+    ) AS detalle_ventas_mes
+
+    GROUP BY nombre, tipo) as t";
+
+        handleDataTableRequest($db, [
+            'columns' => ['t.nombre', 't.cantidad', 't.costo', 't.total', 't.ganancia'],
+            'searchable' => ['t.nombre'],
+            'base_table' => '',
+            'table_with_joins' => $table_with_joins,
+            'select' => 'SELECT t.nombre, t.tipo, t.cantidad, t.costo, t.total, t.ganancia',
+            'base_condition' => '1=1',
+            'table_rows' => function ($row) {
+                return [
+                    'descripcion' => $row['nombre'],
+                    'cantidad_total' => $row['cantidad'],
+                    'costo_total' => '<span class="text-danger">' . number_format($row['costo'], 2) . '</span>',
+                    'ganancia_total' => '<span class="text-success">' . number_format($row['ganancia'], 2) . '</span>',
+                    'total_vendido' => '<span>' . number_format($row['total'], 2) . '</span>'
+                ];
+            }
+        ]);
+
+        break;
+
+    case 'resumen_ganancias_periodo':
+
+        $baseCondition = "";
+        $subCondition = "";
+
+        if (!empty($_POST['fecha_inicio']) && !empty($_POST['fecha_final'])) {
+            $fecha_inicio = $_POST['fecha_inicio'] ?? date('Y-m-d');
+            $fecha_fin    = $_POST['fecha_final'] ?? date('Y-m-d');
+
+            $fecha_inicio = $db->real_escape_string($fecha_inicio);
+            $fecha_fin    = $db->real_escape_string($fecha_fin);
+
+            // Filtro por fecha
+            $baseCondition .= "TIMESTAMP(d.fecha, d.hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+            $subCondition .= "TIMESTAMP(fecha, hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+        } else {
+            $month = $_POST['month'];
+            $year  = $_POST['year'];
+
+            $month = $db->real_escape_string($month);
+            $year   = $db->real_escape_string($year);
+
+            // Filtro por mes y año
+            $baseCondition .= "MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year'";
+            $subCondition .= "MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'";
+        }
+
+        $sql = "SELECT 
+            COUNT(*) AS total_registros,
+            SUM(cantidad) AS total_cantidad,
+            SUM(costo) AS total_costo,
+            SUM(total) AS total_vendido,
+            ROUND(SUM(ganancia), 2) AS total_ganancia
+        FROM (
+            SELECT 
+            SUM(cantidad) AS cantidad, 
+            SUM(costo) AS costo,
+            SUM(total) AS total, 
+            ROUND(SUM(ganancia), 2) AS ganancia
+            FROM (
+                
+                -- Productos en facturas de ventas
+            SELECT 
+            p.nombre_producto AS nombre,
+        'Producto' AS tipo,
+        SUM(d.cantidad) AS cantidad,
+
+        SUM(
+            IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad
+        ) AS costo,
+
+        SUM(d.precio * d.cantidad - d.descuento) AS total,
+
+        SUM(
+            (
+            (f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+            )
+            -
+            (
+            COALESCE(
+                IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0
+            ) * d.cantidad
+            )
+        ) AS ganancia
+            FROM detalle_facturas_ventas d
+            INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+            INNER JOIN (
+            SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+            FROM detalle_facturas_ventas
+            WHERE $subCondition
+            GROUP BY factura_venta_id
+            ) ft ON ft.factura_venta_id = f.factura_venta_id
+            INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
+            INNER JOIN productos p ON p.producto_id = dp.producto_id
+            WHERE $baseCondition
+            GROUP BY p.nombre_producto
+
+            UNION ALL
+
+            -- Piezas en facturas de ventas
+            SELECT 
+            p.nombre_pieza AS nombre,
+            'Pieza' AS tipo,
+            SUM(d.cantidad) AS cantidad,
+            SUM(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) AS costo,
+            SUM(d.precio * d.cantidad - d.descuento) AS total,
+            SUM(
+            (
+            (f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+            )
+            -
+            (
+            COALESCE(
+                IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0
+            ) * d.cantidad
+            )
+        ) AS ganancia
+            FROM detalle_facturas_ventas d
+            INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+            INNER JOIN (
+            SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+            FROM detalle_facturas_ventas
+            WHERE $subCondition
+            GROUP BY factura_venta_id
+            ) ft ON ft.factura_venta_id = f.factura_venta_id
+            INNER JOIN detalle_ventas_con_piezas_ dp ON dp.detalle_venta_id = d.detalle_venta_id
+            INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
+            WHERE $baseCondition
+            GROUP BY p.nombre_pieza
+
+            UNION ALL
+
+            -- Piezas en ordenes de reparacion (facturasRP)
+            SELECT 
+            p.nombre_pieza AS nombre,
+            'Pieza' AS tipo,
+            SUM(d.cantidad) AS cantidad,
+            SUM(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) AS costo,
+            SUM(d.precio * d.cantidad - d.descuento) AS total,
+            SUM(
+            (
+                (frp.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+            )
+            -
+            (
+                COALESCE(
+                IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0
+                ) * d.cantidad
+            )
+            ) AS ganancia
+            FROM detalle_ordenRP d
+            INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
+            INNER JOIN (
+            SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
+            FROM detalle_ordenRP
+            WHERE $subCondition
+            GROUP BY orden_rp_id
+            ) ft ON ft.orden_rp_id = frp.orden_rp_id
+            INNER JOIN detalle_ordenRP_con_piezas dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
+            INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
+            WHERE $baseCondition
+            GROUP BY p.nombre_pieza
+
+            UNION ALL
+
+            -- Servicios en facturas de ventas
+            SELECT 
+            s.nombre_servicio AS nombre,
+            'Servicio' AS tipo,
+            SUM(d.cantidad) AS cantidad,
+            SUM(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)) AS costo,
+            SUM(d.precio * d.cantidad - d.descuento) AS total,
+            SUM(
+            (
+                (f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+            )
+            -
+            (
+                COALESCE(
+                IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo), 0
+                ) * d.cantidad
+            )
+            ) AS ganancia
+            FROM detalle_facturas_ventas d
+            INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+            INNER JOIN (
+            SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+            FROM detalle_facturas_ventas
+            WHERE $subCondition
+            GROUP BY factura_venta_id
+            ) ft ON ft.factura_venta_id = f.factura_venta_id
+            INNER JOIN detalle_ventas_con_servicios ds ON ds.detalle_venta_id = d.detalle_venta_id
+            INNER JOIN servicios s ON s.servicio_id = ds.servicio_id
+            WHERE $baseCondition
+            GROUP BY s.nombre_servicio
+
+            UNION ALL
+
+            -- Servicios en ordenes de reparacion (facturasRP)
+            SELECT 
+            s.nombre_servicio AS nombre,
+            'Servicio' AS tipo,
+            SUM(d.cantidad) AS cantidad,
+            SUM(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)) AS costo,
+            SUM(d.precio * d.cantidad - d.descuento) AS total,
+            SUM(
+            (
+            (frp.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento)
+            )
+            -
+            (
+            COALESCE(
+                IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo), 0
+            ) * d.cantidad
+            )
+        ) AS ganancia
+            FROM detalle_ordenRP d
+            INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
+            INNER JOIN (
+            SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
+            FROM detalle_ordenRP
+            WHERE $subCondition
+            GROUP BY orden_rp_id
+            ) ft ON ft.orden_rp_id = frp.orden_rp_id
+            INNER JOIN detalle_ordenRP_con_servicios dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
+            INNER JOIN servicios s ON s.servicio_id = dp.servicio_id
+            WHERE $baseCondition
+            GROUP BY s.nombre_servicio
+                
+            ) AS detalle_ventas_mes 
+            GROUP BY nombre, tipo
+        ) AS resumen;";
+
+        jsonQueryResult($db, $sql);
+    
         break;
 }

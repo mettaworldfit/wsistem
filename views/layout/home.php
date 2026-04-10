@@ -24,7 +24,7 @@
 
 <div class="grid-container">
 
-  <a href="<?= base_url ?>reports/day" class="card-grid">
+  <a href="<?= base_url ?>reports/sales_today" class="card-grid">
     <div>
       <div class="profit-container">
         <div class="profit-date">
