@@ -59,6 +59,8 @@ class ServicesController
         // Verificar permisos para la acción 'edit'
         $this->check_permission('edit');
 
+        $services = Help::getServicesId($_GET['id']);
+
         // Mostrar la vista de editar servicio
         require_once './views/services/edit.php';
     }

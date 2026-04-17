@@ -328,11 +328,17 @@ switch ($action) {
   case 'subir_logo':
 
     $response = array();  // Array para almacenar las respuestas
-    $dir_name = '';
+    $dir_name = 'image/';
     $image_path = '';
 
-    if (isset($config['carpeta']) && !empty($config['carpeta'])) {
-      $dir_name = $config['carpeta'];
+    // if (isset($config['carpeta']) && !empty($config['carpeta'])) {
+    //   $dir_name = $config['carpeta'];
+    // }
+
+    // Generar un nombre aleatorio de 11 caracteres numéricos
+    function generate_random_filename($length = 11)
+    {
+      return substr(uniqid(rand(), true), 0, $length);  // Extraer solo los primeros 11 caracteres
     }
 
     // Primero, verificamos si se está subiendo una imagen
@@ -386,8 +392,8 @@ switch ($action) {
         exit;
       }
 
-      // No comprimir ni convertir la imagen, solo moverla
-      $random_name = "logo";  // Generar un nombre aleatorio para la imagen
+      // Generar el nombre aleatorio para la imagen
+      $random_name = generate_random_filename(); // Nombre aleatorio de 11 caracteres
 
       // Establecer la nueva ruta de la imagen con el nombre aleatorio
       $target_file = $target_dir . $random_name . '.' . $imageFileType;

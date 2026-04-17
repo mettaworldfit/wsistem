@@ -515,7 +515,7 @@ FROM (
         NULL                 AS stock,
         s.precio             AS precio,
         s.costo              AS costo,
-        NULL                 AS imagen,
+        s.imagen             AS imagen,
         NULL                 AS categoria
     FROM servicios s
 ) AS items
@@ -663,9 +663,12 @@ LIMIT $start, $length
     $dir_name = '';
     $image_path = '';
 
-    if (isset($config['carpeta']) && !empty($config['carpeta'])) {
-      $dir_name = $config['carpeta'];
+    if (empty($config['carpeta'])) {
+      $response['error'][] = "No tienes esta funcion habilitada";
+      exit;
     }
+
+    $dir_name = $config['carpeta'];
 
     // Primero, verificamos si se está subiendo una imagen
     if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {

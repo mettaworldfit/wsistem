@@ -794,7 +794,6 @@ $(document).ready(function () {
         fetchProductCode(productCode);
     });
 
-
     function fetchProductCode(product_code) {
 
         sendAjaxRequest({
@@ -885,7 +884,6 @@ $(document).ready(function () {
             // Volver a cargar el producto
             fetchProduct(productId);
             calculateDetailModalTotalProduct(parseFloat($("#product option:selected").data("price"))); // recalcular total con nuevo precio
-
         }
     });
 

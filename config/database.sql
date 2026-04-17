@@ -393,6 +393,7 @@ usuario_id int NOT NULL,
 nombre_servicio varchar(70) NOT NULL unique,
 costo DECIMAL(10,2) NULL,
 precio int NULL,
+imagen varchar(50) NULL,
 fecha date NULL,
 
 PRIMARY KEY (servicio_id),

@@ -2901,6 +2901,7 @@ textarea:focus {
 /* contenedores de imagen */
 
 div#preview-img,
+div#service-content-img,
 div#product-content-img {
     border: 1px solid #ccc;
     border-radius: 6px;
@@ -2908,6 +2909,7 @@ div#product-content-img {
 }
 
 #preview-img img,
+#service-content-img img,
 #product-content-img img {
     width: 100%;
     height: 200px;
@@ -2916,6 +2918,7 @@ div#product-content-img {
 }
 
 div#preview-img svg,
+div#service-content-img svg,
 div#product-content-img svg {
     width: 60%;
     height: auto;

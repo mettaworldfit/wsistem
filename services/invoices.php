@@ -1227,7 +1227,8 @@ if ($_POST['action'] == "datos_detalle_id") {
         ELSE 'Desconocido' 
   END AS tipo_item,
   d.cantidad,d.descuento,d.impuesto,d.precio,p.cantidad as existencia,
-  p.imagen,c.nombre_categoria
+  COALESCE(p.imagen,s.imagen) as imagen,
+  c.nombre_categoria
   FROM detalle_facturas_ventas d
   LEFT JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
   LEFT JOIN productos p ON p.producto_id = dp.producto_id

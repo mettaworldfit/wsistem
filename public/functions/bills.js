@@ -31,7 +31,7 @@ $(document).ready(function () {
         const total = quantity * value;
         const taxes = total * tax_value;
 
-       const data = {
+        const data = {
             reason_id: $('#reason').val(),
             name: $('#select2-reason-container').attr('title'),
             quantity: parseInt($('#g_quantity').val()),
@@ -254,6 +254,83 @@ $(document).ready(function () {
      * REGISTRAR E IMPRIMIR GASTOS
     ===============================================================*/
 
+      // Opciones de impresion
+    /**
+   * Muestra un diálogo para elegir cómo imprimir una factura
+   * @param {number|string} order_id - ID o respuesta de la factura
+   */
+
+    function showPrinterOptions(order_id) {
+        alertify.printOptions(order_id).show();
+    }
+
+    if (!alertify.printOptions) {
+        alertify.dialog('printOptions', function () {
+            return {
+                // Aquí declaramos la variable order_id directamente
+                order_id: null,
+
+                main: function (order_id) {
+                    this.order_id = order_id;  // Guardamos el order_id directamente en la variable
+                },
+
+                setup: function () {
+                    return {
+                        options: {
+                            title: '',               // Sin título
+                            maximizable: false,      // No agrandar
+                            resizable: false,        // No redimensionar
+                            movable: true,           // Se puede mover
+                            closable: true,          // Botón de cerrar
+                            pinnable: false          // No se puede fijar
+                        },
+                        buttons: []                // Sin botones OK / Cancel
+                    };
+                },
+
+                build: function () {
+                    this.setContent(`
+                    <div style="text-align:center;">
+                        <i class="fas fa-print" style="font-size:28px;color:#17a2b8;"></i>
+                        <br><br>
+                        <strong>¿Deseas imprimir un recibo?</strong>
+                        <br><br>
+
+                        <div style="display:flex;gap:10px;justify-content:center;">
+                            
+                             <button class="btn-custom btn-default" id="btnTicket">
+                                <i class="fas fa-receipt"></i>
+                                <p>Ticket</p>
+                            </button>
+
+                            <button class="btn-custom btn-red" id="btnClose">
+                                <i class="fas fa-times"></i>
+                                <p>No imprimir</p>
+                            </button>
+                        </div>
+                    </div>
+                `);
+                },
+
+                hooks: {
+                    onshow: function () {
+                        // Ahora accedemos directamente a la variable order_id
+                        const orderId = this.order_id;
+
+                        document.getElementById('btnTicket').onclick = () => {
+                            printerBill(orderId)  // Pasamos el id de la orden a la función
+                            alertify.printOptions().close();
+                        };
+
+                        document.getElementById('btnClose').onclick = () => {
+                            alertify.printOptions().close();
+                        };
+                    }
+                }
+            };
+        });
+    }
+
     // Crear orden gastos
     $('#formSaveBills').on('submit', async function (e) {
         e.preventDefault();
@@ -279,7 +356,8 @@ $(document).ready(function () {
             // 4️⃣ Éxito final
             notifyAlert("Registro guardado correctamente", "success");
 
-            printerBill(order_id) 
+            // Preguntar cómo desea imprimir
+            showPrinterOptions(order_id);
 
         } catch (err) {
             console.error(err);

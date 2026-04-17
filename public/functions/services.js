@@ -1,43 +1,3 @@
-// Agregar servicio
-function addService() {
-    sendAjaxRequest({
-        url: "services/services.php",
-        data: {
-            name: $('#service_name').val(),
-            cost: $('#service_cost').val() || 0,
-            price: $('#service_price').val(),
-            action: 'agregar_servicio'
-        },
-        successCallback: () => {
-            mysql_row_affected()
-            $('input[type="text"]').val('');
-            $('input[type="number"]').val('');
-            $(".table").load(location.href + " .table");
-        },
-        errorCallback: (res) => mysql_error(res)
-    });
-}
-
-// Actualizar servicio
-
-function updateService(serviceId) {
-    sendAjaxRequest({
-        url: "services/services.php",
-        data: {
-            service_id: serviceId,
-            name: $('#service_name').val(),
-            cost: $('#service_cost').val(),
-            price: $('#service_price').val(),
-            action: 'actualizar_servicio'
-        },
-        successCallback: () => {
-            $(".table").load(location.href + " .table");
-            mysql_row_update();
-        },
-        errorCallback: (res) => mysql_error(res)
-    })
-}
-
 // Eliminar servicio
 function deleteService(serviceId) {
     alertify.confirm("Eliminar servicio", "¿Estas seguro que deseas borrar este servicio? ",
@@ -60,11 +20,11 @@ function deleteService(serviceId) {
 
 $(document).ready(function () {
 
-   /**============================================================= 
-   * FUNCIONES Y ACCIONES EN LAS VENTAS SECCION SERVICIOS
-   ===============================================================*/
+    /**============================================================= 
+    * FUNCIONES Y ACCIONES EN LAS VENTAS SECCION SERVICIOS
+    ===============================================================*/
 
-     // Funcion que maneja y muestra los inputs en las ventanas
+    // Funcion que maneja y muestra los inputs en las ventanas
     function handleServiceModal() {
         const tipo = $('input[name="tipo"]:checked').val();
 
@@ -128,6 +88,21 @@ $(document).ready(function () {
                 $('#service_quantity').val('1');
                 const priceOut = $("#price_out");
                 const cost = $("#service_cost");
+
+                // Imagen del servicio
+                const serviceImage = data.imagen && data.imagen !== ""
+                    ? `<img src="${SITE_URL}public/uploads/${data.imagen}" 
+                                onerror="this.onerror=null; this.src='${SITE_URL}public/imagen/sistem/no-imagen.png';" 
+                                alt="Imagen del servicio">
+                                <span id="stock">+ inv</span>`
+                    : `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags">
+                                <path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" />
+                                <path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" />
+                                <circle cx="10.5" cy="6.5" r=".5" fill="currentColor" />
+                            </svg>
+                            <span id="stock">0 inv</span>`;
+
+                $('.item-img').html(serviceImage)
 
                 // Reiniciar y deshabilitar los campos por defecto
                 priceOut.val('').prop("disabled", true);
@@ -229,5 +204,147 @@ $(document).ready(function () {
         calculateDetailModalTotalService($(this).val());
     });
 
+
+    /**============================================================= 
+    * CRUD SERVICIOS
+    ===============================================================*/
+
+    // Agregar servicio
+    $('#addService').on('click', function (e) {
+        e.preventDefault()
+
+        sendAjaxRequest({
+            url: "services/services.php",
+            data: {
+                name: $('#service_name').val(),
+                cost: $('#service_cost').val() || 0,
+                price: $('#service_price').val(),
+                action: 'agregar_servicio'
+            },
+            successCallback: (res) => {
+
+                notifyAlert('Registrado correctamente', 'success', 3000);
+                uploadImage(res);
+                $('input[type="text"]').val('');
+                $('input[type="number"]').val('');
+
+            },
+            errorCallback: (err) => {
+                notifyAlert('Ha ocurrido un error inesperado', 'error', 2000)
+                console.error(err)
+            }
+        });
+    })
+
+    // Actualizar servicio
+    $('#editService').on('click', function (e) {
+        e.preventDefault()
+
+        sendAjaxRequest({
+            url: "services/services.php",
+            data: {
+                service_id: $('#service_id').val(),
+                name: $('#service_name').val(),
+                cost: $('#service_cost').val(),
+                price: $('#service_price').val(),
+                action: 'actualizar_servicio'
+            },
+            successCallback: () => {
+
+                notifyAlert('Registro actualizado correctamente', 'success', 3000);
+            },
+            errorCallback: (err) => {
+                notifyAlert('Ha ocurrido un error inesperado', 'error', 2000)
+                console.error(err)
+            }
+        })
+    })
+
+
+    /**============================================================= 
+    * MANEJO DE IMAGEN
+    ===============================================================*/
+
+    // Cargar la imagen subida
+    $('#service_image').on('change', function (e) {
+        var reader = new FileReader();
+        reader.onload = function (event) {
+            $('#service-content-img').empty();
+            $('#service-content-img').html('<img src="' + event.target.result + '" alt="Vista previa de la imagen" />');
+        };
+        reader.readAsDataURL(this.files[0]);
+    });
+
+    // Eliminar imagen al cambiar o eliminar el servicio 
+    function unsetImagen(serviceId) {
+        // Verificar si existe la imagen antes de guardar
+        sendAjaxRequest({
+            url: "services/services.php",
+            data: {
+                action: "borrar_imagen",
+                service_id: serviceId
+            },
+            successCallback: (res) => {
+                try {
+                    var data = JSON.parse(res);
+
+                } catch (error) {
+                    console.error("Error en respuesta del servidor ", error)
+                }
+            }
+        });
+    }
+
+    // Cambiar imagen
+    $('#service_image').change(function () {
+        var serviceId = $("#service_id").val();
+
+        // Verificamos si el ID del servicio es válido (mayor que 0 y no vacío)
+        if (serviceId && serviceId > 0) {
+
+            unsetImagen(serviceId) // Elimina la imagen anterior
+            uploadImage(serviceId); // Guardar imagen
+        }
+    });
+
+    // Subir imagen
+    function uploadImage(serviceId) {
+        var formData = new FormData();
+        var fileInput = $('#service_image')[0];  // Capturamos el input de la imagen
+        var file = fileInput.files[0];  // Tomamos el archivo de la imagen
+
+        // Verificamos si el archivo es válido
+        if (file) {
+            formData.append('service_image', file);
+            formData.append('action', 'subir_imagen');
+            formData.append('service_id', serviceId);
+
+            $.ajax({
+                url: SITE_URL + 'services/services.php',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    try {
+                        var data = JSON.parse(response)
+
+                        if (data.success) {
+                            notifyAlert(data.success[1])
+                            console.log(data)
+                        } else {
+                            notifyAlert(data.error, 'error')
+                        }
+
+                    } catch (error) {
+                        notifyAlert('Error de respuesta al subir la imagen', 'error')
+                    }
+                },
+                error: function (e) {
+                    notifyAlert(e, 'error')
+                }
+            });
+        }
+    }
 
 }); // Ready

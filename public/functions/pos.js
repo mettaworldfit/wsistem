@@ -1184,8 +1184,6 @@ $(document).ready(function () {
         });
     }
 
-
-
     // Factura al contado
     $('.pos-button-cash').on('click', function () {
         const data = {

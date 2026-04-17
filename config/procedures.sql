@@ -1906,8 +1906,8 @@ BEGIN
  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'SQLException encountered' AS msg;
  DECLARE EXIT HANDLER FOR SQLSTATE '23000' SELECT 'SQLSTATE 23000' AS msg;
 
-INSERT INTO servicios VALUES (null,usuario_id,nombre,costo,precio,curdate());
-select 'ready' AS msg;
+INSERT INTO servicios VALUES (null,usuario_id,nombre,costo,precio,'',curdate());
+SELECT last_insert_id() AS msg;
 
 END $$
 DELIMITER ;

@@ -1,5 +1,4 @@
-<?php $services = Help::getServicesId($_GET['id']);
-while ($element = $services->fetch_object()): ?>
+<?php while ($element = $services->fetch_object()): ?>
 
     <div class="section-wrapper">
         <div class="align-content clearfix">
@@ -10,9 +9,30 @@ while ($element = $services->fetch_object()): ?>
     </div>
 
     <div class="generalContainer-medium">
-        <form action="" onsubmit="event.preventDefault(); updateService(<?= $element->servicio_id ?>);">
+        <form action="">
             <div class="container row">
 
+                <div class="form-group col-sm-5">
+                    <!-- Aquí se mostrará el mensaje de éxito o error -->
+                    <div id="service-content-img">
+                        <?php if ($element->imagen != "") : ?>
+                                <img src="<?= dir_root . $element->imagen ?>" onerror="this.onerror=null; this.src='<?= base_url ?>public/imagen/sistem/no-imagen.png';" alt="">
+                            <?php else: ?>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags">
+                                    <path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" />
+                                    <path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" />
+                                    <circle cx="10.5" cy="6.5" r=".5" fill="currentColor" />
+                                </svg>
+
+                            <?php endif; ?>
+                    </div>
+
+                    <form action="" method="POST" enctype="multipart/form-data" id="uploadImg">
+                        <input class="form-custom" type="file" name="service_image" id="service_image" accept="image/*" required>
+                    </form>
+                </div>
+
+                <input type="hidden" name="service_id" value="<?= $_GET['id'] ?>" id="service_id">
                 <div class="form-group col-md-8">
                     <div class="form-group d-flex">
                         <label for="" class="col-sm-3 text-right ">Nombre<span class="text-danger">*</span></label>
@@ -50,7 +70,7 @@ while ($element = $services->fetch_object()): ?>
 
             <div class="buttons clearfix">
                 <div class="floatButtons">
-                    <button class="btn-custom btn-green" type="submit" id="">
+                    <button class="btn-custom btn-green" type="button" id="editService">
                         <i class="fas fa-plus"></i>
                         <p>Guardar</p>
                     </button>

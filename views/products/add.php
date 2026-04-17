@@ -281,14 +281,6 @@
                         </tbody>
                     </table>
                 </div>
-
-                <!-- <div id="variant">
-
-                </div> -->
-
-
-
-
             </div>
         </div><!-- col-data-2 -->
 
