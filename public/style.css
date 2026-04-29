@@ -118,7 +118,7 @@ input:disabled {
     padding-top: 1px;
     cursor: pointer;
     font-size: 12px;
-    /* TamaÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±o base para pantallas pequeÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±as */
+    /* TamaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±o base para pantallas pequeÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±as */
 }
 
 
@@ -138,7 +138,7 @@ input:disabled {
     top: 2px;
     left: 13px;
     height: 16px;
-    /* TamaÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±o base pequeÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±o */
+    /* TamaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±o base pequeÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±o */
     width: 16px;
     background: #e2e2e2;
     border: 0 solid #000;
@@ -148,7 +148,7 @@ input:disabled {
 }
 
 
-/* Estilo cuando el checkbox es hover o estÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ en foco */
+/* Estilo cuando el checkbox es hover o estÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ en foco */
 
 .control:hover input~.control_indicator,
 .control input:focus~.control_indicator {
@@ -156,14 +156,14 @@ input:disabled {
 }
 
 
-/* Estilo cuando el checkbox estÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ marcado */
+/* Estilo cuando el checkbox estÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ marcado */
 
 .control input:checked~.control_indicator {
     background: var(--color-primary);
 }
 
 
-/* Estilo cuando el checkbox estÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ marcado y tiene foco o estÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ en hover */
+/* Estilo cuando el checkbox estÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ marcado y tiene foco o estÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ en hover */
 
 .control:hover input:not([disabled]):checked~.control_indicator,
 .control input:checked:focus~.control_indicator {
@@ -171,7 +171,7 @@ input:disabled {
 }
 
 
-/* Estilo cuando el checkbox estÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ deshabilitado */
+/* Estilo cuando el checkbox estÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ deshabilitado */
 
 .control input:disabled~.control_indicator {
     background: #e6e6e6;
@@ -190,7 +190,7 @@ input:disabled {
 }
 
 
-/* Estilo para el checkmark cuando el checkbox estÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ marcado */
+/* Estilo para el checkmark cuando el checkbox estÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ marcado */
 
 .control input:checked~.control_indicator:after {
     display: block;
@@ -212,24 +212,24 @@ input:disabled {
 @media (min-width: 1340px) {
     .control {
         font-size: 14px;
-        /* Aumentar el tamaÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±o del texto para pantallas grandes */
+        /* Aumentar el tamaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±o del texto para pantallas grandes */
     }
 
     .control_indicator {
         top: 2px;
         left: 11px;
-        /* Ajustar posiciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n */
+        /* Ajustar posiciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n */
         height: 18px;
-        /* Aumentar el tamaÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±o */
+        /* Aumentar el tamaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±o */
         width: 18px;
-        /* Aumentar el tamaÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±o */
+        /* Aumentar el tamaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±o */
     }
 
     .control-checkbox .control_indicator:after {
         left: 5px;
-        /* Ajustar posiciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n del checkmark */
+        /* Ajustar posiciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n del checkmark */
         width: 3px;
-        /* Ajuste pequeÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±o */
+        /* Ajuste pequeÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±o */
     }
 }
 
@@ -385,7 +385,7 @@ input[type="date"].form-custom-icon {
 }
 
 
-/* TriÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ngulo */
+/* TriÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ngulo */
 
 [data-title]:before {
     content: "";
@@ -1057,7 +1057,7 @@ section.content-bar {
 }
 
 
-/* Estilo del Ã¡rea del escÃ¡ner */
+/* Estilo del ÃƒÂ¡rea del escÃƒÂ¡ner */
 
 #reader {
     width: 80%;
@@ -1565,7 +1565,7 @@ span.alert-notify-lg p {
     display: flex;
     flex-direction: column;
     flex: 1;
-    /* que ocupe el espacio entre avatar y botÃ³n */
+    /* que ocupe el espacio entre avatar y botÃƒÂ³n */
 }
 
 .user-name {
@@ -1593,7 +1593,7 @@ span.alert-notify-lg p {
 }
 
 
-/* BotÃ³n cerrar sesiÃ³n */
+/* BotÃƒÂ³n cerrar sesiÃƒÂ³n */
 
 .user-logout {
     display: flex;
@@ -2291,13 +2291,13 @@ span.alert-notify-lg p {
 }
 
 
-/* Hover con cambio de color y sutil animaciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n */
+/* Hover con cambio de color y sutil animaciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n */
 
 .btn-action:hover {
     color: #111827;
-    /* MÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡s oscuro */
+    /* MÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡s oscuro */
     transform: scale(1.15);
-    /* LigerÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­simo zoom */
+    /* LigerÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­simo zoom */
 }
 
 
@@ -2312,7 +2312,7 @@ span.alert-notify-lg p {
 
 .action-info:hover {
     color: #0284c7;
-    /* Azul mÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡s fuerte al pasar */
+    /* Azul mÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡s fuerte al pasar */
 }
 
 .action-danger {
@@ -2807,6 +2807,8 @@ textarea:focus {
     }
 }
 
+/* Seccion productos */
+
 .container-area {
     display: flex;
     justify-content: space-between;
@@ -2858,9 +2860,30 @@ textarea:focus {
 }
 
 .col-legend {
+    display: flex;
+    justify-content: space-between;
     border-bottom: 1px solid #cfcfcf;
-    padding: 10px 0 10px 20px;
+    padding: 10px 10px 10px 20px;
     font-family: var(--font-primary);
+}
+
+.col-legend button {
+    border: none;
+    background: transparent;
+    color: #757575;
+    margin-left: 3px;
+}
+
+.col-legend button:hover {
+    color: var(--color-primary);
+}
+
+.col-legend button:focus {
+    outline: none;
+}
+
+.col-legend button svg {
+    width: 19px;
 }
 
 .col-legend h3 {
@@ -2897,6 +2920,49 @@ textarea:focus {
     }
 }
 
+/* Venta calcular costo */
+
+.cost-window {
+    position: fixed;
+    background: #fff;
+    width: 60%;
+    height: 100%;
+    right: -100%;
+    top: 0;
+    z-index: 5;
+    transition: right 0.5s ease;
+}
+
+.footer-window {
+    border-top: 1px solid #ccc;
+    margin-top: 15px;
+    position: fixed;
+    width: 59%;
+    bottom: 0;
+}
+
+@media (min-width: 924px) {
+    .cost-window {
+        width: 25%;
+    }
+
+    .footer-window {
+        width: 23%;
+    }
+}
+
+.footer-window-container {
+    display: flex;
+    padding: 7px 15px;
+    align-items: center;
+    gap: 10px;
+}
+
+@media (min-width: 924px) {
+    .footer-window-container {
+        gap: 0px;
+    }
+}
 
 /* contenedores de imagen */
 
@@ -4550,7 +4616,7 @@ span.close-window {
     right: -100%;
     z-index: 4;
     transition: right 0.5s ease;
-    /* TransiciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n para el deslizamiento */
+    /* TransiciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n para el deslizamiento */
 }
 
 @media (min-width: 924px) {
@@ -5334,4 +5400,129 @@ h6.legend-summary svg {
 .table_items_quantity,
 .display-result {
     margin-top: 10px;
+}
+
+/* Contenedor checkbox */
+.custom-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-family: var(--font-primary);
+    font-size: 12px;
+    font-weight: 500;
+    color: #444;
+}
+
+/* Ocultar checkbox real */
+.custom-check input {
+    display: none;
+}
+
+/* Caja visual */
+.checkmark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    position: relative;
+    transition: all 0.2s ease;
+    background: #fff;
+}
+
+/* Hover */
+.custom-check:hover .checkmark {
+    border-color: var(--color-primary);;
+}
+
+/* Activo */
+.custom-check input:checked + .checkmark {
+    background: var(--color-primary);;
+    border-color: var(--color-primary);;
+}
+
+/* Check interno */
+.custom-check input:checked + .checkmark::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* Texto */
+.check-label {
+    user-select: none;
+}
+
+/* Contenedor radio */
+.filter-radio {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+/* Radio personalizado */
+.radio-custom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font-primary);
+    color: #444;
+    position: relative;
+}
+
+/* Ocultar radio original */
+.radio-custom input {
+    display: none;
+}
+
+/* CÃ­rculo */
+.radio-mark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #777777;
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+/* Hover */
+.radio-custom:hover .radio-mark {
+    border-color: var(--color-primary);;
+}
+
+/* Activo */
+.radio-custom input:checked + .radio-mark {
+    border-color: var(--color-primary);
+}
+
+/* Punto interno */
+.radio-custom input:checked + .radio-mark::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+}
+
+/* Texto */
+.radio-label {
+    user-select: none;
+}
+
+/* Efecto activo */
+.radio-custom input:checked ~ .radio-label {
+    color: var(--color-primary);
 }

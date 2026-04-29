@@ -562,6 +562,85 @@ function toggleVariantFieldsListener() {
 
 $(document).ready(function () {
 
+    function hiddenOverlay() {
+        $('.cost-window').css('right', '-100%'); // Ocultar la ventana deslizante
+        $('.overlay').fadeOut(300); // Ocultar la capa de fondo negro
+    }
+
+    // Cerrar ventana
+    $('.overlay, #close-window,#cancel-window').on('click', function () {
+        hiddenOverlay();
+    });
+
+    /**============================================================= 
+    * VENTANA CALCULAR COSTO PROMEDIO
+    ===============================================================*/
+
+    function loadCurrentData() {
+        let cantidad = parseFloat($('#input_quantity').val()) || 0;
+        let costo = parseFloat($('#inputPrice_in').val()) || 0;
+
+        $('#current_amount').val(cantidad);
+        $('#current_cot').val(costo);
+        $('#new_quantity', '#new_cost').val('')
+    }
+
+    // Botón ventana calcular costo
+    $('#btnOpenCost').on('click', function () {
+        loadCurrentData();
+        $('.cost-window').css('display', 'block').css('right', '0'); // Mostrar ventana deslizante desde la derecha
+        $('.overlay').css('display', 'block'); // Mostrar la capa de fondo negro con transparencia
+    });
+
+    // Calcular unidad 
+    $('#box_cost, #units_per_box').on('input', function () {
+
+        let costoCaja = parseFloat($('#box_cost').val()) || 0;
+        let unidades = parseFloat($('#units_per_box').val()) || 0;
+
+        let costoUnitario = unidades > 0 ? costoCaja / unidades : 0;
+
+        $('#unit_cost').val(costoUnitario.toFixed(2));
+
+        // OPCIONAL: usarlo directamente como costo nuevo
+        $('#new_cost').val(costoUnitario.toFixed(2)).trigger('input');
+    });
+
+    // Calcular costo promedio
+    $('#new_quantity, #new_cost').on('input', function () {
+
+        let cantidad_actual = parseFloat($('#current_amount').val()) || 0;
+        let costo_actual = parseFloat($('#current_cot').val()) || 0;
+        let cantidad_nueva = parseFloat($('#new_quantity').val()) || 0;
+        let costo_nuevo = parseFloat($('#new_cost').val()) || 0;
+
+        let total = (cantidad_actual * costo_actual) + (cantidad_nueva * costo_nuevo);
+        let total_cantidad = cantidad_actual + cantidad_nueva;
+
+        let promedio = total_cantidad > 0 ? total / total_cantidad : 0;
+
+        $('#final_cost').val(promedio.toFixed(2));
+    });
+
+    // Aplicar costo promedio final
+    $('#apply_cost').on('click', function () {
+        let nuevoCosto = parseFloat($('#final_cost').val()) || 0;
+        let q2 = parseFloat($('#current_amount').val()) || 0; // Cantidad actual
+        let q1 = parseFloat($('#new_quantity').val()) || 0; // Cantidad nueva
+        let newQuantity = q1 + q2; // Cantidad Final
+
+        $('#inputPrice_in')
+            .val(nuevoCosto.toFixed(2))
+            .trigger('change');
+
+        $('#input_quantity')
+            .val(newQuantity.toFixed(2))
+            .trigger('change');
+
+        hiddenOverlay()
+    });
+
+
     /**============================================================= 
     * FUNCIONES Y ACCIONES EN LAS VENTAS SECCION PRODUCTOS
     ===============================================================*/
@@ -744,9 +823,18 @@ $(document).ready(function () {
         }
     }
 
-    // Evento que muestra el precio del produucto final
-    $("#inputPrice_out").on("keyup", function () {
-        $("#totalPrice").val(format.format($(this).val()));
+    // Evento que muestra el precio del producto final
+    function loadTotalPrice() {
+        let valor = parseFloat($("#inputPrice_out").val()) || 0;
+        $("#totalPrice").val(format.format(valor));
+    }
+
+    // Ejecutar al cargar
+    loadTotalPrice();
+
+    // Escuchar cambios
+    $("#inputPrice_out").on("input change", function () {
+        loadTotalPrice();
     });
 
     // Buscar producto por nombre
@@ -808,7 +896,7 @@ $(document).ready(function () {
 
                 applyProductOptions(data); // Aplicar opciones
 
-                 $('#select2-product-container').attr('title', data[0].nombre_producto);
+                $('#select2-product-container').attr('title', data[0].nombre_producto);
                 $('#select2-product-container').empty()
                 $('#select2-product-container').append(data[0].nombre_producto)
 
@@ -1180,7 +1268,7 @@ $(document).ready(function () {
                     },
                     errorCallback: (err) => {
                         notifyAlert("Ha ocurrido un error inesperado", "error")
-                    },verbose: true
+                    }, verbose: true
                 });
             },
             function () { }

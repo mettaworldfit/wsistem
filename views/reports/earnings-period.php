@@ -20,16 +20,20 @@
         <form method="post" id="formEarningPeriod">
 
             <!-- Filtros de fecha -->
-            <div class="form-group">
-                <div class="custom-control custom-radio custom-control-inline">
-                    <input type="radio" id="filtro_rango" name="tipo_filtro" class="custom-control-input" checked>
-                    <label class="custom-control-label" for="filtro_rango">Rango de fechas</label>
-                </div>
+            <div class="form-group filter-radio">
 
-                <div class="custom-control custom-radio custom-control-inline">
-                    <input type="radio" id="filtro_mes" name="tipo_filtro" class="custom-control-input">
-                    <label class="custom-control-label" for="filtro_mes">Mes y año</label>
-                </div>
+                <label class="radio-custom">
+                    <input type="radio" id="filtro_rango" name="tipo_filtro" checked>
+                    <span class="radio-mark"></span>
+                    <span class="radio-label">Rango de fechas</span>
+                </label>
+
+                <label class="radio-custom">
+                    <input type="radio" id="filtro_mes" name="tipo_filtro">
+                    <span class="radio-mark"></span>
+                    <span class="radio-label">Mes y año</span>
+                </label>
+
             </div>
 
             <!-- Filtros -->
@@ -76,6 +80,23 @@
                         }
                         ?>
                     </select>
+                </div>
+            </div>
+
+            <br>
+            <div class="filter-row">
+                <div>
+                    <label class="custom-check mb-2">
+                        <input type="checkbox" id="zeroCostProductos" name="includeZeroCostProductos" value="1" checked>
+                        <span class="checkmark"></span>
+                        <span class="check-label">Productos sin costo</span>
+                    </label>
+
+                    <label class="custom-check">
+                        <input type="checkbox" id="zeroCostServicios" name="includeZeroCostServicios" value="1" checked>
+                        <span class="checkmark"></span>
+                        <span class="check-label">Servicios sin costo</span>
+                    </label>
                 </div>
             </div>
 

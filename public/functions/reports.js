@@ -1,10 +1,33 @@
-import * as qz from "/public/test.js?v=1.0.2";
-import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
+const basePath = window.APP_ENV === 'local' ? '..' : '/public';
+const version = "1.0.2";
+
+Promise.all([
+    import(`${basePath}/test.js?v=${version}`),
+    import(`${basePath}/functions.js?v=${version}`)
+]).then(([qzModule, functionsModule]) => {
+    // Hacer qz global
+    window.qz = qzModule;
+
+    // Hacer funciones globales
+    const { initWebSocket, isWebSocketConnected, getUpdatedTotal } = functionsModule;
+    window.initWebSocket = initWebSocket;
+    window.isWebSocketConnected = isWebSocketConnected;
+    window.getUpdatedTotal = getUpdatedTotal;
+
+    // Inicializar WebSocket
+    initWebSocket();
+});
+
+
+// import * as qz from "/public/test.js?v=1.0.2";
+// import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
 
 // import * as qz from "../test.js";
 // import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "../functions.js";
 
 $(document).ready(function () {
+
+    console.log(basePath)
 
     let wsConnection = initWebSocket();
     let wsConnected = isWebSocketConnected();
@@ -742,8 +765,8 @@ $(document).ready(function () {
                     .find('input, select')
                     .prop('required', true)
                     .prop('disabled', false);
-                
-                 $('#earning_report').hide()
+
+                $('#earning_report').hide()
 
                 // Ocultar mes y limpiar
                 $('.filtroMes').hide()
@@ -784,11 +807,15 @@ $(document).ready(function () {
         const data = {
             month: $('#month').val(),
             year: $('#year').val(),
+            includeZeroCostProductos: $('#zeroCostProductos').is(':checked') ? 1 : 0,
+            includeZeroCostServicios: $('#zeroCostServicios').is(':checked') ? 1 : 0
         }
 
         const url = new URL(SITE_URL + 'src/excel/ernings-per-period.php');
         url.searchParams.set('year', data.year);
         url.searchParams.set('month', data.month);
+        url.searchParams.set('includeZeroCostProductos', data.includeZeroCostProductos);
+        url.searchParams.set('includeZeroCostServicios', data.includeZeroCostServicios);
 
         window.location.href = url.toString();
     })

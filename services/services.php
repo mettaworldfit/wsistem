@@ -66,7 +66,7 @@ switch ($action) {
 
         // Eliminar
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
-          $acciones .= '<span class="action-danger btn-action" onclick="deleteService(\'' . $row['servicio_id'] . '\')" title="Eliminar">
+          $acciones .= '<span class="action-danger btn-action erase_item" data-id="'.$row['servicio_id'].'" data-name="'.$row['nombre_servicio'].'" title="Eliminar">
                   ' . BUTTON_DELETE . '
                 </span>';
         } else {

@@ -976,137 +976,156 @@ switch ($action) {
         $baseCondition = "";
         $subCondition = "";
 
+        // Checkboxes independientes
+        $includeZeroCostProductos = (!empty($_POST['includeZeroCostProductos']) && $_POST['includeZeroCostProductos'] == '1') ? 1 : 0;
+        $includeZeroCostServicios = (!empty($_POST['includeZeroCostServicios']) && $_POST['includeZeroCostServicios'] == '1') ? 1 : 0;
+
+        // Filtros internos
+        $internalCostFilterProductos = $includeZeroCostProductos
+            ? ""
+            : "AND COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0) > 0";
+
+        $internalCostFilterServicios = $includeZeroCostServicios
+            ? ""
+            : "AND COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo), 0) > 0";
+
+        // Filtros de fecha
         if (!empty($_POST['fecha_inicio']) && !empty($_POST['fecha_final'])) {
-            $fecha_inicio = $_POST['fecha_inicio'] ?? date('Y-m-d');
-            $fecha_fin    = $_POST['fecha_final'] ?? date('Y-m-d');
+            $fecha_inicio = $db->real_escape_string($_POST['fecha_inicio']);
+            $fecha_fin    = $db->real_escape_string($_POST['fecha_final']);
 
-            $fecha_inicio = $db->real_escape_string($fecha_inicio);
-            $fecha_fin    = $db->real_escape_string($fecha_fin);
-
-            // Filtro por fecha
             $baseCondition .= "TIMESTAMP(d.fecha, d.hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
-            $subCondition .= "TIMESTAMP(fecha, hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+            $subCondition  .= "TIMESTAMP(fecha, hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
         } else {
-            $month = $_POST['month'];
-            $year  = $_POST['year'];
+            $month = $db->real_escape_string($_POST['month']);
+            $year  = $db->real_escape_string($_POST['year']);
 
-            $month = $db->real_escape_string($month);
-            $year   = $db->real_escape_string($year);
-
-            // Filtro por mes y año
             $baseCondition .= "MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year'";
-            $subCondition .= "MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'";
+            $subCondition  .= "MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'";
         }
 
+        // QUERY PRINCIPAL
         $table_with_joins = "
-    (SELECT 
-        nombre, 
-        tipo, 
-        SUM(cantidad) AS cantidad, 
-        SUM(costo) AS costo,
-        SUM(total) AS total, 
-        ROUND(SUM(ganancia), 2) AS ganancia
-    FROM (
+        (SELECT 
+            nombre, 
+            tipo, 
+            SUM(cantidad) AS cantidad, 
+            SUM(costo) AS costo,
+            SUM(total) AS total, 
+            ROUND(SUM(ganancia), 2) AS ganancia
+        FROM (
 
-        -- PRODUCTOS
-        SELECT 
-            p.nombre_producto AS nombre,
-            'Producto' AS tipo,
-            SUM(d.cantidad) AS cantidad,
+            -- PRODUCTOS
+            SELECT 
+                p.nombre_producto AS nombre,
+                'Producto' AS tipo,
+                SUM(d.cantidad) AS cantidad,
 
-            SUM(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) AS costo,
+                SUM(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad) AS costo,
 
-            SUM(d.precio * d.cantidad - d.descuento) AS total,
+                SUM(d.precio * d.cantidad - d.descuento) AS total,
 
-            SUM(
-                ((f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento))
-                -
-                (COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0) * d.cantidad)
-            ) AS ganancia
+                SUM(
+                    ((f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento))
+                    -
+                    (COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0) * d.cantidad)
+                ) AS ganancia
 
-        FROM detalle_facturas_ventas d
-        INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+            FROM detalle_facturas_ventas d
+            INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
 
-        INNER JOIN (
-            SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
-            FROM detalle_facturas_ventas
-            WHERE $subCondition
-            GROUP BY factura_venta_id
-        ) ft ON ft.factura_venta_id = f.factura_venta_id
+            LEFT JOIN (
+                SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+                FROM detalle_facturas_ventas
+                WHERE $subCondition
+                GROUP BY factura_venta_id
+            ) ft ON ft.factura_venta_id = f.factura_venta_id
 
-        INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
-        INNER JOIN productos p ON p.producto_id = dp.producto_id
+            INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
+            INNER JOIN productos p ON p.producto_id = dp.producto_id
 
-        WHERE $baseCondition
-        GROUP BY p.nombre_producto
+            WHERE $baseCondition
+            $internalCostFilterProductos
 
-        UNION ALL
+            GROUP BY p.nombre_producto
 
-        -- PIEZAS (FACTURAS)
-        SELECT 
-            p.nombre_pieza,
-            'Pieza',
-            SUM(d.cantidad),
-            SUM(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad),
-            SUM(d.precio * d.cantidad - d.descuento),
+            UNION ALL
 
-            SUM(
-                ((f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento))
-                -
-                (COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0) * d.cantidad)
-            )
+            -- PIEZAS
+            SELECT 
+                p.nombre_pieza,
+                'Pieza',
+                SUM(d.cantidad),
 
-        FROM detalle_facturas_ventas d
-        INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+                SUM(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo) * d.cantidad),
 
-        INNER JOIN (
-            SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
-            FROM detalle_facturas_ventas
-            WHERE $subCondition
-            GROUP BY factura_venta_id
-        ) ft ON ft.factura_venta_id = f.factura_venta_id
+                SUM(d.precio * d.cantidad - d.descuento),
 
-        INNER JOIN detalle_ventas_con_piezas_ dp ON dp.detalle_venta_id = d.detalle_venta_id
-        INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
+                SUM(
+                    ((f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento))
+                    -
+                    (COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0) * d.cantidad)
+                )
 
-        WHERE $baseCondition
-        GROUP BY p.nombre_pieza
+            FROM detalle_facturas_ventas d
+            INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
 
-        UNION ALL
+            LEFT JOIN (
+                SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+                FROM detalle_facturas_ventas
+                WHERE $subCondition
+                GROUP BY factura_venta_id
+            ) ft ON ft.factura_venta_id = f.factura_venta_id
 
-        -- SERVICIOS (FACTURAS)
-        SELECT 
-            s.nombre_servicio,
-            'Servicio',
-            SUM(d.cantidad),
-            SUM(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)),
-            SUM(d.precio * d.cantidad - d.descuento),
+            INNER JOIN detalle_ventas_con_piezas_ dp ON dp.detalle_venta_id = d.detalle_venta_id
+            INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
 
-            SUM(
-                ((f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento))
-                -
-                (COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo), 0) * d.cantidad)
-            )
+            WHERE $baseCondition
+            $internalCostFilterProductos
 
-        FROM detalle_facturas_ventas d
-        INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+            GROUP BY p.nombre_pieza
 
-        INNER JOIN (
-            SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
-            FROM detalle_facturas_ventas
-            WHERE $subCondition
-            GROUP BY factura_venta_id
-        ) ft ON ft.factura_venta_id = f.factura_venta_id
+            UNION ALL
 
-        INNER JOIN detalle_ventas_con_servicios ds ON ds.detalle_venta_id = d.detalle_venta_id
-        INNER JOIN servicios s ON s.servicio_id = ds.servicio_id
+            -- SERVICIOS
+            SELECT 
+                s.nombre_servicio,
+                'Servicio',
+                SUM(d.cantidad),
 
-        WHERE $baseCondition
-        GROUP BY s.nombre_servicio
+                SUM(COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo) * d.cantidad, 0)),
 
-    ) AS detalle_ventas_mes
+                SUM(d.precio * d.cantidad - d.descuento),
 
-    GROUP BY nombre, tipo) as t";
+                SUM(
+                    ((f.recibido / NULLIF(ft.total_facturado, 0)) * (d.precio * d.cantidad - d.descuento))
+                    -
+                    (COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo), 0) * d.cantidad)
+                )
+
+            FROM detalle_facturas_ventas d
+            INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
+
+            LEFT JOIN (
+                SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
+                FROM detalle_facturas_ventas
+                WHERE $subCondition
+                GROUP BY factura_venta_id
+            ) ft ON ft.factura_venta_id = f.factura_venta_id
+
+            INNER JOIN detalle_ventas_con_servicios ds ON ds.detalle_venta_id = d.detalle_venta_id
+            INNER JOIN servicios s ON s.servicio_id = ds.servicio_id
+
+            WHERE $baseCondition
+            $internalCostFilterServicios
+
+            GROUP BY s.nombre_servicio
+
+        ) AS detalle_ventas_mes
+
+        GROUP BY nombre, tipo
+       
+        ) as t";
 
         handleDataTableRequest($db, [
             'columns' => ['t.nombre', 't.cantidad', 't.costo', 't.total', 't.ganancia'],
@@ -1133,26 +1152,32 @@ switch ($action) {
         $baseCondition = "";
         $subCondition = "";
 
+        // Checkboxes independientes
+        $includeZeroCostProductos = (!empty($_POST['includeZeroCostProductos']) && $_POST['includeZeroCostProductos'] == '1') ? 1 : 0;
+        $includeZeroCostServicios = (!empty($_POST['includeZeroCostServicios']) && $_POST['includeZeroCostServicios'] == '1') ? 1 : 0;
+
+        // Filtros internos
+        $internalCostFilterProductos = $includeZeroCostProductos
+            ? ""
+            : "AND COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0) > 0";
+
+        $internalCostFilterServicios = $includeZeroCostServicios
+            ? ""
+            : "AND COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo), 0) > 0";
+
+        // Filtros de fecha
         if (!empty($_POST['fecha_inicio']) && !empty($_POST['fecha_final'])) {
-            $fecha_inicio = $_POST['fecha_inicio'] ?? date('Y-m-d');
-            $fecha_fin    = $_POST['fecha_final'] ?? date('Y-m-d');
+            $fecha_inicio = $db->real_escape_string($_POST['fecha_inicio']);
+            $fecha_fin    = $db->real_escape_string($_POST['fecha_final']);
 
-            $fecha_inicio = $db->real_escape_string($fecha_inicio);
-            $fecha_fin    = $db->real_escape_string($fecha_fin);
-
-            // Filtro por fecha
             $baseCondition .= "TIMESTAMP(d.fecha, d.hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
-            $subCondition .= "TIMESTAMP(fecha, hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+            $subCondition  .= "TIMESTAMP(fecha, hora) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
         } else {
-            $month = $_POST['month'];
-            $year  = $_POST['year'];
+            $month = $db->real_escape_string($_POST['month']);
+            $year  = $db->real_escape_string($_POST['year']);
 
-            $month = $db->real_escape_string($month);
-            $year   = $db->real_escape_string($year);
-
-            // Filtro por mes y año
             $baseCondition .= "MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year'";
-            $subCondition .= "MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'";
+            $subCondition  .= "MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'";
         }
 
         $sql = "SELECT 
@@ -1194,7 +1219,7 @@ switch ($action) {
         ) AS ganancia
             FROM detalle_facturas_ventas d
             INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
-            INNER JOIN (
+            LEFT JOIN (
             SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
             FROM detalle_facturas_ventas
             WHERE $subCondition
@@ -1203,6 +1228,7 @@ switch ($action) {
             INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
             INNER JOIN productos p ON p.producto_id = dp.producto_id
             WHERE $baseCondition
+            $internalCostFilterProductos
             GROUP BY p.nombre_producto
 
             UNION ALL
@@ -1227,7 +1253,7 @@ switch ($action) {
         ) AS ganancia
             FROM detalle_facturas_ventas d
             INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
-            INNER JOIN (
+            LEFT JOIN (
             SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
             FROM detalle_facturas_ventas
             WHERE $subCondition
@@ -1236,6 +1262,7 @@ switch ($action) {
             INNER JOIN detalle_ventas_con_piezas_ dp ON dp.detalle_venta_id = d.detalle_venta_id
             INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
             WHERE $baseCondition
+            $internalCostFilterProductos
             GROUP BY p.nombre_pieza
 
             UNION ALL
@@ -1260,7 +1287,7 @@ switch ($action) {
             ) AS ganancia
             FROM detalle_ordenRP d
             INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
-            INNER JOIN (
+            LEFT JOIN (
             SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
             FROM detalle_ordenRP
             WHERE $subCondition
@@ -1269,6 +1296,7 @@ switch ($action) {
             INNER JOIN detalle_ordenRP_con_piezas dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
             INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
             WHERE $baseCondition
+            $internalCostFilterProductos
             GROUP BY p.nombre_pieza
 
             UNION ALL
@@ -1293,7 +1321,7 @@ switch ($action) {
             ) AS ganancia
             FROM detalle_facturas_ventas d
             INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
-            INNER JOIN (
+            LEFT JOIN (
             SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
             FROM detalle_facturas_ventas
             WHERE $subCondition
@@ -1302,6 +1330,7 @@ switch ($action) {
             INNER JOIN detalle_ventas_con_servicios ds ON ds.detalle_venta_id = d.detalle_venta_id
             INNER JOIN servicios s ON s.servicio_id = ds.servicio_id
             WHERE $baseCondition
+            $internalCostFilterServicios
             GROUP BY s.nombre_servicio
 
             UNION ALL
@@ -1326,7 +1355,7 @@ switch ($action) {
         ) AS ganancia
             FROM detalle_ordenRP d
             INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
-            INNER JOIN (
+            LEFT JOIN (
             SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
             FROM detalle_ordenRP
             WHERE $subCondition
@@ -1335,6 +1364,7 @@ switch ($action) {
             INNER JOIN detalle_ordenRP_con_servicios dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
             INNER JOIN servicios s ON s.servicio_id = dp.servicio_id
             WHERE $baseCondition
+            $internalCostFilterServicios
             GROUP BY s.nombre_servicio
                 
             ) AS detalle_ventas_mes 
@@ -1342,6 +1372,6 @@ switch ($action) {
         ) AS resumen;";
 
         jsonQueryResult($db, $sql);
-    
+
         break;
 }

@@ -13,11 +13,6 @@
                 <i class="fas fa-poll-h"></i>
                 <p>Historial</p>
             </button>
-
-            <a href="" class="btn-custom btn-success" id="generate_code">
-                <i class="fas fa-barcode"></i>
-                <p>Imprimir codigo</p>
-            </a>
         </div>
     </div>
 
@@ -28,6 +23,33 @@
             <div class="col-data">
                 <div class="col-legend">
                     <h3>información general</h3>
+
+                    <div>
+                        <button type="button" id="generate_code" data-title="Imprimir código">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-barcode-icon lucide-barcode">
+                                <path d="M3 5v14" />
+                                <path d="M8 5v14" />
+                                <path d="M12 5v14" />
+                                <path d="M17 5v14" />
+                                <path d="M21 5v14" />
+                            </svg>
+                        </button>
+
+                        <button type="button" id="btnOpenCost" data-title="Costo promedio ponderado">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calculator-icon lucide-calculator">
+                                <rect width="16" height="20" x="4" y="2" rx="2" />
+                                <line x1="8" x2="16" y1="6" y2="6" />
+                                <line x1="16" x2="16" y1="14" y2="18" />
+                                <path d="M16 10h.01" />
+                                <path d="M12 10h.01" />
+                                <path d="M8 10h.01" />
+                                <path d="M12 14h.01" />
+                                <path d="M8 14h.01" />
+                                <path d="M12 18h.01" />
+                                <path d="M8 18h.01" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Información general -->
@@ -96,7 +118,7 @@
                     <div class="form-group col-sm-5 mb-3">
                         <label class="form-check-label label-cant" for="">Cantidad<span class="text-danger">*</span></label>
                         <input class="form-custom col-sm-12" type="number" value="<?= $element->cantidad ?>" name="quantity"
-                           step="0.01" min="0" max="999.99" placeholder="Vacío" id="input_quantity" required>
+                            step="0.01" min="0" max="999.99" placeholder="Vacío" id="input_quantity" required>
                     </div>
 
 
@@ -376,8 +398,10 @@
                     </div>
 
                     <div class="form-group col-sm-6">
-                        <select class="form-custom search col-sm-12" name="price_list" id="price_list" 
-                        <?php if ($_SESSION['identity']->nombre_rol != 'administrador') { echo 'disabled';} ?>>
+                        <select class="form-custom search col-sm-12" name="price_list" id="price_list"
+                            <?php if ($_SESSION['identity']->nombre_rol != 'administrador') {
+                                echo 'disabled';
+                            } ?>>
                             <option value="0" selected>Vacío</option>
                             <?php $lists = Help::loadPriceLists();
                             while ($list = $lists->fetch_object()): ?>
@@ -387,8 +411,10 @@
                     </div>
 
                     <div class="form-group col-sm-6">
-                        <input class="form-custom col-sm-12" type="number" name="" id="list_value" 
-                        <?php if ($_SESSION['identity']->nombre_rol != 'administrador') {echo 'disabled'; } ?>>
+                        <input class="form-custom col-sm-12" type="number" name="" id="list_value"
+                            <?php if ($_SESSION['identity']->nombre_rol != 'administrador') {
+                                echo 'disabled';
+                            } ?>>
                     </div>
 
                     <br><br>
@@ -512,7 +538,7 @@
                             <div class="row-price">
                                 <span>DOP</span>
                                 <input type="text" class="invisible-input col-sm-12 text-left"
-                                    value="<?= number_format($element->precio_unitario, 2); ?>" id="totalPrice" disabled>
+                                    value="<?= $element->precio_unitario; ?>" id="totalPrice" disabled>
                             </div>
                             <input type="hidden" name="" value="" id="FinalPrice_out">
                         </div>
@@ -559,9 +585,7 @@
                             <th>Entrada</th>
                         </thead>
 
-
                         <tbody>
-
                             <?php $variants = Help::showVariant_history($_GET['id']);
                             while ($variant = $variants->fetch_object()): ?>
                                 <tr>
@@ -587,3 +611,85 @@
         </div>
     </div>
 </div>
+
+<!-- Capa de fondo transparente -->
+<div class="overlay"></div>
+
+<div class="cost-window">
+    <div class="modal-header">
+        <h5 class="modal-title">
+            Costo promedio
+        </h5>
+        <button type="button" class="close" id="close-window">
+            <span class="close-window">x</span>
+        </button>
+    </div>
+
+    <div class="modal-body">
+
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label class="form-check-label">Costo de la caja</label>
+                <input class="form-custom" type="number" id="box_cost">
+            </div>
+
+            <div class="form-group col-sm-6">
+                <label class="form-check-label">Unidades por caja</label>
+                <input class="form-custom" type="number" id="units_per_box">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-sm-12 text-center">
+                <label class="form-check-label">Costo por unidad</label>
+                <input class="form-custom text-center" type="text" style="background: #0f7785; color: white" id="unit_cost" readonly>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label class="form-check-label">Cantidad actual</label>
+                <input class="form-custom" type="number" id="current_amount" readonly>
+            </div>
+
+            <div class="form-group col-sm-6">
+                <label class="form-check-label">Costo actual</label>
+                <input class="form-custom" type="number" id="current_cot" readonly>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label class="form-check-label">Nueva cantidad</label>
+                <input class="form-custom" type="number" id="new_quantity">
+            </div>
+
+            <div class="form-group col-sm-6">
+                <label class="form-check-label">Nuevo costo</label>
+                <input class="form-custom" type="number" id="new_cost">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-sm-12 text-center">
+                <label class="form-check-label">Costo promedio</label>
+                <input class="form-custom text-center" style="background: #0f7785; color: white" type="text" id="final_cost" readonly value="0.00">
+            </div>
+        </div>
+
+        <div class="footer-window">
+            <!-- Botones -->
+            <div class="footer-window-container">
+                <button class="btn-custom btn-blue" type="button" id="apply_cost">
+                    <p>Aplicar costo</p>
+                </button>
+
+                <button class="btn-custom btn-red" type="button" id="cancel-window">
+                    <i class="fas fa-window-close"></i>
+                    <p>Cancelar</p>
+                </button>
+            </div>
+        </div>
+    </div>
+</div> <!-- end -->

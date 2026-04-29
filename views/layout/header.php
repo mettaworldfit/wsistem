@@ -23,6 +23,10 @@
   <link rel="shortcut icon" href="<?= base_url ?>public/imagen/sistem/icon.ico" type="image/x-icon">
 
   <!-- CORE -->
+  <script>
+    window.APP_ENV = "<?= ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['HTTP_HOST'] === '127.0.0.1') ? 'local' : 'production' ?>";
+  </script>
+
   <script src="<?= base_url ?>public/vendor/jquery/jquery.js"></script>
   <script src="<?= base_url ?>public/scripts.js?v=<?= APP_VERSION ?>"></script>
   <link rel="manifest" href="<?= base_url ?>manifest.json">
@@ -33,7 +37,6 @@
   <link rel="stylesheet" href="<?= base_url ?>public/vendor/vegas/vegas.min.css">
 
   <title><?php echo isset($_SESSION['infoClient']) ? $_SESSION['infoClient']['company'] : "app.wsistems.com";  ?></title>
-
 
   <?php if (isset($_SESSION['admin']) || isset($_SESSION['identity'])) { ?>
 

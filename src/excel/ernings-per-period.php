@@ -14,6 +14,19 @@ if (!isset($_GET['month'], $_GET['year'])) {
   exit;
 }
 
+// Checkboxes independientes
+$includeZeroCostProductos = (!empty($_GET['includeZeroCostProductos']) && $_GET['includeZeroCostProductos'] == '1') ? 1 : 0;
+$includeZeroCostServicios = (!empty($_GET['includeZeroCostServicios']) && $_GET['includeZeroCostServicios'] == '1') ? 1 : 0;
+
+// Filtros internos
+$internalCostFilterProductos = $includeZeroCostProductos
+  ? ""
+  : "AND COALESCE(IF(d.costo IS NULL OR d.costo = 0, p.precio_costo, d.costo), 0) > 0";
+
+$internalCostFilterServicios = $includeZeroCostServicios
+  ? ""
+  : "AND COALESCE(IF(d.costo IS NULL OR d.costo = 0, s.costo, d.costo), 0) > 0";
+
 // Parámetros de mes y año
 $month = $_GET['month'];   // puedes reemplazar con $_GET['mes']
 $year = $_GET['year']; // puedes reemplazar con $_GET['anio']
@@ -62,7 +75,7 @@ FROM (
   ) AS ganancia
     FROM detalle_facturas_ventas d
     INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
-    INNER JOIN (
+    LEFT JOIN (
       SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
       FROM detalle_facturas_ventas
       WHERE MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'
@@ -70,7 +83,8 @@ FROM (
     ) ft ON ft.factura_venta_id = f.factura_venta_id
     INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
     INNER JOIN productos p ON p.producto_id = dp.producto_id
-    WHERE MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year'
+    WHERE MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year' 
+    $internalCostFilterProductos
     GROUP BY p.nombre_producto
 
     UNION ALL
@@ -95,7 +109,7 @@ FROM (
   ) AS ganancia
     FROM detalle_facturas_ventas d
     INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
-    INNER JOIN (
+    LEFT JOIN (
       SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
       FROM detalle_facturas_ventas
       WHERE MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'
@@ -128,7 +142,7 @@ FROM (
     ) AS ganancia
     FROM detalle_ordenRP d
     INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
-    INNER JOIN (
+    LEFT JOIN (
       SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
       FROM detalle_ordenRP
       WHERE MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'
@@ -137,6 +151,7 @@ FROM (
     INNER JOIN detalle_ordenRP_con_piezas dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
     INNER JOIN piezas p ON p.pieza_id = dp.pieza_id
     WHERE MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year'
+    $internalCostFilterProductos
     GROUP BY p.nombre_pieza
 
     UNION ALL
@@ -161,7 +176,7 @@ FROM (
     ) AS ganancia
     FROM detalle_facturas_ventas d
     INNER JOIN facturas_ventas f ON f.factura_venta_id = d.factura_venta_id
-    INNER JOIN (
+    LEFT JOIN (
       SELECT factura_venta_id, SUM(precio * cantidad - descuento) AS total_facturado
       FROM detalle_facturas_ventas
       WHERE MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'
@@ -170,6 +185,7 @@ FROM (
     INNER JOIN detalle_ventas_con_servicios ds ON ds.detalle_venta_id = d.detalle_venta_id
     INNER JOIN servicios s ON s.servicio_id = ds.servicio_id
     WHERE MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year'
+    $internalCostFilterServicios
     GROUP BY s.nombre_servicio
 
     UNION ALL
@@ -194,7 +210,7 @@ FROM (
   ) AS ganancia
     FROM detalle_ordenRP d
     INNER JOIN facturasRP frp ON frp.orden_rp_id = d.orden_rp_id
-    INNER JOIN (
+    LEFT JOIN (
       SELECT orden_rp_id, SUM(precio * cantidad - descuento) AS total_facturado
       FROM detalle_ordenRP
       WHERE MONTH(fecha) = '$month' AND YEAR(fecha) = '$year'
@@ -203,8 +219,10 @@ FROM (
     INNER JOIN detalle_ordenRP_con_servicios dp ON dp.detalle_ordenRP_id = d.detalle_ordenRP_id
     INNER JOIN servicios s ON s.servicio_id = dp.servicio_id
     WHERE MONTH(d.fecha) = '$month' AND YEAR(d.fecha) = '$year'
+    $internalCostFilterServicios
     GROUP BY s.nombre_servicio
-) AS detalle_ventas_mes GROUP BY nombre, tipo
+) AS detalle_ventas_mes 
+ GROUP BY nombre, tipo
  ORDER BY ganancia DESC;";
 
 $result = $db->query($query);

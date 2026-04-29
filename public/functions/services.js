@@ -1,23 +1,3 @@
-// Eliminar servicio
-function deleteService(serviceId) {
-    alertify.confirm("Eliminar servicio", "¿Estas seguro que deseas borrar este servicio? ",
-        function () {
-            sendAjaxRequest({
-                url: "services/services.php",
-                data: {
-                    service_id: serviceId,
-                    action: 'eliminar_servicio'
-                },
-                successCallback: () => dataTablesInstances['services'].ajax.reload(),
-                errorCallback: (res) => mysql_error(res),
-                verbose: true
-            });
-        },
-        function () {
-
-        });
-}
-
 $(document).ready(function () {
 
     /**============================================================= 
@@ -259,6 +239,35 @@ $(document).ready(function () {
             }
         })
     })
+
+    // Eliminar servicio
+    $(document).on('click', '.erase_item', function (e) {
+        e.preventDefault()
+
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+
+        alertify.confirm("Eliminar servicio", "¿Estas seguro que deseas eliminar " + name + "? ",
+            function () {
+                sendAjaxRequest({
+                    url: "services/services.php",
+                    data: {
+                        service_id: id,
+                        action: 'eliminar_servicio'
+                    },
+                    successCallback: () => dataTablesInstances['services'].ajax.reload(),
+                    errorCallback: (err) => {
+                        notifyAlert("Ha ocurrido un error inesperado", 'error')
+                        console.error(err)
+                    },
+                });
+            },
+            function () {
+
+            });
+    })
+
+
 
 
     /**============================================================= 
