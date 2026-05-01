@@ -1,33 +1,14 @@
 const basePath = window.APP_ENV === 'local' ? '..' : '/public';
-const version = "1.0.2";
-
-Promise.all([
-    import(`${basePath}/test.js?v=${version}`),
-    import(`${basePath}/functions.js?v=${version}`)
-]).then(([qzModule, functionsModule]) => {
-    // Hacer qz global
-    window.qz = qzModule;
-
-    // Hacer funciones globales
-    const { initWebSocket, isWebSocketConnected, getUpdatedTotal } = functionsModule;
-    window.initWebSocket = initWebSocket;
-    window.isWebSocketConnected = isWebSocketConnected;
-    window.getUpdatedTotal = getUpdatedTotal;
-
-    // Inicializar WebSocket
-    initWebSocket();
-});
+const version = window.APP_VERSION;
 
 
-// import * as qz from "/public/test.js?v=1.0.2";
-// import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
+import * as qz from "/public/test.js?v=1.0.2";
+import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
 
 // import * as qz from "../test.js";
 // import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "../functions.js";
 
 $(document).ready(function () {
-
-    console.log(basePath)
 
     let wsConnection = initWebSocket();
     let wsConnected = isWebSocketConnected();

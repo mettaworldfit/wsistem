@@ -25,6 +25,7 @@
   <!-- CORE -->
   <script>
     window.APP_ENV = "<?= ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['HTTP_HOST'] === '127.0.0.1') ? 'local' : 'production' ?>";
+    window.APP_VERSION = "<?= APP_VERSION ?>";
   </script>
 
   <script src="<?= base_url ?>public/vendor/jquery/jquery.js"></script>
