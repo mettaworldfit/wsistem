@@ -45,6 +45,11 @@ $permissions = [
     // Reportes de ganancias
     'ganancias_por_periodo' => ['administrador'],
     'resumen_ganancias_periodo' => ['administrador'],
+
+    // Reportes de inventario
+    'valor_inventario' => ['administrador'],
+    'resumen_inventario' => ['administrador'],
+
 ];
 
 // Chequear permisos
@@ -220,7 +225,7 @@ switch ($action) {
         INNER JOIN usuarios u ON u.usuario_id = c.usuario_id 
         WHERE c.cierre_id = '$id'";
 
-        echo jsonQueryResult($db, $sql);
+        jsonQueryResult($db, $sql);
 
         break;
     // Ventas del dia
@@ -1370,6 +1375,217 @@ switch ($action) {
             ) AS detalle_ventas_mes 
             GROUP BY nombre, tipo
         ) AS resumen;";
+
+        jsonQueryResult($db, $sql);
+
+        break;
+
+    // Valor de inventario
+    case 'valor_inventario':
+
+        $query = isset($_POST['query']) ? trim($_POST['query']) : '';
+        $provider = isset($_POST['provider']) ? intval($_POST['provider']) : 0;
+        $category = isset($_POST['category']) ? intval($_POST['category']) : 0;
+        $brand = isset($_POST['brand']) ? intval($_POST['brand']) : 0;
+
+        $conditions = [];
+
+        // Filtro de búsqueda por palabra clave
+        if (!empty($query)) {
+            $query = $db->real_escape_string($query); // proteger
+            $conditions[] = "(nombre LIKE '%$query%' OR codigo LIKE '%$query%')";
+        }
+
+        // Filtro de proveedor
+        if ($provider > 0) {
+            $conditions[] = "(proveedor_id = $provider)";
+            // Nota: en UNION debes tener cuidado, veremos más abajo
+        }
+
+        // Filtro de categoría
+        if ($category > 0) {
+            $conditions[] = "(categoria_id = $category)";
+        }
+
+        // Filtro de marca
+        if ($brand > 0) {
+            $conditions[] = "(marca_id = $brand)";
+        }
+
+        // Construir WHERE
+        $whereClause = '';
+        if (count($conditions) > 0) {
+            $whereClause = 'WHERE ' . implode(' AND ', $conditions);
+        }
+
+
+        $table_with_joins = "(
+    SELECT 
+        nombre_almacen, 
+        cod_producto AS codigo, 
+        nombre_producto AS nombre, 
+        cantidad,
+        cantidad_min, 
+        precio_costo, 
+        nombre_estado, 
+        c.categoria_id,
+        pp.proveedor_id
+    FROM productos p
+    INNER JOIN almacenes a ON a.almacen_id = p.almacen_id
+    LEFT JOIN productos_con_categorias pc ON pc.producto_id = p.producto_id
+    LEFT JOIN categorias c ON c.categoria_id = pc.categoria_id
+    LEFT JOIN productos_con_proveedores pp ON p.producto_id = pp.producto_id
+    LEFT JOIN productos_con_marcas pm ON pm.producto_id = p.producto_id
+    LEFT JOIN marcas m ON pm.marca_id = m.marca_id
+    INNER JOIN estados_generales e ON e.estado_id = p.estado_id
+
+    UNION ALL
+
+    SELECT 
+        nombre_almacen, 
+        cod_pieza AS codigo, 
+        nombre_pieza AS nombre, 
+        cantidad,
+        cantidad_min,
+        precio_costo, 
+        nombre_estado, 
+        c.categoria_id,
+        pp.proveedor_id
+    FROM piezas p
+    INNER JOIN almacenes a ON a.almacen_id = p.almacen_id
+    LEFT JOIN piezas_con_categorias pc ON pc.pieza_id = p.pieza_id
+    LEFT JOIN categorias c ON c.categoria_id = pc.categoria_id
+    LEFT JOIN piezas_con_proveedores pp ON p.pieza_id = pp.pieza_id
+    LEFT JOIN piezas_con_marcas pm ON pm.pieza_id = p.pieza_id
+    LEFT JOIN marcas m ON pm.marca_id = m.marca_id  
+    INNER JOIN estados_generales e ON e.estado_id = p.estado_id
+) AS unioned_table";
+
+        handleDataTableRequest($db, [
+            'columns' => [
+                'nombre_almacen',
+                'codigo',
+                'nombre',
+                'cantidad',
+                'precio_costo',
+                'nombre_estado',
+                'cantidad_min'
+            ],
+            'searchable' => [
+                'nombre_almacen',
+                'codigo',
+                'nombre'
+            ],
+            'base_table' => $table_with_joins, // Solo para el total sin filtro
+            'table_with_joins' => $table_with_joins,
+            'base_condition' => $whereClause ? str_replace('WHERE', '', $whereClause) : '1=1',
+            'select' => "SELECT nombre_almacen, codigo, nombre, cantidad,cantidad_min, precio_costo, nombre_estado,categoria_id,proveedor_id",
+            'table_rows' => function ($row) {
+                // Determinar clase de color según la cantidad
+                $claseCantidad = 'text-warning';
+                if ($row['cantidad'] > $row['cantidad_min']) {
+                    $claseCantidad = 'text-success';
+                } elseif ($row['cantidad'] < 1) {
+                    $claseCantidad = 'text-danger';
+                }
+
+                return [
+                    'codigo'         => $row['codigo'],
+                    'nombre'         => ucwords($row['nombre']),
+                    'cantidad'       => '<span class="' . $claseCantidad . '">' . $row['cantidad'] . '</span>',
+                    'estado'         => '<span class="hide-cell">' . $row['nombre_estado'] . '</span>',
+                    'precio_costo'   => number_format($row['precio_costo'] ?? 0, 2),
+                    'total_costo'    => number_format($row['cantidad'] * $row['precio_costo'], 2),
+                ];
+            }
+        ]);
+        break;
+
+    // Resumen inventario
+    case 'resumen_inventario':
+
+        $query = isset($_POST['query']) ? trim($_POST['query']) : '';
+        $provider = isset($_POST['provider']) ? intval($_POST['provider']) : 0;
+        $category = isset($_POST['category']) ? intval($_POST['category']) : 0;
+        $brand = isset($_POST['brand']) ? intval($_POST['brand']) : 0;
+
+        // Escapar búsqueda
+        if (!empty($query)) {
+            $queryEsc = $db->real_escape_string($query);
+        }
+
+        // Construir filtros para productos
+        $prodConditions = [];
+        if (!empty($query)) {
+            $prodConditions[] = "(p.nombre_producto LIKE '%$queryEsc%' OR p.cod_producto LIKE '%$queryEsc%')";
+        }
+        if ($provider > 0) {
+            $prodConditions[] = "(pp.proveedor_id = $provider)";
+        }
+        if ($category > 0) {
+            $prodConditions[] = "(pc.categoria_id = $category)";
+        }
+        if ($brand > 0) {
+            $prodConditions[] = "(pm.marca_id = $brand)";
+        }
+        $prodWhere = count($prodConditions) > 0 ? 'WHERE ' . implode(' AND ', $prodConditions) : '';
+
+        // Construir filtros para piezas
+        $pzConditions = [];
+        if (!empty($query)) {
+            $pzConditions[] = "(p.nombre_pieza LIKE '%$queryEsc%' OR p.cod_pieza LIKE '%$queryEsc%')";
+        }
+        if ($provider > 0) {
+            $pzConditions[] = "(pp.proveedor_id = $provider)";
+        }
+        if ($category > 0) {
+            $pzConditions[] = "(pc.categoria_id = $category)";
+        }
+        if ($brand > 0) {
+            $pzConditions[] = "(pm.marca_id = $brand)";
+        }
+        $pzWhere = count($pzConditions) > 0 ? 'WHERE ' . implode(' AND ', $pzConditions) : '';
+
+        // SQL final
+        $sql = "SELECT 
+            COUNT(*) AS total_registros,
+            SUM(cantidad * precio_costo) AS valor_real,
+            SUM(cantidad * precio_unitario) AS valor_inventario
+        FROM (
+            SELECT 
+                p.producto_id,
+                cantidad, 
+                precio_costo, 
+                precio_unitario
+            FROM productos p 
+            INNER JOIN almacenes a ON a.almacen_id = p.almacen_id
+            LEFT JOIN productos_con_categorias pc ON pc.producto_id = p.producto_id
+            LEFT JOIN categorias c ON c.categoria_id = pc.categoria_id
+            LEFT JOIN productos_con_proveedores pp ON p.producto_id = pp.producto_id
+            LEFT JOIN proveedores pv ON pv.proveedor_id = pp.proveedor_id
+            LEFT JOIN productos_con_marcas pm ON pm.producto_id = p.producto_id
+            LEFT JOIN marcas m ON pm.marca_id = m.marca_id
+            INNER JOIN estados_generales e ON e.estado_id = p.estado_id 
+            $prodWhere
+
+            UNION ALL
+
+            SELECT 
+                p.pieza_id,
+                cantidad, 
+                precio_costo, 
+                precio_unitario
+            FROM piezas p
+            INNER JOIN almacenes a ON a.almacen_id = p.almacen_id
+            LEFT JOIN piezas_con_categorias pc ON pc.pieza_id = p.pieza_id
+            LEFT JOIN categorias c ON c.categoria_id = pc.categoria_id
+            LEFT JOIN piezas_con_proveedores pp ON p.pieza_id = pp.pieza_id
+            LEFT JOIN proveedores pv ON pv.proveedor_id = pp.proveedor_id
+            LEFT JOIN piezas_con_marcas pm ON pm.pieza_id = p.pieza_id
+            LEFT JOIN marcas m ON pm.marca_id = m.marca_id
+            INNER JOIN estados_generales e ON e.estado_id = p.estado_id
+            $pzWhere
+        ) AS inventario;";
 
         jsonQueryResult($db, $sql);
 

@@ -1,27 +1,32 @@
 $(document).ready(function () {
 
-    $('.load, .missing').hide();
     // Iniciar sesión
-
     $('#login').on('submit', (e) => {
         e.preventDefault();
 
+        $('.load, .missing').hide(); // Ocultar errores
+
+        const data = {
+            user: $('#userName').val().toLowerCase(),
+            password: $('#userPassword').val(),
+            action: 'login'
+        }
+
         sendAjaxRequest({
             url: "services/users.php",
-            data: {
-                user: $('#userName').val().toLowerCase(),
-                password: $('#userPassword').val(),
-                action: 'login'
-            },
-            successCallback: (res) => {
+            data: data,
+            successCallback: async (res) => {
                 if (res === "approved") {
+
                     location.href = SITE_URL + "home/index";
+
                 } else {
                     $('.i').css({ color: 'red', transition: '0.4s all ease' });
                     $('.load').hide();
                     $('.missing, #btn-txt').show();
                 }
-            }
+            },
+            errorCallback: (err) => console.log(err)
         })
     })
 

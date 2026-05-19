@@ -899,14 +899,6 @@ $(document).ready(function () {
         ]
     },
     {
-        id: '#inventory',
-        url: 'services/products.php',
-        action: 'index_valor_inventario',
-        columns: [
-            'codigo', 'nombre', 'cantidad', 'estado', 'precio_costo', 'total_costo'
-        ]
-    },
-    {
         id: '#bonus',
         url: 'services/config.php',
         action: 'index_bonos',
@@ -1039,6 +1031,15 @@ $(document).ready(function () {
         ordering: true,
         info: false
     },
+    {
+        id: '#ecfs',
+        url: 'services/ecf.php',
+        action: 'index_facturas_emitidas',
+        columns: ['id', 'nombre_cliente', 'creado_en', 'monto_total', 'encf', 'vendedor', 'estado', 'acciones'],
+        order: [
+            [0, 'desc']
+        ]
+    }
 
     ];
 
@@ -1306,7 +1307,7 @@ $(document).ready(function () {
 
     function checkPlanExpired(diasRestantes) {
         if (diasRestantes > 0) return;
-        notifyAlert('⚠️ Su plan ha expirado. Renueve el servicio.','error',6000);
+        notifyAlert('⚠️ Su plan ha expirado. Renueve el servicio.', 'error', 6000);
     }
 
     // Llamar a la función para obtener la expiración del plan

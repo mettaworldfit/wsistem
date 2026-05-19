@@ -54,6 +54,10 @@ $globalScripts = [
         'src'  => base_url . 'public/functions/workshop.js',
         'type' => 'text/javascript'
     ],
+     [
+        'src'  => base_url . 'public/functions/ecf.js',
+        'type' => 'text/javascript'
+    ],
 
 ];
 

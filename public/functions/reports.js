@@ -2,11 +2,11 @@ const basePath = window.APP_ENV === 'local' ? '..' : '/public';
 const version = window.APP_VERSION;
 
 
-import * as qz from "/public/test.js?v=1.0.2";
-import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
+// import * as qz from "/public/test.js?v=1.0.2";
+// import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
 
-// import * as qz from "../test.js";
-// import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "../functions.js";
+import * as qz from "../test.js";
+import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "../functions.js";
 
 $(document).ready(function () {
 
@@ -879,6 +879,82 @@ $(document).ready(function () {
                 console.error(err)
             }
         })
+    })
+
+    /**============================================================= 
+    * REPORTES DE INVENTARIO
+    ===============================================================*/
+
+    if (!$('#inventory').length) {
+
+        const table = `
+            <table id="inventory" class="table-custom table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>ítem</th>
+                        <th>Cantidad</th>
+                        <th class="hide-cell">Estado</th>
+                        <th>Costo promedio</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+            </table>
+        `;
+
+        $('.table-inventory-result').html(table);
+    }
+
+    $('#formInventory').on('submit', function (e) {
+        e.preventDefault()
+
+        const tableId = 'inventory';
+
+        //  Si ya existe DataTable → destruir
+        if ($.fn.DataTable.isDataTable('#' + tableId)) {
+            $('#' + tableId).DataTable().destroy();
+        }
+
+        let formDataTable = new FormData(this)
+        // Convertir FormData a objeto plano
+        const formObject = Object.fromEntries(formDataTable.entries());
+
+        let formData = new FormData(this)
+        formData.append("action", "resumen_inventario")
+
+        sendAjaxRequest({
+            url: "services/reports.php",
+            data: formData,
+            successCallback: (res) => {
+
+                const data = JSON.parse(res)[0]
+
+                $('#items_total').text(data.total_registros)
+                $('#value_real').text("DOP " + format.format(data.valor_real))
+                $('#value_inv').text("DOP " + format.format(data.valor_inventario))
+
+                // Inicializar tabla
+                loadTables([
+                    {
+                        id: '#inventory',
+                        url: 'services/reports.php',
+                        action: 'valor_inventario',
+                        columns: [
+                            'codigo', 'nombre', 'cantidad', 'estado', 'precio_costo', 'total_costo'
+                        ],
+                        order: [[1, 'desc']],
+                        hiddenColumns: [3],
+                        ajaxParams: formObject
+                    },
+                ])
+
+            },
+            errorCallback: (err) => {
+                console.error(err)
+            }
+        })
+
+
     })
 
 }); // Ready

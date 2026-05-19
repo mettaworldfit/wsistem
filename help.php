@@ -630,23 +630,7 @@ class Help
       return $db->query($query)->fetch_object()->total;
    }
 
-   public static function getTotalInventoryValue()
-   {
-
-      $db = Database::connect();
-
-      $query = "SELECT sum(total) as total, sum(bruto) as bruto  FROM (
-
-            SELECT sum(p.cantidad * p.precio_costo) as 'total', sum(p.cantidad * p.precio_unitario) as 'bruto' FROM productos p
-              UNION ALL
-            SELECT sum(pz.cantidad * pz.precio_costo) as 'total', sum(pz.cantidad * pz.precio_unitario) as 'bruto' FROM piezas pz
-                                  
-          ) ValorInventario;";
-
-      return $db->query($query);
-   }
-
-
+ 
 
 
 

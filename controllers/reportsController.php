@@ -100,12 +100,6 @@ class ReportsController
         // Verificar permisos para la acción 'inventory'
         $this->check_permission('inventory');
 
-        // Calcular el total del inventario
-        $data = Help::getTotalInventoryValue()->fetch_object();
-
-        $value = number_format($data->total, 2);
-        $bruto = number_format($data->bruto, 2);
-
         // Mostrar la vista del inventario
         require_once './views/reports/inventory.php';
     }

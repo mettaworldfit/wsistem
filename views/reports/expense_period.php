@@ -75,7 +75,7 @@
 
     <div class="summary-result">
         <div>
-            <span>Facturas</span>
+            <span>Items</span>
             <span id="inv_total">0</span>
             <span>En el periodo</span>
         </div>
