@@ -6,7 +6,7 @@ class Database
     private static $mainHost;
     private static $mainUser;
     private static $mainPass;
-    private static $mainDB = 'central_config'; // esto no cambia
+    private static $mainDB = 'tenant_auth'; // esto no cambia
 
     // Inicializa credenciales según entorno
     private static function init()
@@ -36,11 +36,12 @@ class Database
         $config = new mysqli(self::$mainHost, self::$mainUser, self::$mainPass, self::$mainDB);
 
         if ($config->connect_errno) {
-            throw new Exception("Error conectando a central_config: " . $config->connect_error);
+            throw new Exception("Error conectando a tenant_auth: " . $config->connect_error);
         }
 
         // Buscar datos del cliente
-        $stmt = $config->prepare("SELECT db_host, db_nombre, db_user, db_pass, empresa FROM clientes WHERE usuario = ?");
+        $stmt = $config->prepare("SELECT db_host, db_name, db_user, db_pass, nombre FROM empresas e
+        INNER JOIN usuarios u ON e.id = u.empresa_id WHERE username = ?");
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $stmt->bind_result($host, $dbname, $user, $pass, $empresa);
