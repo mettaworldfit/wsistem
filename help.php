@@ -726,6 +726,16 @@ class Help
       return $db->query($query);
    }
 
+   
+   public static function loadTaxpayer()
+   {
+      $db = Database::connect();
+
+      $query = "SELECT * FROM datos_contribuyente WHERE id = 1";
+
+      return $db->query($query);
+   }
+
 
    /**
     * Usuarios

@@ -14,7 +14,7 @@ let pageURL = $(location).attr("pathname");
 const format = new Intl.NumberFormat('en'); // Formato 0,000
 
 // Ocultar el sidebar en el Punto de venta
-if (pageURL.includes('invoices/pos')) {
+if (pageURL.includes('invoices/pos') || pageURL.includes('ecf/certification')) {
     // Crea un nuevo elemento de estilo
     const style = document.createElement('style');
     style.innerHTML = `
@@ -50,6 +50,7 @@ if (pageURL.includes('invoices/pos')) {
     // Agrega el estilo al head del documento
     document.head.appendChild(style);
 }
+
 
 let toastTimeout = null;
 /**
@@ -485,10 +486,42 @@ $(document).ready(function () {
     window.addEventListener("online", handleConnectionChange);
     window.addEventListener("offline", handleConnectionChange);
 
+    /*
+    | ------------------------------------------------------
+    | STEPS LIST CERTIFICACION DGII
+    | ------------------------------------------------------
+    */
 
-    /**============================================================= 
-    * MENU ACCORDEON SIDEBAR
-    ===============================================================*/
+    function showStep(stepId) {
+        // Ocultar todos los steps
+        $('.approval-content .step').hide();
+        // Remover clase active de todos
+        $('.approval-content .step').removeClass('active');
+
+        // Mostrar el step seleccionado
+        $('#' + stepId).show();
+        // Agregar clase active al step visible
+        $('#' + stepId).addClass('active');
+    }
+
+    $('.steps-list li').on('click', function () {
+        // Obtener el step
+        const step = $(this).data('step');
+
+        // Quitar active de todos los li y agregar al seleccionado
+        $('.steps-list li').removeClass('active');
+        $(this).addClass('active');
+
+        // Mostrar el contenido correspondiente
+        showStep('step' + step);
+    });
+
+
+    /*
+    | ------------------------------------------------------
+    | MENU ACCORDEON SIDEBAR
+    | ------------------------------------------------------
+    */
 
     $(function () {
         // Función de Acordeón
