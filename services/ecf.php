@@ -13,7 +13,10 @@ $permissions = [
     'index_facturas_emitidas' => ['administrador'],
     'consultar_ecf' => ['administrador'],
     'subir_certificado' => ['administrador'],
-    'datos_contribuyente' => ['administrador']
+    'datos_contribuyente' => ['administrador'],
+    'consultar_steps' => ['administrador'],
+    'completar_step' => ['administrador'],
+    'volver_al_step' => ['administrador']
 ];
 
 // Chequear permisos
@@ -111,6 +114,7 @@ switch ($action) {
             }
 
             $file = $_FILES['cert'];
+            $passcert = $_POST['passcert'];
 
             // Validar errores de subida
             if ($file['error'] !== UPLOAD_ERR_OK) {
@@ -135,7 +139,7 @@ switch ($action) {
             }
 
             // Carpeta destino
-            $uploadDir = '../certificates/';
+            $uploadDir = __DIR__ . '/../api-node/certificates/';
 
             // Crear carpeta si no existe
             if (!is_dir($uploadDir)) {
@@ -153,7 +157,7 @@ switch ($action) {
             $destination = $uploadDir . $fileName;
 
             // Guardar ruta en DB
-            $sql = "UPDATE datos_contribuyente SET route_cert = '$destination' WHERE id = 1";
+            $sql = "UPDATE datos_contribuyente SET route_cert = '$fileName', passphrase_cert = '$passcert' WHERE id = 1";
             $result = $db->query($sql);
 
             if (!$result) {
@@ -182,19 +186,74 @@ switch ($action) {
     // Guardar datos del contribuyente
     case 'datos_contribuyente':
 
-        $rnc = $_POST['rnc'];
-        $name = $_POST['name'];
-        $mail = $_POST['mail'];
-        $address = $_POST['address'];
-        $passcert = $_POST['passcert'];
+        $params = [
+            $_POST['rnc'],
+            $_POST['name'],
+            $_POST['coname'],
+            $_POST['activ_econ'],
+            $_POST['regime'],
+            $_POST['emisore'],
+            $_POST['status'],
+            $_POST['enviroment'],
+            $_POST['noSerial'],
+            $_POST['subject'],
+            $_POST['issuer'],
+            $_POST['validFrom'],
+            $_POST['validTo']
+        ];
 
-        $sql = "UPDATE datos_contribuyente SET 
-        rnc = '$rnc', nombre = '$name', passphrase_cert = '$passcert' 
-        WHERE id = 1";
+        echo handleProcedureAction($db, 'fe_update_datos_contribuyente', $params);
+        break;
 
+    // Consultar Steps de certificacion
+    case 'consultar_steps':
+
+        $sql = "SELECT * FROM certificacion_steps WHERE completado = 1";
+
+        jsonQueryResult($db, $sql);
+        break;
+
+    // Completar Step
+    case 'completar_step':
+
+        $step = $_POST['step'];
+
+        $sql = "INSERT INTO certificacion_steps VALUES (null,$step,1,CURDATE())";
         $result = $db->query($sql);
 
-        echo "Ready";
+        // Error SQL
+        if (!$result) {
+            return json_encode([
+                'success' => false,
+                'error' => $db->error
+            ]);
+        }
 
+        echo json_encode([
+            'success' => true,
+            'insert_id' => $db->insert_id,
+            'affected_rows' => $db->affected_rows
+        ]);
+
+        break;
+        
+    case 'volver_al_step':
+        $step = $_POST['step'];
+
+        $sql = "DELETE FROM certificacion_steps WHERE step_numero = '$step'";
+        $result = $db->query($sql);
+
+        // Error SQL
+        if (!$result) {
+            return json_encode([
+                'success' => false,
+                'error' => $db->error
+            ]);
+        }
+
+        echo json_encode([
+            'success' => true,
+            'affected_rows' => $db->affected_rows
+        ]);
         break;
 }
