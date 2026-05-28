@@ -402,7 +402,7 @@ switch ($action) {
         GROUP BY x.pago_id
       ) ventas_reales;";
 
-    echo jsonQueryResult($db, $query);
+    jsonQueryResult($db, $query);
 
     break;
 }
