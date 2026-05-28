@@ -5,7 +5,8 @@ class EcfController
     // Definir los permisos por acción en un array
     private $permissions = [
         'invoices' => ['administrador'],
-        'configuration' => ['administrador']
+        'configuration' => ['administrador'],
+        'certification' => ['administrador']
     ];
 
     // Verificación de permisos
@@ -39,9 +40,19 @@ class EcfController
         require_once './views/ecf/invoices.php';
     }
 
-      public function configuration()
+    public function configuration()
     {
         $this->check_permission('configuration');
+
+        $data = Help::loadTaxpayer();
         require_once './views/ecf/configuration.php';
+    }
+
+    public function certification()
+    {
+        $this->check_permission('certification');
+
+        $data = Help::loadTaxpayer();
+        require_once './views/ecf/certification.php';
     }
 }
