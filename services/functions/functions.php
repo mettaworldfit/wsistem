@@ -764,6 +764,11 @@ function webSocketServer(
     // Inicializa cURL hacia el endpoint del servidor WS
     $ch = curl_init($wsApiBase . $endpoint);
 
+    // Cookie que contiene el tenantId o token
+    // $cookieTenant = $_COOKIE['tenant_db'] ?? '';
+    $cookieAuth  = $_COOKIE['access_token'] ?? '';
+
+
     // Configuración de la petición HTTP
     curl_setopt_array($ch, [
         CURLOPT_POST           => true,                         // Método POST
@@ -774,6 +779,8 @@ function webSocketServer(
         CURLOPT_RETURNTRANSFER => true,                         // No mostrar salida
         CURLOPT_TIMEOUT        => $timeout,                     // Timeout configurable
         CURLOPT_POSTFIELDS     => json_encode($payload),        // Payload JSON
+        CURLOPT_COOKIE         => "access_token={$cookieAuth}", // envías cookies
+
     ]);
 
     // Ejecuta la petición

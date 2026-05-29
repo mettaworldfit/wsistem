@@ -25,7 +25,7 @@ $(document).ready(function () {
     async function authToken() {
         try {
 
-            const response = await fetch('http://localhost:3000/api/login',
+            const response = await fetch('http://localhost:3001/api/login',
                 {
                     method: 'POST',
                     credentials: 'include',
@@ -109,7 +109,7 @@ $(document).ready(function () {
     $('#forward').on('click', async (e) => {
         e.preventDefault()
 
-        const response = await fetch('http://localhost:3000/api/consultar_ecf', {
+        const response = await fetch('http://localhost:3001/ecf/consultar_ecf', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -132,7 +132,7 @@ $(document).ready(function () {
     // Obtener cliente por RNC
     $('#identity, #rnc').on('blur', async function () {
 
-        const response = await fetch('http://localhost:3000/api/buscar_rnc', {
+        const response = await fetch('http://localhost:3001/api/buscar_rnc', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -194,7 +194,7 @@ $(document).ready(function () {
 
     async function getCertInfo() {
 
-        const response = await fetch('http://localhost:3000/api/estado_cert', {
+        const response = await fetch('http://localhost:3001/ecf/estado_cert', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -229,7 +229,7 @@ $(document).ready(function () {
         const eNCF = $('#encf').val()
         const RNCEmisor = $('#RNCEmisor').val()
 
-        const url = `http://localhost:3000/api/download/xml/${id}`;
+        const url = `http://localhost:3001/ecf/download/xml/${id}`;
 
         fetch(url, {
             method: 'GET',
@@ -486,7 +486,7 @@ $(document).ready(function () {
         formData.append('excel', file);
 
         try {
-            const response = await fetch('http://localhost:3000/api/convert_pruebas', {
+            const response = await fetch('http://localhost:3001/ecf/convert_pruebas', {
                 method: 'POST',
                 credentials: 'include',
                 body: formData
@@ -550,7 +550,7 @@ $(document).ready(function () {
             ecfElement.addClass('ecf-send');
 
             try {
-                const response = await fetch('http://localhost:3000/api/cert/recepcion_prueba', {
+                const response = await fetch('http://localhost:3001/ecf/cert/recepcion_prueba', {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
@@ -606,7 +606,7 @@ $(document).ready(function () {
         resultsDiv.appendChild(statusDiv);
 
         try {
-            const response = await fetch('http://localhost:3000/api/cert/recepcion_prueba', {
+            const response = await fetch('http://localhost:3001/ecf/cert/recepcion_prueba', {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
@@ -671,7 +671,7 @@ $(document).ready(function () {
         const formData = new FormData();
         formData.append('excel', file);
 
-        const response = await fetch('http://localhost:3000/api/aprobaciones_convert', {
+        const response = await fetch('http://localhost:3001/ecf/aprobaciones_convert', {
             method: 'POST',
             credentials: 'include',
             body: formData
@@ -724,7 +724,7 @@ $(document).ready(function () {
             acecfElement.addClass('ecf-send');
 
             try {
-                const response = await fetch('http://localhost:3000/api/cert/aprobacion_comercial', {
+                const response = await fetch('http://localhost:3001/ecf/cert/aprobacion_comercial', {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
@@ -779,7 +779,7 @@ $(document).ready(function () {
         resultsDiv.appendChild(statusDiv);
 
         try {
-            const response = await fetch('http://localhost:3000/api/cert/aprobacion_comercial', {
+            const response = await fetch('http://localhost:3001/ecf/cert/aprobacion_comercial', {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
@@ -849,7 +849,7 @@ $(document).ready(function () {
         });
 
         try {
-            const response = await fetch(`http://localhost:3000/api/cert/simulacion_ecf?tipo_ecf=${id}`, {
+            const response = await fetch(`http://localhost:3001/ecf/cert/simulacion_ecf?tipo_ecf=${id}`, {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -927,7 +927,7 @@ $(document).ready(function () {
             console.log(item)
 
             try {
-                const response = await fetch('http://localhost:3000/api/cert/simulacion_ecf', {
+                const response = await fetch('http://localhost:3001/ecf/cert/simulacion_ecf', {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },

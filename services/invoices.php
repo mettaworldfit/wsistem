@@ -905,7 +905,7 @@ if ($_POST['action'] == "crear_detalle_cotizacion") {
   $query = "INSERT INTO detalle_cotizaciones values 
   (null,$quote_id,$user_id,'$description','$quantity','$price','$taxes','$discount',curdate());";
 
-  echo jsonQueryResult($db,$query);
+  jsonQueryResult($db,$query);
 
   // Activar trigger
   Help::CREATE_TRIGGER_agregar_item_cotizacion();
@@ -928,7 +928,7 @@ if ($_POST['action'] == "agregar_detalle_cotizacion") {
   $query = "INSERT INTO detalle_cotizaciones values 
   (null,$quote_id,$user_id,'$description','$quantity','$price','$taxes','$discount',curdate());";
 
-  echo jsonQueryResult($db, $query);
+  jsonQueryResult($db, $query);
 }
 
 // Eliminar cotizacion
@@ -1404,7 +1404,7 @@ if ($_POST['action'] == "obtener_orden_info_pos") {
 
   $sql = "SELECT * FROM comandas WHERE comanda_id = '$order_id'";
 
-  echo jsonQueryResult($db, $sql);
+  jsonQueryResult($db, $sql);
 }
 
 // Obtener metodos de pago

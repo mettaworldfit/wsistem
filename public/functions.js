@@ -285,37 +285,31 @@ export function cashBack(data, timeout = 10000) {
 * WEBSOCKET
 ===============================================================*/
 
-// Variable global para almacenar la conexión WebSocket
-let ws = null;
-let wsConnected = false;
-let wsURL;
 
-// Función para inicializar la conexión WebSocket
+let ws = null;           // Conexión global
+let wsConnected = false; // Estado de conexión
+
+/**
+ * Inicializa la conexión WebSocket si no existe
+ * @returns {WebSocket} La conexión WebSocket
+ */
 export function initWebSocket() {
-    // Si ya existe una conexión, no la volvemos a crear
-    if (ws !== null) {
-        console.log('Conexión WebSocket ya establecida.');
-        return ws;  // Retornamos la conexión existente
-    }
+    if (ws && wsConnected) return ws; // Retorna si ya está conectado
 
+    const token = localStorage.getItem('access_token');
 
+    // Construir URL del WebSocket
+    const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    const protocol = (location.protocol === 'https:' || !isLocal) ? 'wss://' : 'ws://';
+    const host = isLocal ? 'localhost:3001' : 'ws.wsistems.com/ws';
+    const wsURL = `${protocol}${host}?token=${token}`;
 
-    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-        // DESARROLLO LOCAL
-        wsURL = 'ws://127.0.0.1:3001';
-    } else {
-        // PRODUCCIÓN
-        const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
-        wsURL = protocol + 'ws.wsistems.com' + '/ws/';
-    }
-
-    // Crear la nueva conexión WebSocket
     ws = new WebSocket(wsURL);
 
-    // Configurar eventos de WebSocket
+    // Eventos
     ws.onopen = () => {
         console.group('%c[WEBSOCKET]', 'color:#007bff;font-weight:bold;');
-        console.log('Conexión establecida con', wsURL);
+        console.log('Conexión establecida a', wsURL);
         console.groupEnd();
         wsConnected = true;
     };
@@ -331,12 +325,14 @@ export function initWebSocket() {
         wsConnected = false;
     };
 
-    return ws;  // Retornamos la conexión WebSocket para su uso global
+    return ws;
 }
 
-// Estado de la conexión
+/**
+ * Retorna si la conexión WebSocket está activa
+ */
 export function isWebSocketConnected() {
-    return wsConnected;  // Retorna si la conexión está activa
+    return wsConnected;
 }
 
 /**============================================================= 
@@ -362,13 +358,13 @@ export function getUpdatedTotal() {
         successCallback: (res) => {
             const data = JSON.parse(res)[0];
 
-            console.log("total",data)
+            console.log("total", data)
             // Actualizamos el contenido del span con el nuevo valor del total de ventas
             $('#total-purchase').html(`$${format.format(data.total)}`);
 
             // Actualizamos el atributo 'data-title' con el valor total, formateado a 2 decimales
             $('#total-purchase').attr('data-title', parseFloat(data.total).toFixed(2));
-        },errorCallback: (err) => {
+        }, errorCallback: (err) => {
             console.error(err)
         }
     })

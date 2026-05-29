@@ -139,7 +139,7 @@ switch ($action) {
             }
 
             // Carpeta destino
-            $uploadDir = __DIR__ . '/../api-node/certificates/';
+            $uploadDir = __DIR__ . '/../backend/src/certificates/';
 
             // Crear carpeta si no existe
             if (!is_dir($uploadDir)) {
