@@ -1,0 +1,80 @@
+<?php
+
+class ContactsController
+{
+    // Definir los permisos por acción en un array
+    private $permissions = [
+        'add' => [],
+        'customers' => [],                              // Todos tienen acceso
+        'edit_customer' => ['administrador'],           // Solo 'administrador' tiene acceso
+        'customer_history' => [], 
+        'providers' => [],     
+        'edit_provider' => ['administrador'],           // Solo 'administrador' tiene acceso
+    ];
+
+    // Verificación de permisos
+    private function check_permission($action)
+    {
+        // Si no está autenticado, redirigir a login
+        if (!isset($_SESSION['identity'])) {
+            header('Location: ' . base_url . 'login');
+            exit();
+        }
+
+           // Verificar si el rol del usuario tiene permiso para la acción solicitada
+        $roles = isset($this->permissions[$action]) ? $this->permissions[$action] : [];
+
+        // Si el array de roles está vacío, todos los roles tienen acceso
+        if (empty($roles)) {
+            return; // Permitir acceso sin restricciones
+        }
+
+        if (!in_array($_SESSION['identity']->nombre_rol, $roles)) {
+            // Si no tiene permiso, redirigir a la página de acceso denegado
+            require_once __DIR__ . '../home/layout/denied.php';
+            exit();
+        }
+    }
+
+    // Acción para agregar un nuevo contacto
+    public function add()
+    {
+        $this->check_permission('add');
+        require_once __DIR__. '/views/add.php';
+    }
+
+    // Acción para mostrar los clientes
+    public function customers()
+    {
+        $this->check_permission('customers');
+        require_once __DIR__. '/views/customers.php';
+    }
+
+    // Acción para editar un cliente
+    public function edit_customer()
+    {
+        $this->check_permission('edit_customer');
+        require_once __DIR__. '/views/edit_customer.php';
+    }
+
+    // Acción para ver el historial de un cliente
+    public function customer_history()
+    {
+        $this->check_permission('customer_history');
+        require_once __DIR__. '/views/customer_history.php';
+    }
+
+    // Acción para mostrar los proveedores
+    public function providers()
+    {
+        $this->check_permission('providers');
+        require_once __DIR__. '/views/providers.php';
+    }
+
+    // Acción para editar un proveedor
+    public function edit_provider()
+    {
+        $this->check_permission('edit_provider');
+        require_once __DIR__. '/views/edit_provider.php';
+    }
+}

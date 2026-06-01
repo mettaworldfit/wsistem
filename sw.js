@@ -1,6 +1,6 @@
-const CACHE_STATIC_NAME = "static-v4";
+const CACHE_STATIC_NAME = "static-v1";
 const CACHE_DYNAMIC_NAME = "dynamic-v1";
-const CACHE_INMUTABLE_NAME = "inmutable-v4";
+const CACHE_INMUTABLE_NAME = "inmutable-v1";
 const CACHE_DYNAMIC_LIMIT = 20;
 
 function limpiarCache(cacheName, numeroItems) {
@@ -25,13 +25,13 @@ self.addEventListener("install", (e) => {
     const cacheProm = caches.open(CACHE_STATIC_NAME)
         .then((cache) => {
             return cache.addAll([
-                "public/style.css",
+                "/style.css",
                 "public/imagen/sistem/icon.ico",
                 "public/imagen/img/img1.jpg",
                 "public/imagen/img/img2.jpg",
                 "public/imagen/img/img3.jpg",
                 "public/imagen/sistem/no-imagen.png",
-                "public/login.css",
+                "src/modules/users/login.css",
                 "public/vendor/jquery/jquery.js",
                 "public/fonts/Cabin-Regular.ttf",
                 "public/fonts/Nunito-Regular.ttf",

@@ -1,0 +1,309 @@
+
+/* ==============================================
+ SECCION REPORTE
+ ================================================*/
+
+section.summary-sales {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    place-items: center;
+    gap: 5px;
+    background: var(--background);
+    padding: 20px 13px;
+    border-radius: 5px;
+    border: 0.5px solid #e6e6e6;
+    box-shadow: 0px 0px 10px -3px #ccc;
+    margin-bottom: 1rem;
+}
+
+.summary-sales-item {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.summary-sales-item span {
+    font-size: 11pt;
+    color: var(--text-color);
+    font-family: var(--font-title);
+}
+
+.summary-sales-item div {
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+}
+
+p.summary-sales_total {
+    font-size: 9pt;
+    font-weight: 600;
+    margin: 0;
+}
+
+.sales-total_users,
+.sales-total_inventory,
+.sales-total_invoices,
+.sales-total_earning {
+    padding: 5px;
+    height: 29px;
+    width: 29px;
+    font-size: 10pt;
+    border-radius: 8px;
+    color: white;
+    align-items: center
+}
+
+div.sales-total_users {
+    background: #1ab51a;
+}
+
+div.sales-total_inventory {
+    background: #2196F3;
+}
+
+div.sales-total_invoices {
+    background: rgb(127, 20, 148);
+}
+
+div.sales-total_earning {
+    background: rgb(255, 188, 4);
+}
+
+.filters {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 5px;
+    border: 0.5px solid #e6e6e6;
+    box-shadow: 0px 0px 10px -3px #ccc;
+}
+
+.summary-result {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 5px;
+    border: 0.5px solid #e6e6e6;
+    box-shadow: 0px 0px 10px -3px #ccc;
+    margin-top: 10px;
+}
+
+@media (min-width: 724px) {
+    .summary-result {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0px;
+    }
+}
+
+.summary-result span {
+    font-family: var(--font-primary);
+    color: #696969;
+}
+
+.summary-result span:first-child {
+    font-size: 10pt
+}
+
+.summary-result span:nth-child(2) {
+    font-weight: 600;
+    font-size: 13pt !important;
+    color: var(--text-color)
+}
+
+.summary-result span:last-child {
+    font-size: 8pt;
+}
+
+h6.legend-summary {
+    display: flex;
+    align-items: center;
+}
+
+h6.legend-summary svg {
+    color: #3cb0c1;
+    width: 17px;
+    margin-right: 5px;
+}
+
+
+/* Filtros */
+
+.filter-row,
+.date-filter {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 10px;
+}
+
+@media (min-width: 724px) {
+
+    .filter-row,
+    .date-filter {
+        grid-template-columns: repeat(2, 237px);
+    }
+}
+
+@media (min-width: 924px) {
+
+    .filter-row,
+    .date-filter {
+        grid-template-columns: repeat(3, 237px);
+    }
+}
+
+.filter-row label svg,
+.date-filter label svg {
+    color: #b5b5b5;
+    margin-right: 2px;
+}
+
+.filter-row div label,
+.date-filter div label {
+    align-self: center;
+    font-weight: 500;
+    font-family: var(--font-title);
+    margin: 0;
+}
+
+.filter-buttoms {
+    display: flex;
+    justify-content: end;
+}
+
+/* Resultados */
+
+.table_items_quantity,
+.display-result {
+    margin-top: 10px;
+}
+
+/* Contenedor checkbox */
+.custom-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-family: var(--font-primary);
+    font-size: 12px;
+    font-weight: 500;
+    color: #444;
+}
+
+/* Ocultar checkbox real */
+.custom-check input {
+    display: none;
+}
+
+/* Caja visual */
+.checkmark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    position: relative;
+    transition: all 0.2s ease;
+    background: #fff;
+}
+
+/* Hover */
+.custom-check:hover .checkmark {
+    border-color: var(--color-primary);
+    ;
+}
+
+/* Activo */
+.custom-check input:checked+.checkmark {
+    background: var(--color-primary);
+    ;
+    border-color: var(--color-primary);
+    ;
+}
+
+/* Check interno */
+.custom-check input:checked+.checkmark::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* Texto */
+.check-label {
+    user-select: none;
+}
+
+/* Contenedor radio */
+.filter-radio {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+/* Radio personalizado */
+.radio-custom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font-primary);
+    color: #444;
+    position: relative;
+}
+
+/* Ocultar radio original */
+.radio-custom input {
+    display: none;
+}
+
+/* CÃƒÆ’Ã‚Â­rculo */
+.radio-mark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #777777;
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+/* Hover */
+.radio-custom:hover .radio-mark {
+    border-color: var(--color-primary);
+    ;
+}
+
+/* Activo */
+.radio-custom input:checked+.radio-mark {
+    border-color: var(--color-primary);
+}
+
+/* Punto interno */
+.radio-custom input:checked+.radio-mark::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+}
+
+/* Texto */
+.radio-label {
+    user-select: none;
+}
+
+/* Efecto activo */
+.radio-custom input:checked~.radio-label {
+    color: var(--color-primary);
+}
+

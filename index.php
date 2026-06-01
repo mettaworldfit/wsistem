@@ -11,7 +11,7 @@ ini_set('session.cookie_lifetime', $timeout);     // Tiempo máximo de vida en n
 // Iniciar sesión
 session_start();
 
-require_once 'config/parameters.php';
+require_once './src/config/parameters.php';
 
 // Verificar si el usuario ha iniciado sesión
 $current_path = $_SERVER['REQUEST_URI'];
@@ -36,8 +36,8 @@ $_SESSION['LAST_ACTIVITY'] = time();
 
 require_once 'autoload.php';
 require_once 'help.php';
-require_once 'config/db.php';
-require_once 'views/layout/header.php';
+require_once './src/config/connection.php';
+require_once './src/modules/home/layout/header.php';
 
 function NO_LOGIN()
 {
@@ -108,4 +108,4 @@ if (isset($_GET['controller']) && isset($_GET['action'])) {
 
 
 
-require_once 'views/layout/footer.php';
+require_once './src/modules/home/layout//footer.php';
