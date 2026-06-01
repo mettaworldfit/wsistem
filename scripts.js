@@ -13,45 +13,6 @@ const SITE_URL = window.location.protocol + '//' + window.location.host + basePa
 let pageURL = $(location).attr("pathname");
 const format = new Intl.NumberFormat('en'); // Formato 0,000
 
-// Ocultar el sidebar en el Punto de venta
-if (pageURL.includes('invoices/pos') || pageURL.includes('ecf/certification')) {
-    // Crea un nuevo elemento de estilo
-    const style = document.createElement('style');
-    style.innerHTML = `
-        .container-logo,
-        .sidebar {
-            display: none !important;
-        }
-
-        .wrap {
-            width: 100% !important;
-        }
-
-        .admin-bar {
-            width: 100% !important;
-        }
-
-        @media (min-width: 920px) {
-            .pos-exit {
-            display: block !important;
-                color: var(--text-color);
-                font-size: 1.3rem;
-                margin-left: 1.3rem;
-            }
-        }
-
-        @media (min-width: 1320px) {
-            .pos-exit {
-                font-size: 1.7rem;
-                margin-left: 1.6rem;
-            }
-        }
-        `;
-    // Agrega el estilo al head del documento
-    document.head.appendChild(style);
-}
-
-
 let toastTimeout = null;
 /**
  * 

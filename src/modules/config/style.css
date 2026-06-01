@@ -1,0 +1,49 @@
+/* Grid de configuraciones */
+
+.grid-config {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50%));
+    gap: 7px;
+}
+
+@media (min-width: 724px) {
+    .grid-config {
+        grid-template-columns: repeat(auto-fit, minmax(49%, 49%));
+    }
+}
+
+@media (min-width: 970px) {
+    .grid-config {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1350px) {
+    .card-grid p {
+        font-size: 10pt;
+    }
+
+    .card-grid span {
+        font-size: 21pt;
+    }
+}
+
+.card-config {
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+    border: 0.5px solid #e6e6e6;
+    box-shadow: 0px 0px 4px -3px;
+}
+
+.card-config span {
+    font-size: 11pt;
+    font-weight: 800;
+    color: var(--text-color);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont;
+}
+
+.card-config a {
+    color: var(--text-color);
+    font-size: 10pt;
+}

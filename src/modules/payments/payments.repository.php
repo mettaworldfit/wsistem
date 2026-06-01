@@ -1,7 +1,7 @@
 <?php
 
 require_once dirname(__DIR__,2) . '/config/connection.php';
-require_once dirname(__DIR__,3) . '/functions/functions.php';
+require_once dirname(__DIR__,2) . '/functions/functions.php';
 require_once dirname(__DIR__,2) . '/config/parameters.php';
 session_start();
 

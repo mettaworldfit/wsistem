@@ -2,7 +2,7 @@
 
 require_once dirname(__DIR__, 2) . '/config/connection.php';
 require_once dirname(__DIR__, 2) . '/config/parameters.php';
-require_once dirname(__DIR__, 3) . '/src/functions/functions.php';
+require_once dirname(__DIR__, 2) . '/functions/functions.php';
 require_once dirname(__DIR__, 3) . '/help.php';
 session_start();
 $db = Database::connect();

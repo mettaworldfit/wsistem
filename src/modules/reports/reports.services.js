@@ -908,6 +908,8 @@ $(document).ready(function () {
     $('#formInventory').on('submit', function (e) {
         e.preventDefault()
 
+        console.log("Generando reporte de inventario...")
+
         const tableId = 'inventory';
 
         //  Si ya existe DataTable → destruir
@@ -951,7 +953,8 @@ $(document).ready(function () {
             },
             errorCallback: (err) => {
                 console.error(err)
-            }
+            },
+            verbose: true
         })
 
 

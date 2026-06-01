@@ -118,8 +118,8 @@ $scriptsMap = [
 
     'invoices/pos' => [
         ['src' => base_url . 'src/modules/reports/reports.services.js', 'type' => 'module'],
-        ['src' => base_url . 'src/modules/invoices/pos.services.js', 'type' => 'module'],
-        ['src'  => base_url . 'src/modules/invoices/style.css', 'type' => 'text/css'],
+        ['src' => base_url . 'src/modules/pos/pos.services.js', 'type' => 'module'],
+        ['src'  => base_url . 'src/modules/pos/style.css', 'type' => 'text/css'],
         ['src' => base_url . 'src/modules/pieces/pieces.services.js'],
         ['src' => base_url . 'src/modules/products/products.services.js'],
         ['src' => base_url . 'src/modules/services/services.services.js'],
@@ -220,17 +220,19 @@ $scriptsMap = [
         ['src' => base_url . 'src/modules/reports/reports.services.js', 'type' => 'module'],
     ],
     'reports' => [
-        ['src'  => base_url . 'src/modules/reports/style.css', 'type' => 'text/css']
+        ['src'  => base_url . 'src/modules/reports/style.css', 'type' => 'text/css'],
+        ['src' => base_url . 'src/modules/reports/reports.services.js', 'type' => 'module'],
     ],
     'price_lists' => [
         ['src' => base_url . 'src/modules/price_lists/price_lists.services.js'],
     ],
     'config' => [
-        ['src' => base_url . 'src/modules/config/config.services.js', 'type' => 'module']
+        ['src' => base_url . 'src/modules/config/config.services.js', 'type' => 'module'],
+        ['src'  => base_url . 'src/modules/config/style.css', 'type' => 'text/css']
     ],
     'ecf' => [
-       ['src'  => base_url . 'src/modules/ecf/ecf.services.js', 'type' => 'text/javascript'],
-       ['src'  => base_url . 'src/modules/ecf/style.css', 'type' => 'text/css']
+        ['src'  => base_url . 'src/modules/ecf/ecf.services.js', 'type' => 'text/javascript'],
+        ['src'  => base_url . 'src/modules/ecf/style.css', 'type' => 'text/css']
     ]
 ];
 

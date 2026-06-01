@@ -2,9 +2,37 @@
   PUNTO DE VENTA POS
 ================================================== */
 
+.container-logo,
+.sidebar {
+    display: none !important;
+}
+
+.wrap {
+    width: 100% !important;
+}
+
+.admin-bar {
+    width: 100% !important;
+}
+
+@media (min-width: 920px) {
+    .pos-exit {
+        display: block !important;
+        color: var(--text-color);
+        font-size: 1.3rem;
+        margin-left: 1.3rem;
+    }
+}
+
+@media (min-width: 1320px) {
+    .pos-exit {
+        font-size: 1.7rem;
+        margin-left: 1.6rem;
+    }
+}
+
 
 /* Contenedor principal */
-
 .pos-wrap {
     position: relative;
     display: grid;
@@ -1374,4 +1402,3 @@ button.btn-pos_home:focus {
     width: 40%;
     bottom: 0;
 }
-

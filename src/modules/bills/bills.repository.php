@@ -15,7 +15,6 @@ $permissions = [
   // Dashboard / estadísticas
   'index_gastos' => [],
   'crear_orden_gasto' => [],
-  'crear_orden_gasto' => [],
   'detalle_gasto' => [],
   'registrar_gasto' => [],
   'eliminar_gasto' => [],
