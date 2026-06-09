@@ -43,6 +43,10 @@ const cert = reader.getKeyFromFile(
     path.resolve(__dirname, `../../certificates/${CERT_NAME}`)
 );
 
+if (!fs.existsSync(cert)) {
+    console.log(`Certificado no encontrado: ${cert}`);
+}
+
 /*      
 | ------------------------------------------------------
 | Recepciones de eCF
@@ -200,7 +204,7 @@ export const receptionTest = async (req, res) => {
 
 export const commercialApproval = async (req, res) => {
     const { jsonFile } = req.body;
-  
+
     const database = req.usuario?.database;
 
     const detalle = jsonFile.ACECF.DetalleAprobacionComercial;
@@ -1377,14 +1381,14 @@ export const getXMLSimulation = async (req, res) => {
     const database = req.usuario?.database;
 
     if (!tipo_ecf) {
-       return res.status(400).json({
+        return res.status(400).json({
             success: false,
             error: 'No se recibió el tipo de ecf a generar'
         })
     }
 
     if (!database) {
-       return res.status(400).json({
+        return res.status(400).json({
             success: false,
             error: 'Usuario no identificado'
         })
@@ -1413,13 +1417,13 @@ export const getXMLSimulation = async (req, res) => {
         const serv = new EcfServices()
 
         for (const row of rowsECF) {
-    
+
             let eNCF;
 
             // Generar secuencia
             try {
 
-             eNCF = await serv.generateENCF(database, row.TipoeCF);
+                eNCF = await serv.generateENCF(database, row.TipoeCF);
 
             } catch (error) {
 
@@ -1459,7 +1463,7 @@ export const getXMLSimulation = async (req, res) => {
             success: false,
             error: error
         })
-       console.error(error);
+        console.error(error);
     }
 }
 

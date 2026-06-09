@@ -26,7 +26,8 @@ $(document).ready(function () {
                     $('.missing, #btn-txt').show();
                 }
             },
-            errorCallback: (err) => console.log(err)
+            errorCallback: (err) => console.log(err),
+            verbose: true
         })
     })
 
