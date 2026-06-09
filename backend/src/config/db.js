@@ -20,6 +20,11 @@ export function getConnection(database, config) {
       connectionLimit: 10
     });
 
+
+    const [dbs] = await pool.query('SHOW DATABASES');
+
+    console.log(dbs);
+
     console.log(`Pool creado para la base de datos: ${database}`);
   }
 
