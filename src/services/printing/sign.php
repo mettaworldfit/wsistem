@@ -1,6 +1,4 @@
 <?php
-// NADA antes, NADA después
-
 ini_set('display_errors', 0);
 error_reporting(0);
 
@@ -18,12 +16,26 @@ if (!isset($input['request'])) {
 
 $data = $input['request'];
 
-// Desarrollo
-// $KEY = __DIR__ . '/private-key.pem';
+/*
+|--------------------------------------------------------------------------
+| Detectar entorno
+|--------------------------------------------------------------------------
+*/
+$host = $_SERVER['HTTP_HOST'] ?? '';
 
-// Producción
-$KEY = '/var/www/qz/private-key.pem';
+$isLocal =
+    strpos($host, 'localhost') !== false ||
+    strpos($host, '127.0.0.1') !== false ||
+    strpos($host, '::1') !== false;
 
+/*
+|--------------------------------------------------------------------------
+| Seleccionar llave privada
+|--------------------------------------------------------------------------
+*/
+$KEY = $isLocal
+    ? __DIR__ . '/local-key.pem'
+    : __DIR__ . '/private-key.pem';
 
 if (!file_exists($KEY)) {
     http_response_code(500);
@@ -38,9 +50,8 @@ if (!$privateKey) {
 }
 
 $signature = '';
-$ok = openssl_sign($data, $signature, $privateKey, OPENSSL_ALGO_SHA512);
 
-if (!$ok) {
+if (!openssl_sign($data, $signature, $privateKey, OPENSSL_ALGO_SHA512)) {
     http_response_code(500);
     exit;
 }

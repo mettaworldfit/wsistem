@@ -1,7 +1,8 @@
 // import { factura_venta, orden_venta } from "/public/test.js?v=1.0.2";
 // import { calculateTotalInvoice, cashBack } from "/public/functions.js?v=1.0.2";
 
-import { factura_venta, orden_venta } from "../../functions/test.js";
+import * as qz from "../../services/printing/qz/connection.js";
+import * as printer from "../../services/printing/templates/invoice.js";
 import { calculateTotalInvoice, cashBack } from "../../functions/functions.js";
 
 $(document).ready(function () {
@@ -195,27 +196,31 @@ $(document).ready(function () {
             const pending = unformat($('#credit-pending').val());
 
 
-            //   1️⃣ CREAR FACTURA A CRÉDITO
-            const invoiceId = await ajaxPromise({
-                type: "POST",
-                url: SITE_URL + "src/modules/invoices/invoices.repository.php",
-                data: {
-                    action: "factura_credito",
+            // 1. CREAR FACTURA A CRÉDITO
+            const response = await fetch('http://localhost:3001/api/invoices/factura_credito', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
                     customer_id: $('#credit-in-customer').val(),
                     payment_method: $('#credit-in-method').val(),
                     description: $('#observation').val(),
                     total_invoice: unformat($('#credit-topay').val()),
                     pay: $('#credit-pay').val(),
                     date: $('#credit-in-date').val()
-                }
-            });
+                })
+            })
 
-            if (!invoiceId || invoiceId <= 0) {
-                throw invoiceId;
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.mensaje || 'Error en la solicitud');
+                notifyAlert(result.mensaje, 'error');
             }
 
-
-            // 2️⃣ REGISTRAR DETALLE
+            // 2. REGISTRAR DETALLE
             const action = pageURL.includes('invoices/add_order')
                 ? 'registrar_detalle_orden_venta'
                 : 'registrar_detalle_de_venta';
@@ -225,7 +230,7 @@ $(document).ready(function () {
                 url: SITE_URL + "src/modules/invoices/invoices.repository.php",
                 data: {
                     action,
-                    invoice_id: invoiceId,
+                    invoice_id: result.data,
                     order_id: $('#order_id').val(),
                     date: $('#credit-in-date').val()
                 }
@@ -235,15 +240,14 @@ $(document).ready(function () {
                 throw detailRes;
             }
 
-
-            // 3️⃣ UI + IMPRESIÓN
+            // 3. UI + IMPRESIÓN
             mysql_row_affected();
             reload();
-            resetCreditFields(pending, invoiceId);
+            resetCreditFields(pending, result.data);
 
             if (receipt === true) {
                 // printer(invoiceId, detailRes, receiptData, "credit");
-                printerInvoice(invoiceId)
+                printerInvoice(result.data)
             }
 
         } catch (err) {
@@ -284,8 +288,7 @@ $(document).ready(function () {
         createCashInvoice(true);
     });
 
-    function createCashInvoice(receipt = false) {
-
+    async function createCashInvoice(receipt = false) {
         const data = {
             // Datos del ticket
             customer: $('#select2-cash-in-customer-container').attr('title'),
@@ -300,7 +303,6 @@ $(document).ready(function () {
             observation: $('#observation').val(),
 
             // Datos para la factura
-            action: "factura_contado",
             customer_id: $('#cash-in-customer').val(),
             method_id: $('#cash-in-method').val(),
             total_invoice: parseFloat($('#cash-topay').val().replace(/,/g, "")),
@@ -312,28 +314,38 @@ $(document).ready(function () {
             return;
         }
 
-        sendAjaxRequest({
-            url: "src/modules/invoices/invoices.repository.php",
-            data: data,
-            successCallback: (res) => {
-                if (res > 0) {
-                    registerInvoiceDetails(res, data, receipt);
-                    $('#buttons').hide(); // Ocultar botones luego de facturar la orden
-                    $('#cash-received').val($('#cash-topay').val());
-                    $('#cash-pending').val('0.00');
-
-                    $('#last_invoice_edit').show();
-                    $('#last_invoice_edit').attr('href', SITE_URL + 'invoices/edit&id=' + res); // botón para editar la última factura agregada
-                }
-
+        const response = await fetch('http://localhost:3001/api/invoices/factura_contado', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             },
-            errorCallback: (res) => mysql_error(res)
-        });
+            credentials: 'include',
+            body: JSON.stringify(data)
+        })
 
+        try {
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.mensaje || 'Error en la solicitud');
+                notifyAlert(result.mensaje, 'error');
+            }
+
+            await registerInvoiceDetails(result.data, data, receipt);
+            $('#buttons').hide(); // Ocultar botones luego de facturar la orden
+            $('#cash-received').val($('#cash-topay').val());
+            $('#cash-pending').val('0.00');
+
+            $('#last_invoice_edit').show();
+            $('#last_invoice_edit').attr('href', SITE_URL + 'invoices/edit&id=' + result.data); // botón para editar la última factura agregada
+
+        } catch (error) {
+            console.error(error);
+            notifyAlert(error.message, 'error');
+        }
 
         // Función separada para registrar detalles con el ID de la factura y manejar impresión
-
-        function registerInvoiceDetails(invoice_id, data, receipt) {
+        async function registerInvoiceDetails(invoice_id, data, receipt) {
 
             const action = pageURL.includes('invoices/add_order') ? 'registrar_detalle_orden_venta' :
                 'registrar_detalle_de_venta';
@@ -432,7 +444,7 @@ $(document).ready(function () {
     // Generar Email de factura al contado
     function sendMail(invoice) {
 
-       const data = {
+        const data = {
             subtotal: $('#in-subtotal').val().replace(/,/g, ""),
             discount: $('#in-discount').val().replace(/,/g, ""),
             taxes: $('#in-taxes').val().replace(/,/g, ""),
@@ -704,7 +716,7 @@ $(document).ready(function () {
                     observation: data.datos.descripcion
                 };
 
-                factura_venta(dataInv, data.detalle) // Imprimir             
+               printer.invoice(dataInv, data.detalle) // Imprimir             
             },
             verbose: false
         });

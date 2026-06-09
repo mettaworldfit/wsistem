@@ -13,61 +13,6 @@ $(document).ready(function () {
         return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
     }
 
-
-    const refreshTime = 59 * 60 * 1000;
-
-    const credentials = {
-        usuario: 'local',
-        password: '1234',
-        database: 'proyecto'
-    };
-
-    async function authToken() {
-        try {
-
-            const response = await fetch('http://localhost:3001/api/login',
-                {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(credentials)
-                }
-            );
-
-            const data = await response.json();
-
-            // Guardar fecha de la última petición
-            localStorage.setItem('api_last_connection', Date.now());
-
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    // Obtener última autenticación
-    const lastConnection = Number(localStorage.getItem('api_last_connection'));
-
-    // Tiempo transcurrido
-    const elapsed = Date.now() - lastConnection;
-
-    // Si nunca se autenticó o expiró
-    if (!lastConnection || elapsed >= refreshTime) {
-        authToken();
-    }
-
-    // Esperar el tiempo restante para renovar
-    setTimeout(() => {
-
-        authToken();
-
-        // Renovar continuamente
-        setInterval(authToken, refreshTime);
-
-    }, Math.max(refreshTime - elapsed, 0));
-
-
     /*
     | ------------------------------------------------------
     | FACTURAS ELECTRONICAS ECF

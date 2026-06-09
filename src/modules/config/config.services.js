@@ -1,6 +1,7 @@
 // import * as qz from "/public/test.js?v=1.0.2";
 
-import * as qz from "../test.js";
+import * as qz from "../../services/printing/qz/connection.js";
+import * as printer from "../../services/printing/qz/diagnostic.js"
 
 $(document).ready(function () {
 
@@ -244,8 +245,8 @@ $(document).ready(function () {
     ===============================================================*/
 
     // Boton de diagnostico
-    $('#btnQzDiagnostico').on('click', function () {
-        qz.runQzDiagnostic();
+    $('#btnQzDiagnostico').on('click', async function () {
+       await printer.runQzDiagnostic();
     });
 
 

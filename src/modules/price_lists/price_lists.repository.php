@@ -130,47 +130,4 @@ switch ($action) {
     echo handleDeletionAction($db, (int)$_POST['id'], 'lp_eliminarLista');
     break;
 
-  // Actualizar precio del punto de venta
-  case 'actualizar_precios_pos':
-
-    $order_id = $_POST['order_id'] ?? 0;
-    $list_id = $_POST['list_id'] ?? 0;
-    $product_id = $_POST['product_id'] ?? 0;
-    //$piece_id = $_POST['piece_id'] ?? 0;
-    $newPrice = '';
-
-    // Construcción de la consulta SQL según el caso
-    $sql = "SELECT d.detalle_venta_id, p.producto_id, p.precio_unitario, pl.valor
-        FROM detalle_facturas_ventas d
-        INNER JOIN detalle_ventas_con_productos dp ON dp.detalle_venta_id = d.detalle_venta_id
-        INNER JOIN productos_con_lista_de_precios pl ON pl.producto_id = dp.producto_id
-        INNER JOIN productos p ON p.producto_id = pl.producto_id ";
-
-    if ($product_id > 0) {
-      $sql .= "WHERE p.producto_id = '$product_id' AND d.usuario_id = '$user_id' ORDER BY d.detalle_venta_id DESC LIMIT 1";
-    } else if ($order_id == 0) {
-      $sql .= "WHERE d.usuario_id = '$user_id' AND d.comanda_id IS NULL
-    AND d.factura_venta_id IS NULL";
-    } else {
-      $sql .= "WHERE d.comanda_id = '$order_id' LIMIT 1";
-    }
-
-    // Ejecutar consulta
-    $result = $db->query($sql);
-
-    // Procesar los resultados
-    while ($element = $result->fetch_object()) {
-      $newPrice = ($list_id > 0) ? $element->valor : $element->precio_unitario;
-
-      // Actualización del precio
-      $sql2 = "UPDATE detalle_facturas_ventas SET precio = '$newPrice' WHERE detalle_venta_id = '$element->detalle_venta_id'";
-      $db->query($sql2);
-    }
-
-    // WEBSOCKET
-    webSocketServer('/api/list/update',["list_id" => $list_id]);
-
-    echo json_encode(["order_id" => $order_id]);
-
-    break;
 }

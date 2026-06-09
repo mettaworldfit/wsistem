@@ -13,45 +13,6 @@ $db = Database::connect();
 // Evaluamos la acción enviada por AJAX para determinar qué proceso ejecutar
 switch ($_POST['action']) {
 
-  // Mostrar pagos a proveedores en DataTable
-  case "index_pagos_proveedores":
-    handleDataTableRequest($db, [
-      // Columnas seleccionadas para ordenar y filtrar
-      'columns' => [
-        'pr.nombre_proveedor',
-        'pr.apellidos',
-        'p.factura_proveedor_id',
-        'p.pago_factura_id',
-        'p.recibido',
-        'p.observacion',
-        'p.fecha'
-      ],
-      'searchable' => [
-        'pr.nombre_proveedor',
-        'pr.apellidos',
-        'p.recibido',
-        'p.observacion',
-        'p.fecha'
-      ],
-      'base_table' => 'pagos_proveedores p LEFT JOIN proveedores pr ON pr.proveedor_id = p.proveedor_id',
-      'table_with_joins' => 'pagos_proveedores p LEFT JOIN proveedores pr ON pr.proveedor_id = p.proveedor_id',
-      'select' => 'SELECT pr.nombre_proveedor, pr.apellidos, p.factura_proveedor_id, p.pago_factura_id as pago_id, p.recibido, p.observacion, p.fecha',
-
-      // Formateo del resultado para el DataTable
-      'table_rows' => function ($row) {
-        return [
-          'pago_id'     => $row['pago_id'],
-          'factura'     => 'FP-00' . $row['factura_proveedor_id'],
-          'proveedor'   => ucwords($row['nombre_proveedor'] . ' ' . $row['apellidos']),
-          'recibido'    => '<span class="text-success">' . number_format($row['recibido'], 2) . '</span>',
-          'observacion' => $row['observacion'],
-          'fecha'       => $row['fecha'],
-          'acciones'    => '<span style="font-size: 16px;" onclick="deletePaymentProvider(\'' . $row['pago_id'] . '\')" class="action-delete"><i class="fas fa-times"></i></span>'
-        ];
-      }
-    ]);
-    break;
-
   // Mostrar pagos a facturas de venta y reparación en DataTable
   case 'index_pagos_facturas_ventas':
     handleDataTableRequest($db, [
@@ -87,11 +48,11 @@ switch ($_POST['action']) {
         $acciones = '<span';
         if ($_SESSION['identity']->nombre_rol == 'administrador') {
           if ($row['factura_venta_id'] > 0) {
-            $acciones .= ' onclick="deletePayment(\'' . $row['pago_id'] . '\',1,0)" class="btn-action action-danger" title="Eliminar">
+            $acciones .= ' class="btn-action action-danger delete_item" data-id="'.$row['pago_id'].'" data-inv="1"  data-invrp="0" title="Eliminar">
                   '.BUTTON_DELETE.'
                 </span>';
           } else {
-            $acciones .= ' onclick="deletePayment(\'' . $row['pago_id'] . '\',0,1)" class="btn-action action-danger" title="Eliminar">
+            $acciones .= ' class="btn-action action-danger detele_item" data-id="'.$row['pago_id'].'" data-inv="0"  data-invrp="1" title="Eliminar">
                   '.BUTTON_DELETE.'
                 </span>';
           }
@@ -136,59 +97,5 @@ switch ($_POST['action']) {
               INNER JOIN clientes c ON f.cliente_id = c.cliente_id 
               WHERE f.facturaRP_id = '$id'";
     jsonQueryResult($db, $query);
-    break;
-
-  // Consultar detalles de una factura de proveedor
-  case 'consultar_factura_proveedor':
-    $id = $_POST['invoice_id'];
-    $query = "SELECT * 
-              FROM facturas_proveedores f 
-              INNER JOIN estados_generales e ON e.estado_id = f.estado_id 
-              INNER JOIN proveedores p ON f.proveedor_id = p.proveedor_id 
-              WHERE f.factura_proveedor_id = '$id'";
-    jsonQueryResult($db, $query);
-    break;
-
-  // Agregar un nuevo pago de cliente (venta o reparación)
-  case "agregar_pago":
-    $params = [
-      $_SESSION['identity']->usuario_id,     // ID del usuario que registra
-      $_POST['customer_id'],                 // ID del cliente
-      $_POST['received'],                    // Monto recibido
-      $_POST['invoice_id'],                  // ID de la factura de venta (si aplica)
-      $_POST['invoiceRP_id'],                // ID de la factura de reparación (si aplica)
-      $_POST['method'],                      // Método de pago
-      $_POST['comment'] ?? '',               // Observación/comentario
-      $_POST['date'] ?? ''                   // Fecha (puede venir vacía)
-    ];
-    echo handleProcedureAction($db, 'pg_crearPago', $params);
-    break;
-
-  // Agregar un nuevo pago a proveedor
-  case "agregar_pago_proveedor":
-    $params = [
-      $_SESSION['identity']->usuario_id,     // ID del usuario
-      $_POST['provider_id'],                 // ID del proveedor
-      $_POST['received'],                    // Monto recibido
-      $_POST['invoice_id'],                  // ID de la factura del proveedor
-      $_POST['method'],                      // Método de pago
-      $_POST['comment'] ?? ''                // Observación
-    ];
-    echo handleProcedureAction($db, 'pg_pagarFactura', $params);
-    break;
-
-  // Eliminar pago de cliente
-  case 'eliminar_pago':
-    $params = [
-      (int)$_POST['id'],             // ID del pago
-      (int)$_POST['invoice_id'],     // ID de factura de venta
-      (int)$_POST['invoiceRP_id']    // ID de factura de reparación
-    ];
-    echo handleProcedureAction($db, 'pg_eliminarPago', $params);
-    break;
-
-  // Eliminar pago de proveedor
-  case 'eliminar_pago_factura_proveedor':
-    echo handleDeletionAction($db, (int)$_POST['id'], 'pg_eliminarPagoProveedor');
     break;
 }

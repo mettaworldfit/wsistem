@@ -24,7 +24,6 @@ function addOrdenRepair() {
 }
 
 // Asignar condiciones a la orden
-
 function assignConditionToOrder(ordenId) {
 
     const array = $('#condition_id').val()

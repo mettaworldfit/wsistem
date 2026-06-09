@@ -101,7 +101,7 @@ if ($_POST['action'] == "cargar_detalle_orden") {
 if ($_POST['action'] === "registrar_orden") {
   $db = Database::connect();
 
-  $result = handleProcedureAction($db, 'ov_agregarOrden', [
+ echo handleProcedureAction($db, 'ov_agregarOrden', [
     (int)$_POST['customer'],
     (int)$_SESSION['identity']->usuario_id,
     6, // Pendiente
@@ -111,18 +111,13 @@ if ($_POST['action'] === "registrar_orden") {
     $_POST['receiver'],
     $_POST['telephone']
   ]);
-
-  // WEBSOCKET
-  webSocketServer('/api/order/update');
-
-  echo $result;
 }
 
 // Editar orden de venta
 if ($_POST['action'] === "editar_orden") {
   $db = Database::connect();
 
-  $result = handleProcedureAction($db, 'ov_editarOrden', [
+  echo handleProcedureAction($db, 'ov_editarOrden', [
     (int)$_POST['order_id'],
     (int)$_POST['customer'],
     (int)$_SESSION['identity']->usuario_id,
@@ -133,10 +128,6 @@ if ($_POST['action'] === "editar_orden") {
     $_POST['telephone']
   ]);
 
-  // WEBSOCKET
-  webSocketServer('/api/order/update');
-
-  echo $result;
 }
 
 if ($_POST['action'] === "actualizar_estado_orden") {
@@ -657,29 +648,7 @@ if ($_POST['action'] == 'eliminar_detalle_venta') {
   $result = handleDeletionAction($db, (int)$_POST['id'], 'vt_eliminarDetalleVenta');
 
   // WEBSOCKET
-  webSocketServer('/api/detail/update');
-
-  echo $result;
-}
-
-// Factura al contado
-
-if ($_POST['action'] == "factura_contado") {
-
-  $db = Database::connect();
-
-  $result = handleProcedureAction($db, 'vt_facturaVenta', [
-    (int)$_POST['customer_id'],
-    (int)$_POST['method_id'],
-    $_POST['total_invoice'],
-    $_POST['bonus'] ?? 0,
-    (int)$_SESSION['identity']->usuario_id,
-    $_POST['observation'],
-    $_POST['date']
-  ]);
-
-  // WEBSOCKET
-  webSocketServer('/api/new/purchase');
+  // webSocketServer('/api/detail/update');
 
   echo $result;
 }
@@ -784,31 +753,6 @@ if ($_POST['action'] == "registrar_detalle_de_venta") {
 
   // Activar TRIGGER
   Help::createAllTriggers();
-}
-
-
-// Factura a crédito
-
-if ($_POST['action'] == "factura_credito") {
-
-  $db = Database::connect();
-
-  $params = [
-    (int)$_POST['customer_id'],
-    (int)$_POST['payment_method'],
-    $_POST['total_invoice'],
-    $_POST['pay'],
-    (int)$_SESSION['identity']->usuario_id,
-    $_POST['description'],
-    $_POST['date']
-  ];
-
-  $result = handleProcedureAction($db, 'vt_facturaAcredito', $params);
-
-  // WEBSOCKET
-  webSocketServer('/api/new/purchase');
-
-  echo $result;
 }
 
 
@@ -1156,60 +1100,6 @@ if ($_POST['action'] === "actualizar_cantidad_detalle_temporal" || $_POST['actio
 }
 
 
-if ($_POST['action'] == "agregar_detalle_pos") {
-
-  $db = Database::connect();
-
-  $order_id   = !empty($_POST['order_id']) ? (int) $_POST['order_id'] : null;
-  $usuario_id = (int) $_SESSION['identity']->usuario_id;
-  $cantidad   = $_POST['quantity'] ?? 0;
-  $costo      = $_POST['cost'] ?? 0;
-  $precio     = $_POST['price'] ?? 0;
-
-  $item_id   = null;
-  $procedure = null;
-
-  // PRODUCTO
-  if (isset($_POST['product_id']) && (int)$_POST['product_id'] !== 0) {
-    $item_id = (int) $_POST['product_id'];
-    $procedure = 'pos_agregar_producto';
-
-    // PIEZA
-  } elseif (isset($_POST['piece_id']) && (int)$_POST['piece_id'] !== 0) {
-    $item_id = (int) $_POST['piece_id'];
-    $procedure = 'pos_agregar_pieza';
-
-    // SERVICIO
-  } elseif (isset($_POST['service_id']) && (int)$_POST['service_id'] !== 0) {
-    $item_id = (int) $_POST['service_id'];
-    $procedure = 'pos_agregar_servicio';
-  }
-
-  // 🔒 VALIDACIÓN FINAL
-  if ($item_id === null || $procedure === null) {
-    echo json_encode([
-      'status' => 'error',
-      'msg' => 'Debe enviar producto, pieza o servicio válido'
-    ]);
-    exit;
-  }
-
-  // Ejecuta el procedimiento
-  $result = handleProcedureAction($db, $procedure, [
-    $order_id,
-    $usuario_id,
-    $cantidad,
-    $costo,
-    $precio,
-    $item_id
-  ]);
-
-  // WEBSOCKET
-  webSocketServer('/api/detail/update');
-
-  echo $result;
-}
-
 // Obtener datos de la venta editar del pos 
 if ($_POST['action'] == "datos_detalle_id") {
 
@@ -1243,46 +1133,6 @@ if ($_POST['action'] == "datos_detalle_id") {
   jsonQueryResult($db, $sql);
 }
 
-// Borrar detalle en el POS
-if ($_POST['action'] == "borrar_detalle_pos") {
-
-  $db = Database::connect();
-
-  $result = handleProcedureAction($db, 'pos_eliminar_todo', [
-    (int)$_POST['order_id'],
-    (int)$_SESSION['identity']->usuario_id
-  ]);
-
-  // WEBSOCKET
-  webSocketServer('/api/detail/update');
-
-  echo $result;
-}
-
-// Actualizar el detalle en el POS
-if ($_POST['action'] == "actualizar_detalle_pos") {
-
-  $db = Database::connect();
-
-  $params = [
-    (int)$_POST['product_id'],
-    (int)$_POST['piece_id'],
-    (int)$_POST['service_id'],
-    (int)$_POST['detail_id'],
-    (int)$_SESSION['identity']->usuario_id,
-    $_POST['discount'] ?? 0,
-    $_POST['taxes'] ?? 0,
-    $_POST['base_price'],
-    $_POST['quantity']
-  ];
-
-  $result = handleProcedureAction($db, 'pos_update_detalle', $params);
-
-  // WEBSOCKET
-  webSocketServer('/api/detail/update');
-
-  echo $result;
-}
 
 // Cargar ordenes del punto de venta
 if ($_POST['action'] == "cargar_ordenes_pos") {
@@ -1308,45 +1158,6 @@ if ($_POST['action'] == "cargar_ordenes_pos") {
   ]);
 }
 
-// Factura al contado POS
-if ($_POST['action'] == "factura_contado_pos") {
-
-  $db = Database::connect();
-
-  $result = handleProcedureAction($db, 'pos_factura_venta', [
-    (int)$_SESSION['identity']->usuario_id,
-    (int)$_POST['customer_id'],
-    (int)$_POST['method_id'],
-    (int)$_POST['order_id'],
-    $_POST['total_invoice']
-  ]);
-
-  // WEBSOCKET
-  webSocketServer('/api/new/purchase');
-
-  echo $result;
-}
-
-// Factura al contado POS
-if ($_POST['action'] == "factura_credito_pos") {
-
-  $db = Database::connect();
-
-  $result = handleProcedureAction($db, 'pos_factura_credito', [
-    (int)$_SESSION['identity']->usuario_id,
-    (int)$_POST['customer_id'],
-    (int)$_POST['method_id'],
-    (int)$_POST['order_id'],
-    $_POST['total_invoice'],
-    $_POST['pay'],
-    $_POST['date']
-  ]);
-
-  // WEBSOCKET
-  webSocketServer('/api/new/purchase');
-
-  echo $result;
-}
 
 // Devolver datos del detalle para imprimir en POS
 

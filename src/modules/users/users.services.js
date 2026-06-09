@@ -40,6 +40,8 @@ $(document).ready(function () {
                 action: 'logout'
             },
             successCallback: () => {
+
+                localStorage.clear()
                 // Redirigir al usuario
                 window.location.href = SITE_URL + "users/login";
             },

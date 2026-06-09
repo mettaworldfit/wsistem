@@ -1,6 +1,9 @@
 // import * as qz from "/public/test.js?v=1.0.2";
 
-import * as qz from "../../functions/test.js";
+// import * as qz from "../../functions/printer.js";
+
+import * as qz from "../../services/printing/qz/connection.js";
+import * as printer from "../../services/printing/templates/bill.js";
 
 $(document).ready(function () {
 
@@ -457,12 +460,12 @@ $(document).ready(function () {
                 action: 'datos_impresion',
                 id: order_id
             },
-            successCallback: (res) => {
+            successCallback: async (res) => {
                 try {
                     var data = JSON.parse(res)
                     console.log(data)
 
-                    qz.gastos(data[0], data[1]);
+                   await printer.bill(data[0], data[1]);
                 } catch (error) {
                     console.log(error)
                 }

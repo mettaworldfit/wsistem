@@ -13,8 +13,6 @@ $action = $_POST['action'] ?? null;
 $permissions = [
 
     // Cierre de caja
-    'abrir_caja' => [],
-    'cierre_caja'  => [],
     'obtener_datos_caja'  => [],
     'index_cierre_caja'  => [],
     'eliminar_cierre' => ['administrador'],
@@ -58,47 +56,7 @@ if (isset($_POST['action'])) {
 }
 
 switch ($action) {
-    // Abrir cierre de caja
-    case 'abrir_caja':
-        $params = [
-            (int) $_SESSION['identity']->usuario_id,
-            $_POST['opening_date'],
-            $_POST['initial_balance'],
-        ];
-
-        $result = handleProcedureAction($db, 'c_aperturaCaja', $params);
-
-        // WEBSOCKET
-        webSocketServer('/api/box/open');
-
-        echo $result;
-        break;
-    // Cerrar caja
-    case 'cierre_caja':
-        $params = [
-            (int)$_POST['user_id'],
-            $_POST['closing_date'],
-            $_POST['initial_balance'],
-            $_POST['cash_income'],
-            $_POST['card_income'],
-            $_POST['transfer_income'],
-            $_POST['check_income'],
-            $_POST['cash_expenses'],
-            $_POST['external_expenses'],
-            $_POST['withdrawals'],
-            $_POST['refunds'],
-            $_POST['total'],
-            $_POST['current_total'],
-            $_POST['notes'] ?? ""
-        ];
-
-        $result = handleProcedureAction($db, 'c_cierreCaja', $params);
-
-        // WEBSOCKET
-        webSocketServer('/api/box/close');
-
-        echo $result;
-        break;
+   
     // Obtener los datos del cierre
     case 'obtener_datos_caja':
 

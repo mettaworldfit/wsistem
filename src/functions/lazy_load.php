@@ -50,6 +50,10 @@ $uri = $_SERVER["REQUEST_URI"];
 // Scripts globales
 // ==================================
 $globalScripts = [
+     [
+        'src'  => base_url . 'src/modules/auth/auth.services.js',
+        'type' => 'text/javascript'
+    ],
     [
         'src'  => base_url . 'src/modules/users/users.services.js',
         'type' => 'text/javascript'

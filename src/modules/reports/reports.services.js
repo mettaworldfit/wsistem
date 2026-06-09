@@ -1,40 +1,31 @@
-const basePath = window.APP_ENV === 'local' ? '..' : '/public';
-const version = window.APP_VERSION;
-
-
 // import * as qz from "/public/test.js?v=1.0.2";
 // import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
 
-import * as qz from "../../functions/test.js";
-import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "../../functions/functions.js";
+import * as qz from '../../services/printing/qz/connection.js';
+import * as printer from "../../services/printing/templates/cash_closing.js";
+import { initWebSocket, subscribe, isWebSocketConnected } from "../../functions/websocket.js";
 
 $(document).ready(function () {
 
     let wsConnection = initWebSocket();
     let wsConnected = isWebSocketConnected();
 
-    // Manejar el mensaje recibido
-    wsConnection.onmessage = (e) => {
-        const data = JSON.parse(e.data);
+    // Escuchar eventos del WebSocket
+    subscribe((data) => {
 
-        console.log('%c[WS LOG]', 'color:#007bff;font-weight:bold;', data)
+        console.log('%c[WS LOG]', 'color:#007bff;font-weight:bold;', data);
 
-        if (data.type === "nueva_venta") {
-            getUpdatedTotal()
+        switch (data.event) {
+            case "cash.opening":
+            case "cash.closing":
+                $('.float-right').load(window.location.href + ' .float-right > *');
+                $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
+                break;
+
+            default:
+                console.warn('Evento no manejado:', data.type);
         }
-
-        if (data.type === "caja_abierta") {
-            // Actualizar el contenido de los elementos específicos usando .html()
-            $('.float-right').load(window.location.href + ' .float-right > *');
-            $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
-        }
-
-        if (data.type === "caja_cerrada") {
-            // Actualizar el contenido de los elementos específicos usando .html()
-            $('.float-right').load(window.location.href + ' .float-right > *');
-            $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
-        }
-    };
+    });
 
     /**============================================================= 
     * FUNCIONES Y EVENTOS DEL CIERRE DE CAJA 
@@ -172,7 +163,7 @@ $(document).ready(function () {
     ===============================================================*/
 
     // Abrir caja
-    $('#formCashOpening').on('submit', function (e) {
+    $('#formCashOpening').on('submit', async function (e) {
         e.preventDefault()
 
         const btn = $('#btnOpenCash');
@@ -192,36 +183,44 @@ $(document).ready(function () {
             String(localDate.getMinutes()).padStart(2, '0') + ':00';
 
         const data = {
-            action: "abrir_caja",
             initial_balance: parseFloat($('#cash_initial').val()) || 0,
             opening_date: formattedOpeningDate,
         };
 
-        sendAjaxRequest({
-            url: "src/modules/reports/reports.repository.php",
-            data,
-            successCallback: () => {
-
-                if (!wsConnected) {
-                    $('.float-right').load(window.location.href + ' .float-right > *');
-                    $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
-                }
-
-                $('#modalCashOpening').modal('hide');
-
-                notifyAlert("Datos registrados correctamente")
+        const response = await fetch('http://localhost:3001/api/reports/abrir_caja', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             },
-            errorCallback: (res) => {
-                btn.prop('disabled', false).text('Abrir caja');
-                mysql_error(res);
-            },
-            verbose: false
-        });
+            credentials: 'include',
+            body: JSON.stringify(data)
+        })
+
+        try {
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.mensaje || 'Error en la solicitud');
+            }
+
+            if (!wsConnected) {
+                $('.float-right').load(window.location.href + ' .float-right > *');
+                $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
+            }
+
+            $('#modalCashOpening').modal('hide');
+
+            notifyAlert("Datos registrados correctamente")
+        } catch (error) {
+            btn.prop('disabled', false).text('Abrir caja');
+            console.error(error);
+            notifyAlert(error.message, 'error');
+        }
     })
 
 
     // Cierre de caja
-    $('#formCashClosing').on('submit', function (e) {
+    $('#formCashClosing').on('submit', async function (e) {
         e.preventDefault()
 
         function formatDate(dateString) {
@@ -248,7 +247,6 @@ $(document).ready(function () {
             opening_date: formatDate($('#opening_date').val()),
 
             // Datos para guardar
-            action: "cierre_caja",
             user_id: $('#user_id').val(),
             closing_date: formatDate($('#closing_date').val()), // closing_date
             initial_balance: parseFloat($('#initial_balance').val()) || 0,
@@ -265,37 +263,46 @@ $(document).ready(function () {
             notes: $('#notes').val() || ""
         };
 
-        sendAjaxRequest({
-            url: "src/modules/reports/reports.repository.php",
-            data: data,
-            successCallback: (res) => {
-
-                if (!wsConnected) {
-                    $('.float-right').load(window.location.href + ' .float-right > *');
-                    $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
-
-                }
-
-                notifyAlert("Datos registrados correctamente")
-
-                $('#modalCashClosing').modal('hide'); // Cerrar ventana
-
-                const response = {
-                    cierre_id: res
-                }
-
-                Object.assign(data, response)
-                qz.cierre_caja(data) // Imprimir
-                sendCashClosing(res) // Enviar el cierr de caja por correo
+        const response = await fetch('http://localhost:3001/api/reports/cierre_caja', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             },
-            errorCallback: (res) => mysql_error(res),
-            verbose: false
+            credentials: 'include',
+            body: JSON.stringify(data)
         })
+
+        try {
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.mensaje || 'Error en la solicitud');
+            }
+
+            if (!wsConnected) {
+                $('.float-right').load(window.location.href + ' .float-right > *');
+                $('.pos-sidebar-header div').load(window.location.href + ' .pos-sidebar-header div > *');
+
+            }
+
+            notifyAlert("Datos registrados correctamente")
+            $('#modalCashClosing').modal('hide'); // Cerrar ventana
+
+            const res = { cierre_id: result.id }
+            Object.assign(data, res)
+
+            await printer.cash_closing(data) // Imprimir
+            sendCashClosing(result.id) // Enviar el cierre de caja por correo
+        } catch (error) {
+            console.error(error);
+            notifyAlert(error.message, 'error');
+        }
+
     })
 
     // Enviar cierre de caja por correo
     function sendCashClosing(id) {
-        var url = SITE_URL + 'src/phpmailer/cierre_caja.php?id=' + id;
+        var url = SITE_URL + 'src/services/mail/cierre_caja.php?id=' + id;
 
         fetch(url)
             .then(response => response.text())
@@ -358,7 +365,7 @@ $(document).ready(function () {
                 action: "imprimir_cierre",
                 id: cierre_id
             },
-            successCallback: (res) => {
+            successCallback: async (res) => {
                 const data = JSON.parse(res)[0]
 
                 const info = {
@@ -387,7 +394,7 @@ $(document).ready(function () {
                     notes: data.observaciones || ""
                 }
 
-                qz.cierre_caja(info);
+                await printer.cash_closing(info);
 
             },
             errorCallback: (err) => {
