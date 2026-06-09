@@ -20,7 +20,7 @@ export function initWebSocket() {
     const token = localStorage.getItem('access_token');
     const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
     const protocol = (location.protocol === 'https:' || !isLocal) ? 'wss://' : 'ws://';
-    const host = isLocal ? 'localhost:3001' : 'ws.wsistems.com/';
+    const host = isLocal ? 'localhost:3001' : 'ws.wsistems.com';
     const wsURL = `${protocol}${host}?token=${token}`;
 
     ws = new WebSocket(wsURL);
