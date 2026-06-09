@@ -43,10 +43,6 @@ const cert = reader.getKeyFromFile(
     path.resolve(__dirname, `../../certificates/${CERT_NAME}`)
 );
 
-if (!fs.existsSync(cert)) {
-    console.log(`Certificado no encontrado: ${cert}`);
-}
-
 /*      
 | ------------------------------------------------------
 | Recepciones de eCF
