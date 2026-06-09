@@ -1,0 +1,35 @@
+{
+  "name": "dgii_test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "Ing. Wilmin Jose Sanchez",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.16.0",
+    "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.2",
+    "cheerio": "^1.2.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dgii-ecf": "^1.8.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "libxmljs2": "^0.37.0",
+    "morgan": "1.10.1",
+    "multer": "^2.1.1",
+    "mysql2": "^3.22.3",
+    "ws": "^8.21.0",
+    "xlsx": "^0.18.5"
+  },
+  "eslintConfig": {
+    "extends": "standard"
+  }
+}
