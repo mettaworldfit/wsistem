@@ -14,9 +14,6 @@ export const authenticate = async (req, res) => {
         return res.status(400).json({ error: "Faltan parámetros en la solicitud" });
     }
 
-    console.log('BODY:', req.body);
-    console.log('DATABASE:', database);
-
     try {
         const pool = getConnection(database);
 

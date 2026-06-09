@@ -29,8 +29,7 @@ $(document).ready(function () {
                     localStorage.setItem('api_last_connection', Date.now());
 
                 },
-                errorCallback: (err) => console.log(err),
-                verbose: true
+                errorCallback: (err) => console.log(err)
             })
 
         } catch (error) {
