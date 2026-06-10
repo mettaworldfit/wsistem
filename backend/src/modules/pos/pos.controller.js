@@ -8,8 +8,9 @@ import PosServices from './pos.services.js';
  * @param {function} broadcast - función de broadcast WS
  */
 export const addDetail = async (req, res) => {
+     console.log('ENTRÓ A agregar_detalle');
     try {
-
+    
         const database = req.usuario.database;
         req.body.usuario_id = req.usuario.user_id;
 

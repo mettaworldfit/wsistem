@@ -294,15 +294,12 @@ $(document).ready(function () {
         const priceOut = $(this).find('#price_out').val();
         const cost = $(this).find('#cost').val() || 0;
 
-        const token = localStorage.getItem('access_token');
-
         const response = await fetch('https://ws.wsistems.com/api/pos/agregar_detalle', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
             },
-            // credentials: 'include',
+            credentials: 'include',
             body: JSON.stringify({
                 product_id: productId,
                 piece_id: 0,
