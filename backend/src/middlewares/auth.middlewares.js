@@ -4,6 +4,8 @@ import 'dotenv/config';
 export default function authToken(req, res, next) {
     let token = null;
 
+    if (req.method === 'OPTIONS') return next();
+
     // 1. Cookie
     if (req.cookies?.access_token) {
         token = req.cookies.access_token;
