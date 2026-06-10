@@ -10,8 +10,8 @@ import PosServices from './pos.services.js';
 export const addDetail = async (req, res) => {
     try {
 
-        const database = req.usuario.database;
         req.body.usuario_id = req.usuario.user_id;
+        const database = req.usuario.database;
 
         if (!req.usuario) {
             return res.status(401).json({
