@@ -1,7 +1,7 @@
 // import { factura_venta, orden_venta } from "/public/test.js?v=1.0.2";
 // import { calculateTotalInvoice, cashBack } from "/public/functions.js?v=1.0.2";
 
-import * as qz from "=/src/services/printing/qz/connection.js?v=1.1";
+import * as qz from "/src/services/printing/qz/connection.js?v=1.1";
 import * as printer from "/src/services/printing/templates/invoice.js?v=1.1";
 import { calculateTotalInvoice, cashBack } from "/src/functions/functions.js?v=1.1";
 
