@@ -5,7 +5,7 @@ import * as qz from "../../services/printing/qz/connection.js";
 import * as printer from "../../services/printing/templates/invoice.js";
 import { calculateTotalInvoice, cashBack } from "../../functions/functions.js";
 
-$(document).ready(function () {
+$(document).ready(function() {
 
     // Ocultar botones por defecto (cotización, editar última factura, tipos de facturación)
     $('#SaveQuote, #last_invoice_edit, #credit-in-finish, #credit-in-finish-receipt, #cash-in-finish-receipt, #cash-in-finish').hide();
@@ -35,8 +35,8 @@ $(document).ready(function () {
         // Actualizar detalle según la página
         const tableKey = pageURL.includes('invoices/addpurchase') ? 'detailTemp' :
             pageURL.includes('invoices/edit') ? 'editInvoice' :
-                pageURL.includes('invoices/add_order') ? 'addorder' :
-                    null;
+            pageURL.includes('invoices/add_order') ? 'addorder' :
+            null;
 
         if (tableKey) {
             dataTablesInstances[tableKey].ajax.reload();
@@ -47,15 +47,15 @@ $(document).ready(function () {
     }
 
     // Detectar el cambio en los inputs con la clase .input-quantity
-    $(document).on('change', '.input-quantity', function () {
+    $(document).on('change', '.input-quantity', function() {
         var debounceTimer;
-        var $input = $(this);  // Guardar la referencia al input actual
+        var $input = $(this); // Guardar la referencia al input actual
 
-        clearTimeout(debounceTimer);  // Limpiar el temporizador anterior
+        clearTimeout(debounceTimer); // Limpiar el temporizador anterior
 
-        debounceTimer = setTimeout(function () {
-            var newQuantity = parseFloat($input.val());  // Convertir el valor a número de punto flotante
-            var detail_id = $input.data('id');  // Obtener el detalle_id del atributo data-id
+        debounceTimer = setTimeout(function() {
+            var newQuantity = parseFloat($input.val()); // Convertir el valor a número de punto flotante
+            var detail_id = $input.data('id'); // Obtener el detalle_id del atributo data-id
             var itemId = $input.data('item-id');
             var type = $input.data('item-type');
 
@@ -86,7 +86,7 @@ $(document).ready(function () {
                     },
                     successCallback: (res) => {
                         try {
-                            var result = JSON.parse(res);  // Parsear la respuesta del servidor
+                            var result = JSON.parse(res); // Parsear la respuesta del servidor
 
                             // Verificar si hay algún error en la respuesta
                             if (result.error) {
@@ -115,7 +115,7 @@ $(document).ready(function () {
             } else {
                 alert('Por favor, ingrese una cantidad válida mayor que cero');
             }
-        }, 300);  // 300 ms de espera entre cambios rápidos
+        }, 300); // 300 ms de espera entre cambios rápidos
     });
 
 
@@ -141,7 +141,7 @@ $(document).ready(function () {
     ===============================================================*/
 
     // Quitar formato numérico (comas)
-    const unformat = val => val?.replace(/,/g, '') || 0;
+    const unformat = val => val ? .replace(/,/g, '') || 0;
 
     // Ocultar botones de facturación
     const hideFinishButtons = () => {
@@ -197,7 +197,7 @@ $(document).ready(function () {
 
 
             // 1. CREAR FACTURA A CRÉDITO
-            const response = await fetch('http://localhost:3001/api/invoices/factura_credito', {
+            const response = await fetch('https://ws.wsistems.com/api/invoices/factura_credito', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -221,9 +221,9 @@ $(document).ready(function () {
             }
 
             // 2. REGISTRAR DETALLE
-            const action = pageURL.includes('invoices/add_order')
-                ? 'registrar_detalle_orden_venta'
-                : 'registrar_detalle_de_venta';
+            const action = pageURL.includes('invoices/add_order') ?
+                'registrar_detalle_orden_venta' :
+                'registrar_detalle_de_venta';
 
             const detailRes = await ajaxPromise({
                 type: "POST",
@@ -277,13 +277,13 @@ $(document).ready(function () {
 
 
     // Botón: Crear factura al contado sin ticket
-    $('#cash-in-finish').on('click', function (e) {
+    $('#cash-in-finish').on('click', function(e) {
         e.preventDefault();
         createCashInvoice(false);
     });
 
     // Botón: Crear factura al contado con ticket
-    $('#cash-in-finish-receipt').on('click', function (e) {
+    $('#cash-in-finish-receipt').on('click', function(e) {
         e.preventDefault();
         createCashInvoice(true);
     });
@@ -314,7 +314,7 @@ $(document).ready(function () {
             return;
         }
 
-        const response = await fetch('http://localhost:3001/api/invoices/factura_contado', {
+        const response = await fetch('https://ws.wsistems.com/api/invoices/factura_contado', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -506,7 +506,7 @@ $(document).ready(function () {
 
     // Consultar si el cliente a crédito tiene un bono
 
-    $("#include_bond").click(function () {
+    $("#include_bond").click(function() {
         if ($("#include_bond").is(':checked')) {
 
             // Aplicar bono
@@ -677,18 +677,18 @@ $(document).ready(function () {
 
 
     // Evento que imprime la factura 
-    $('#printInv').on('click', function () {
+    $('#printInv').on('click', function() {
         const invId = $(this).data('id');
         printerInvoice(invId);
     })
 
     /**
-   * Envía una factura de venta al servidor de impresión
-   * Obtiene los datos de la factura vía AJAX y los envía al servicio de impresión
-   *
-   * @param {number} invoice_id - ID de la factura de venta
-   * @returns {void}
-   */
+     * Envía una factura de venta al servidor de impresión
+     * Obtiene los datos de la factura vía AJAX y los envía al servicio de impresión
+     *
+     * @param {number} invoice_id - ID de la factura de venta
+     * @returns {void}
+     */
     function printerInvoice(invoice_id) {
 
         sendAjaxRequest({
@@ -716,7 +716,7 @@ $(document).ready(function () {
                     observation: data.datos.descripcion
                 };
 
-               printer.invoice(dataInv, data.detalle) // Imprimir             
+                printer.invoice(dataInv, data.detalle) // Imprimir             
             },
             verbose: false
         });
@@ -730,8 +730,8 @@ $(document).ready(function () {
     ===============================================================*/
 
     // Agregar producto al detalle temporal / detalle de venta
-    $('#addDetailItem').on('submit', function (event) {
-        event.preventDefault();  // Prevenir el envío del formulario
+    $('#addDetailItem').on('submit', function(event) {
+        event.preventDefault(); // Prevenir el envío del formulario
 
         // Verificar a cual detalle insertar el producto
 
@@ -797,8 +797,8 @@ $(document).ready(function () {
         function assignVariants(detail_id, variants) {
             const action2 = pageURL.includes("invoices/addpurchase") ? "asignar_variantes_temporales" :
                 pageURL.includes("invoices/edit") ? "asignar_variantes" :
-                    pageURL.includes("invoices/add_order") ? "asignar_variantes" :
-                        null;
+                pageURL.includes("invoices/add_order") ? "asignar_variantes" :
+                null;
 
             if (!action2) return;
 
@@ -940,6 +940,7 @@ $(document).ready(function () {
                 })
             });
         }
+
         function clean(val) {
             return parseFloat((val || "").toString().replace(/,/g, "")) || 0;
         }
@@ -947,7 +948,7 @@ $(document).ready(function () {
 
 
     // Eliminar item del detalle temporar / detalle de venta
-    $(document).on('click', '.erase-item', function () {
+    $(document).on('click', '.erase-item', function() {
 
         const id = $(this).data('id');
 
@@ -986,11 +987,11 @@ $(document).ready(function () {
     })
 
     // Eliminar factura de venta
-    $(document).on('click', '.erase_invoice', function () {
+    $(document).on('click', '.erase_invoice', function() {
         const id = $(this).data('id');
 
         alertify.confirm("Eliminar factura", "¿Estas seguro que deseas eliminar esta factura? ",
-            function () {
+            function() {
 
                 sendAjaxRequest({
                     url: "src/modules/invoices/invoices.repository.php",
@@ -1012,13 +1013,14 @@ $(document).ready(function () {
                         notifyAlert(err, "error", 3000)
                     }
                 })
-            }, function () {
+            },
+            function() {
 
             });
     })
 
     // Actualizar datos de la factura
-    $('#updateInvoice').on('submit', function (e) {
+    $('#updateInvoice').on('submit', function(e) {
         e.preventDefault()
 
         let formData = new FormData(this);
@@ -1041,10 +1043,10 @@ $(document).ready(function () {
     })
 
     /**
-    * Evento para imprimir la orden de venta.
-    * Escucha el click en el botón con id "printOrder", obtiene los datos de la orden
-    * y envía la información al servidor de impresión.
-    */
+     * Evento para imprimir la orden de venta.
+     * Escucha el click en el botón con id "printOrder", obtiene los datos de la orden
+     * y envía la información al servidor de impresión.
+     */
     $('#printOrder').on('click', (e) => {
         e.preventDefault();
 
@@ -1069,7 +1071,7 @@ $(document).ready(function () {
                 };
 
                 Object.assign(data, totals);
-                orden_venta(detail, data)  // Envía los datos a la impresora
+                orden_venta(detail, data) // Envía los datos a la impresora
             }
         });
     });
@@ -1079,7 +1081,7 @@ $(document).ready(function () {
     ===============================================================*/
 
     // Evento que se ejecuta cuando se abre el modal de edición de orden
-    $("#modalEditComanda").on("show.bs.modal", function () {
+    $("#modalEditComanda").on("show.bs.modal", function() {
 
         // Función para obtener parámetro de la URL
         function getParam(name) {
@@ -1134,7 +1136,7 @@ $(document).ready(function () {
 
 
     // Agregar orden de venta
-    $('#formOrderSales').on('submit', function (e) {
+    $('#formOrderSales').on('submit', function(e) {
         e.preventDefault()
 
         let formData = new FormData(this)
@@ -1157,7 +1159,7 @@ $(document).ready(function () {
 
 
     // Editar orden de venta
-    $('#editOrderSales').on('submit', function (e) {
+    $('#editOrderSales').on('submit', function(e) {
         e.preventDefault()
 
         let formData = new FormData(this)
@@ -1178,7 +1180,7 @@ $(document).ready(function () {
 
 
     // Actualizar estado de la orden
-    $('table').on('change', '#status_order', function () {
+    $('table').on('change', '#status_order', function() {
         var selectedValue = $(this).val(); // Obtener el valor seleccionado
         var orderId = $(this).find('option:selected').attr('order_id'); // Obtener order_id
 
@@ -1199,12 +1201,12 @@ $(document).ready(function () {
 
 
     // Eliminar orden
-    $(document).on('click', '.erase_order', function () {
+    $(document).on('click', '.erase_order', function() {
 
         const id = $(this).data('id')
 
         alertify.confirm("Eliminar orden", "¿Estas seguro que deseas eliminar esta orden? ",
-            function () {
+            function() {
                 sendAjaxRequest({
                     url: "src/modules/invoices/invoices.repository.php",
                     data: {
@@ -1218,7 +1220,7 @@ $(document).ready(function () {
                     }
                 });
             },
-            function () {
+            function() {
 
             });
     })
@@ -1232,7 +1234,7 @@ $(document).ready(function () {
 
     // Auto cargar detalle cotizacion desde LocalStorage
     if (pageURL.includes("invoices/quote")) {
-        $(function () {
+        $(function() {
             // Verificar
             if (localStorage.getItem("detalle_cotizacion")) {
                 QuoteLocalStorage = JSON.parse(localStorage.getItem("detalle_cotizacion"));
@@ -1283,7 +1285,7 @@ $(document).ready(function () {
     }
 
     // Maneja el envío del formulario para agregar un detalle a la cotización.
-    $("#addQuoteDetail").on('submit', function (e) {
+    $("#addQuoteDetail").on('submit', function(e) {
         e.preventDefault();
 
         // Determina el tipo seleccionado
@@ -1454,7 +1456,7 @@ $(document).ready(function () {
     }
 
     // Crear cotizacion
-    $('#formQuote').on('submit', async function (e) {
+    $('#formQuote').on('submit', async function(e) {
         e.preventDefault();
 
         // Recoger datos del formulario
@@ -1551,7 +1553,7 @@ $(document).ready(function () {
     }
 
     // Borrar todo del localstorage
-    $('#eraseQuote').on('click', function () {
+    $('#eraseQuote').on('click', function() {
         eraseAllStorage()
     })
 
@@ -1566,7 +1568,7 @@ $(document).ready(function () {
     }
 
     // Eliminar item del detalle y localstorage
-    $(document).on('click', '.erase_item', function () {
+    $(document).on('click', '.erase_item', function() {
         const id = $(this).data("id");
         eraseItemStorage(id)
 
@@ -1602,7 +1604,7 @@ $(document).ready(function () {
     }
 
     // Actualizar cotizacion
-    $('#editQuote').on('submit', function (e) {
+    $('#editQuote').on('submit', function(e) {
         e.preventDefault()
 
         let formData = new FormData(this)
@@ -1623,11 +1625,11 @@ $(document).ready(function () {
     })
 
     // Eliminar cotizacion
-    $(document).on('click', '.erase_quote', function () {
+    $(document).on('click', '.erase_quote', function() {
 
         const id = $(this).data('id')
         alertify.confirm("Eliminar cotización", "¿Estas seguro que deseas eliminar esta cotización? ",
-            function () {
+            function() {
                 sendAjaxRequest({
                     url: "src/modules/invoices/invoices.repository.php",
                     data: {
@@ -1641,7 +1643,7 @@ $(document).ready(function () {
                     }
                 });
             },
-            function () {
+            function() {
 
             });
     })

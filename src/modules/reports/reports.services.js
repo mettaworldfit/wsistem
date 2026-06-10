@@ -5,7 +5,7 @@ import * as qz from '../../services/printing/qz/connection.js';
 import * as printer from "../../services/printing/templates/cash_closing.js";
 import { initWebSocket, subscribe, isWebSocketConnected } from "../../functions/websocket.js";
 
-$(document).ready(function () {
+$(document).ready(function() {
 
     let wsConnection = initWebSocket();
     let wsConnected = isWebSocketConnected();
@@ -32,7 +32,7 @@ $(document).ready(function () {
     ===============================================================*/
 
     // Obtener datos del cierre de caja al abrir
-    $("#modalCashClosing").on("show.bs.modal", function () {
+    $("#modalCashClosing").on("show.bs.modal", function() {
 
         sendAjaxRequest({
             url: "src/modules/reports/reports.repository.php",
@@ -68,7 +68,8 @@ $(document).ready(function () {
             errorCallback: (res) => {
                 console.error(res)
                 notifyAlert(res, 'error')
-            }, verbose: false
+            },
+            verbose: false
         });
 
     })
@@ -163,7 +164,7 @@ $(document).ready(function () {
     ===============================================================*/
 
     // Abrir caja
-    $('#formCashOpening').on('submit', async function (e) {
+    $('#formCashOpening').on('submit', async function(e) {
         e.preventDefault()
 
         const btn = $('#btnOpenCash');
@@ -187,7 +188,7 @@ $(document).ready(function () {
             opening_date: formattedOpeningDate,
         };
 
-        const response = await fetch('http://localhost:3001/api/reports/abrir_caja', {
+        const response = await fetch('https://ws.wsistems.com/api/reports/abrir_caja', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -220,7 +221,7 @@ $(document).ready(function () {
 
 
     // Cierre de caja
-    $('#formCashClosing').on('submit', async function (e) {
+    $('#formCashClosing').on('submit', async function(e) {
         e.preventDefault()
 
         function formatDate(dateString) {
@@ -263,7 +264,7 @@ $(document).ready(function () {
             notes: $('#notes').val() || ""
         };
 
-        const response = await fetch('http://localhost:3001/api/reports/cierre_caja', {
+        const response = await fetch('https://ws.wsistems.com/api/reports/cierre_caja', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -316,12 +317,12 @@ $(document).ready(function () {
     }
 
     // Eliminar cierre de caja
-    $(document).on('click', '.erase_closing', function () {
+    $(document).on('click', '.erase_closing', function() {
 
         const cierre_id = $(this).data('id');
 
         alertify.confirm("Eliminar cierre", "¿Estas seguro que deseas eliminar el cierre '" + cierre_id + "'? ",
-            function () {
+            function() {
                 sendAjaxRequest({
                     url: "src/modules/reports/reports.repository.php",
                     data: {
@@ -337,12 +338,12 @@ $(document).ready(function () {
                     },
                 })
             },
-            function () { }
+            function() {}
         );
     })
 
     // Generar cierre pdf
-    $(document).on('click', '.generate_pdf', function () {
+    $(document).on('click', '.generate_pdf', function() {
         const cierre_id = $(this).data('id');
         var width = 1000;
         var height = 800;
@@ -356,7 +357,7 @@ $(document).ready(function () {
     })
 
     // Imprimir cierre
-    $(document).on('click', '.print_closing', function () {
+    $(document).on('click', '.print_closing', function() {
         const cierre_id = $(this).data('id');
 
         sendAjaxRequest({
@@ -365,7 +366,7 @@ $(document).ready(function () {
                 action: "imprimir_cierre",
                 id: cierre_id
             },
-            successCallback: async (res) => {
+            successCallback: async(res) => {
                 const data = JSON.parse(res)[0]
 
                 const info = {
@@ -432,7 +433,7 @@ $(document).ready(function () {
         $('.display-result').html(table);
     }
 
-    $('#formSales').on('submit', function (e) {
+    $('#formSales').on('submit', function(e) {
         e.preventDefault()
 
         const tableId = 'report_venta';
@@ -443,7 +444,7 @@ $(document).ready(function () {
         }
 
         let formDataTable = new FormData(this)
-        // Convertir FormData a objeto plano
+            // Convertir FormData a objeto plano
         const formObject = Object.fromEntries(formDataTable.entries());
 
         let formData = new FormData(this)
@@ -462,19 +463,19 @@ $(document).ready(function () {
                 $('#pending').text("DOP " + format.format(data.pendiente))
 
                 // Inicializar tabla
-                loadTables([
-                    {
-                        id: '#report_venta',
-                        url: 'src/modules/reports/reports.repository.php',
-                        action: 'reporte_ventas',
-                        columns: [
-                            'id', 'nombre', 'fecha', 'hora', 'total', 'recibido', 'pendiente', 'estado', 'acciones'
-                        ],
-                        order: [[0, 'desc']],
-                        hiddenColumns: [3, 4, 5],
-                        ajaxParams: formObject
-                    },
-                ])
+                loadTables([{
+                    id: '#report_venta',
+                    url: 'src/modules/reports/reports.repository.php',
+                    action: 'reporte_ventas',
+                    columns: [
+                        'id', 'nombre', 'fecha', 'hora', 'total', 'recibido', 'pendiente', 'estado', 'acciones'
+                    ],
+                    order: [
+                        [0, 'desc']
+                    ],
+                    hiddenColumns: [3, 4, 5],
+                    ajaxParams: formObject
+                }, ])
             },
             errorCallback: (err) => {
                 console.error(err)
@@ -483,7 +484,7 @@ $(document).ready(function () {
     })
 
     // Obtener todos los detalle de todas las facturas filtradas
-    $('#excelSales').on('click', function (e) {
+    $('#excelSales').on('click', function(e) {
         e.preventDefault()
 
         const table = `
@@ -535,7 +536,7 @@ $(document).ready(function () {
     * EQUIPOS VENDIDOS
     ===============================================================*/
 
-    $('#formQueryDevice').on('submit', function (e) {
+    $('#formQueryDevice').on('submit', function(e) {
         e.preventDefault()
 
         const tableId = 'device_query';
@@ -546,7 +547,7 @@ $(document).ready(function () {
         }
 
         let formDataTable = new FormData(this)
-        // Convertir FormData a objeto plano
+            // Convertir FormData a objeto plano
         const formObject = Object.fromEntries(formDataTable.entries());
 
         const data = {
@@ -574,19 +575,19 @@ $(document).ready(function () {
         $('#display1').html(table);
 
         // Inicializar tabla
-        loadTables([
-            {
-                id: '#device_query',
-                url: 'src/modules/reports/reports.repository.php',
-                action: 'equipos_vendidos',
-                columns: [
-                    'id', 'proveedor', 'producto', 'serial', 'costo', 'entrada', 'salida'
-                ],
-                order: [[0, 'desc']],
-                hiddenColumns: [1, 3, 4, 5],
-                ajaxParams: formObject
-            },
-        ])
+        loadTables([{
+            id: '#device_query',
+            url: 'src/modules/reports/reports.repository.php',
+            action: 'equipos_vendidos',
+            columns: [
+                'id', 'proveedor', 'producto', 'serial', 'costo', 'entrada', 'salida'
+            ],
+            order: [
+                [0, 'desc']
+            ],
+            hiddenColumns: [1, 3, 4, 5],
+            ajaxParams: formObject
+        }, ])
     })
 
 
@@ -615,7 +616,7 @@ $(document).ready(function () {
     }
 
 
-    $('#formItemsQuantity').on('submit', function (e) {
+    $('#formItemsQuantity').on('submit', function(e) {
         e.preventDefault()
 
         const tableId = 'items_quantity';
@@ -626,7 +627,7 @@ $(document).ready(function () {
         }
 
         let formDataTable = new FormData(this)
-        // Convertir FormData a objeto plano
+            // Convertir FormData a objeto plano
         const formObject = Object.fromEntries(formDataTable.entries());
 
         let formData = new FormData(this)
@@ -644,19 +645,19 @@ $(document).ready(function () {
                 $('#earning').text("DOP " + format.format(data.ganancia))
 
                 // Inicializar tabla
-                loadTables([
-                    {
-                        id: '#items_quantity',
-                        url: 'src/modules/reports/reports.repository.php',
-                        action: 'item_vendidos',
-                        columns: [
-                            'descripcion', 'tipo', 'cantidad', 'costo', 'total', 'ganancias'
-                        ],
-                        order: [[5, 'desc']],
-                        hiddenColumns: [1, 3],
-                        ajaxParams: formObject
-                    },
-                ])
+                loadTables([{
+                    id: '#items_quantity',
+                    url: 'src/modules/reports/reports.repository.php',
+                    action: 'item_vendidos',
+                    columns: [
+                        'descripcion', 'tipo', 'cantidad', 'costo', 'total', 'ganancias'
+                    ],
+                    order: [
+                        [5, 'desc']
+                    ],
+                    hiddenColumns: [1, 3],
+                    ajaxParams: formObject
+                }, ])
             },
             errorCallback: (err) => {
                 console.error(err)
@@ -689,7 +690,7 @@ $(document).ready(function () {
     }
 
 
-    $('#formExpensePeriod').on('submit', function (e) {
+    $('#formExpensePeriod').on('submit', function(e) {
         e.preventDefault()
 
         const tableId = 'expense_period';
@@ -700,7 +701,7 @@ $(document).ready(function () {
         }
 
         let formDataTable = new FormData(this)
-        // Convertir FormData a objeto plano
+            // Convertir FormData a objeto plano
         const formObject = Object.fromEntries(formDataTable.entries());
 
         let formData = new FormData(this)
@@ -717,19 +718,19 @@ $(document).ready(function () {
                 $('#total').text("DOP " + format.format(data.total))
 
                 // Inicializar tabla
-                loadTables([
-                    {
-                        id: '#expense_period',
-                        url: 'src/modules/reports/reports.repository.php',
-                        action: 'reportes_por_periodo',
-                        columns: [
-                            'id', 'proveedor', 'gastos', 'observacion', 'fecha', 'total'
-                        ],
-                        order: [[5, 'desc']],
-                        hiddenColumns: [1, 3],
-                        ajaxParams: formObject
-                    },
-                ])
+                loadTables([{
+                    id: '#expense_period',
+                    url: 'src/modules/reports/reports.repository.php',
+                    action: 'reportes_por_periodo',
+                    columns: [
+                        'id', 'proveedor', 'gastos', 'observacion', 'fecha', 'total'
+                    ],
+                    order: [
+                        [5, 'desc']
+                    ],
+                    hiddenColumns: [1, 3],
+                    ajaxParams: formObject
+                }, ])
             },
             errorCallback: (err) => {
                 console.error(err)
@@ -742,7 +743,7 @@ $(document).ready(function () {
     * GANANCIAS POR PERIODO
     ===============================================================*/
 
-    $(function () {
+    $(function() {
 
         function toggleFiltros() {
 
@@ -789,7 +790,7 @@ $(document).ready(function () {
     });
 
     // Ganancias por periodo reporte
-    $('#earning_report').on('click', function (e) {
+    $('#earning_report').on('click', function(e) {
         e.preventDefault()
 
         const data = {
@@ -839,7 +840,7 @@ $(document).ready(function () {
         $('.table_earning_period').html(table);
     }
 
-    $('#formEarningPeriod').on('submit', function (e) {
+    $('#formEarningPeriod').on('submit', function(e) {
         e.preventDefault()
 
         const tableId = 'earning_period';
@@ -850,7 +851,7 @@ $(document).ready(function () {
         }
 
         let formDataTable = new FormData(this)
-        // Convertir FormData a objeto plano
+            // Convertir FormData a objeto plano
         const formObject = Object.fromEntries(formDataTable.entries());
 
         let formData = new FormData(this)
@@ -868,19 +869,19 @@ $(document).ready(function () {
                 $('#total').text("DOP " + format.format(data.total_vendido))
 
                 // Inicializar tabla
-                loadTables([
-                    {
-                        id: '#earning_period',
-                        url: 'src/modules/reports/reports.repository.php',
-                        action: 'ganancias_por_periodo',
-                        columns: [
-                            'descripcion', 'cantidad_total', 'costo_total', 'ganancia_total', 'total_vendido'
-                        ],
-                        order: [[0, 'desc']],
-                        hiddenColumns: [1, 3],
-                        ajaxParams: formObject
-                    },
-                ])
+                loadTables([{
+                    id: '#earning_period',
+                    url: 'src/modules/reports/reports.repository.php',
+                    action: 'ganancias_por_periodo',
+                    columns: [
+                        'descripcion', 'cantidad_total', 'costo_total', 'ganancia_total', 'total_vendido'
+                    ],
+                    order: [
+                        [0, 'desc']
+                    ],
+                    hiddenColumns: [1, 3],
+                    ajaxParams: formObject
+                }, ])
             },
             errorCallback: (err) => {
                 console.error(err)
@@ -912,7 +913,7 @@ $(document).ready(function () {
         $('.table-inventory-result').html(table);
     }
 
-    $('#formInventory').on('submit', function (e) {
+    $('#formInventory').on('submit', function(e) {
         e.preventDefault()
 
         console.log("Generando reporte de inventario...")
@@ -925,7 +926,7 @@ $(document).ready(function () {
         }
 
         let formDataTable = new FormData(this)
-        // Convertir FormData a objeto plano
+            // Convertir FormData a objeto plano
         const formObject = Object.fromEntries(formDataTable.entries());
 
         let formData = new FormData(this)
@@ -943,19 +944,19 @@ $(document).ready(function () {
                 $('#value_inv').text("DOP " + format.format(data.valor_inventario))
 
                 // Inicializar tabla
-                loadTables([
-                    {
-                        id: '#inventory',
-                        url: 'src/modules/reports/reports.repository.php',
-                        action: 'valor_inventario',
-                        columns: [
-                            'codigo', 'nombre', 'cantidad', 'estado', 'precio_costo', 'total_costo'
-                        ],
-                        order: [[1, 'desc']],
-                        hiddenColumns: [3],
-                        ajaxParams: formObject
-                    },
-                ])
+                loadTables([{
+                    id: '#inventory',
+                    url: 'src/modules/reports/reports.repository.php',
+                    action: 'valor_inventario',
+                    columns: [
+                        'codigo', 'nombre', 'cantidad', 'estado', 'precio_costo', 'total_costo'
+                    ],
+                    order: [
+                        [1, 'desc']
+                    ],
+                    hiddenColumns: [3],
+                    ajaxParams: formObject
+                }, ])
 
             },
             errorCallback: (err) => {
@@ -968,8 +969,3 @@ $(document).ready(function () {
     })
 
 }); // Ready
-
-
-
-
-
