@@ -9,36 +9,40 @@ import PosServices from './pos.services.js';
  */
 export const addDetail = async (req, res) => {
     try {
-
-        req.body.usuario_id = req.usuario.user_id;
-        const database = req.usuario.database;
-
-        if (!req.usuario) {
-            return res.status(401).json({
-                ok: false,
-                message: 'Usuario no autenticado'
-            });
-        }
-
-        // 1. Agregar detalle a la base de datos
-        const pos = new PosServices();
-        const result = await pos.addDetail(req.body, database);
-
-        // 2. Broadcast a clientes conectados
-        req.app.locals.broadcast({
-            event: 'datail.updated',
-            resource: {
-                type: 'detail',
-                id: 0
-            },
-            action: 'insert_detail',
-            timestamp: Date.now()
-        }, database);
-
-        // 3. Responder al cliente HTTP
-        return res.status(200).json({
-            ok: true
+        return res.json({
+            ok: true,
+            body: req.body,
+            middleware: req.usuario
         });
+        // req.body.usuario_id = req.usuario.user_id;
+        // const database = req.usuario.database;
+
+        // if (!req.usuario) {
+        //     return res.status(401).json({
+        //         ok: false,
+        //         message: 'Usuario no autenticado'
+        //     });
+        // }
+
+        // // 1. Agregar detalle a la base de datos
+        // const pos = new PosServices();
+        // const result = await pos.addDetail(req.body, database);
+
+        // // 2. Broadcast a clientes conectados
+        // req.app.locals.broadcast({
+        //     event: 'datail.updated',
+        //     resource: {
+        //         type: 'detail',
+        //         id: 0
+        //     },
+        //     action: 'insert_detail',
+        //     timestamp: Date.now()
+        // }, database);
+
+        // // 3. Responder al cliente HTTP
+        // return res.status(200).json({
+        //     ok: true
+        // });
 
     } catch (error) {
         console.error(error);
