@@ -11,7 +11,7 @@ $(document).ready(function () {
 
                     var credentials = JSON.parse(res)
 
-                    const response = await fetch('https://ws.wsistems.com/api/login',
+                    const response = await fetch('https://ws.wsistems.com/api/auth/login',
                         {
                             method: 'POST',
                             credentials: 'include',

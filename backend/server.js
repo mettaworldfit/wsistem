@@ -42,7 +42,7 @@ import reportsRoutes from './src/modules/reports/reports.routes.js';
 import invoicesRoutes from './src/modules/invoices/invoices.routes.js'; 
 import paymentsRoutes from './src/modules/payments/payments.routes.js';
 
-app.use('/api',authRoutes) // Modulo Autenticacion
+app.use('/api/auth',authRoutes) // Modulo Autenticacion
 app.use('/ecf',authToken, ecfRoutes); // Modulo eCF
 app.use('/api',authToken, posRoutes); // Modulo Punto de Venta
 app.use('/api',authToken, customersRoutes); // Modulo Clientes
