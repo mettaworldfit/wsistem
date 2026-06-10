@@ -141,7 +141,7 @@ $(document).ready(function() {
     ===============================================================*/
 
     // Quitar formato numérico (comas)
-    const unformat = val => val ? .replace(/,/g, '') || 0;
+    const unformat = val => val ?.replace(/,/g, '') || 0;
 
     // Ocultar botones de facturación
     const hideFinishButtons = () => {
