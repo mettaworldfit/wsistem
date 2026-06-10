@@ -8,11 +8,17 @@ import PosServices from './pos.services.js';
  * @param {function} broadcast - función de broadcast WS
  */
 export const addDetail = async (req, res) => {
-     console.log('ENTRÓ A agregar_detalle');
     try {
-    
+
         const database = req.usuario.database;
         req.body.usuario_id = req.usuario.user_id;
+
+        if (!req.usuario) {
+            return res.status(401).json({
+                ok: false,
+                message: 'Usuario no autenticado'
+            });
+        }
 
         // 1. Agregar detalle a la base de datos
         const pos = new PosServices();
@@ -324,7 +330,7 @@ export const updateQuantity = async (req, res) => {
 /**
  *Guardar factura al contado y hacer broadcast a todos los clientes
  */
- export const cashInvoice = async (req, res) => {
+export const cashInvoice = async (req, res) => {
     try {
 
         const database = req.usuario.database;
@@ -365,7 +371,7 @@ export const updateQuantity = async (req, res) => {
 /**
  *Guardar factura a credito y hacer broadcast a todos los clientes
  */
- export const creditInvoice = async (req, res) => {
+export const creditInvoice = async (req, res) => {
     try {
 
         const database = req.usuario.database;
