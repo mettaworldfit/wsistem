@@ -1,11 +1,8 @@
-// import * as qz from "/public/test.js?v=1.0.2";
-// import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
+// import * as qz from "/src/services/printing/qz/connection.js?v=1.1";
+// import * as printer from "/src/services/printing/templates/cash_closing.js?v=1.1";
 
-import * as qz from "/src/services/printing/qz/connection.js?v=1.1";
-import * as printer from "/src/services/printing/templates/cash_closing.js?v=1.1";
-
-// import * as qz from '../../services/printing/qz/connection.js';
-// import * as printer from "../../services/printing/templates/cash_closing.js";
+import * as qz from '../../services/printing/qz/connection.js';
+import * as printer from "../../services/printing/templates/cash_closing.js";
 import { initWebSocket, subscribe, isWebSocketConnected } from "../../functions/websocket.js";
 
 $(document).ready(function() {

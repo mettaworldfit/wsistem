@@ -1,5 +1,3 @@
-// import { initWebSocket, isWebSocketConnected, getUpdatedTotal } from "/public/functions.js?v=1.0.2";
-
 import { initWebSocket, subscribe, isWebSocketConnected } from "../../functions/websocket.js";
 
 $(document).ready(function () {
