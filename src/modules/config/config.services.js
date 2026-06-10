@@ -1,12 +1,14 @@
 // import * as qz from "/public/test.js?v=1.0.2";
+import * as qz from "src/services/printing/qz/connection.js?v=1.1";
+import * as printer from "src/services/printing/qz/diagnostic.js?v=1.1"
 
-import * as qz from "../../services/printing/qz/connection.js";
-import * as printer from "../../services/printing/qz/diagnostic.js"
+// import * as qz from "../../services/printing/qz/connection.js";
+// import * as printer from "../../services/printing/qz/diagnostic.js"
 
-$(document).ready(function () {
+$(document).ready(function() {
 
     // Configuracion de los bonos 
-    $('#formBonus').on('submit', function (e) {
+    $('#formBonus').on('submit', function(e) {
         e.preventDefault();
         const data = {
             min: $('#min_invoice').val(),
@@ -36,7 +38,7 @@ $(document).ready(function () {
     * CONFIGURACION DE LAS ETIQUETAS
     ===============================================================*/
 
-    $('#formLabel').on('submit', function (e) {
+    $('#formLabel').on('submit', function(e) {
         e.preventDefault();
 
         const data = {
@@ -91,7 +93,7 @@ $(document).ready(function () {
     });
 
     // Preview de la etiqueta
-    $('#generate_code').on('click', function (e) {
+    $('#generate_code').on('click', function(e) {
         e.preventDefault();
 
         const params = new URLSearchParams({
@@ -142,12 +144,11 @@ $(document).ready(function () {
 
         const url = SITE_URL + 'src/tcpdf/preview.php?' + params.toString();
 
-        window.open(url, 'EtiquetaPreview', `left=${x},top=${y},width=${width},height=${height},scrollbars=yes`
-        );
+        window.open(url, 'EtiquetaPreview', `left=${x},top=${y},width=${width},height=${height},scrollbars=yes`);
     })
 
     // Eliminar label
-    $(document).on('click', '.erase_label', function () {
+    $(document).on('click', '.erase_label', function() {
 
         const data = {
             label: $(this).data('id'),
@@ -155,7 +156,7 @@ $(document).ready(function () {
         };
 
         alertify.confirm("Eliminar etiqueta", "¿Estas seguro que deseas eliminar la etiqueta N°" + data.name + " ?",
-            function () {
+            function() {
                 sendAjaxRequest({
                     url: "src/modules/config/config.repository.php",
                     data: {
@@ -172,7 +173,7 @@ $(document).ready(function () {
                 })
 
             },
-            function () {
+            function() {
 
             });
     })
@@ -182,7 +183,7 @@ $(document).ready(function () {
     ===============================================================*/
 
     // Configuracion de correo electronico
-    $('#formMail').on('submit', function (e) {
+    $('#formMail').on('submit', function(e) {
         e.preventDefault()
 
         const data = {
@@ -213,7 +214,7 @@ $(document).ready(function () {
     })
 
     // Configuracion de PDF
-    $('#configPdf').on('submit', function (e) {
+    $('#configPdf').on('submit', function(e) {
         e.preventDefault()
 
         const data = {
@@ -245,13 +246,13 @@ $(document).ready(function () {
     ===============================================================*/
 
     // Boton de diagnostico
-    $('#btnQzDiagnostico').on('click', async function () {
-       await printer.runQzDiagnostic();
+    $('#btnQzDiagnostico').on('click', async function() {
+        await printer.runQzDiagnostic();
     });
 
 
     // Boton de test
-    $("#printTest").on('click', function () {
+    $("#printTest").on('click', function() {
 
         // sendAjaxRequest({
         //     url: "services/bills.php",
@@ -276,7 +277,7 @@ $(document).ready(function () {
     });
 
     // Guardar configuracion
-    $('#formPrinter').on('submit', function (e) {
+    $('#formPrinter').on('submit', function(e) {
         e.preventDefault();
 
         let formData = new FormData(this);
@@ -296,7 +297,7 @@ $(document).ready(function () {
     })
 
     // Actualizar configuracion
-    $('#formUpdatePrinter').on('submit', function (e) {
+    $('#formUpdatePrinter').on('submit', function(e) {
         e.preventDefault();
 
         let formData = new FormData(this);
@@ -369,17 +370,18 @@ $(document).ready(function () {
                 } catch (error) {
                     console.error("Error en respuesta del servidor ", error)
                 }
-            }, verbose: true
+            },
+            verbose: true
         });
     }
 
     // Preview logo
-    $('input[name="logo"]').on('change', function () {
+    $('input[name="logo"]').on('change', function() {
         const file = this.files[0];
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = function (e) {
+        reader.onload = function(e) {
             $('#preview-img').html(
                 `<img src="${e.target.result}" style="max-width:100%; height:auto;">`
             );
@@ -392,7 +394,7 @@ $(document).ready(function () {
 
 
     // Guardar datos del sitio
-    $('#formSite').on('submit', function (e) {
+    $('#formSite').on('submit', function(e) {
         e.preventDefault();
 
         let formData = new FormData(this);
@@ -413,7 +415,7 @@ $(document).ready(function () {
 
 
     // Eliminar printer
-    $(document).on('click', '.erase_printer', function () {
+    $(document).on('click', '.erase_printer', function() {
 
         const data = {
             printer: $(this).data('id'),
@@ -421,7 +423,7 @@ $(document).ready(function () {
         };
 
         alertify.confirm("Eliminar printer", "¿Estas seguro que deseas eliminar " + data.name + " ?",
-            function () {
+            function() {
                 sendAjaxRequest({
                     url: "src/modules/config/config.repository.php",
                     data: {
@@ -438,7 +440,7 @@ $(document).ready(function () {
                 })
 
             },
-            function () {
+            function() {
 
             });
     })

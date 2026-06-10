@@ -1,4 +1,4 @@
-$(document).ready(function () {
+$(document).ready(function() {
 
     function formatForMySQL(dateStr) {
         const d = new Date(dateStr);
@@ -20,11 +20,11 @@ $(document).ready(function () {
     */
 
     // Abrir Modal eNCF index facturas
-    $(document).on('click', '.this-ncf', function () {
+    $(document).on('click', '.this-ncf', function() {
 
         const encf = $(this).data('ncf');
 
-        $('#modalNCF').on('shown.bs.modal', function () {
+        $('#modalNCF').on('shown.bs.modal', function() {
             sendAjaxRequest({
                 url: "src/modules/ecf/ecf.repository.php",
                 data: {
@@ -51,10 +51,10 @@ $(document).ready(function () {
     });
 
     // Consultar estado Ecf
-    $('#forward').on('click', async (e) => {
+    $('#forward').on('click', async(e) => {
         e.preventDefault()
 
-        const response = await fetch('http://localhost:3001/ecf/consultar_ecf', {
+        const response = await fetch('https://ws.wsistems.com/ecf/consultar_ecf', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -75,9 +75,9 @@ $(document).ready(function () {
 
 
     // Obtener cliente por RNC
-    $('#identity, #rnc').on('blur', async function () {
+    $('#identity, #rnc').on('blur', async function() {
 
-        const response = await fetch('http://localhost:3001/api/buscar_rnc', {
+        const response = await fetch('https://ws.wsistems.com/api/buscar_rnc', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -105,7 +105,7 @@ $(document).ready(function () {
     | ------------------------------------------------------
     */
 
-    $('#formEmisor').on('submit', function (e) {
+    $('#formEmisor').on('submit', function(e) {
         e.preventDefault()
 
         const formData = new FormData(this);
@@ -139,7 +139,7 @@ $(document).ready(function () {
 
     async function getCertInfo() {
 
-        const response = await fetch('http://localhost:3001/ecf/estado_cert', {
+        const response = await fetch('https://ws.wsistems.com/ecf/estado_cert', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -168,21 +168,21 @@ $(document).ready(function () {
     */
 
     // Descargar XML Firmado
-    $('#downloadFile').on('click', async () => {
+    $('#downloadFile').on('click', async() => {
 
         const id = $('#ecfId').val()
         const eNCF = $('#encf').val()
         const RNCEmisor = $('#RNCEmisor').val()
 
-        const url = `http://localhost:3001/ecf/download/xml/${id}`;
+        const url = `https://ws.wsistems.com/ecf/download/xml/${id}`;
 
         fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include'
-        })
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            })
             .then(res => res.blob())
             .then(blob => {
                 const a = document.createElement('a');
@@ -235,9 +235,9 @@ $(document).ready(function () {
 
                     notifyAlert(
                         data.message,
-                        data.success
-                            ? 'success'
-                            : 'error'
+                        data.success ?
+                        'success' :
+                        'error'
                     );
 
                     // Obtener datos del certificado
@@ -255,14 +255,14 @@ $(document).ready(function () {
 
     // Drag & Drop
     $('.upload-box')
-        .on('dragover', function (e) {
+        .on('dragover', function(e) {
             e.preventDefault();
             $(this).addClass('dragging');
         })
-        .on('dragleave drop', function () {
+        .on('dragleave drop', function() {
             $(this).removeClass('dragging');
         })
-        .on('drop', function (e) {
+        .on('drop', function(e) {
             e.preventDefault();
 
             const files = e.originalEvent.dataTransfer.files;
@@ -270,7 +270,8 @@ $(document).ready(function () {
             if (files.length) {
                 $('#cert')[0].files = files;
                 uploadFile();
-            } F
+            }
+            F
         });
 
 
@@ -281,7 +282,7 @@ $(document).ready(function () {
     */
 
     // Botón limpiar
-    $('#clearInput').on('click', function () {
+    $('#clearInput').on('click', function() {
         $('#jsonInput, #pruebaInput').val('');
     });
 
@@ -376,7 +377,7 @@ $(document).ready(function () {
             </div>
             `;
             } else if (entry.type === 'ecf') {
-                const eNCF = entry.item.ECF?.Encabezado?.IdDoc?.eNCF || `#${entry.index + 1}`;
+                const eNCF = entry.item.ECF ? .Encabezado ? .IdDoc ? .eNCF || `#${entry.index + 1}`;
                 html += `
             <div class="acecf-item" data-index="${entry.index}" data-type="ecf">
                 <div class="acecf-left">
@@ -392,7 +393,7 @@ $(document).ready(function () {
         $('#ecfList').html(html);
 
         // Descargar al click
-        $('#ecfList .acecf-item[data-type="file"]').on('click', function () {
+        $('#ecfList .acecf-item[data-type="file"]').on('click', function() {
             const index = $(this).data('index');
             const file = list.files[index];
             if (!file) return;
@@ -410,7 +411,7 @@ $(document).ready(function () {
         });
 
         // Mostrar codigo json en el input
-        $('#ecfList').on('click', '.acecf-item', function () {
+        $('#ecfList').on('click', '.acecf-item', function() {
             const index = $(this).data('index');
             const ecfData = window.ecfData[index];
 
@@ -423,7 +424,7 @@ $(document).ready(function () {
     }
 
     // Cargar ECF y Descargar XML
-    $('#btnUpload-step2').on('click', async function () {
+    $('#btnUpload-step2').on('click', async function() {
         const file = $('#step2File')[0].files[0];
         if (!file) return alert('Seleccione un Excel');
 
@@ -431,7 +432,7 @@ $(document).ready(function () {
         formData.append('excel', file);
 
         try {
-            const response = await fetch('http://localhost:3001/ecf/convert_pruebas', {
+            const response = await fetch('https://ws.wsistems.com/ecf/convert_pruebas', {
                 method: 'POST',
                 credentials: 'include',
                 body: formData
@@ -455,7 +456,7 @@ $(document).ready(function () {
 
 
     // Enviar dataset completo
-    $('#btnSendAll-step2').on('click', async function () {
+    $('#btnSendAll-step2').on('click', async function() {
         if (!window.ecfData || window.ecfData.length === 0) {
             return alert('No hay ECF cargado para enviar.');
         }
@@ -495,7 +496,7 @@ $(document).ready(function () {
             ecfElement.addClass('ecf-send');
 
             try {
-                const response = await fetch('http://localhost:3001/ecf/cert/recepcion_prueba', {
+                const response = await fetch('https://ws.wsistems.com/ecf/cert/recepcion_prueba', {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
@@ -513,7 +514,7 @@ $(document).ready(function () {
 
 
     // Enviar pruebas individual
-    $('#sendPrueba').on('click', async function () {
+    $('#sendPrueba').on('click', async function() {
 
         const texto = $('#pruebaInput').val();
 
@@ -551,7 +552,7 @@ $(document).ready(function () {
         resultsDiv.appendChild(statusDiv);
 
         try {
-            const response = await fetch('http://localhost:3001/ecf/cert/recepcion_prueba', {
+            const response = await fetch('https://ws.wsistems.com/ecf/cert/recepcion_prueba', {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
@@ -597,7 +598,7 @@ $(document).ready(function () {
 
 
     // Delegación de eventos para elementos dinámicos
-    $('#acecfList').on('click', '.acecf-item', function () {
+    $('#acecfList').on('click', '.acecf-item', function() {
         const index = $(this).data('index');
         const acecfData = window.acecfData[index];
 
@@ -609,27 +610,27 @@ $(document).ready(function () {
     });
 
     // Cuando subas el Excel, guardamos los datos globalmente
-    $('#btnUpload-step3').on('click', async function () {
+    $('#btnUpload-step3').on('click', async function() {
         const file = $('#excelFile')[0].files[0];
         if (!file) return alert('Seleccione un Excel');
 
         const formData = new FormData();
         formData.append('excel', file);
 
-        const response = await fetch('http://localhost:3001/ecf/aprobaciones_convert', {
+        const response = await fetch('https://ws.wsistems.com/ecf/aprobaciones_convert', {
             method: 'POST',
             credentials: 'include',
             body: formData
         });
 
         const resJson = await response.json();
-        window.acecfData = resJson.data;  // Guardamos globalmente
+        window.acecfData = resJson.data; // Guardamos globalmente
         renderACECFList(resJson.data);
     });
 
 
     // Enviar dataset completo
-    $('#btnSendAll-step3').on('click', async function () {
+    $('#btnSendAll-step3').on('click', async function() {
         if (!window.acecfData || window.acecfData.length === 0) {
             return alert('No hay ACECF cargados para enviar.');
         }
@@ -669,7 +670,7 @@ $(document).ready(function () {
             acecfElement.addClass('ecf-send');
 
             try {
-                const response = await fetch('http://localhost:3001/ecf/cert/aprobacion_comercial', {
+                const response = await fetch('https://ws.wsistems.com/ecf/cert/aprobacion_comercial', {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
@@ -686,7 +687,7 @@ $(document).ready(function () {
     });
 
     // Enviar ACECF aprobacion comercial
-    $('#sendACECF').on('click', async function () {
+    $('#sendACECF').on('click', async function() {
 
         const texto = $('#jsonInput').val();
 
@@ -724,7 +725,7 @@ $(document).ready(function () {
         resultsDiv.appendChild(statusDiv);
 
         try {
-            const response = await fetch('http://localhost:3001/ecf/cert/aprobacion_comercial', {
+            const response = await fetch('https://ws.wsistems.com/ecf/cert/aprobacion_comercial', {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
@@ -767,7 +768,7 @@ $(document).ready(function () {
         $('#simulationList').append(html);
 
         // Descargar al click
-        $('#simulationList .acecf-item[data-type="file"]').on('click', function () {
+        $('#simulationList .acecf-item[data-type="file"]').on('click', function() {
             const index = $(this).data('index');
             const file = list.files[index];
             if (!file) return;
@@ -786,15 +787,15 @@ $(document).ready(function () {
     }
 
     // Obtener los eCF de prueba de cada card individual
-    $('.summary-card').on('click', async function () {
+    $('.summary-card').on('click', async function() {
         const id = $(this).data('id')
 
-        $(document).on('click', '.summary-card', function () {
+        $(document).on('click', '.summary-card', function() {
             $(this).addClass('active');
         });
 
         try {
-            const response = await fetch(`http://localhost:3001/ecf/cert/simulacion_ecf?tipo_ecf=${id}`, {
+            const response = await fetch(`https://ws.wsistems.com/ecf/cert/simulacion_ecf?tipo_ecf=${id}`, {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -830,7 +831,7 @@ $(document).ready(function () {
 
 
     // Enviar todos los eCF 
-    $('#sendAllStep4').on('click', async function () {
+    $('#sendAllStep4').on('click', async function() {
         if (!window.simulationData || window.simulationData.length === 0) {
             return alert('No hay ningun tipo de comprobante cargado para enviar.');
         }
@@ -872,7 +873,7 @@ $(document).ready(function () {
             console.log(item)
 
             try {
-                const response = await fetch('http://localhost:3001/ecf/cert/simulacion_ecf', {
+                const response = await fetch('https://ws.wsistems.com/ecf/cert/simulacion_ecf', {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
@@ -914,7 +915,7 @@ $(document).ready(function () {
      | ------------------------------------------------------
      */
 
-    $(document).on('click', '#backStep', function () {
+    $(document).on('click', '#backStep', function() {
 
         // Obtener step actual activo
         const currentStep = parseInt($('.steps-list li.active').data('step'));
@@ -940,7 +941,7 @@ $(document).ready(function () {
     });
 
     // Finalizar paso
-    $(document).on('click', '#nextStep', function () {
+    $(document).on('click', '#nextStep', function() {
 
         // Obtener step actual activo
         const currentStep = $('.steps-list li.active').data('step');
@@ -1042,7 +1043,7 @@ $(document).ready(function () {
         const titleSelector = `${areaSelector} .upload-title`;
 
         // Selección manual
-        $(inputSelector).on('change', function () {
+        $(inputSelector).on('change', function() {
             const file = this.files[0];
             if (!file) return;
             $(titleSelector).text(file.name);
@@ -1050,14 +1051,14 @@ $(document).ready(function () {
 
         // Drag & Drop
         $(areaSelector)
-            .on('dragover', function (e) {
+            .on('dragover', function(e) {
                 e.preventDefault();
                 $(this).addClass('dragging');
             })
-            .on('dragleave', function () {
+            .on('dragleave', function() {
                 $(this).removeClass('dragging');
             })
-            .on('drop', function (e) {
+            .on('drop', function(e) {
                 e.preventDefault();
                 $(this).removeClass('dragging');
 

@@ -5,127 +5,127 @@ import * as qz from "../../services/printing/qz/connection.js";
 import { invoice } from "../../services/printing/templates/invoice.js";
 import { order_invoice } from "../../services/printing/templates/order_invoice.js";
 import { calculateTotalInvoice, cashBack } from "../../functions/functions.js";
-import { initWebSocket, subscribe, isWebSocketConnected } from "../../functions/websocket.js?v=1.0";
+import { initWebSocket, subscribe, isWebSocketConnected } from "../../functions/websocket.js";
 
-$(document).ready(function () {
+$(document).ready(function() {
 
-    let wsConnection = initWebSocket();
-    let wsConnected = isWebSocketConnected();
+            let wsConnection = initWebSocket();
+            let wsConnected = isWebSocketConnected();
 
-    // Escuchar eventos del WebSocket
-    subscribe((data) => {
+            // Escuchar eventos del WebSocket
+            subscribe((data) => {
 
-        switch (data.event) {
-            case 'detail.updated':
-            case 'pricelist.updated':
-            case 'detail.deleted':
-                loadDetailPOS();
-                break;
-            case 'order.updated':
-            case 'order.created':
-                loadOrdersPOS();
-                break;
+                switch (data.event) {
+                    case 'detail.updated':
+                    case 'pricelist.updated':
+                    case 'detail.deleted':
+                        loadDetailPOS();
+                        break;
+                    case 'order.updated':
+                    case 'order.created':
+                        loadOrdersPOS();
+                        break;
 
-            default:
-                console.warn('Evento no manejado:', data.event);
-        }
-    });
-
-
-    // Cargar metodos de pagos
-    function initMethodSelect2(selector, selectedId = null) {
-        const $select = $(selector);
-
-        $select.select2({
-            placeholder: 'Selecciona un metodo',
-            allowClear: true, // Permite limpiar la selección
-            ajax: {
-                url: SITE_URL + 'src/modules/invoices/invoices.repository.php',
-                method: 'POST',
-                dataType: 'json',
-                data: params => ({
-                    action: 'obtener_metodos_de_pago',
-                    q: params.term || ''
-                }),
-                processResults: data => ({
-                    results: data.results.map(m => ({
-                        id: m.id,
-                        text: m.nombre
-                    }))
-                })
-            }
-        });
-
-        // Obtener nombre automáticamente por ID
-        if (selectedId) {
-            sendAjaxRequest({
-                url: 'src/modules/invoices/invoices.repository.php',
-                data: {
-                    action: 'obtener_metodo_por_id',
-                    id: selectedId
-                },
-                successCallback: (method) => {
-                    const data = JSON.parse(method);
-                    if (method) {
-                        const option = new Option(data.text, data.id, true, true);
-                        $select.append(option).trigger('change');
-                    }
+                    default:
+                        console.warn('Evento no manejado:', data.event);
                 }
             });
-        }
-    }
 
-    function formatNumber(value) {
-        if (value === null || value === undefined || value === '') return 0;
-        let num = Number(value);
-        return (num % 1 === 0) ? num.toFixed(0) : num;
-    }
 
-    /**============================================================= 
-     * CARGAR ARTICULOS
-    ===============================================================*/
+            // Cargar metodos de pagos
+            function initMethodSelect2(selector, selectedId = null) {
+                const $select = $(selector);
 
-    let currentPage = 1; // Página actual
-    const pageSize = 15; // Cantidad de articulos por página
+                $select.select2({
+                    placeholder: 'Selecciona un metodo',
+                    allowClear: true, // Permite limpiar la selección
+                    ajax: {
+                        url: SITE_URL + 'src/modules/invoices/invoices.repository.php',
+                        method: 'POST',
+                        dataType: 'json',
+                        data: params => ({
+                            action: 'obtener_metodos_de_pago',
+                            q: params.term || ''
+                        }),
+                        processResults: data => ({
+                            results: data.results.map(m => ({
+                                id: m.id,
+                                text: m.nombre
+                            }))
+                        })
+                    }
+                });
 
-    // Función para cargar articulos
-    function loadItemsPOS(search = '', page = 1) {
-        const start = (page - 1) * pageSize; // Calcular el índice de inicio
+                // Obtener nombre automáticamente por ID
+                if (selectedId) {
+                    sendAjaxRequest({
+                        url: 'src/modules/invoices/invoices.repository.php',
+                        data: {
+                            action: 'obtener_metodo_por_id',
+                            id: selectedId
+                        },
+                        successCallback: (method) => {
+                            const data = JSON.parse(method);
+                            if (method) {
+                                const option = new Option(data.text, data.id, true, true);
+                                $select.append(option).trigger('change');
+                            }
+                        }
+                    });
+                }
+            }
 
-        sendAjaxRequest({
-            url: 'src/modules/products/products.repository.php',
-            data: {
-                action: 'obtener_articulos_pos',
-                draw: currentPage, // Número de solicitud (lo mismo que DataTables)
-                start: start, // Índice del primer registro (inicio)
-                length: pageSize, // Cantidad de articulos por página
-                search: search, // Término de búsqueda
-                orderColumn: 0, // Índice de la columna de ordenación (por ejemplo, 0 = nombre)
-                orderDir: 'asc' // Dirección de ordenación ('asc' o 'desc')
-            },
-            successCallback: (response) => {
-                try {
-                    const data = JSON.parse(response);
+            function formatNumber(value) {
+                if (value === null || value === undefined || value === '') return 0;
+                let num = Number(value);
+                return (num % 1 === 0) ? num.toFixed(0) : num;
+            }
 
-                    // Limpiar el grid antes de agregar los nuevos articulos
-                    const gridContainer = $('#product-grid');
-                    gridContainer.empty();
+            /**============================================================= 
+             * CARGAR ARTICULOS
+            ===============================================================*/
 
-                    // Agregar los articulos a la cuadrícula
-                    data.data.forEach(item => {
+            let currentPage = 1; // Página actual
+            const pageSize = 15; // Cantidad de articulos por página
 
-                        // Construir imagen si existe, de lo contrario mostrar ícono SVG
-                        const productImage = item.imagen && item.imagen !== ""
-                            ? `<img src="${SITE_URL}public/uploads/${item.imagen}" 
+            // Función para cargar articulos
+            function loadItemsPOS(search = '', page = 1) {
+                const start = (page - 1) * pageSize; // Calcular el índice de inicio
+
+                sendAjaxRequest({
+                            url: 'src/modules/products/products.repository.php',
+                            data: {
+                                action: 'obtener_articulos_pos',
+                                draw: currentPage, // Número de solicitud (lo mismo que DataTables)
+                                start: start, // Índice del primer registro (inicio)
+                                length: pageSize, // Cantidad de articulos por página
+                                search: search, // Término de búsqueda
+                                orderColumn: 0, // Índice de la columna de ordenación (por ejemplo, 0 = nombre)
+                                orderDir: 'asc' // Dirección de ordenación ('asc' o 'desc')
+                            },
+                            successCallback: (response) => {
+                                    try {
+                                        const data = JSON.parse(response);
+
+                                        // Limpiar el grid antes de agregar los nuevos articulos
+                                        const gridContainer = $('#product-grid');
+                                        gridContainer.empty();
+
+                                        // Agregar los articulos a la cuadrícula
+                                        data.data.forEach(item => {
+
+                                                    // Construir imagen si existe, de lo contrario mostrar ícono SVG
+                                                    const productImage = item.imagen && item.imagen !== "" ?
+                                                        `<img src="${SITE_URL}public/uploads/${item.imagen}" 
                                 onerror="this.onerror=null; this.src='${SITE_URL}public/imagen/sistem/no-imagen.png';" 
-                                alt="Imagen del item">`
-                            : `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags">
+                                alt="Imagen del item">` :
+                                                        `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags-icon lucide-tags">
                                 <path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" />
                                 <path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" />
                                 <circle cx="10.5" cy="6.5" r=".5" fill="currentColor" />
                             </svg>`;
 
-                        const productCard = `
+                                                    const productCard = `
 
                         <button class="product-card" action="button" data-${item.tipo}="${item.item_id}" data-desc="${item.nombre}">
                         ${item.codigo ? `<div class="item-cod">${item.codigo}</div>` : ''}
