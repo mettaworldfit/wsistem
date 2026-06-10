@@ -188,7 +188,7 @@ $(document).ready(function() {
             opening_date: formattedOpeningDate,
         };
 
-        const response = await fetch('https://ws.wsistems.com/api/reports/abrir_caja', {
+        const response = await fetch(API_URL + 'api/reports/abrir_caja', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -264,7 +264,7 @@ $(document).ready(function() {
             notes: $('#notes').val() || ""
         };
 
-        const response = await fetch('https://ws.wsistems.com/api/reports/cierre_caja', {
+        const response = await fetch(API_URL + 'api/reports/cierre_caja', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

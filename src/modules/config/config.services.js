@@ -141,7 +141,7 @@ $(document).ready(function() {
         const x = (screen.width - width) / 2;
         const y = (screen.height - height) / 2;
 
-        const url = SITE_URL + 'src/tcpdf/preview.php?' + params.toString();
+        const url = SITE_URL + 'src/services/labels/preview.php?' + params.toString();
 
         window.open(url, 'EtiquetaPreview', `left=${x},top=${y},width=${width},height=${height},scrollbars=yes`);
     })

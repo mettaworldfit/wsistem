@@ -294,7 +294,7 @@ $(document).ready(function () {
         const priceOut = $(this).find('#price_out').val();
         const cost = $(this).find('#cost').val() || 0;
 
-        const response = await fetch('https://ws.wsistems.com/api/pos/agregar_detalle', {
+        const response = await fetch(API_URL + 'api/pos/agregar_detalle', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -348,7 +348,7 @@ $(document).ready(function () {
 
     async function deleteItemPOS(detailId) {
 
-        const response = await fetch('https://ws.wsistems.com/api/pos/eliminar_detalle', {
+        const response = await fetch(API_URL + 'api/pos/eliminar_detalle', {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
@@ -380,7 +380,7 @@ $(document).ready(function () {
 
     async function updateToListPrice(listId, productId = 0) {
 
-        const response = await fetch('https://ws.wsistems.com/api/pos/actualizar_precio', {
+        const response = await fetch(API_URL + 'api/pos/actualizar_precio', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -467,7 +467,7 @@ $(document).ready(function () {
         }
 
 
-        const response = await fetch('https://ws.wsistems.com/api/pos/actualizar_cantidad', {
+        const response = await fetch(API_URL + 'api/pos/actualizar_cantidad', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -669,7 +669,7 @@ $(document).ready(function () {
         alertify.confirm("<i class='text-warning fas fa-exclamation-circle'></i> Borrar todo el detalle", "¿Desea borrar todo el detalle? ",
             async function () {
 
-                const response = await fetch('https://ws.wsistems.com/api/pos/eliminar_todo', {
+                const response = await fetch(API_URL + 'api/pos/eliminar_todo', {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'
@@ -722,7 +722,7 @@ $(document).ready(function () {
 
         };
 
-        const response = await fetch('https://ws.wsistems.com/api/pos/editar_detalle', {
+        const response = await fetch(API_URL + 'api/pos/editar_detalle', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -991,7 +991,7 @@ $(document).ready(function () {
             delivery: $('#pos_delivery').val()
         }
 
-        const response = await fetch('https://ws.wsistems.com/api/pos/agregar_orden', {
+        const response = await fetch(API_URL + 'api/pos/agregar_orden', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -1106,7 +1106,7 @@ $(document).ready(function () {
         let formData = new FormData(this)
         formData.append("order_id", $('#order_id').val() || 0)
 
-        const response = await fetch('https://ws.wsistems.com/api/pos/actualizar_orden', {
+        const response = await fetch(API_URL + 'api/pos/actualizar_orden', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -1254,7 +1254,7 @@ $(document).ready(function () {
         // Si los datos son válidos, limpiar el borde (si es necesario)
         $('.v_customer, .v_method').css('border', '');
 
-        const response = await fetch('https://ws.wsistems.com/api/pos/factura_contado', {
+        const response = await fetch(API_URL + 'api/pos/factura_contado', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -1316,7 +1316,7 @@ $(document).ready(function () {
             date: $('#modal-date').val()
         };
 
-        const response = await fetch('https://ws.wsistems.com/api/pos/factura_credito', {
+        const response = await fetch(API_URL + 'api/pos/factura_credito', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

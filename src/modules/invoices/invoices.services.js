@@ -201,7 +201,7 @@ $(document).ready(function() {
 
 
             // 1. CREAR FACTURA A CRÉDITO
-            const response = await fetch('https://ws.wsistems.com/api/invoices/factura_credito', {
+            const response = await fetch(API_URL + 'api/invoices/factura_credito', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -318,7 +318,7 @@ $(document).ready(function() {
             return;
         }
 
-        const response = await fetch('https://ws.wsistems.com/api/invoices/factura_contado', {
+        const response = await fetch(API_URL + 'api/invoices/factura_contado', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

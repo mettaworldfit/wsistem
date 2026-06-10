@@ -10,6 +10,11 @@ if (window.location.hostname === 'localhost') {
 
 const SITE_URL = window.location.protocol + '//' + window.location.host + basePath;
 
+// URL de la API
+const API_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:3001/'
+    : 'https://ws.wsistems.com/';
+
 let pageURL = $(location).attr("pathname");
 const format = new Intl.NumberFormat('en'); // Formato 0,000
 
