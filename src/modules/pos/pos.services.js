@@ -298,38 +298,30 @@ $(document).ready(function () {
             price_list: $('#list_price').val()
         };
 
-        fetch(API_URL + 'api/pos/agregar_detalle', {
+        const response = await fetch(API_URL + 'api/pos/agregar_detalle', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ test: 1 })
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify(data)
         })
-            .then(r => r.text())
-            .then(console.log)
-            .catch(console.error);
-        // const response = await fetch(API_URL + 'api/pos/agregar_detalle', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     credentials: 'include',
-        //     body: JSON.stringify(data)
-        // })
 
-        // try {
-        //     const result = await response.json();
+        try {
+            const result = await response.json();
 
-        //     if (!response.ok) {
-        //         throw new Error(result.mensaje || 'Error en la solicitud');
-        //     }
+            if (!response.ok) {
+                throw new Error(result.mensaje || 'Error en la solicitud');
+            }
 
-        //     if (!wsConnected) {
-        //         // Fallback: WS no activo
-        //         loadDetailPOS();
-        //     }
-        // } catch (error) {
-        //     console.error(error);
-        //     notifyAlert(error.message, 'error');
-        // }
+            if (!wsConnected) {
+                // Fallback: WS no activo
+                loadDetailPOS();
+            }
+        } catch (error) {
+            console.error(error);
+            notifyAlert(error.message, 'error');
+        }
     });
 
     // eliminar producto
