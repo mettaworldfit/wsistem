@@ -286,13 +286,17 @@ $(document).ready(function () {
     // Agregar detalle
     $('#product-grid').on('click', '.product-card', async function () {
 
-        const order_id = $('#order_id').val() || 0;
-        const price_list = $('#list_price').val();
-        const productId = $(this).data('producto') || 0;
-        const serviceId = $(this).data('servicio') || 0;
-        const productName = $(this).data('desc');
-        const priceOut = $(this).find('#price_out').val();
-        const cost = $(this).find('#cost').val() || 0;
+        const data = {
+            product_id: $(this).data('producto') || 0,
+            piece_id: 0,
+            service_id: $(this).data('servicio') || 0,
+            description: $(this).data('desc'),
+            quantity: 1,
+            price: $(this).find('#price_out').val(),
+            cost: $(this).find('#cost').val() || 0,
+            order_id: $('#order_id').val() || 0,
+            price_list: $('#list_price').val()
+        };
 
         const response = await fetch(API_URL + 'api/pos/agregar_detalle', {
             method: 'POST',
@@ -300,16 +304,7 @@ $(document).ready(function () {
                 'Content-Type': 'application/json',
             },
             credentials: 'include',
-            body: JSON.stringify({
-                product_id: productId,
-                piece_id: 0,
-                service_id: serviceId,
-                description: productName,
-                quantity: 1,
-                price: priceOut,
-                cost: cost,
-                order_id: order_id
-            })
+            body: JSON.stringify(data)
         })
 
         try {
