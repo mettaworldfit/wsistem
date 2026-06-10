@@ -19,8 +19,12 @@ const port = process.env.PORT || 3002;
 | ------------------------------------------------------
 */
 
+// app.use(cors({
+//     origin: true,
+//     credentials: true
+// }));
 app.use(cors({
-    origin: true,
+    origin: 'https://test.wsistems.com',
     credentials: true
 }));
 app.use(express.json());
