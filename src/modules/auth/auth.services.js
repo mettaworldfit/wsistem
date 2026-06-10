@@ -25,6 +25,9 @@ $(document).ready(function () {
                     const data = await response.json();
                     console.log(data)
 
+                    // Guardar token en el localstorage
+                    localStorage.setItem('access_token',data.token)
+
                     // Guardar fecha de la última petición
                     localStorage.setItem('api_last_connection', Date.now());
 

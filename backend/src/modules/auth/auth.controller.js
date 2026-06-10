@@ -51,7 +51,7 @@ export const authenticate = async (req, res) => {
         res.cookie('access_token', token, {
             httpOnly: true,
             secure: process.env.PRODUCTION,
-            sameSite: 'lax',
+            sameSite: 'none', // lax, strict
             maxAge: 1000 * 60 * 60 // 1 hora
         });
 
