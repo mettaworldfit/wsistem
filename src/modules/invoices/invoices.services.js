@@ -1,8 +1,5 @@
-// import * as qz from "./src/services/printing/qz/connection.js";
-// import * as printer from "./src/services/printing/templates/invoice.js";
-
-// import * as qz from "/public/printing/qz/connection.js?v=1.0";
-// import * as printer from "/public/printing/templates/invoice.js?v=1.0";
+import * as qz from "../../../public/printing/qz/connection.js?v=1.1";
+import * as printer from "../../../public/printing/templates/invoice.js?v=1.1"
 import { calculateTotalInvoice, cashBack } from "../../functions/functions.js";
 
 $(document).ready(function () { 

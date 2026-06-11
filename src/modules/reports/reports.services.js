@@ -1,5 +1,5 @@
-// import * as qz from '../../services/printing/qz/connection.js';
-// import * as printer from "../../services/printing/templates/cash_closing.js";
+import * as qz from "../../../public/printing/qz/connection.js?v=1.1";
+import * as printer from "../../../public/printing/templates/cash_closing.js?v=1.1"
 import { initWebSocket, subscribe, isWebSocketConnected } from "../../functions/websocket.js";
 
 $(document).ready(function() {
