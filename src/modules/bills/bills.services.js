@@ -1,5 +1,5 @@
-import * as qz from "../../services/printing/qz/connection.js";
-import * as printer from "../../services/printing/templates/bill.js";
+// import * as qz from "../../services/printing/qz/connection.js";
+// import * as printer from "../../services/printing/templates/bill.js";
 
 $(document).ready(function () {
 
