@@ -705,7 +705,7 @@ $(document).ready(function () {
     },
     {
         id: '#workshop',
-        url: 'services/workshop.php',
+        url: 'src/modules/workshop/workshop.repository.php',
         action: 'index_taller',
         columns: [
             'orden', 'nombre', 'equipo', 'fecha_entrada', 'fecha_salida', 'condicion', 'estado', 'acciones'
@@ -809,7 +809,7 @@ $(document).ready(function () {
     },
     {
         id: '#pieces',
-        url: 'services/pieces.php',
+        url: 'src/modules/pieces/pieces.repository.php',
         action: 'index_piezas',
         columns: [
             'id', 'nombre', 'categoria', 'cantidad', 'precio_costo', 'precio_unitario', 'acciones'
@@ -826,7 +826,7 @@ $(document).ready(function () {
     },
     {
         id: '#services',
-        url: 'services/services.php',
+        url: 'src/modules/services/services.repository.php',
         action: 'index_servicios',
         columns: [
             'servicio_id', 'nombre_servicio', 'costo', 'precio', 'acciones'
@@ -843,7 +843,7 @@ $(document).ready(function () {
     },
     {
         id: '#brands',
-        url: 'services/workshop.php',
+        url: 'src/modules/workshop/workshop.repository.php',
         action: 'index_marcas',
         columns: [
             'nombre_marca', 'fecha', 'acciones'
@@ -859,7 +859,7 @@ $(document).ready(function () {
     },
     {
         id: '#warehouses',
-        url: 'services/warehouses.php',
+        url: 'src/modules/warehouses/warehouses.repository.php',
         action: 'index_almacen',
         columns: [
             'id', 'nombre_almacen', 'descripcion', 'fecha', 'acciones'
@@ -867,7 +867,7 @@ $(document).ready(function () {
     },
     {
         id: '#categories',
-        url: 'services/categories.php',
+        url: 'src/modules/categories/categories.repository.php',
         action: 'index_categorias',
         columns: [
             'id', 'nombre_categoria', 'descripcion', 'fecha', 'acciones'
@@ -1165,10 +1165,10 @@ $(document).ready(function () {
                 },
                 (decodedText) => {
 
-                    // 🔒 Evitar doble lectura
+                    // Evitar doble lectura
                     if (!scanning) return;
 
-                    // 📥 Insertar código
+                    // Insertar código
                     if (pageURL.includes("products/add") || pageURL.includes("products/edit")) {
                         $('#product_code').val(decodedText).trigger('change');
                     } else if (pageURL.includes("invoices/pos")) {
@@ -1177,7 +1177,7 @@ $(document).ready(function () {
                         $('#keyword').val(decodedText).trigger('change');
                     }
 
-                    // 📳 Vibración (móvil)
+                    // Vibración (móvil)
                     navigator.vibrate?.(100);
 
                     stopScanner();
@@ -1205,7 +1205,7 @@ $(document).ready(function () {
         });
     }
 
-    // ❌ BOTÓN SALIR
+    // BOTÓN SALIR
     $('#closeScanner').on('click', function () {
         stopScanner();
     });

@@ -11,6 +11,8 @@ $(document).ready(function() {
 
     // Escuchar eventos del WebSocket
     subscribe((data) => {
+        console.log('%c[WS LOG]', 'color:#007bff;font-weight:bold;', data);
+        
         switch (data.event) {
     
             default:
