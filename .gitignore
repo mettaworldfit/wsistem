@@ -1,3 +1,3 @@
 /public/uploads/
-/src/services/printing/private-key.pem
-/src/services/printing/local-certificate.txt
+/public/printing/local-key.pem
+/public/printing/local-certificate.txt
