@@ -1,3 +1,5 @@
+import { getData } from "../utils/data.js";
+
 // Selectores
 export function getSelectedPrinter() {
     return $('#impresoraSelect').val();
