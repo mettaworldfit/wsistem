@@ -309,6 +309,7 @@ $(document).ready(function () {
 
         try {
             const result = await response.json();
+            console.log(result)
 
             if (!response.ok) {
                 throw new Error(result.mensaje || 'Error en la solicitud');
