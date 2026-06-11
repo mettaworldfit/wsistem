@@ -1,8 +1,26 @@
 import * as qz from "../../services/printing/qz/connection.js";
 import * as printer from "../../services/printing/templates/invoice.js";
-import { calculateTotalInvoice, cashBack } from "../../functions/functions.js";
+import { calculateTotalInvoice, cashBack, getUpdatedTotal } from "../../functions/functions.js";
+import { initWebSocket, subscribe, isWebSocketConnected } from "../../functions/websocket.js";
+
 
 $(document).ready(function() {
+
+    let wsConnection = initWebSocket();
+    let wsConnected = isWebSocketConnected();
+
+    // Escuchar eventos del WebSocket
+    subscribe((data) => {
+
+        switch (data.event) {
+            case 'new.invoice':
+                getUpdatedTotal
+                break;
+
+            default:
+                console.warn('Evento no manejado:', data.event);
+        }
+    });
 
     // Ocultar botones por defecto (cotización, editar última factura, tipos de facturación)
     $('#SaveQuote, #last_invoice_edit, #credit-in-finish, #credit-in-finish-receipt, #cash-in-finish-receipt, #cash-in-finish').hide();

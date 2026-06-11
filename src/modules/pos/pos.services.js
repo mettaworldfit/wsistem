@@ -1,10 +1,3 @@
-
-// import * as qz from "/src/services/printing/qz/connection.js";
-// import { invoice } from "/src/services/printing/templates/invoice.js";
-// import { order_invoice } from "/src/services/printing/templates/order_invoice.js";
-// import { calculateTotalInvoice, cashBack } from "../../functions/functions.js";
-// import { initWebSocket, subscribe, isWebSocketConnected } from "../../functions/websocket.js";
-
 import * as qz from "../../services/printing/qz/connection.js";
 import { invoice } from "../../services/printing/templates/invoice.js";
 import { order_invoice } from "../../services/printing/templates/order_invoice.js";
