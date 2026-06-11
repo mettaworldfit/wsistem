@@ -65,10 +65,6 @@ $globalScripts = [
     [
         'src'  => base_url . 'src/modules/workshop/workshop.services.js',
         'type' => 'text/javascript'
-    ],
-     [
-        'src'  => base_url . 'public/qz/connection.js',
-        'type' => 'text/javascript'
     ]
 ];
 
