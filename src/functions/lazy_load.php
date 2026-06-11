@@ -67,7 +67,7 @@ $globalScripts = [
         'type' => 'text/javascript'
     ],
      [
-        'src'  => base_url . 'src/services/printing/qz/connection.js',
+        'src'  => base_url . 'public/qz/connection.js',
         'type' => 'text/javascript'
     ]
 ];
