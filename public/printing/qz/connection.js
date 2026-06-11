@@ -1,114 +1,96 @@
-/* ===== QZ-TRAY VERBOSE MODE ===== */
-const QZ_VERBOSE = true;
+/* ===== DIAGNOSTICO ===== */
 
-function qzLog(...args) {
-    if (!QZ_VERBOSE) return;
-    console.log('%c[QZ]', 'color:#1976d2;font-weight:bold;', ...args);
+console.log('QZ version:', qz.api?.getVersion ? qz.api.getVersion() : 'N/A');
+console.log('WebSocket activo:', qz.websocket.isActive());
+
+if (window.__QZ_CONNECTING__) {
+    console.warn('⚠️ Ya existe un intento de conexión en progreso');
+} else {
+    window.__QZ_CONNECTING__ = true;
 }
-
-function qzWarn(...args) {
-    if (!QZ_VERBOSE) return;
-    console.warn('%c[QZ]', 'color:#f9a825;font-weight:bold;', ...args);
-}
-
-function qzError(...args) {
-    if (!QZ_VERBOSE) return;
-    console.error('%c[QZ]', 'color:#d32f2f;font-weight:bold;', ...args);
-}
-
-/* ===== SEGURIDAD QZ-TRAY | CERTIFICADO ===== */
-
-console.log('Connection ready')
-
-qz.security.setCertificatePromise(function (resolve, reject) {
-
-    qzLog('Solicitando certificado…');
-
-    fetch(SITE_URL + "public/printing/get-cert.php", {
-        cache: 'no-store'
-    })
-        .then(res => {
-            qzLog('HTTP status certificado:', res.status);
-            if (!res.ok) throw new Error('Cert not loaded');
-            return res.text();
-        })
-        .then(cert => {
-
-            qzLog('Certificado recibido');
-            qzLog('Longitud:', cert.length);
-            qzLog('BEGIN:', cert.slice(0, 40));
-            qzLog('END:', cert.slice(-40));
-
-            // Validación dura
-            if (
-                !cert.includes('-----BEGIN CERTIFICATE-----') ||
-                !cert.includes('-----END CERTIFICATE-----')
-            ) {
-                throw new Error('Contenido NO es un certificado X509');
-            }
-
-            qzLog('Certificado X509 válido ✔');
-            resolve(cert);
-        })
-        .catch(err => {
-            qzError('❌ Error certificado:', err);
-            reject(err);
-        });
-});
-
-/* ===== SEGURIDAD QZ-TRAY | FIRMA ===== */
-
-qz.security.setSignatureAlgorithm('SHA512');
-qz.security.setSignaturePromise(function (toSign) {
-
-    return function (resolve, reject) {
-
-        qzLog('Solicitud de firma enviada');
-        qzLog('Payload:', toSign);
-
-        fetch(SITE_URL + 'public/printing/sign.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ request: toSign })
-        })
-            .then(res => {
-                qzLog('HTTP status firma:', res.status);
-                if (!res.ok) throw new Error('Firma no generada');
-                return res.text();
-            })
-            .then(signature => {
-
-                qzLog('Firma recibida');
-                qzLog('Longitud firma:', signature.length);
-
-                resolve(signature.trim());
-            })
-            .catch(err => {
-                qzError('❌ Error firma:', err);
-                reject(err);
-            });
-    };
-});
 
 /* ===== CONEXION ===== */
-qz.websocket.connect()
-    .then(() => qz.printers.find())
-    .then(printers => {
 
-        const $select = $('#impresoraSelect');
-        $select.empty().append('<option value=""></option>');
+if (!qz.websocket.isActive()) {
 
-        printers.forEach(printer => {
-            $select.append(
-                $('<option>', { value: printer, text: printer })
-            );
+    console.log('🔌 Iniciando conexión QZ...');
+
+    qz.websocket.connect()
+        .then(() => {
+
+            console.log('✅ QZ conectado');
+            console.log('WebSocket activo:', qz.websocket.isActive());
+
+            return qz.printers.find();
+        })
+        .then(printers => {
+
+            console.log('🖨 Impresoras encontradas:', printers);
+
+            const $select = $('#impresoraSelect');
+            $select.empty().append('<option value=""></option>');
+
+            printers.forEach(printer => {
+                $select.append(
+                    $('<option>', {
+                        value: printer,
+                        text: printer
+                    })
+                );
+            });
+
+            const defaultPrinter = 'POS-80';
+
+            if (printers.includes(defaultPrinter)) {
+                console.log('✅ Impresora por defecto encontrada:', defaultPrinter);
+                $select.val(defaultPrinter).trigger('change');
+            } else {
+                console.warn('⚠️ POS-80 no encontrada');
+            }
+
+            /* ===== PRUEBA DE IMPRESION ===== */
+
+            if (printers.length > 0) {
+
+                const config = qz.configs.create(printers[0]);
+
+                const data = [{
+                    type: 'raw',
+                    format: 'plain',
+                    data:
+                        '\x1B\x40' +
+                        '\n' +
+                        '*** TEST QZ TRAY ***\n' +
+                        'Conexion OK\n' +
+                        'Firma OK\n' +
+                        'Certificado OK\n' +
+                        new Date().toLocaleString() +
+                        '\n\n\n\n' +
+                        '\x1D\x56\x41'
+                }];
+
+                console.log('🧪 Enviando prueba a:', printers[0]);
+
+                return qz.print(config, data)
+                    .then(() => {
+                        console.log('✅ Prueba enviada correctamente');
+                    });
+            }
+        })
+        .catch(err => {
+            console.error('❌ QZ Tray error:', err);
+        })
+        .finally(() => {
+            window.__QZ_CONNECTING__ = false;
         });
 
-        const defaultPrinter = 'POS-80';
-        if (printers.includes(defaultPrinter)) {
-            $select.val(defaultPrinter).trigger('change');
-        }
-    })
-    .catch(err => {
-        console.error('QZ Tray error:', err);
-    });
+} else {
+
+    console.log('✅ QZ ya estaba conectado');
+
+    qz.printers.find()
+        .then(printers => {
+            console.log('🖨 Impresoras:', printers);
+        });
+
+}
