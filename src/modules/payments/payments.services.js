@@ -95,7 +95,7 @@ $(document).ready(function () {
             invoiceRP_id = 0;
         }
 
-        const response = await fetch('http://localhost:3001/api/payments/agregar_pago', {
+        const response = await fetch(API_URL + 'api/payments/agregar_pago', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -180,7 +180,7 @@ $(document).ready(function () {
         alertify.confirm("Eliminar pago", "¿Estas seguro que deseas eliminar este pago? ",
             async function () {
 
-                const response = await fetch('http://localhost:3001/api/payments/eliminar_pago', {
+                const response = await fetch(API_URL + 'api/payments/eliminar_pago', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

@@ -1,6 +1,3 @@
-// import * as qz from "/src/services/printing/qz/connection.js?v=1.1";
-// import * as printer from "/src/services/printing/templates/cash_closing.js?v=1.1";
-
 import * as qz from '../../services/printing/qz/connection.js';
 import * as printer from "../../services/printing/templates/cash_closing.js";
 import { initWebSocket, subscribe, isWebSocketConnected } from "../../functions/websocket.js";
@@ -352,7 +349,7 @@ $(document).ready(function() {
         var x = parseInt((window.screen.width / 2) - (width / 2));
         var y = parseInt((window.screen.height / 2) - (height / 2));
 
-        var url = SITE_URL + 'src/pdf/cierre_caja.php?id=' + cierre_id;
+        var url = SITE_URL + 'src/services/pdf/cierre_caja.php?id=' + cierre_id;
         window.open(url, 'ciere_caja', 'left=' + x + ',top=' + y + ',height=' + height + ',width=' + width + ',scrollball=yes,location=no')
     })
 
@@ -522,7 +519,7 @@ $(document).ready(function() {
             return;
         }
 
-        const url = new URL(SITE_URL + 'src/excel/consultar_ventas.php');
+        const url = new URL(SITE_URL + 'src/services/excel/consultar_ventas.php');
         url.searchParams.set('start', data.start);
         url.searchParams.set('end', data.end);
         url.searchParams.set('user_id', data.user_id);
@@ -800,7 +797,7 @@ $(document).ready(function() {
             includeZeroCostServicios: $('#zeroCostServicios').is(':checked') ? 1 : 0
         }
 
-        const url = new URL(SITE_URL + 'src/excel/ernings-per-period.php');
+        const url = new URL(SITE_URL + 'src/services/excel/ernings-per-period.php');
         url.searchParams.set('year', data.year);
         url.searchParams.set('month', data.month);
         url.searchParams.set('includeZeroCostProductos', data.includeZeroCostProductos);
@@ -814,7 +811,7 @@ $(document).ready(function() {
     $('#date_query').change((e) => {
         e.preventDefault()
 
-        const url = new URL(SITE_URL + 'src/excel/reporte-fecha.php');
+        const url = new URL(SITE_URL + 'src/services/excel/reporte-fecha.php');
         url.searchParams.set('date', $('#date_query').val());
 
         window.location.href = url.toString();
