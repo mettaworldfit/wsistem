@@ -1,7 +1,7 @@
 // import * as qz from "./src/services/printing/qz/connection.js";
 // import * as printer from "./src/services/printing/templates/invoice.js";
 
-import * as qz from "/public/printing/qz/connection.js";
+
 import * as printer from "/public/printing/templates/invoice.js";
 import { calculateTotalInvoice, cashBack } from "../../functions/functions.js";
 
