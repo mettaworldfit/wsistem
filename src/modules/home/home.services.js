@@ -1,25 +1,4 @@
-import { initWebSocket, subscribe, isWebSocketConnected } from "../../functions/websocket.js";
-import { getUpdatedTotal } from "../../functions/functions.js";
-
 $(document).ready(function () {
-
-    let wsConnection = initWebSocket();
-    let wsConnected = isWebSocketConnected();
-
-    // Escuchar eventos del WebSocket
-    subscribe((data) => {
-
-        console.log('%c[WS LOG]', 'color:#007bff;font-weight:bold;', data);
-
-        switch (data.event) {
-            case "new.invoice":
-                getUpdatedTotal();
-                break;
-            default:
-                console.warn('Evento no manejado:', data.type);
-        }
-    });
-
 
     // Abreviar cifras
     function abbreviateNumber(num) {
