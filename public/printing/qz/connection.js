@@ -67,6 +67,7 @@ qz.security.setSignaturePromise(toSign => {
             })
             .then(signature => {
                 qzLog('Firma OK');
+                qzLog(signature)
                 resolve(signature.trim());
             })
             .catch(err => {
