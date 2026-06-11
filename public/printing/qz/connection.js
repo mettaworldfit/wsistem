@@ -18,11 +18,13 @@ function qzError(...args) {
 
 /* ===== SEGURIDAD QZ-TRAY | CERTIFICADO ===== */
 
+console.log('Connection ready')
+
 qz.security.setCertificatePromise(function (resolve, reject) {
 
     qzLog('Solicitando certificado…');
 
-    fetch(SITE_URL + "src/services/printing/get-cert.php", {
+    fetch(SITE_URL + "public/printing/get-cert.php", {
         cache: 'no-store'
     })
         .then(res => {
@@ -64,7 +66,7 @@ qz.security.setSignaturePromise(function (toSign) {
         qzLog('Solicitud de firma enviada');
         qzLog('Payload:', toSign);
 
-        fetch(SITE_URL + 'src/services/printing/sign.php', {
+        fetch(SITE_URL + 'public/printing/sign.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ request: toSign })
