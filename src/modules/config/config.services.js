@@ -1,7 +1,4 @@
-
-
-import * as qz from "../../../public/qz/connection.js";
-//import * as qz from "../../services/printing/qz/connection.js";
+import * as qz from "../../services/printing/qz/connection.js";
 import * as printer from "../../services/printing/qz/diagnostic.js"
 
 $(document).ready(function() {
