@@ -1,4 +1,54 @@
+import { initWebSocket, subscribe, isWebSocketConnected } from "../../functions/websocket.js";
+
 $(document).ready(function () {
+
+    let wsConnection = initWebSocket();
+    let wsConnected = isWebSocketConnected();
+
+    // Escuchar eventos del WebSocket
+    subscribe((data) => {
+
+        console.log('%c[WS LOG]', 'color:#007bff;font-weight:bold;', data);
+
+        switch (data.event) {
+            case "new.invoice":
+                getUpdatedTotal();
+                break;
+            default:
+                console.warn('Evento no manejado:', data.type);
+        }
+    });
+
+/**
+ * Obtiene el valor más reciente del total de ventas mediante una solicitud AJAX y actualiza el DOM.
+ * 
+ * Esta función realiza una solicitud AJAX al servidor para obtener el valor actualizado del total de ventas.
+ * Una vez que se recibe la respuesta, se actualiza el contenido del elemento `#total-purchase` con el 
+ * nuevo total y también se actualiza el atributo `data-title` con el valor formateado a dos decimales.
+ * 
+ * @function getUpdatedTotal
+ * @returns {void} 
+ */
+function getUpdatedTotal() {
+    sendAjaxRequest({
+        url: "src/modules/home/home.repository.php",
+        data: {
+            action: "total_vendido"
+        },
+        successCallback: (res) => {
+            const data = JSON.parse(res)[0];
+    
+            // Actualizamos el contenido del span con el nuevo valor del total de ventas
+            $('#total-purchase').html(`$${format.format(data.total)}`);
+    
+            // Actualizamos el atributo 'data-title' con el valor total, formateado a 2 decimales
+            $('#total-purchase').attr('data-title', parseFloat(data.total).toFixed(2));
+        }, errorCallback: (err) => {
+            console.error(err)
+        }
+    })
+    }
+
 
     // Abreviar cifras
     function abbreviateNumber(num) {
