@@ -35,7 +35,7 @@ $isLocal =
 */
 $KEY = $isLocal
     ? __DIR__ . '/local-key.pem'
-    : __DIR__ . '/private-key.pem';
+    : '/var/www/qz/private-key.pem';
 
 if (!file_exists($KEY)) {
     http_response_code(500);
