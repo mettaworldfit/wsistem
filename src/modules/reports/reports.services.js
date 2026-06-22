@@ -811,7 +811,7 @@ $(document).ready(function() {
     $('#date_query').change((e) => {
         e.preventDefault()
 
-        const url = new URL(SITE_URL + 'src/services/excel/reporte-fecha.php');
+        const url = new URL(SITE_URL + 'src/services/excel/date_report.php');
         url.searchParams.set('date', $('#date_query').val());
 
         window.location.href = url.toString();

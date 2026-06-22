@@ -5,7 +5,7 @@
         </div>
 
         <div class="float-right ml-2">
-            <a class="btn-custom btn-green" href="<?= base_url ?>src/services/excel/reporte-diario.php">
+            <a class="btn-custom btn-green" href="<?= base_url ?>src/services/excel/daily_report.php">
                 <i class="fas fa-file-excel"></i>
                 <p>Reporte</p>
             </a>

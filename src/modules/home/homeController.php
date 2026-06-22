@@ -28,7 +28,7 @@ class HomeController
         // Verificar si el rol del usuario tiene permiso para la acción solicitada
         if (!in_array($_SESSION['identity']->nombre_rol, $roles)) {
             // Si no tiene permiso, redirigir a la página de acceso denegado
-             require_once __DIR__ . '../home/layout/denied.php';
+            require_once __DIR__ . '../home/layout/denied.php';
             exit();
         }
     }
@@ -73,7 +73,7 @@ class HomeController
         $cashOpening = Help::getCashOpening(); // Obtener datos de la caja abierta
 
         // Dashboard
-     //   $totalPurchase = Help::getPurchaseToday(); // Total vendido hoy
+        //   $totalPurchase = Help::getPurchaseToday(); // Total vendido hoy
         $totalExpenses = Help::getExpensesToday(); // Total gastado hoy
         $products = Help::getTotalProducts();
         $pieces = Help::getTotalPieces();

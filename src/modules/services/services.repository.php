@@ -142,7 +142,7 @@ switch ($action) {
       // Definir la ruta donde se guardará la imagen 
       if ($_SERVER['SERVER_NAME'] === 'localhost') {
         // Si estamos en localhost, usar la ruta relativa
-        $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/" . basename(dirname(__DIR__)) . "/public/uploads/" . $dir_name;
+         $target_dir =  dirname(__DIR__,3) . "/public/uploads/" . $dir_name;
       } else {
         // Si no estamos en localhost, usar la ruta pública estándar para producción
         $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/public/uploads/" . $dir_name;
